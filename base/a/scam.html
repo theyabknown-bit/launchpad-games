@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScamSavvy</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0f1a;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      color: #d0e8f0;
+    }
+    .container {
+      max-width: 750px;
+      width: 100%;
+      background: rgba(18,28,40,0.95);
+      border-radius: 2rem;
+      padding: 2rem;
+      border: 1px solid rgba(100,200,255,0.08);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(100,200,255,0.08);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .header h1 {
+      font-size: 1.8rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header h1 .logo {
+      background: linear-gradient(135deg, #ff6b35, #ff4444);
+      padding: 0.2rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.7rem;
+      color: white;
+      font-weight: 700;
+      border: 2px solid #ff6b35;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .header h1 i { color: #ff6b35; }
+    .header-right {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .back-btn, .settings-toggle {
+      background: #1a3045;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      text-decoration: none;
+      color: #b0d4f0;
+      border: 1px solid #2a5a7a;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .back-btn:hover, .settings-toggle:hover { background: #2a4a6a; }
+    .save-status {
+      font-size: 0.7rem;
+      color: #4a6a8a;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .save-status i { color: #7cf5b0; }
+
+    .settings-panel {
+      display: none;
+      background: rgba(18,28,40,0.98);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(100,200,255,0.12);
+      margin-bottom: 1rem;
+    }
+    .settings-panel.open { display: block; }
+    .settings-panel h3 {
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .settings-panel .close-settings {
+      background: none;
+      border: none;
+      color: #6a8aaa;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+    .settings-panel .close-settings:hover { color: white; }
+    .settings-panel .setting-group { margin-bottom: 0.8rem; }
+    .settings-panel label {
+      display: block;
+      color: #b0d4f0;
+      font-weight: 500;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+    .settings-panel select {
+      width: 100%;
+      padding: 0.4rem;
+      border-radius: 0.6rem;
+      border: 2px solid #2a4a5a;
+      background: #0a1a2a;
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .settings-panel select:focus { border-color: #ff6b35; }
+    .settings-panel .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.2rem 0;
+    }
+    .settings-panel .toggle-switch {
+      width: 40px;
+      height: 22px;
+      background: #2a4a5a;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: 0.3s;
+      position: relative;
+    }
+    .settings-panel .toggle-switch.active { background: #ff6b35; }
+    .settings-panel .toggle-switch .slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    .settings-panel .toggle-switch.active .slider { left: 20px; }
+    .settings-panel .apply-settings {
+      background: #ff6b35;
+      color: white;
+      border: none;
+      padding: 0.5rem 2rem;
+      border-radius: 60px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+    .settings-panel .apply-settings:hover { background: #e85a2a; }
+
+    .quiz-area {
+      background: rgba(10,20,30,0.6);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(100,200,255,0.06);
+    }
+    .question {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #f0f8ff;
+      margin-bottom: 1.2rem;
+    }
+    .options { display: flex; flex-direction: column; gap: 0.6rem; }
+    .option-btn {
+      background: rgba(20,40,60,0.4);
+      border: 2px solid #2a4a5a;
+      padding: 0.8rem 1.2rem;
+      border-radius: 0.8rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #d0e8f0;
+      transition: 0.15s;
+    }
+    .option-btn:hover:not(.disabled) {
+      background: rgba(20,40,60,0.6);
+      border-color: #ff6b35;
+    }
+    .option-btn.correct { border-color: #7cf5b0; background: rgba(26,74,58,0.4); color: #7cf5b0; }
+    .option-btn.wrong { border-color: #ff7a7a; background: rgba(74,26,26,0.4); color: #ff7a7a; }
+    .option-btn.disabled { cursor: default; opacity: 0.7; }
+    .option-btn .letter {
+      background: #1a3045;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #b0d4f0;
+      flex-shrink: 0;
+    }
+    .option-btn.correct .letter { background: #1b8a4a; color: white; }
+    .option-btn.wrong .letter { background: #c44536; color: white; }
+
+    .feedback {
+      padding: 0.8rem 1.2rem;
+      border-radius: 0.8rem;
+      margin-top: 0.8rem;
+      display: none;
+      font-weight: 500;
+    }
+    .feedback.show { display: block; }
+    .feedback.correct { background: rgba(26,74,58,0.4); color: #7cf5b0; border-left: 4px solid #7cf5b0; }
+    .feedback.wrong { background: rgba(74,26,26,0.4); color: #ff7a7a; border-left: 4px solid #ff7a7a; }
+    .feedback i { margin-right: 8px; }
+    .feedback .tip {
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.8rem;
+      background: rgba(0,0,0,0.3);
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      border-left: 3px solid #ff6b35;
+    }
+
+    .score-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .score { font-weight: 600; color: #b0d4f0; font-size: 1rem; }
+    .next-btn {
+      background: #ff6b35;
+      color: white;
+      border: none;
+      padding: 0.5rem 1.8rem;
+      border-radius: 60px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      font-size: 0.95rem;
+    }
+    .next-btn:hover { background: #e85a2a; }
+    .next-btn.show { display: inline-block; }
+    .reset-btn {
+      background: #1a3045;
+      border: 1px solid #2a5a7a;
+      padding: 0.5rem 1.5rem;
+      border-radius: 60px;
+      font-weight: 600;
+      color: #b0d4f0;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .reset-btn:hover { background: #2a4a6a; }
+    .progress { color: #6a8aaa; font-size: 0.85rem; }
+
+    .result-box {
+      text-align: center;
+      padding: 1.5rem;
+      display: none;
+    }
+    .result-box.show { display: block; }
+    .result-box h2 { font-size: 2rem; color: white; }
+    .result-box .big-icon { font-size: 3.5rem; margin: 0.5rem 0; }
+
+    @media (max-width: 600px) {
+      .container { padding: 1rem; }
+      .quiz-area { padding: 1rem; }
+      .question { font-size: 1rem; }
+      .header h1 { font-size: 1.3rem; }
+      .header h1 .logo { font-size: 0.6rem; padding: 0.1rem 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- HEADER -->
+  <div class="header">
+    <h1>
+      <i class="fas fa-shield-halved" style="color:#ff6b35;"></i>
+      ScamSavvy
+      <span class="logo"><i class="fas fa-shield-halved"></i> 🛡️</span>
+    </h1>
+    <div class="header-right">
+      <span class="save-status" id="saveStatus"><i class="fas fa-check-circle"></i> saved</span>
+      <button class="settings-toggle" id="settingsToggle"><i class="fas fa-cog"></i></button>
+      <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="settings-panel" id="settingsPanel">
+    <h3>
+      <span><i class="fas fa-sliders-h"></i> Settings</span>
+      <button class="close-settings" id="closeSettings"><i class="fas fa-times"></i></button>
+    </h3>
+    <div class="setting-group">
+      <label>Questions</label>
+      <select id="questionCount">
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="8">8</option>
+        <option value="10" selected>10</option>
+        <option value="15">15</option>
+      </select>
+    </div>
+    <div class="setting-group">
+      <label>Difficulty</label>
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+    <div class="setting-group">
+      <div class="toggle-row">
+        <label>Show Tips</label>
+        <div class="toggle-switch active" id="showTipsToggle">
+          <div class="slider"></div>
+        </div>
+      </div>
+    </div>
+    <button class="apply-settings" id="applySettings">Apply</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="quiz-area" id="quizArea">
+    <div id="quizContent">
+      <div class="progress" id="progress">Question 1 of 10</div>
+      <div class="question" id="questionText">Loading...</div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="score-area">
+        <div class="score" id="scoreDisplay">✅ 0 XP</div>
+        <div>
+          <button class="next-btn" id="nextBtn">Next →</button>
+          <button class="reset-btn" id="resetBtn"><i class="fas fa-rotate"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="result-box" id="resultBox">
+      <div class="big-icon" id="resultIcon">🏆</div>
+      <h2 id="resultTitle">Done!</h2>
+      <p style="font-size:1.2rem; margin:0.5rem 0;" id="resultScore">0 XP</p>
+      <button class="reset-btn" onclick="resetQuiz()"><i class="fas fa-rotate"></i> Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== QUESTIONS =====
+  const QUESTIONS = [
+    { difficulty: 'easy', q: 'You get an email from your bank saying your account is locked. What do you do?', options: ['Click the link', 'Call the bank directly', 'Reply with password', 'Ignore it'], correct: 1, tip: 'Always call your bank directly using their official number.' },
+    { difficulty: 'easy', q: 'A pop-up says your computer is infected. What\'s the best action?', options: ['Call the number', 'Close it and run antivirus', 'Pay for the fix', 'Give remote access'], correct: 1, tip: 'Legitimate warnings won\'t ask you to call a random number.' },
+    { difficulty: 'easy', q: 'Someone offers you a guaranteed 200% return in 24 hours. What should you do?', options: ['Invest all savings', 'Ask for details', 'Recognize it as a scam', 'Borrow money'], correct: 2, tip: 'If it sounds too good to be true, it probably is.' },
+    { difficulty: 'easy', q: 'What\'s the safest way to protect your accounts?', options: ['Same password everywhere', 'Write passwords down', 'Enable 2FA', 'Share with family'], correct: 2, tip: 'Two-factor authentication adds an extra layer of security.' },
+    { difficulty: 'medium', q: 'You receive a text about a delayed package with a strange link. What do you do?', options: ['Click the link', 'Reply STOP', 'Check the official site', 'Forward to friends'], correct: 2, tip: 'Always go directly to the official website.' },
+    { difficulty: 'medium', q: 'A recruiter asks you to pay for training materials. Is this normal?', options: ['Yes', 'No, legitimate jobs don\'t ask for upfront payments', 'Maybe', 'Only if they send a contract'], correct: 1, tip: 'Legitimate employers never ask for money to hire you.' },
+    { difficulty: 'medium', q: 'You get a call from "Microsoft" saying you have a virus. What do you do?', options: ['Give them access', 'Ask for ID', 'Hang up and call Microsoft', 'Pay for repair'], correct: 2, tip: 'Microsoft will never call you unsolicited.' },
+    { difficulty: 'medium', q: 'Someone offers you a "free" iPhone if you pay shipping. What should you do?', options: ['Pay the fee', 'Share with friends', 'Report as a scam', 'Send your address'], correct: 2, tip: '"Free" items with shipping costs are a common scam.' },
+    { difficulty: 'hard', q: 'A crypto "guru" promises 500% returns with AI trading. What\'s the reality?', options: ['Legitimate opportunity', 'Ponzi scheme', 'Might work with investment', 'AI trading is always profitable'], correct: 1, tip: 'Anyone promising guaranteed high returns is almost certainly running a scam.' },
+    { difficulty: 'hard', q: 'You get an email from your CEO asking for an urgent wire transfer. What should you do?', options: ['Send it immediately', 'Reply for more details', 'Verify through a separate channel', 'Forward to IT'], correct: 2, tip: 'Always verify urgent payment requests through another channel.' },
+    { difficulty: 'hard', q: 'A website offers to "hack" social media accounts for a fee. What\'s the catch?', options: ['Legitimate service', 'Illegal and a scam', 'Works but expensive', 'For educational purposes'], correct: 1, tip: 'Services claiming to hack accounts are almost always scams.' },
+    { difficulty: 'hard', q: 'You\'re asked to be a "money mule" — receive and send money for commission. What\'s the truth?', options: ['Good side job', 'Money laundering and illegal', 'Fine with records', 'Only for friends'], correct: 1, tip: 'Money mules are used to launder money from scams. It\'s a crime.' },
+    { difficulty: 'hard', q: 'What is "phishing" in online security?', options: ['A type of fishing', 'Scam to steal personal information', 'Security software', 'Social media platform'], correct: 1, tip: 'Phishing is a scam where attackers impersonate legitimate organizations.' },
+    { difficulty: 'hard', q: 'What is "vishing" compared to "phishing"?', options: ['Same thing', 'Vishing is voice/phone-based', 'Vishing is more secure', 'Type of antivirus'], correct: 1, tip: 'Vishing (voice phishing) is a scam conducted over the phone.' },
+  ];
+
+  // ===== STATE =====
+  let currentQuestion = 0;
+  let score = 0;
+  let answered = false;
+  let questionCount = 10;
+  let difficulty = 'medium';
+  let showTips = true;
+  let currentQuestions = [];
+  let quizFinished = false;
+
+  // ===== DOM =====
+  const questionText = document.getElementById('questionText');
+  const optionsContainer = document.getElementById('optionsContainer');
+  const feedback = document.getElementById('feedback');
+  const nextBtn = document.getElementById('nextBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const progress = document.getElementById('progress');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const quizContent = document.getElementById('quizContent');
+  const resultBox = document.getElementById('resultBox');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const settingsToggle = document.getElementById('settingsToggle');
+  const closeSettings = document.getElementById('closeSettings');
+  const applySettings = document.getElementById('applySettings');
+  const showTipsToggle = document.getElementById('showTipsToggle');
+  const questionCountSelect = document.getElementById('questionCount');
+  const difficultySelect = document.getElementById('difficulty');
+  const saveStatus = document.getElementById('saveStatus');
+
+  // ===== SAVE SYSTEM =====
+  function saveAll() {
+    const data = {
+      settings: { questionCount, difficulty, showTips },
+      progress: {
+        currentQuestion,
+        score,
+        answered,
+        quizFinished,
+        questions: currentQuestions.map(q => q.q) // save question texts to track which ones
+      }
+    };
+    localStorage.setItem('scamsavvy_data', JSON.stringify(data));
+    saveStatus.innerHTML = '<i class="fas fa-check-circle"></i> saved';
+    setTimeout(() => {
+      saveStatus.innerHTML = '<i class="fas fa-check-circle"></i> saved';
+    }, 100);
+  }
+
+  function loadAll() {
+    try {
+      const raw = localStorage.getItem('scamsavvy_data');
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (data.settings) {
+        questionCount = data.settings.questionCount || 10;
+        difficulty = data.settings.difficulty || 'medium';
+        showTips = data.settings.showTips !== undefined ? data.settings.showTips : true;
+        questionCountSelect.value = questionCount;
+        difficultySelect.value = difficulty;
+        if (showTips) showTipsToggle.classList.add('active');
+        else showTipsToggle.classList.remove('active');
+      }
+      if (data.progress && data.progress.questions && data.progress.questions.length > 0) {
+        // Restore quiz state if possible
+        const savedQuestions = data.progress.questions;
+        // Only restore if the saved questions match our current question set
+        // For simplicity, we'll restore position if it's valid
+        if (data.progress.currentQuestion !== undefined && data.progress.currentQuestion < currentQuestions.length) {
+          currentQuestion = data.progress.currentQuestion;
+          score = data.progress.score || 0;
+          answered = data.progress.answered || false;
+          quizFinished = data.progress.quizFinished || false;
+          return true;
+        }
+      }
+      return false;
+    } catch(e) { return false; }
+  }
+
+  function saveProgress() {
+    const data = {
+      settings: { questionCount, difficulty, showTips },
+      progress: {
+        currentQuestion,
+        score,
+        answered,
+        quizFinished,
+        questions: currentQuestions.map(q => q.q)
+      }
+    };
+    localStorage.setItem('scamsavvy_data', JSON.stringify(data));
+    saveStatus.innerHTML = '<i class="fas fa-check-circle"></i> saved';
+  }
+
+  // ===== SETTINGS =====
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem('scamsavvy_data');
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data.settings) {
+          questionCount = data.settings.questionCount || 10;
+          difficulty = data.settings.difficulty || 'medium';
+          showTips = data.settings.showTips !== undefined ? data.settings.showTips : true;
+          questionCountSelect.value = questionCount;
+          difficultySelect.value = difficulty;
+          if (showTips) showTipsToggle.classList.add('active');
+          else showTipsToggle.classList.remove('active');
+          return true;
+        }
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  // ===== QUIZ =====
+  function getQuestions() {
+    let pool = QUESTIONS.filter(q => q.difficulty === difficulty);
+    if (pool.length < questionCount) {
+      const other = QUESTIONS.filter(q => q.difficulty !== difficulty);
+      const shuffledOther = other.sort(() => Math.random() - 0.5);
+      while (pool.length < questionCount && shuffledOther.length > 0) {
+        pool.push(shuffledOther.pop());
+      }
+    }
+    return pool.sort(() => Math.random() - 0.5).slice(0, questionCount);
+  }
+
+  function loadQuestion() {
+    if (currentQuestion >= currentQuestions.length) {
+      showResults();
+      return;
+    }
+    const q = currentQuestions[currentQuestion];
+    questionText.textContent = q.q;
+    progress.textContent = `Question ${currentQuestion + 1} of ${currentQuestions.length}`;
+    scoreDisplay.textContent = `✅ ${score} XP`;
+
+    optionsContainer.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="letter">${letters[i]}</span> ${opt}`;
+      btn.dataset.index = i;
+      btn.addEventListener('click', () => selectOption(i));
+      optionsContainer.appendChild(btn);
+    });
+
+    feedback.className = 'feedback';
+    feedback.innerHTML = '';
+    nextBtn.className = 'next-btn';
+    answered = false;
+    saveProgress();
+  }
+
+  function selectOption(index) {
+    if (answered) return;
+    answered = true;
+    const q = currentQuestions[currentQuestion];
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach((b, i) => {
+      b.classList.add('disabled');
+      if (i === q.correct) b.classList.add('correct');
+      else if (i === index && i !== q.correct) b.classList.add('wrong');
+    });
+
+    const isCorrect = index === q.correct;
+    if (isCorrect) {
+      const bonus = difficulty === 'easy' ? 1 : difficulty === 'medium' ? 1.5 : 2;
+      score += Math.round(10 * bonus);
+    }
+    scoreDisplay.textContent = `✅ ${score} XP`;
+
+    feedback.className = `feedback show ${isCorrect ? 'correct' : 'wrong'}`;
+    let html = isCorrect ? `<i class="fas fa-check-circle"></i> Correct!` : `<i class="fas fa-times-circle"></i> Wrong. Answer: ${q.options[q.correct]}`;
+    if (showTips) {
+      html += `<div class="tip"><i class="fas fa-lightbulb"></i> ${q.tip}</div>`;
+    }
+    feedback.innerHTML = html;
+
+    nextBtn.textContent = currentQuestion < currentQuestions.length - 1 ? 'Next →' : '🏁 Results';
+    nextBtn.className = 'next-btn show';
+    saveProgress();
+  }
+
+  function nextQuestion() {
+    if (currentQuestion < currentQuestions.length - 1) {
+      currentQuestion++;
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  function showResults() {
+    quizContent.style.display = 'none';
+    resultBox.classList.add('show');
+    quizFinished = true;
+    const total = currentQuestions.length * Math.round(10 * (difficulty === 'easy' ? 1 : difficulty === 'medium' ? 1.5 : 2));
+    document.getElementById('resultScore').textContent = `${score} XP (max ${total})`;
+    const pct = Math.round((score / total) * 100);
+    let icon, title;
+    if (pct >= 80) { icon = '🛡️'; title = 'Scam-Proof!'; }
+    else if (pct >= 50) { icon = '👍'; title = 'Good Job!'; }
+    else { icon = '📖'; title = 'Keep Learning!'; }
+    document.getElementById('resultIcon').textContent = icon;
+    document.getElementById('resultTitle').textContent = title;
+    saveProgress();
+  }
+
+  function resetQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    answered = false;
+    quizFinished = false;
+    currentQuestions = getQuestions();
+    quizContent.style.display = 'block';
+    resultBox.classList.remove('show');
+    loadQuestion();
+    saveProgress();
+  }
+
+  // ===== EVENTS =====
+  nextBtn.addEventListener('click', nextQuestion);
+  resetBtn.addEventListener('click', resetQuiz);
+
+  settingsToggle.addEventListener('click', () => settingsPanel.classList.toggle('open'));
+  closeSettings.addEventListener('click', () => settingsPanel.classList.remove('open'));
+  applySettings.addEventListener('click', () => {
+    questionCount = parseInt(questionCountSelect.value);
+    difficulty = difficultySelect.value;
+    showTips = showTipsToggle.classList.contains('active');
+    settingsPanel.classList.remove('open');
+    resetQuiz();
+    saveAll();
+  });
+  showTipsToggle.addEventListener('click', function() { this.classList.toggle('active'); });
+
+  document.addEventListener('click', (e) => {
+    if (settingsPanel.classList.contains('open') &&
+        !settingsPanel.contains(e.target) &&
+        !settingsToggle.contains(e.target)) {
+      settingsPanel.classList.remove('open');
+    }
+  });
+
+  // Auto-save on page unload
+  window.addEventListener('beforeunload', saveAll);
+
+  // ===== START =====
+  loadSettings();
+  currentQuestions = getQuestions();
+  
+  // Try to restore progress
+  const restored = loadAll();
+  if (restored && !quizFinished && currentQuestion < currentQuestions.length) {
+    // Progress restored, load the question
+    loadQuestion();
+  } else if (quizFinished) {
+    showResults();
+  } else {
+    loadQuestion();
+  }
+  
+  // Save initial state
+  saveAll();
+</script>
+</body>
+</html>

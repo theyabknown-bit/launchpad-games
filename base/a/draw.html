@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draw It! · 50 Prompts</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0e121a;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .game-container {
+      max-width: 900px;
+      width: 100%;
+      background: rgba(18, 28, 40, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 3rem;
+      padding: 2rem;
+      border: 1px solid rgba(100, 200, 255, 0.12);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      border-bottom: 1px solid rgba(100, 200, 255, 0.08);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .header h1 {
+      color: white;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header h1 i { color: #f5c87c; }
+    .back-btn {
+      background: #1a3045;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      text-decoration: none;
+      color: #b0d4f0;
+      border: 1px solid #2a5a7a;
+      font-size: 0.9rem;
+    }
+    .back-btn:hover { background: #2a4a6a; }
+
+    .draw-area {
+      background: #0f172a;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      border: 1px solid #1e3347;
+      position: relative;
+    }
+
+    .prompt-box {
+      background: #1a2a3a;
+      border-radius: 1rem;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      border: 2px solid #2a4a5a;
+    }
+    .prompt-box .prompt-text {
+      color: white;
+      font-size: 1.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .prompt-box .prompt-text i { color: #f5c87c; }
+    .prompt-box .timer {
+      color: #f5c87c;
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: #0a121a;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      border: 1px solid #2a4a5a;
+    }
+    .prompt-box .timer.warning { color: #ff7a7a; border-color: #ff7a7a; animation: pulse 0.8s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    canvas {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: white;
+      border-radius: 1rem;
+      cursor: crosshair;
+      touch-action: none;
+      border: 2px solid #1e3347;
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      justify-content: center;
+    }
+    .controls .btn {
+      background: #1a3a5a;
+      border: 1px solid #2a5a7a;
+      padding: 0.5rem 1.5rem;
+      border-radius: 40px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .controls .btn:hover { background: #2a5a7a; }
+    .controls .btn.clear { background: #4a1a1a; border-color: #6a2a2a; }
+    .controls .btn.clear:hover { background: #6a2a2a; }
+    .controls .btn.undo { background: #3a2a1a; border-color: #5a3a2a; }
+    .controls .btn.undo:hover { background: #5a3a2a; }
+    .controls .btn.skip { background: #2a3a1a; border-color: #4a5a2a; }
+    .controls .btn.skip:hover { background: #4a5a2a; }
+    .controls .btn.submit { background: #1a4a3a; border-color: #2a6a4a; }
+    .controls .btn.submit:hover { background: #2a6a4a; }
+    .controls .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .stats {
+      display: flex;
+      gap: 2rem;
+      color: #9bbfd9;
+      font-weight: 500;
+      margin: 0.8rem 0;
+      flex-wrap: wrap;
+    }
+    .stats span i { margin-right: 6px; }
+
+    .color-picker {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 0.5rem 0;
+    }
+    .color-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .color-btn:hover { transform: scale(1.15); }
+    .color-btn.active { border-color: white; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+
+    .size-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #9bbfd9;
+    }
+    .size-control input[type="range"] {
+      width: 100px;
+      accent-color: #f5c87c;
+      background: #0a121a;
+      border-radius: 10px;
+    }
+
+    .score-display {
+      background: #1a2a3a;
+      border-radius: 1rem;
+      padding: 0.8rem 1.2rem;
+      border: 1px solid #2a4a5a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .score-display .score-item {
+      color: #b0d4f0;
+      font-size: 1rem;
+    }
+    .score-display .score-item span { color: white; font-weight: 700; font-size: 1.2rem; }
+
+    .result-overlay {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      border-radius: 1.5rem;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 10;
+      padding: 2rem;
+    }
+    .result-overlay.show { display: flex; }
+    .result-overlay h2 {
+      color: white;
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+    .result-overlay .result-msg {
+      color: #b0d4f0;
+      font-size: 1.2rem;
+      text-align: center;
+      max-width: 400px;
+    }
+    .result-overlay .result-msg .highlight { color: #f5c87c; font-weight: 700; }
+    .result-overlay .btn {
+      background: #1a4a3a;
+      border: 1px solid #2a6a4a;
+      padding: 0.8rem 2.5rem;
+      border-radius: 40px;
+      color: white;
+      cursor: pointer;
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      transition: 0.1s;
+    }
+    .result-overlay .btn:hover { background: #2a6a4a; }
+
+    @media (max-width: 600px) {
+      .game-container { padding: 1rem; }
+      .prompt-box .prompt-text { font-size: 1.2rem; }
+      .prompt-box .timer { font-size: 1rem; padding: 0.2rem 1rem; }
+      .controls .btn { padding: 0.3rem 1rem; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <h1><i class="fas fa-paint-brush"></i> Draw It!</h1>
+    <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> back</a>
+  </div>
+
+  <div class="draw-area" style="position:relative;">
+    <!-- Result Overlay -->
+    <div class="result-overlay" id="resultOverlay">
+      <h2 id="resultTitle">🎉 Great Job!</h2>
+      <div class="result-msg" id="resultMsg">You drew <span class="highlight">Cat</span> perfectly!</div>
+      <button class="btn" onclick="nextPrompt()"><i class="fas fa-arrow-right"></i> Next Prompt</button>
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-text">
+        <i class="fas fa-pencil-alt"></i>
+        <span id="promptDisplay">Cat</span>
+      </div>
+      <div class="timer" id="timerDisplay">⏱️ 60s</div>
+    </div>
+
+    <canvas id="drawCanvas" width="800" height="600"></canvas>
+
+    <div class="color-picker" id="colorPicker"></div>
+
+    <div class="controls">
+      <div class="size-control">
+        <i class="fas fa-circle" style="font-size:0.6rem;"></i>
+        <input type="range" id="sizeSlider" min="1" max="20" value="5">
+        <i class="fas fa-circle" style="font-size:1.5rem;"></i>
+      </div>
+      <button class="btn undo" id="undoBtn"><i class="fas fa-undo"></i> Undo</button>
+      <button class="btn clear" id="clearBtn"><i class="fas fa-eraser"></i> Clear</button>
+      <button class="btn skip" id="skipBtn"><i class="fas fa-forward"></i> Skip</button>
+      <button class="btn submit" id="submitBtn"><i class="fas fa-check"></i> Done!</button>
+    </div>
+
+    <div class="stats">
+      <span><i class="fas fa-list"></i> #<span id="promptNum">1</span>/50</span>
+      <span><i class="fas fa-check-circle"></i> Drawn: <span id="drawnCount">0</span></span>
+      <span><i class="fas fa-star"></i> Score: <span id="scoreDisplay">0</span></span>
+    </div>
+
+    <div class="score-display">
+      <div class="score-item"><i class="fas fa-trophy" style="color:#f5c87c;"></i> Best Streak: <span id="bestStreak">0</span></div>
+      <div class="score-item"><i class="fas fa-fire" style="color:#ff7a7a;"></i> Streak: <span id="streakDisplay">0</span></div>
+      <div class="score-item"><i class="fas fa-clock"></i> Total Time: <span id="totalTimeDisplay">0s</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===================== 50 DRAWING PROMPTS =====================
+  const PROMPTS = [
+    'Cat', 'Dog', 'House', 'Tree', 'Sun', 'Moon', 'Star', 'Cloud', 'Rainbow', 'Flower',
+    'Car', 'Bicycle', 'Airplane', 'Boat', 'Train', 'Rocket', 'Robot', 'Dinosaur', 'Dragon', 'Unicorn',
+    'Castle', 'Pizza', 'Ice Cream', 'Cake', 'Donut', 'Apple', 'Banana', 'Grapes', 'Watermelon', 'Pineapple',
+    'Fish', 'Bird', 'Butterfly', 'Ladybug', 'Penguin', 'Owl', 'Eagle', 'Shark', 'Whale', 'Octopus',
+    'Mountain', 'Volcano', 'Waterfall', 'Beach', 'Forest', 'Desert', 'Cave', 'Lighthouse', 'Windmill', 'Tent'
+  ];
+
+  // ===================== GAME STATE =====================
+  const state = {
+    currentPrompt: 0,
+    drawnCount: 0,
+    score: 0,
+    streak: 0,
+    bestStreak: 0,
+    totalTime: 0,
+    timeLeft: 60,
+    timerRunning: false,
+    timerInterval: null,
+    isDrawing: false,
+    lastX: 0,
+    lastY: 0,
+    currentColor: '#000000',
+    brushSize: 5,
+    history: [],
+    maxHistory: 30,
+    usedPrompts: [],
+    gameOver: false,
+  };
+
+  // DOM refs
+  const canvas = document.getElementById('drawCanvas');
+  const ctx = canvas.getContext('2d');
+  const promptDisplay = document.getElementById('promptDisplay');
+  const timerDisplay = document.getElementById('timerDisplay');
+  const promptNum = document.getElementById('promptNum');
+  const drawnCount = document.getElementById('drawnCount');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const streakDisplay = document.getElementById('streakDisplay');
+  const bestStreak = document.getElementById('bestStreak');
+  const totalTimeDisplay = document.getElementById('totalTimeDisplay');
+  const resultOverlay = document.getElementById('resultOverlay');
+  const resultTitle = document.getElementById('resultTitle');
+  const resultMsg = document.getElementById('resultMsg');
+  const colorPicker = document.getElementById('colorPicker');
+  const sizeSlider = document.getElementById('sizeSlider');
+
+  const COLORS = ['#000000', '#ff0000', '#ff6b00', '#ffd700', '#00cc44', '#0066ff', '#8b00ff', '#ff00ff', '#ff6b9d', '#00cccc', '#ffffff', '#888888'];
+
+  // ===================== INIT =====================
+  function init() {
+    setupCanvas();
+    setupColors();
+    setupEventListeners();
+    newPrompt();
+  }
+
+  function setupCanvas() {
+    // Set canvas size
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = 800;
+    canvas.height = 600;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    state.history = [];
+    saveState();
+  }
+
+  function setupColors() {
+    colorPicker.innerHTML = COLORS.map(c => `
+      <button class="color-btn ${c === '#000000' ? 'active' : ''}" 
+              style="background:${c}; border-color:${c === '#ffffff' ? '#888' : 'transparent'};"
+              data-color="${c}"></button>
+    `).join('');
+    document.querySelectorAll('.color-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        state.currentColor = this.dataset.color;
+      });
+    });
+  }
+
+  function setupEventListeners() {
+    // Mouse events
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+
+    // Touch events
+    canvas.addEventListener('touchstart', handleTouch(startDraw));
+    canvas.addEventListener('touchmove', handleTouch(draw));
+    canvas.addEventListener('touchend', endDraw);
+
+    // Controls
+    document.getElementById('undoBtn').addEventListener('click', undo);
+    document.getElementById('clearBtn').addEventListener('click', clearCanvas);
+    document.getElementById('skipBtn').addEventListener('click', skipPrompt);
+    document.getElementById('submitBtn').addEventListener('click', submitDrawing);
+
+    sizeSlider.addEventListener('input', function() {
+      state.brushSize = parseInt(this.value);
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitDrawing();
+      else if (e.key === 's' || e.key === 'S') skipPrompt();
+      else if (e.key === 'z' || e.key === 'Z') undo();
+      else if (e.key === 'c' || e.key === 'C') clearCanvas();
+    });
+  }
+
+  function handleTouch(fn) {
+    return function(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const mouseEvent = new MouseEvent(
+        e.type === 'touchstart' ? 'mousedown' : e.type === 'touchmove' ? 'mousemove' : 'mouseup',
+        { clientX: touch.clientX, clientY: touch.clientY }
+      );
+      canvas.dispatchEvent(mouseEvent);
+    };
+  }
+
+  // ===================== DRAWING FUNCTIONS =====================
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  }
+
+  function startDraw(e) {
+    if (state.gameOver) return;
+    state.isDrawing = true;
+    const pos = getPos(e);
+    state.lastX = pos.x;
+    state.lastY = pos.y;
+    // Draw a dot
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, state.brushSize / 2, 0, Math.PI * 2);
+    ctx.fillStyle = state.currentColor;
+    ctx.fill();
+    saveState();
+  }
+
+  function draw(e) {
+    if (!state.isDrawing || state.gameOver) return;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(state.lastX, state.lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = state.currentColor;
+    ctx.lineWidth = state.brushSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    state.lastX = pos.x;
+    state.lastY = pos.y;
+  }
+
+  function endDraw() {
+    state.isDrawing = false;
+  }
+
+  function saveState() {
+    const data = canvas.toDataURL();
+    state.history.push(data);
+    if (state.history.length > state.maxHistory) {
+      state.history.shift();
+    }
+  }
+
+  function undo() {
+    if (state.history.length <= 1 || state.gameOver) return;
+    state.history.pop();
+    const img = new Image();
+    img.onload = function() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = state.history[state.history.length - 1];
+  }
+
+  function clearCanvas() {
+    if (state.gameOver) return;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveState();
+  }
+
+  // ===================== GAME LOGIC =====================
+  function newPrompt() {
+    if (state.currentPrompt >= PROMPTS.length) {
+      // All prompts done!
+      state.gameOver = true;
+      resultOverlay.classList.add('show');
+      resultTitle.textContent = '🏆 COMPLETE!';
+      resultMsg.innerHTML = `You drew all <span class="highlight">50</span> prompts!<br>Final Score: <span class="highlight">${state.score}</span>`;
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('skipBtn').disabled = true;
+      return;
+    }
+
+    const prompt = PROMPTS[state.currentPrompt];
+    promptDisplay.textContent = prompt;
+    promptNum.textContent = state.currentPrompt + 1;
+    resultOverlay.classList.remove('show');
+    state.timeLeft = 60;
+    timerDisplay.textContent = `⏱️ ${state.timeLeft}s`;
+    timerDisplay.classList.remove('warning');
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('skipBtn').disabled = false;
+
+    // Clear canvas for new drawing
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    state.history = [];
+    saveState();
+
+    startTimer();
+  }
+
+  function startTimer() {
+    if (state.timerInterval) clearInterval(state.timerInterval);
+    state.timerRunning = true;
+    state.timerInterval = setInterval(() => {
+      state.timeLeft--;
+      timerDisplay.textContent = `⏱️ ${state.timeLeft}s`;
+      if (state.timeLeft <= 10) {
+        timerDisplay.classList.add('warning');
+      }
+      if (state.timeLeft <= 0) {
+        clearInterval(state.timerInterval);
+        state.timerRunning = false;
+        // Auto-submit with timeout penalty
+        submitDrawing(true);
+      }
+    }, 1000);
+  }
+
+  function submitDrawing(timeout = false) {
+    if (state.gameOver) return;
+    if (state.timerInterval) clearInterval(state.timerInterval);
+    state.timerRunning = false;
+
+    // Check if canvas is not blank (some drawing exists)
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = imageData.data;
+    let hasDrawing = false;
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i] !== 255 || pixels[i+1] !== 255 || pixels[i+2] !== 255) {
+        hasDrawing = true;
+        break;
+      }
+    }
+
+    if (!hasDrawing) {
+      // Empty drawing - prompt to draw something
+      resultOverlay.classList.add('show');
+      resultTitle.textContent = '😅 Oops!';
+      resultMsg.innerHTML = 'You didn\'t draw anything!<br>Try to draw something before submitting.';
+      document.querySelector('.result-overlay .btn').textContent = 'Try Again';
+      document.querySelector('.result-overlay .btn').onclick = function() {
+        resultOverlay.classList.remove('show');
+        document.querySelector('.result-overlay .btn').textContent = 'Next Prompt';
+        document.querySelector('.result-overlay .btn').onclick = nextPrompt;
+        startTimer();
+      };
+      return;
+    }
+
+    // Calculate score based on time left and complexity
+    let bonus = 0;
+    if (!timeout) {
+      if (state.timeLeft > 45) bonus = 15;
+      else if (state.timeLeft > 30) bonus = 10;
+      else if (state.timeLeft > 15) bonus = 5;
+      else if (state.timeLeft > 5) bonus = 2;
+    } else {
+      bonus = -5; // Timeout penalty
+    }
+
+    // Streak bonus
+    const streakBonus = state.streak * 2;
+    const totalScore = Math.max(0, 10 + bonus + streakBonus);
+    state.score += totalScore;
+    state.streak++;
+    state.drawnCount++;
+    state.totalTime += (60 - state.timeLeft);
+
+    if (state.streak > state.bestStreak) {
+      state.bestStreak = state.streak;
+    }
+
+    // Show result
+    const prompt = PROMPTS[state.currentPrompt];
+    resultOverlay.classList.add('show');
+    if (timeout) {
+      resultTitle.textContent = '⏰ Time\'s Up!';
+      resultMsg.innerHTML = `You drew <span class="highlight">${prompt}</span><br>+${totalScore} XP (time penalty applied)`;
+    } else {
+      const emojis = ['🌟', '🎨', '🖌️', '✨', '👏'];
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      resultTitle.textContent = `${emoji} Great Job!`;
+      resultMsg.innerHTML = `You drew <span class="highlight">${prompt}</span><br>+${totalScore} XP (${bonus > 0 ? '+'+bonus : bonus} time bonus, +${streakBonus} streak bonus)`;
+    }
+
+    state.currentPrompt++;
+    updateStats();
+  }
+
+  function nextPrompt() {
+    resultOverlay.classList.remove('show');
+    document.querySelector('.result-overlay .btn').textContent = 'Next Prompt';
+    document.querySelector('.result-overlay .btn').onclick = nextPrompt;
+    newPrompt();
+  }
+
+  function skipPrompt() {
+    if (state.gameOver) return;
+    if (state.timerInterval) clearInterval(state.timerInterval);
+    state.streak = 0;
+    state.currentPrompt++;
+    updateStats();
+    newPrompt();
+  }
+
+  function updateStats() {
+    drawnCount.textContent = state.drawnCount;
+    scoreDisplay.textContent = state.score;
+    streakDisplay.textContent = state.streak;
+    bestStreak.textContent = state.bestStreak;
+    totalTimeDisplay.textContent = Math.round(state.totalTime) + 's';
+  }
+
+  // ===================== START =====================
+  init();
+
+  // Resize handling
+  window.addEventListener('resize', () => {
+    // Canvas stays fixed size, no resize needed
+  });
+</script>
+</body>
+</html>

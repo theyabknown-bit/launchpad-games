@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launchpad · Space Update</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0b1a26;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background-image: radial-gradient(circle at 20% 30%, #1a3a4a 0%, #07131c 90%);
+    }
+    .launchpad {
+      max-width: 1300px;
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      border-radius: 3.5rem;
+      padding: 2.5rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 30px 60px -20px rgba(0,0,0,0.8);
+    }
+    .start-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding-bottom: 1.2rem;
+    }
+    .start-header h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .start-header h1 i {
+      color: #7fc9ff;
+      background: #1d4055;
+      padding: 0.4rem 0.7rem;
+      border-radius: 30px;
+    }
+    .start-badge {
+      background: #1c4055;
+      padding: 0.5rem 1.6rem;
+      border-radius: 60px;
+      color: #b6ddf5;
+      border: 1px solid #3a6b88;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .start-badge i { margin-right: 4px; }
+
+    /* ===== UPDATE LOG ===== */
+    .update-log {
+      background: rgba(0,0,0,0.3);
+      border-radius: 1.5rem;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(100,200,255,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .update-log::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ff6b35, #ffd93d, #7cf5b0, #4fc3f7);
+    }
+    .update-log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+    .update-log-header .title {
+      color: #ffd93d;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .update-log-header .title i { font-size: 1.2rem; }
+    .update-log-header .version {
+      color: #4a6a8a;
+      font-size: 0.8rem;
+      background: rgba(0,0,0,0.3);
+      padding: 0.2rem 1rem;
+      border-radius: 40px;
+      border: 1px solid #2a4a5a;
+    }
+    .update-log-body {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.6rem;
+    }
+    .update-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #b0d4f0;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.6rem;
+      background: rgba(255,255,255,0.02);
+      border-radius: 0.6rem;
+      transition: 0.15s;
+    }
+    .update-item:hover { background: rgba(255,255,255,0.05); }
+    .update-item .emoji { font-size: 1.2rem; }
+    .update-item .new-badge {
+      background: #ff6b35;
+      color: white;
+      font-size: 0.5rem;
+      font-weight: 700;
+      padding: 0.05rem 0.4rem;
+      border-radius: 20px;
+      text-transform: uppercase;
+      margin-left: auto;
+    }
+    .update-log-toggle {
+      background: none;
+      border: none;
+      color: #4a6a8a;
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      transition: 0.15s;
+    }
+    .update-log-toggle:hover { color: #8ab4d8; background: rgba(255,255,255,0.05); }
+    .update-log-collapsed .update-log-body { display: none; }
+    .update-log-collapsed .update-log-toggle i { transform: rotate(-90deg); }
+
+    /* ===== SAVE BAR ===== */
+    .save-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      background: rgba(0,0,0,0.3);
+      border-radius: 1.5rem;
+      padding: 0.6rem 1.2rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(100,200,255,0.06);
+    }
+    .save-bar .save-info {
+      color: #8ab4d8;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .save-bar .save-info i { color: #7cf5b0; }
+    .save-bar .save-info .stat {
+      color: white;
+      font-weight: 600;
+    }
+    .save-bar .save-btns {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .save-bar .save-btns .btn {
+      background: #1a3a5a;
+      border: 1px solid #2a5a7a;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .save-bar .save-btns .btn:hover { background: #2a5a7a; }
+    .save-bar .save-btns .btn.save { background: #1a4a3a; border-color: #2a6a4a; }
+    .save-bar .save-btns .btn.save:hover { background: #2a6a4a; }
+    .save-bar .save-btns .btn.danger { background: #4a1a1a; border-color: #6a2a2a; }
+    .save-bar .save-btns .btn.danger:hover { background: #6a2a2a; }
+    .save-bar .save-btns .btn.download { background: #2a3a5a; border-color: #4a5a7a; }
+    .save-bar .save-btns .btn.download:hover { background: #3a4a6a; }
+
+    .section-title {
+      color: #8ab4d8;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 1.8rem 0 1rem 0;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 1px;
+    }
+    .section-title i { color: #ffb347; }
+    .section-title .count {
+      font-size: 0.7rem;
+      color: #4a6a8a;
+      font-weight: 400;
+      margin-left: 6px;
+    }
+
+    .pick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.2rem;
+    }
+    .pick-card {
+      background: rgba(255,255,255,0.03);
+      border-radius: 1.8rem;
+      padding: 1.4rem 0.8rem;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: 0.2s;
+      text-decoration: none;
+      color: white;
+      display: block;
+      position: relative;
+    }
+    .pick-card:hover {
+      transform: translateY(-6px);
+      background: rgba(255,255,255,0.08);
+      border-color: #4f8db0;
+    }
+    .pick-card .icon-wrap {
+      font-size: 2.2rem;
+      color: #9fd0ff;
+      background: #1f4057;
+      width: 65px;
+      height: 65px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.8rem;
+      border-radius: 28px;
+      border: 1px solid #3b6f8f;
+      position: relative;
+    }
+    .pick-card .icon-wrap .logo-overlay {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      background: linear-gradient(135deg, #ff6b35, #ff4444);
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      border: 2px solid #0b1a26;
+      color: white;
+      font-weight: 700;
+    }
+    .pick-card .icon-wrap .logo-overlay.medicore {
+      background: linear-gradient(135deg, #4fc3f7, #1a6a8a);
+    }
+    .pick-card .icon-wrap .logo-overlay.space {
+      background: linear-gradient(135deg, #ffb347, #ff6b35);
+    }
+    .pick-card h3 {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #f0f8ff;
+    }
+    .pick-card .sub {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      color: #bbd9ef;
+    }
+    .pick-card .arrow {
+      display: inline-block;
+      margin-top: 0.5rem;
+      background: #213f53;
+      padding: 0.1rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      border: 1px solid #386883;
+      color: #c0defa;
+    }
+    .pick-card:hover .arrow {
+      background: #346d8f;
+      border-color: #74b3da;
+    }
+    .pick-card .new-badge {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.6rem;
+      background: #ff6b35;
+      color: white;
+      font-size: 0.55rem;
+      font-weight: 700;
+      padding: 0.1rem 0.5rem;
+      border-radius: 20px;
+      text-transform: uppercase;
+      animation: pulseBadge 2s infinite;
+    }
+    @keyframes pulseBadge {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .pick-card .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: #0a1a2a;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+    .pick-card .progress-bar .fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4fc3f7, #7cf5b0);
+      border-radius: 4px;
+      transition: width 0.5s;
+      width: 0%;
+    }
+    .pick-card .played-badge {
+      position: absolute;
+      bottom: 0.4rem;
+      right: 0.6rem;
+      color: #4a6a8a;
+      font-size: 0.5rem;
+    }
+
+    .footer-launch {
+      margin-top: 2.5rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 1.5rem;
+      color: #7f9fb9;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .footer-launch i { color: #64b5f6; margin-right: 6px; }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1a2a3a;
+      border: 1px solid #2a5a7a;
+      border-radius: 1rem;
+      padding: 0.8rem 1.5rem;
+      color: white;
+      font-size: 0.9rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: 0.3s;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .toast i { color: #7cf5b0; font-size: 1.2rem; }
+    .toast.error i { color: #ff7a7a; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: #1a2a3a;
+      border-radius: 2rem;
+      padding: 2rem;
+      max-width: 550px;
+      width: 100%;
+      border: 2px solid #4fc3f7;
+      box-shadow: 0 0 60px rgba(79,195,247,0.1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-box h2 {
+      color: white;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .modal-box h2 i { color: #ffb347; }
+    .modal-box p { color: #b0d4f0; margin-bottom: 1rem; }
+    .modal-box .close-btn {
+      float: right;
+      background: none;
+      border: none;
+      color: #6a8aaa;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .modal-box .close-btn:hover { color: white; }
+    .modal-box .modal-btns {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    .modal-box .modal-btns .btn {
+      background: #1a3a5a;
+      border: 1px solid #2a5a7a;
+      padding: 0.6rem 1.5rem;
+      border-radius: 40px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-box .modal-btns .btn:hover { background: #2a5a7a; }
+    .modal-box .modal-btns .btn.danger { background: #4a1a1a; border-color: #6a2a2a; }
+    .modal-box .modal-btns .btn.danger:hover { background: #6a2a2a; }
+    .modal-box .modal-btns .btn.save { background: #1a4a3a; border-color: #2a6a4a; }
+    .modal-box .modal-btns .btn.save:hover { background: #2a6a4a; }
+    .modal-box .game-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin: 0.5rem 0;
+    }
+    .modal-box .game-list .game-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      color: #b0d4f0;
+    }
+    .modal-box .game-list .game-item .name { font-size: 0.9rem; }
+    .modal-box .game-list .game-item .xp { font-size: 0.8rem; color: #4a6a8a; }
+    .modal-box .game-list .game-item .del-btn {
+      background: rgba(255,0,0,0.2);
+      border: 1px solid rgba(255,0,0,0.3);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      color: #ff6b6b;
+      cursor: pointer;
+      font-size: 0.7rem;
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-box .game-list .game-item .del-btn:hover {
+      background: rgba(255,0,0,0.4);
+      transform: scale(1.1);
+    }
+    .modal-box .game-list .game-item .played-badge {
+      font-size: 0.6rem;
+      color: #4a6a8a;
+    }
+
+    @media (max-width: 580px) {
+      .launchpad { padding: 1.5rem; }
+      .start-header { flex-direction: column; align-items: start; gap: 0.8rem; }
+      .pick-grid { grid-template-columns: 1fr 1fr; }
+      .save-bar { flex-direction: column; align-items: stretch; }
+      .save-bar .save-info { justify-content: center; }
+      .save-bar .save-btns { justify-content: center; }
+      .toast { bottom: 1rem; right: 1rem; left: 1rem; }
+      .modal-box { padding: 1.2rem; }
+      .update-log-body { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 420px) {
+      .pick-grid { grid-template-columns: 1fr; }
+      .update-log-body { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="launchpad">
+    <div class="start-header">
+      <h1><i class="fas fa-rocket"></i> launchpad</h1>
+      <div class="start-badge">
+        <i class="fas fa-save"></i>
+        <span id="saveStatus">auto-saved</span>
+      </div>
+    </div>
+
+    <!-- ===== UPDATE LOG ===== -->
+    <div class="update-log" id="updateLog">
+      <div class="update-log-header">
+        <div class="title">
+          <i class="fas fa-rocket" style="color:#ff6b35;"></i>
+          🚀 Space Update v2.0
+          <span style="font-size:0.6rem; background:#ff6b35; padding:0.05rem 0.5rem; border-radius:20px; color:white; font-weight:400;">LIVE</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span class="version"><i class="fas fa-calendar-alt"></i> Aug 2026</span>
+          <button class="update-log-toggle" id="updateToggle" onclick="toggleUpdateLog()">
+            <i class="fas fa-chevron-up"></i>
+          </button>
+        </div>
+      </div>
+      <div class="update-log-body" id="updateBody">
+        <div class="update-item"><span class="emoji">🌍</span> Planet Builder <span class="new-badge">new</span></div>
+        <div class="update-item"><span class="emoji">👾</span> Alien Translator <span class="new-badge">new</span></div>
+        <div class="update-item"><span class="emoji">🚀</span> Space Station Manager <span class="new-badge">new</span></div>
+        <div class="update-item"><span class="emoji">⛏️</span> Asteroid Mining <span class="new-badge">new</span></div>
+        <div class="update-item"><span class="emoji">📦</span> Galactic Delivery <span class="new-badge">new</span></div>
+        <div class="update-item"><span class="emoji">🌀</span> Black Hole Escape <span class="new-badge">new</span></div>
+        <div class="update-item"><span class="emoji">🏛️</span> Alien Zoo <span class="new-badge">new</span></div>
+        <div class="update-item"><span class="emoji">✨</span> XP & Leveling system for all games</div>
+        <div class="update-item"><span class="emoji">💾</span> Auto-save progress locally</div>
+        <div class="update-item"><span class="emoji">📱</span> Mobile responsive design</div>
+      </div>
+    </div>
+
+    <!-- ===== SAVE BAR ===== -->
+    <div class="save-bar">
+      <div class="save-info">
+        <i class="fas fa-database"></i>
+        <span>Games Played: <span class="stat" id="gamesPlayedStat">0</span></span>
+        <span>•</span>
+        <span>Total XP: <span class="stat" id="totalXpStat">0</span></span>
+        <span>•</span>
+        <span><i class="fas fa-clock"></i> <span id="lastSaveTime">never</span></span>
+      </div>
+      <div class="save-btns">
+        <button class="btn save" id="saveBtn"><i class="fas fa-save"></i> Save</button>
+        <button class="btn download" id="downloadBtn"><i class="fas fa-download"></i> Export</button>
+        <button class="btn danger" id="manageBtn"><i class="fas fa-cog"></i> Manage</button>
+      </div>
+    </div>
+
+    <!-- ===== SPACE SECTION ===== -->
+    <div class="section-title"><i class="fas fa-globe"></i> space <span class="count">(9)</span></div>
+    <div class="pick-grid" id="spaceGrid"></div>
+
+    <!-- ===== ARCADE SECTION ===== -->
+    <div class="section-title"><i class="fas fa-gamepad"></i> arcade <span class="count">(12)</span></div>
+    <div class="pick-grid" id="arcadeGrid"></div>
+
+    <!-- ===== SIMULATION SECTION ===== -->
+    <div class="section-title"><i class="fas fa-hospital"></i> simulation <span class="count">(3)</span></div>
+    <div class="pick-grid" id="simGrid"></div>
+
+    <div class="footer-launch">
+      <i class="fas fa-arrow-up-right-from-square"></i> click any card to explore &nbsp;·&nbsp; <i class="fas fa-code"></i> 24 games total &nbsp;·&nbsp; <i class="fas fa-save"></i> progress saved locally &nbsp;·&nbsp; 🚀 Space Update v2.0
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Saved!</span>
+  </div>
+
+  <!-- ===== MODAL ===== -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <button class="close-btn" id="modalClose"><i class="fas fa-times"></i></button>
+      <h2><i class="fas fa-cog"></i> Save Manager</h2>
+      <p>Manage your game progress data. You can delete individual games or all data.</p>
+      
+      <div style="margin: 1rem 0;">
+        <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
+          <button class="btn save" id="modalSaveBtn"><i class="fas fa-save"></i> Save Now</button>
+          <button class="btn download" id="modalDownloadBtn"><i class="fas fa-download"></i> Export Data</button>
+          <button class="btn danger" id="modalDeleteAllBtn"><i class="fas fa-trash"></i> Delete All</button>
+        </div>
+      </div>
+      
+      <h3 style="color:#8ab4d8; font-size:0.9rem; margin-top:0.5rem;">Individual Game Data</h3>
+      <div class="game-list" id="gameList"></div>
+      
+      <div class="modal-btns">
+        <button class="btn" id="modalCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===================== GAME DATA =====================
+    const GAMES = {
+      space: [
+        { id: 'space', name: 'Space Explorer', icon: 'fa-globe', sub: 'fly & discover', file: 'space/space.html', color: '#4f8db0' },
+        { id: 'asteroid', name: 'Asteroid Dodge', icon: 'fa-meteor', sub: 'survive · space', file: 'space/asteroiddodge.html', color: '#b57a4a', iconColor: '#ffb347' },
+        { id: 'planetbuilder', name: 'Planet Builder', icon: 'fa-globe', sub: 'grow planets', file: 'space/PlanetBuilder.html', color: '#ffb347', logo: '🌍', new: true },
+        { id: 'aliens', name: 'Alien Translator', icon: 'fa-language', sub: 'decode messages', file: 'space/AlienTranslator.html', color: '#7fc9ff', logo: '👾', new: true },
+        { id: 'station', name: 'Space Station', icon: 'fa-rocket', sub: 'build & manage', file: 'space/SpaceStationManager.html', color: '#4fc3f7', logo: '🚀', new: true },
+        { id: 'mining', name: 'Asteroid Mining', icon: 'fa-pickaxe', sub: 'mine resources', file: 'space/AsteroidMining.html', color: '#f5c87c', logo: '⛏️', new: true },
+        { id: 'delivery', name: 'Galactic Delivery', icon: 'fa-shipping-fast', sub: 'deliver packages', file: 'space/GalacticDelivery.html', color: '#7cf5b0', logo: '📦', new: true },
+        { id: 'blackhole', name: 'Black Hole Escape', icon: 'fa-circle', sub: 'escape the pull', file: 'space/BlackHoleEscape.html', color: '#ff6b6b', logo: '🌀', new: true },
+        { id: 'alienzoo', name: 'Alien Zoo', icon: 'fa-paw', sub: 'collect & care', file: 'space/AlienZoo.html', color: '#f57c9f', logo: '🏛️', new: true }
+      ],
+      arcade: [
+        { id: 'scam', name: 'ScamSavvy', icon: 'fa-shield-halved', sub: 'interactive quiz', file: 'a/scam.html', color: '#ff6b35' },
+        { id: 'wordblitz', name: 'Word Blitz', icon: 'fa-keyboard', sub: 'typing challenge', file: 'a/wordblitz.html', color: '#7a4ab5', iconColor: '#c084f5' },
+        { id: 'colormatch', name: 'Color Match', icon: 'fa-palette', sub: 'memory · reflex', file: 'a/colormatch.html', color: '#b54a6b', iconColor: '#f57c9f' },
+        { id: 'numbercrunch', name: 'Number Crunch', icon: 'fa-calculator', sub: 'math puzzle', file: 'a/numbercrunch.html', color: '#4ab5a5', iconColor: '#7cf5e0' },
+        { id: 'reactiontap', name: 'Reaction Tap', icon: 'fa-hand-pointer', sub: 'speed test', file: 'a/reactiontap.html', color: '#b58a4a', iconColor: '#f5c87c' },
+        { id: 'draw', name: 'Draw It!', icon: 'fa-paint-brush', sub: '50 prompts', file: 'a/draw.html', color: '#f5c87c' },
+        { id: 'typeracer', name: 'Type Racer', icon: 'fa-keyboard', sub: 'speed typing', file: 'a/typeracer.html', color: '#7fc9ff' },
+        { id: 'beatbop', name: 'Beat Bop', icon: 'fa-music', sub: 'rhythm game', file: 'a/beatbop.html', color: '#f57c9f' },
+        { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', sub: '15 puzzle', file: 'a/slidepuzzle.html', color: '#f5c87c' },
+        { id: 'whackamole', name: 'Whack-A-Mole', icon: 'fa-hammer', sub: 'arcade classic', file: 'a/whackamole.html', color: '#ffb347' },
+        { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html', color: '#7fc9ff' },
+        { id: 'stim', name: 'Stimulation Overload', icon: 'fa-bolt', sub: 'clicker · live', file: 'https://stimclickerweb.netlify.app', color: '#4a8f7a', external: true, iconColor: '#ffd966' }
+      ],
+      sim: [
+        { id: 'doctor', name: 'MediCore', icon: 'fa-hospital', sub: 'hospital sim · rpg', file: 'sim/doctor.html', color: '#4fc3f7' },
+        { id: 'cashier', name: 'Cashier Sim', icon: 'fa-cash-register', sub: 'retail · math', file: 'sim/cashier.html', color: '#f5c87c' },
+        { id: 'hotel', name: 'Hotel Sim', icon: 'fa-hotel', sub: 'luxury management', file: 'sim/hotel.html', color: '#f5c87c' }
+      ]
+    };
+
+    const SAVE_KEY = 'launchpad_progress';
+
+    // ===================== SAVE SYSTEM =====================
+    function getDefaultSave() {
+      const games = {};
+      Object.values(GAMES).flat().forEach(g => {
+        games[g.id] = { played: false, xp: 0, lastPlayed: null };
+      });
+      return { games, totalXp: 0, gamesPlayed: 0, lastSave: null };
+    }
+
+    function loadSave() {
+      try {
+        const data = localStorage.getItem(SAVE_KEY);
+        if (data) {
+          const parsed = JSON.parse(data);
+          let modified = false;
+          Object.values(GAMES).flat().forEach(g => {
+            if (!parsed.games[g.id]) {
+              parsed.games[g.id] = { played: false, xp: 0, lastPlayed: null };
+              modified = true;
+            }
+          });
+          if (modified) {
+            parsed.totalXp = Object.values(parsed.games).reduce((sum, g) => sum + (g.xp || 0), 0);
+            parsed.gamesPlayed = Object.values(parsed.games).filter(g => g.played).length;
+            saveData(parsed);
+          }
+          return parsed;
+        }
+      } catch (e) {}
+      const def = getDefaultSave();
+      saveData(def);
+      return def;
+    }
+
+    function saveData(data) {
+      data.lastSave = new Date().toISOString();
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    }
+
+    function deleteGameData(gameId) {
+      const save = loadSave();
+      if (save.games[gameId]) {
+        save.games[gameId] = { played: false, xp: 0, lastPlayed: null };
+        save.totalXp = Object.values(save.games).reduce((sum, g) => sum + (g.xp || 0), 0);
+        save.gamesPlayed = Object.values(save.games).filter(g => g.played).length;
+        saveData(save);
+        updateUI(save);
+        renderCards();
+        showToast(`Deleted data for ${gameId}`, 'error');
+      }
+    }
+
+    function deleteAllData() {
+      if (!confirm('⚠️ Are you sure you want to delete ALL game data? This cannot be undone!')) return;
+      const def = getDefaultSave();
+      saveData(def);
+      updateUI(def);
+      renderCards();
+      showToast('All data has been deleted', 'error');
+      closeModal();
+    }
+
+    function downloadSave() {
+      const save = loadSave();
+      const dataStr = JSON.stringify(save, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `launchpad_save_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Data exported successfully!', 'success');
+    }
+
+    function updateGameProgress(gameId, xpGain = 0) {
+      const save = loadSave();
+      if (!save.games[gameId]) {
+        save.games[gameId] = { played: false, xp: 0, lastPlayed: null };
+      }
+      const game = save.games[gameId];
+      if (!game.played) {
+        game.played = true;
+        save.gamesPlayed = (save.gamesPlayed || 0) + 1;
+      }
+      game.xp = (game.xp || 0) + xpGain;
+      game.lastPlayed = new Date().toISOString();
+      save.totalXp = Object.values(save.games).reduce((sum, g) => sum + (g.xp || 0), 0);
+      saveData(save);
+      updateUI(save);
+      renderCards();
+    }
+
+    function getLastSaveTime() {
+      const save = loadSave();
+      if (save.lastSave) {
+        const date = new Date(save.lastSave);
+        return date.toLocaleString();
+      }
+      return 'never';
+    }
+
+    // ===================== TOAST =====================
+    let toastTimeout = null;
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMessage');
+      const icon = toast.querySelector('i');
+      
+      toastMsg.textContent = message;
+      icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+      toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+      
+      if (toastTimeout) clearTimeout(toastTimeout);
+      void toast.offsetWidth;
+      toast.classList.add('show');
+      
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // ===================== MODAL =====================
+    function openModal() {
+      document.getElementById('modalOverlay').classList.add('show');
+      renderGameList();
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('show');
+    }
+
+    function renderGameList() {
+      const save = loadSave();
+      const container = document.getElementById('gameList');
+      const allGames = Object.values(GAMES).flat();
+      
+      container.innerHTML = allGames.map(g => {
+        const data = save.games[g.id] || { played: false, xp: 0 };
+        return `
+          <div class="game-item">
+            <span class="name">${g.name}</span>
+            <span class="played-badge">${data.played ? '✅ played' : '⬜ not played'}</span>
+            <span class="xp">${data.xp || 0} XP</span>
+            <button class="del-btn" onclick="deleteGameData('${g.id}')" title="Delete this game's data">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ===================== UPDATE LOG =====================
+    function toggleUpdateLog() {
+      const log = document.getElementById('updateLog');
+      log.classList.toggle('update-log-collapsed');
+      const icon = document.querySelector('#updateToggle i');
+      if (log.classList.contains('update-log-collapsed')) {
+        icon.className = 'fas fa-chevron-down';
+      } else {
+        icon.className = 'fas fa-chevron-up';
+      }
+    }
+
+    // ===================== UI =====================
+    function renderCards() {
+      const sections = {
+        space: document.getElementById('spaceGrid'),
+        arcade: document.getElementById('arcadeGrid'),
+        sim: document.getElementById('simGrid')
+      };
+      
+      const save = loadSave();
+      
+      Object.keys(sections).forEach(section => {
+        const games = GAMES[section];
+        const container = sections[section];
+        container.innerHTML = games.map(g => {
+          const progress = save.games[g.id] || { played: false, xp: 0 };
+          const pct = Math.min(100, (progress.xp || 0) * 2);
+          
+          let badgeHtml = '';
+          if (g.new) badgeHtml += `<span class="new-badge">new</span>`;
+          
+          const iconStyle = g.iconColor ? `color: ${g.iconColor};` : '';
+          const borderStyle = g.color ? `border-color: ${g.color};` : '';
+          const bgStyle = g.color ? `background: ${g.color}22; border-color: ${g.color};` : '';
+          
+          let logoOverlayHtml = '';
+          if (g.logo) {
+            logoOverlayHtml = `<span class="logo-overlay space">${g.logo}</span>`;
+          }
+          if (g.id === 'scam') {
+            logoOverlayHtml = `<span class="logo-overlay" style="background:linear-gradient(135deg,#ff6b35,#ff4444);">🛡️</span>`;
+          } else if (g.id === 'doctor') {
+            logoOverlayHtml = `<span class="logo-overlay medicore">v2</span>`;
+          }
+          
+          const playedHtml = progress.played ? `<span class="played-badge"><i class="fas fa-check-circle" style="color:#7cf5b0;"></i> ${progress.xp || 0} XP</span>` : '';
+          
+          const progressHtml = progress.played ? `
+            <div class="progress-bar">
+              <div class="fill" style="width: ${pct}%;"></div>
+            </div>
+          ` : '';
+          
+          const href = g.external ? g.file : g.file;
+          const target = g.external ? '_blank' : '';
+          
+          return `
+            <a href="${href}" target="${target}" class="pick-card" style="${borderStyle}" onclick="handleGameClick('${g.id}')">
+              ${badgeHtml}
+              <div class="icon-wrap" style="${bgStyle}">
+                <i class="fas ${g.icon}" style="${iconStyle}"></i>
+                ${logoOverlayHtml}
+              </div>
+              <h3>${g.name}</h3>
+              <div class="sub">${g.sub}</div>
+              <span class="arrow"><i class="fas fa-arrow-right"></i> go</span>
+              ${progressHtml}
+              ${playedHtml}
+            </a>
+          `;
+        }).join('');
+      });
+    }
+
+    function updateUI(save) {
+      document.getElementById('gamesPlayedStat').textContent = save.gamesPlayed || 0;
+      document.getElementById('totalXpStat').textContent = save.totalXp || 0;
+      document.getElementById('lastSaveTime').textContent = getLastSaveTime();
+      document.getElementById('saveStatus').textContent = save.lastSave ? 'saved' : 'auto-saved';
+    }
+
+    function handleGameClick(gameId) {
+      setTimeout(() => {
+        updateGameProgress(gameId, 1);
+      }, 500);
+    }
+
+    // ===================== INIT =====================
+    function init() {
+      const save = loadSave();
+      renderCards();
+      updateUI(save);
+      
+      // Event listeners
+      document.getElementById('saveBtn').addEventListener('click', () => {
+        const save = loadSave();
+        saveData(save);
+        updateUI(save);
+        showToast('Progress saved successfully!', 'success');
+      });
+      
+      document.getElementById('downloadBtn').addEventListener('click', downloadSave);
+      document.getElementById('manageBtn').addEventListener('click', openModal);
+      
+      document.getElementById('modalClose').addEventListener('click', closeModal);
+      document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+      document.getElementById('modalOverlay').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeModal();
+      });
+      
+      document.getElementById('modalSaveBtn').addEventListener('click', () => {
+        const save = loadSave();
+        saveData(save);
+        updateUI(save);
+        showToast('Saved!', 'success');
+        renderGameList();
+      });
+      
+      document.getElementById('modalDownloadBtn').addEventListener('click', downloadSave);
+      document.getElementById('modalDeleteAllBtn').addEventListener('click', deleteAllData);
+      
+      // Auto-save
+      window.addEventListener('beforeunload', () => {
+        const save = loadSave();
+        saveData(save);
+      });
+      
+      setInterval(() => {
+        const save = loadSave();
+        saveData(save);
+        updateUI(save);
+      }, 30000);
+      
+      setTimeout(() => {
+        const played = save.gamesPlayed || 0;
+        if (played > 0) {
+          showToast(`Welcome back! You've played ${played} games. 🚀`, 'success');
+        } else {
+          showToast('🚀 Welcome! Space Update v2.0 is here!', 'success');
+        }
+      }, 500);
+    }
+
+    window.handleGameClick = handleGameClick;
+    window.updateGameProgress = updateGameProgress;
+    window.deleteGameData = deleteGameData;
+    window.deleteAllData = deleteAllData;
+    window.downloadSave = downloadSave;
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.renderGameList = renderGameList;
+    window.toggleUpdateLog = toggleUpdateLog;
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

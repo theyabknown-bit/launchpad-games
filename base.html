@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Launchpad v4.0</title>
+    <title>Launchpad v4.2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,13 +22,15 @@
         .username-display { color: #7cf5b0; font-weight: 600; font-size: 0.8rem; }
         .light-mode .username-display { color: #1a6a8a; }
         .username-display i { margin-right: 3px; color: #f5c87c; }
-        .login-btn, .logout-btn, .friends-btn { background: #1a3a5a; border: 1px solid #2a5a7a; padding: 0.25rem 0.8rem; border-radius: 40px; color: white; cursor: pointer; font-size: 0.7rem; transition: 0.15s; touch-action: manipulation; }
-        .light-mode .login-btn, .light-mode .logout-btn, .light-mode .friends-btn { background: #d0dfec; border-color: #b0c4d4; color: #0b1a26; }
-        .login-btn:hover, .logout-btn:hover, .friends-btn:hover { background: #2a5a7a; }
+        .login-btn, .logout-btn, .friends-btn, .feedback-btn { background: #1a3a5a; border: 1px solid #2a5a7a; padding: 0.25rem 0.8rem; border-radius: 40px; color: white; cursor: pointer; font-size: 0.7rem; transition: 0.15s; touch-action: manipulation; }
+        .light-mode .login-btn, .light-mode .logout-btn, .light-mode .friends-btn, .light-mode .feedback-btn { background: #d0dfec; border-color: #b0c4d4; color: #0b1a26; }
+        .login-btn:hover, .logout-btn:hover, .friends-btn:hover, .feedback-btn:hover { background: #2a5a7a; }
         .login-btn { background: linear-gradient(135deg, #4fc3f7, #1a6a8a); border-color: #4fc3f7; }
         .light-mode .login-btn { background: linear-gradient(135deg, #4fc3f7, #1a6a8a); color: white; }
         .friends-btn { background: linear-gradient(135deg, #f57c9f, #b54a6b); border-color: #f57c9f; }
         .light-mode .friends-btn { background: linear-gradient(135deg, #f57c9f, #b54a6b); color: white; }
+        .feedback-btn { background: linear-gradient(135deg, #7cf5b0, #1a6a4a); border-color: #7cf5b0; }
+        .light-mode .feedback-btn { background: linear-gradient(135deg, #7cf5b0, #1a6a4a); color: white; }
         .leaderboard-btn { background: linear-gradient(135deg, #f5c87c, #ffb347); border: none; padding: 0.25rem 0.8rem; border-radius: 40px; color: #0b1a26; font-weight: 700; cursor: pointer; font-size: 0.7rem; transition: 0.15s; text-decoration: none; display: inline-block; touch-action: manipulation; }
         .leaderboard-btn:hover { transform: scale(1.05); }
         .start-badge { background: #1c4055; padding: 0.2rem 0.8rem; border-radius: 60px; color: #b6ddf5; border: 1px solid #3a6b88; font-size: 0.7rem; display: flex; align-items: center; gap: 4px; }
@@ -108,6 +110,8 @@
         .friend-item .friend-status.online { background: #1a4a3a; color: #7cf5b0; }
         .friend-item .friend-status.offline { background: #1a2a3a; color: #4a6a8a; }
         .friend-item .friend-remove { background: rgba(255,0,0,0.2); border: none; color: #ff6b6b; cursor: pointer; padding: 0.1rem 0.5rem; border-radius: 20px; font-size: 0.7rem; touch-action: manipulation; }
+        .friend-request-btn { background: #1a4a3a; border: 1px solid #2a6a4a; padding: 0.1rem 0.6rem; border-radius: 20px; color: white; cursor: pointer; font-size: 0.65rem; touch-action: manipulation; }
+        .friend-request-btn:hover { background: #2a6a4a; }
 
         .lb-entry { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.03); color: #b0d4f0; font-size: 0.85rem; }
         .light-mode .lb-entry { color: #0b1a26; border-bottom-color: rgba(0,0,0,0.03); }
@@ -143,7 +147,7 @@
             .pick-card h3 { font-size: 0.75rem; }
             .update-log-body { grid-template-columns: 1fr 1fr; }
             .header-right { gap: 0.3rem; }
-            .login-btn, .logout-btn, .friends-btn, .leaderboard-btn { font-size: 0.55rem; padding: 0.15rem 0.5rem; }
+            .login-btn, .logout-btn, .friends-btn, .leaderboard-btn, .feedback-btn { font-size: 0.55rem; padding: 0.15rem 0.5rem; }
             .start-badge { font-size: 0.55rem; padding: 0.1rem 0.5rem; }
             .stat-grid { grid-template-columns: 1fr 1fr; }
         }
@@ -162,6 +166,7 @@
             </div>
             <button class="friends-btn" id="friendsBtn"><i class="fas fa-users"></i> Friends</button>
             <a href="leaderboard.html" class="leaderboard-btn"><i class="fas fa-trophy"></i> LB</a>
+            <button class="feedback-btn" id="feedbackBtn"><i class="fas fa-envelope"></i> Feedback</button>
             <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode"><i class="fas fa-moon"></i></button>
             <div class="start-badge"><i class="fas fa-save"></i> <span id="saveStatus">auto</span></div>
         </div>
@@ -170,19 +175,21 @@
     <!-- UPDATE LOG -->
     <div class="update-log" id="updateLog">
         <div class="update-log-header">
-            <div class="title"><i class="fas fa-rocket" style="color:#ff6b35;"></i> 🚀 v4.1 <span style="font-size:0.5rem; background:#ff6b35; padding:0.05rem 0.4rem; border-radius:20px; color:white; font-weight:400;">LIVE</span></div>
+            <div class="title"><i class="fas fa-rocket" style="color:#ff6b35;"></i> 🚀 v4.2 <span style="font-size:0.5rem; background:#ff6b35; padding:0.05rem 0.4rem; border-radius:20px; color:white; font-weight:400;">LIVE</span></div>
             <div style="display:flex; align-items:center; gap:0.3rem;">
                 <span class="version"><i class="fas fa-calendar-alt"></i> Aug 2026</span>
                 <button class="update-log-toggle" id="updateToggle" onclick="toggleUpdateLog()"><i class="fas fa-chevron-up"></i></button>
             </div>
         </div>
         <div class="update-log-body" id="updateBody">
-            <div class="update-item"><span class="emoji">👥</span> Friend System <span class="new-badge">new</span></div>
-            <div class="update-item"><span class="emoji">🧠</span> Memory Card <span class="new-badge">new</span></div>
-            <div class="update-item"><span class="emoji">❌</span> Tic Tac Toe <span class="new-badge">new</span></div>
-            <div class="update-item"><span class="emoji">🐍</span> Snake <span class="new-badge">new</span></div>
-            <div class="update-item"><span class="emoji">💡</span> Simon Says <span class="new-badge">new</span></div>
-            <div class="update-item"><span class="emoji">🔨</span> Hangman <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">✉️</span> Email Registration <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">📧</span> Feedback Button <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">👥</span> Friend System</div>
+            <div class="update-item"><span class="emoji">🧠</span> Memory Card</div>
+            <div class="update-item"><span class="emoji">❌</span> Tic Tac Toe</div>
+            <div class="update-item"><span class="emoji">🐍</span> Snake</div>
+            <div class="update-item"><span class="emoji">💡</span> Simon Says</div>
+            <div class="update-item"><span class="emoji">🔨</span> Hangman</div>
             <div class="update-item"><span class="emoji">🏅</span> Achievements</div>
             <div class="update-item"><span class="emoji">📊</span> Player Stats</div>
             <div class="update-item"><span class="emoji">🌙</span> Dark/Light Mode</div>
@@ -225,9 +232,11 @@
     <div class="modal-box">
         <button class="close-btn" id="closeRegisterModal"><i class="fas fa-times"></i></button>
         <h2><i class="fas fa-user-plus"></i> Register</h2>
-        <div class="error-msg" id="registerError">Username already exists</div>
+        <div class="error-msg" id="registerError">Username or email already exists</div>
         <label>Username</label>
         <input type="text" id="registerUsername" placeholder="Choose a username">
+        <label>Email</label>
+        <input type="email" id="registerEmail" placeholder="Enter your email">
         <label>Password</label>
         <input type="password" id="registerPassword" placeholder="Choose a password">
         <button class="submit-btn" id="registerSubmitBtn">Register</button>
@@ -367,8 +376,14 @@ function loadUser() {
     return false;
 }
 
-function saveUser(username) {
-    localStorage.setItem(USER_KEY, JSON.stringify({ username }));
+function saveUserData(username, email) {
+    const users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
+    if (!users[username]) {
+        users[username] = { password: '', email: email || '' };
+    }
+    localStorage.setItem('launchpad_users', JSON.stringify(users));
+    // Save current user session
+    localStorage.setItem(USER_KEY, JSON.stringify({ username, email }));
     currentUser = username;
     updateUserUI();
 }
@@ -414,8 +429,20 @@ function addFriend(username) {
     if (username === currentUser) { alert('You cannot add yourself!'); return; }
     const friends = getFriends();
     if (friends.friends.includes(username)) { alert('Already friends!'); return; }
-    if (friends.requests.some(r => r.from === username && r.status === 'pending')) { alert('Request already sent!'); return; }
-    friends.requests.push({ from: username, to: currentUser, status: 'pending' });
+    if (friends.requests.some(r => r.from === currentUser && r.to === username && r.status === 'pending')) { 
+        alert('Request already sent to ' + username + '!'); 
+        return; 
+    }
+    const existingRequest = friends.requests.find(r => r.from === username && r.to === currentUser && r.status === 'pending');
+    if (existingRequest) {
+        existingRequest.status = 'accepted';
+        friends.friends.push(username);
+        saveFriends(friends);
+        renderFriends();
+        alert('You are now friends with ' + username + '!');
+        return;
+    }
+    friends.requests.push({ from: currentUser, to: username, status: 'pending' });
     saveFriends(friends);
     renderFriends();
     alert('Friend request sent to ' + username + '!');
@@ -423,7 +450,7 @@ function addFriend(username) {
 
 function acceptFriend(username) {
     const friends = getFriends();
-    const request = friends.requests.find(r => r.from === username && r.status === 'pending');
+    const request = friends.requests.find(r => r.from === username && r.to === currentUser && r.status === 'pending');
     if (request) {
         request.status = 'accepted';
         friends.friends.push(username);
@@ -434,7 +461,7 @@ function acceptFriend(username) {
 
 function declineFriend(username) {
     const friends = getFriends();
-    friends.requests = friends.requests.filter(r => r.from !== username || r.status !== 'pending');
+    friends.requests = friends.requests.filter(r => r.from !== username || r.to !== currentUser || r.status !== 'pending');
     saveFriends(friends);
     renderFriends();
 }
@@ -452,7 +479,6 @@ function renderFriends() {
     const listEl = document.getElementById('friendList');
     const requestsEl = document.getElementById('friendRequests');
     
-    // Friend list
     if (friends.friends.length === 0) {
         listEl.innerHTML = '<div class="lb-empty">No friends yet. Add some!</div>';
     } else {
@@ -461,13 +487,12 @@ function renderFriends() {
         }).join('');
     }
     
-    // Friend requests
     const pending = friends.requests.filter(r => r.to === currentUser && r.status === 'pending');
     if (pending.length === 0) {
         requestsEl.innerHTML = '<div class="lb-empty">No pending requests</div>';
     } else {
         requestsEl.innerHTML = pending.map(r => {
-            return '<div class="friend-item"><span class="friend-name"><i class="fas fa-user-plus"></i> ' + r.from + '</span><div><button class="submit-btn" style="width:auto;padding:0.2rem 0.8rem;font-size:0.7rem;margin-right:0.3rem;" onclick="acceptFriend(\'' + r.from + '\')">Accept</button><button class="friend-remove" onclick="declineFriend(\'' + r.from + '\')">✕</button></div></div>';
+            return '<div class="friend-item"><span class="friend-name"><i class="fas fa-user-plus"></i> ' + r.from + '</span><div><button class="friend-request-btn" onclick="acceptFriend(\'' + r.from + '\')">Accept</button><button class="friend-remove" onclick="declineFriend(\'' + r.from + '\')">✕</button></div></div>';
         }).join('');
     }
 }
@@ -493,22 +518,27 @@ function handleLogin() {
         return;
     }
     const users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
-    if (!users[username] || users[username] !== password) {
+    if (!users[username] || users[username].password !== password) {
         error.textContent = 'Invalid username or password';
         error.classList.add('show');
         return;
     }
     error.classList.remove('show');
-    saveUser(username);
+    currentUser = username;
+    localStorage.setItem(USER_KEY, JSON.stringify({ username, email: users[username].email || '' }));
+    updateUserUI();
     closeModal('loginModal');
+    renderStats();
 }
 
 function handleRegister() {
     const username = document.getElementById('registerUsername').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value.trim();
     const error = document.getElementById('registerError');
-    if (!username || !password) {
-        error.textContent = 'Please enter username and password';
+    
+    if (!username || !email || !password) {
+        error.textContent = 'Please fill in all fields';
         error.classList.add('show');
         return;
     }
@@ -517,22 +547,44 @@ function handleRegister() {
         error.classList.add('show');
         return;
     }
+    if (!email.includes('@') || !email.includes('.')) {
+        error.textContent = 'Please enter a valid email address';
+        error.classList.add('show');
+        return;
+    }
     if (password.length < 4) {
         error.textContent = 'Password must be at least 4 characters';
         error.classList.add('show');
         return;
     }
+    
     const users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
+    
+    // Check if username exists
     if (users[username]) {
         error.textContent = 'Username already exists';
         error.classList.add('show');
         return;
     }
-    users[username] = password;
+    
+    // Check if email already used
+    const emailExists = Object.values(users).some(u => u.email === email);
+    if (emailExists) {
+        error.textContent = 'Email already registered';
+        error.classList.add('show');
+        return;
+    }
+    
+    users[username] = { password, email };
     localStorage.setItem('launchpad_users', JSON.stringify(users));
     error.classList.remove('show');
-    saveUser(username);
+    
+    currentUser = username;
+    localStorage.setItem(USER_KEY, JSON.stringify({ username, email }));
+    updateUserUI();
     closeModal('registerModal');
+    renderStats();
+    alert('🎉 Registration successful! Welcome ' + username + '!');
 }
 
 function toggleTheme() {
@@ -644,13 +696,19 @@ document.getElementById('closeFriendsModal').addEventListener('click', function(
 document.getElementById('addFriendBtn').addEventListener('click', handleAddFriend);
 document.getElementById('friendSearch').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleAddFriend(); });
 
+// Feedback button - opens email to theyabandtherandomboyoff97@gmail.com
+document.getElementById('feedbackBtn').addEventListener('click', function() {
+    const subject = encodeURIComponent('Launchpad Feedback');
+    const body = encodeURIComponent('Hello! I have some feedback about Launchpad:\n\n');
+    window.location.href = 'mailto:theyabandtherandomboyoff97@gmail.com?subject=' + subject + '&body=' + body;
+});
+
 document.querySelectorAll('.modal-overlay').forEach(function(modal) {
     modal.addEventListener('click', function(e) {
         if (e.target === this) closeModal(this.id);
     });
 });
 
-// Make friend functions global for onclick
 window.addFriend = addFriend;
 window.acceptFriend = acceptFriend;
 window.declineFriend = declineFriend;

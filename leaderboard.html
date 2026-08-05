@@ -150,7 +150,7 @@
 <div class="container">
     <div class="header">
         <h1><i class="fas fa-trophy"></i> Leaderboard</h1>
-        <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> back</a>
+        <a href="base.html" class="back-btn"><i class="fas fa-arrow-left"></i> back</a>
     </div>
 
     <div class="filters">
@@ -168,36 +168,63 @@
             <span style="text-align:right;">Game</span>
         </div>
         <div id="scoresList">
-            <div class="empty"><i class="fas fa-trophy"></i> No scores yet. Be the first to play!</div>
+            <div class="empty"><i class="fas fa-trophy"></i> Loading scores...</div>
         </div>
     </div>
     <div class="total-scores" id="totalScores">Total: 0 scores</div>
 </div>
 
 <script>
-    // ===================== SCORES DATA =====================
-    // This data is loaded from scores.txt via Java backend
-    // For now, we're using a static array that matches your scores.txt
-    
-    const scoresData = [
-        { username: "Theyab", gameId: "asteroid", gameName: "Asteroid Dodge", score: 2500, category: "space" }
-    ];
+    let scoresData = [];
 
-    // ===================== RENDER FUNCTION =====================
+    async function fetchScores() {
+        try {
+            const response = await fetch('scores.txt');
+            if (!response.ok) {
+                throw new Error('Could not load scores.txt');
+            }
+            const text = await response.text();
+            parseScores(text);
+        } catch (error) {
+            console.warn('Error loading scores.txt:', error);
+            scoresData = [
+                { username: "Theyab", gameId: "asteroid", gameName: "Asteroid Dodge", score: 2500, category: "space" }
+            ];
+            renderScores('all');
+        }
+    }
+
+    function parseScores(text) {
+        const lines = text.split('\n').filter(line => line.trim() !== '');
+        scoresData = lines.map(line => {
+            const parts = line.split('|');
+            if (parts.length >= 6) {
+                return {
+                    username: parts[0],
+                    gameId: parts[1],
+                    gameName: parts[2],
+                    score: parseInt(parts[3]),
+                    category: parts[4],
+                    date: parts[5]
+                };
+            }
+            return null;
+        }).filter(entry => entry !== null);
+        renderScores('all');
+    }
+
     function renderScores(filter = 'all') {
         let filtered = scoresData;
         if (filter !== 'all') {
             filtered = scoresData.filter(s => s.category === filter);
         }
-        
-        // Sort by score descending
         filtered.sort((a, b) => b.score - a.score);
         
         const container = document.getElementById('scoresList');
         const totalSpan = document.getElementById('totalScores');
         
         if (filtered.length === 0) {
-            container.innerHTML = <div class="empty"><i class="fas fa-trophy"></i> No scores for this category yet.</div>;
+            container.innerHTML = <div class="empty"><i class="fas fa-trophy"></i> No scores yet. Be the first to play!</div>;
             totalSpan.textContent = Total: 0 scores;
             return;
         }
@@ -227,7 +254,6 @@
         totalSpan.textContent = Total:  scores;
     }
 
-    // ===================== FILTER BUTTONS =====================
     document.querySelectorAll('.filters .btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.filters .btn').forEach(b => b.classList.remove('active'));
@@ -236,21 +262,7 @@
         });
     });
 
-    // ===================== LOAD SCORES FROM JAVA BACKEND =====================
-    // In the future, this will fetch from your Java server
-    // For now, we use the static data above
-    
-    // To add scores dynamically, use:
-    // function addScore(username, gameId, gameName, score, category) {
-    //     scoresData.push({ username, gameId, gameName, score, category });
-    //     renderScores('all');
-    // }
-
-    // ===================== INIT =====================
-    renderScores('all');
-
-    console.log('🏆 Leaderboard loaded!');
-    console.log('Total scores:', scoresData.length);
+    fetchScores();
 </script>
 </body>
 </html>

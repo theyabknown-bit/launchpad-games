@@ -7,107 +7,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0b1a26;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            background-image: radial-gradient(circle at 20% 30%, #1a3a4a 0%, #07131c 90%);
-        }
-        .launchpad {
-            max-width: 1300px;
-            width: 100%;
-            background: rgba(255,255,255,0.04);
-            backdrop-filter: blur(12px);
-            border-radius: 3.5rem;
-            padding: 2.5rem;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 30px 60px -20px rgba(0,0,0,0.8);
-        }
-        .start-header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            padding-bottom: 1.2rem;
-        }
-        .start-header h1 {
-            font-size: 2.4rem;
-            font-weight: 700;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .start-header h1 i {
-            color: #7fc9ff;
-            background: #1d4055;
-            padding: 0.4rem 0.7rem;
-            border-radius: 30px;
-        }
-        .pick-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1.2rem;
-            margin-top: 1rem;
-        }
-        .pick-card {
-            background: rgba(255,255,255,0.03);
-            border-radius: 1.8rem;
-            padding: 1.4rem 0.8rem;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.06);
-            transition: 0.2s;
-            text-decoration: none;
-            color: white;
-            display: block;
-        }
-        .pick-card:hover {
-            transform: translateY(-6px);
-            background: rgba(255,255,255,0.08);
-            border-color: #4f8db0;
-        }
-        .pick-card .icon-wrap {
-            font-size: 2.2rem;
-            color: #9fd0ff;
-            background: #1f4057;
-            width: 65px;
-            height: 65px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 0.8rem;
-            border-radius: 28px;
-            border: 1px solid #3b6f8f;
-        }
+        body { background: #0b1a26; font-family: 'Segoe UI', Roboto, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background-image: radial-gradient(circle at 20% 30%, #1a3a4a 0%, #07131c 90%); }
+        .launchpad { max-width: 1300px; width: 100%; background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); border-radius: 3.5rem; padding: 2.5rem; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 30px 60px -20px rgba(0,0,0,0.8); }
+        .start-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 1.2rem; }
+        .start-header h1 { font-size: 2.4rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 12px; }
+        .start-header h1 i { color: #7fc9ff; background: #1d4055; padding: 0.4rem 0.7rem; border-radius: 30px; }
+        .pick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.2rem; margin-top: 1rem; }
+        .pick-card { background: rgba(255,255,255,0.03); border-radius: 1.8rem; padding: 1.4rem 0.8rem; text-align: center; border: 1px solid rgba(255,255,255,0.06); transition: 0.2s; text-decoration: none; color: white; display: block; }
+        .pick-card:hover { transform: translateY(-6px); background: rgba(255,255,255,0.08); border-color: #4f8db0; }
+        .pick-card .icon-wrap { font-size: 2.2rem; color: #9fd0ff; background: #1f4057; width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.8rem; border-radius: 28px; border: 1px solid #3b6f8f; }
         .pick-card h3 { font-weight: 600; font-size: 0.95rem; color: #f0f8ff; }
         .pick-card .sub { font-size: 0.7rem; opacity: 0.7; color: #bbd9ef; }
-        .pick-card .arrow {
-            display: inline-block;
-            margin-top: 0.5rem;
-            background: #213f53;
-            padding: 0.1rem 0.8rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            border: 1px solid #386883;
-            color: #c0defa;
-        }
-        .section-title {
-            color: #8ab4d8;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 1.8rem 0 0.5rem 0;
-            padding-bottom: 0.4rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .pick-card .arrow { display: inline-block; margin-top: 0.5rem; background: #213f53; padding: 0.1rem 0.8rem; border-radius: 40px; font-size: 0.7rem; border: 1px solid #386883; color: #c0defa; }
+        .section-title { color: #8ab4d8; font-size: 1.1rem; font-weight: 600; margin: 1.8rem 0 0.5rem 0; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; }
         .section-title i { color: #ffb347; }
     </style>
 </head>
@@ -116,34 +28,30 @@
     <div class="start-header">
         <h1><i class="fas fa-rocket"></i> launchpad</h1>
     </div>
-
     <div class="section-title"><i class="fas fa-globe"></i> space</div>
     <div class="pick-grid" id="spaceGrid"></div>
-
     <div class="section-title"><i class="fas fa-gamepad"></i> arcade</div>
     <div class="pick-grid" id="arcadeGrid"></div>
-
     <div class="section-title"><i class="fas fa-hospital"></i> simulation</div>
     <div class="pick-grid" id="simGrid"></div>
 </div>
-
 <script>
 const GAMES = {
     space: [
         { id: 'space', name: 'Space Explorer', icon: 'fa-globe', sub: 'fly & discover', file: 'space/space.html' },
-        { id: 'asteroid', name: 'Asteroid Dodge', icon: 'fa-meteor', sub: 'survive · space', file: 'space/asteroiddodge.html' },
+        { id: 'asteroid', name: 'Asteroid Dodge', icon: 'fa-meteor', sub: 'survive space', file: 'space/asteroiddodge.html' },
         { id: 'planetbuilder', name: 'Planet Builder', icon: 'fa-globe', sub: 'grow planets', file: 'space/PlanetBuilder.html' },
         { id: 'aliens', name: 'Alien Translator', icon: 'fa-language', sub: 'decode messages', file: 'space/AlienTranslator.html' },
-        { id: 'station', name: 'Space Station', icon: 'fa-rocket', sub: 'build & manage', file: 'space/SpaceStationManager.html' },
+        { id: 'station', name: 'Space Station', icon: 'fa-rocket', sub: 'build manage', file: 'space/SpaceStationManager.html' },
         { id: 'mining', name: 'Asteroid Mining', icon: 'fa-pickaxe', sub: 'mine resources', file: 'space/AsteroidMining.html' },
         { id: 'delivery', name: 'Galactic Delivery', icon: 'fa-shipping-fast', sub: 'deliver packages', file: 'space/GalacticDelivery.html' },
         { id: 'blackhole', name: 'Black Hole Escape', icon: 'fa-circle', sub: 'escape the pull', file: 'space/BlackHoleEscape.html' },
-        { id: 'alienzoo', name: 'Alien Zoo', icon: 'fa-paw', sub: 'collect & care', file: 'space/AlienZoo.html' }
+        { id: 'alienzoo', name: 'Alien Zoo', icon: 'fa-paw', sub: 'collect care', file: 'space/AlienZoo.html' }
     ],
     arcade: [
         { id: 'scam', name: 'ScamSavvy', icon: 'fa-shield-halved', sub: 'interactive quiz', file: 'a/scam.html' },
         { id: 'wordblitz', name: 'Word Blitz', icon: 'fa-keyboard', sub: 'typing challenge', file: 'a/wordblitz.html' },
-        { id: 'colormatch', name: 'Color Match', icon: 'fa-palette', sub: 'memory · reflex', file: 'a/colormatch.html' },
+        { id: 'colormatch', name: 'Color Match', icon: 'fa-palette', sub: 'memory reflex', file: 'a/colormatch.html' },
         { id: 'numbercrunch', name: 'Number Crunch', icon: 'fa-calculator', sub: 'math puzzle', file: 'a/numbercrunch.html' },
         { id: 'reactiontap', name: 'Reaction Tap', icon: 'fa-hand-pointer', sub: 'speed test', file: 'a/reactiontap.html' },
         { id: 'draw', name: 'Draw It!', icon: 'fa-paint-brush', sub: '50 prompts', file: 'a/draw.html' },
@@ -154,39 +62,23 @@ const GAMES = {
         { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html' }
     ],
     sim: [
-        { id: 'doctor', name: 'MediCore', icon: 'fa-hospital', sub: 'hospital sim · rpg', file: 'sim/doctor.html' },
-        { id: 'cashier', name: 'Cashier Sim', icon: 'fa-cash-register', sub: 'retail · math', file: 'sim/cashier.html' },
+        { id: 'doctor', name: 'MediCore', icon: 'fa-hospital', sub: 'hospital sim rpg', file: 'sim/doctor.html' },
+        { id: 'cashier', name: 'Cashier Sim', icon: 'fa-cash-register', sub: 'retail math', file: 'sim/cashier.html' },
         { id: 'hotel', name: 'Hotel Sim', icon: 'fa-hotel', sub: 'luxury management', file: 'sim/hotel.html' }
     ]
 };
-
 function renderCards() {
-    const sections = {
-        space: document.getElementById('spaceGrid'),
-        arcade: document.getElementById('arcadeGrid'),
-        sim: document.getElementById('simGrid')
-    };
-
+    const sections = { space: document.getElementById('spaceGrid'), arcade: document.getElementById('arcadeGrid'), sim: document.getElementById('simGrid') };
     Object.keys(sections).forEach(section => {
         const games = GAMES[section];
         const container = sections[section];
         if (container) {
             container.innerHTML = games.map(g => {
-                return 
-                    <a href="" class="pick-card">
-                        <div class="icon-wrap">
-                            <i class="fas "></i>
-                        </div>
-                        <h3></h3>
-                        <div class="sub"></div>
-                        <span class="arrow"><i class="fas fa-arrow-right"></i> go</span>
-                    </a>
-                ;
+                return '<a href="' + g.file + '" class="pick-card"><div class="icon-wrap"><i class="fas ' + g.icon + '"></i></div><h3>' + g.name + '</h3><div class="sub">' + g.sub + '</div><span class="arrow"><i class="fas fa-arrow-right"></i> go</span></a>';
             }).join('');
         }
     });
 }
-
 renderCards();
 </script>
 </body>

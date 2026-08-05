@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Hangman</title>
 <style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#0b1a26;font-family:Segoe UI,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}.game-box{background:rgba(18,28,40,0.95);border-radius:2.5rem;padding:2rem;border:1px solid rgba(100,200,255,0.12);max-width:550px;width:100%;text-align:center;}.back{display:inline-block;margin-bottom:1rem;color:#b6ddf5;text-decoration:none;background:#1c4055;padding:0.3rem 1.2rem;border-radius:40px;border:1px solid #3a6b88;}.back:hover{background:#2a5a78;}h1{color:white;font-size:2rem;margin-bottom:0.5rem;}h1 i{color:#ff6b35;}.word-display{font-size:2.5rem;letter-spacing:8px;color:white;font-family:monospace;padding:1rem;background:#0a121a;border-radius:1rem;margin:1rem 0;}.letters{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin:0.5rem 0;}.letter-btn{width:40px;height:40px;border-radius:50%;background:#1a3a5a;border:1px solid #2a5a7a;color:white;font-size:1.1rem;cursor:pointer;transition:0.15s;}.letter-btn:hover:not(:disabled){background:#2a5a7a;transform:scale(1.05);}.letter-btn:disabled{opacity:0.3;cursor:not-allowed;}.stats{display:flex;justify-content:space-between;color:#9bbfd9;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;}.btn{background:#1a3a5a;border:1px solid #2a5a7a;padding:0.5rem 1.5rem;border-radius:40px;color:white;cursor:pointer;transition:0.15s;}.btn:hover{background:#2a5a7a;}.message{margin-top:0.5rem;padding:0.6rem;border-radius:1rem;background:#0f172a;color:#b0d4f0;min-height:
@@ -10,7 +10,7 @@
 </style></head>
 <body>
 <div class="game-box">
-<a href="../base.html" class="back"><i class="fas fa-arrow-left"></i> back</a>
+<a href="base.html" class="back"><i class="fas fa-arrow-left"></i> back</a>
 <h1><i class="fas fa-gavel"></i> Hangman</h1>
 <div class="word-display" id="wordDisplay">_ _ _ _ _</div>
 <div class="letters" id="letters"></div>
@@ -25,7 +25,7 @@ const wordDisplay=document.getElementById('wordDisplay'),lettersEl=document.getE
 function resetGame(){word=WORDS[Math.floor(Math.random()*WORDS.length)];guessed=[];wrong=0;gameOver=false;updateUI();renderLetters();msg.innerHTML='<i class="fas fa-info-circle"></i> Guess the word!';}
 function updateUI(){wordDisplay.innerHTML=word.split('').map(l=>guessed.includes(l)?l:'_').join(' ');wrongEl.textContent=wrong;guessesEl.textContent=guessed.length;}
 function renderLetters(){const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');lettersEl.innerHTML=letters.map(l=><button class="letter-btn" data-letter="" onclick="guess('')" ></button>).join('');}
-function guess(letter){if(guessed.includes(letter)||gameOver)return;guessed.push(letter);if(!word.includes(letter)){wrong++;}updateUI();renderLetters();if(word.split('').every(l=>guessed.includes(l))){gameOver=true;msg.innerHTML='<i class="fas fa-trophy" style="color:#ffd700;"></i> 🎉 YOU WIN! The word was '+word+'!';}else if(wrong>=maxWrong){gameOver=true;msg.innerHTML='<i class="fas fa-times-circle" style="color:#ff7a7a;"></i> 💀 GAME OVER! The word was '+word;}}
+function guess(letter){if(guessed.includes(letter)||gameOver)return;guessed.push(letter);if(!word.includes(letter)){wrong++;}updateUI();renderLetters();if(word.split('').every(l=>guessed.includes(l))){gameOver=true;msg.innerHTML='<i class="fas fa-trophy" style="color:#ffd700;"></i> ?? YOU WIN! The word was '+word+'!';}else if(wrong>=maxWrong){gameOver=true;msg.innerHTML='<i class="fas fa-times-circle" style="color:#ff7a7a;"></i> ?? GAME OVER! The word was '+word;}}
 resetGame();
 </script>
 </body>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://theyabknown-bit.github.io/launchpad-games/sitemap.xml

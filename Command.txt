@@ -1,0 +1,8 @@
+Step	Command
+1	cd CUserstheyaOneDriveDesktopbase
+2	Get-ChildItem -Path space.html  ForEach-Object { (Get-Content $_.FullName -Raw) -replace 'href=base.html', 'href=..base.html'  Set-Content $_.FullName -NoNewline }
+3	Get-ChildItem -Path a.html  ForEach-Object { (Get-Content $_.FullName -Raw) -replace 'href=base.html', 'href=..base.html'  Set-Content $_.FullName -NoNewline }
+4	Get-ChildItem -Path sim.html  ForEach-Object { (Get-Content $_.FullName -Raw) -replace 'href=base.html', 'href=..base.html'  Set-Content $_.FullName -NoNewline }
+5	git add .
+6	git commit -m Fixed back buttons
+7	git push

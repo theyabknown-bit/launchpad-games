@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number Crunch · math puzzle</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0e121a;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .game-box {
+      background: rgba(16,22,36,0.9);
+      border-radius: 2.5rem;
+      padding: 2rem;
+      border: 1px solid #4a7a7a;
+      max-width: 650px;
+      width: 100%;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+    h1 { color: white; font-size: 2rem; margin-bottom: 0.3rem; }
+    h1 i { color: #7cf5e0; margin-right: 10px; }
+    .back { display: inline-block; margin-bottom: 1.2rem; color: #b0d0d9; text-decoration: none; background: #1f2a35; padding: 0.3rem 1.2rem; border-radius: 40px; border: 1px solid #4a7a7a; font-size: 0.9rem; }
+    .back:hover { background: #2a4055; }
+    .math-display {
+      background: #141f2a;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      margin: 1.2rem 0;
+      border: 2px solid #2a4a5a;
+    }
+    .equation { font-size: 3.8rem; font-weight: 700; color: #e0f5ff; font-family: 'Courier New', monospace; letter-spacing: 4px; }
+    .input-area { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
+    #answerInput { background: #0e1720; border: 2px solid #2a4a5a; padding: 0.8rem 1.5rem; border-radius: 60px; font-size: 1.3rem; color: white; width: 150px; text-align: center; outline: none; }
+    #answerInput:focus { border-color: #7cf5e0; box-shadow: 0 0 20px rgba(124,245,224,0.15); }
+    .btn { background: #2a4a5a; border: none; padding: 0.8rem 2rem; border-radius: 60px; color: white; font-weight: 600; cursor: pointer; border: 1px solid #4a7a7a; transition: 0.15s; }
+    .btn:hover { background: #3a6a7a; }
+    .stats { display: flex; justify-content: space-between; color: #b0d0d9; margin-top: 1.2rem; font-weight: 500; flex-wrap: wrap; gap: 0.8rem; }
+    .stats span i { margin-right: 6px; }
+    .message { margin-top: 1rem; padding: 0.7rem; border-radius: 1rem; background: #141f2a; color: #d0eaff; min-height: 50px; border-left: 4px solid #7cf5e0; }
+    .message i { margin-right: 8px; }
+  </style>
+</head>
+<body>
+<div class="game-box">
+  <a href="../base.html" class="back"><i class="fas fa-arrow-left"></i> back</a>
+  <h1><i class="fas fa-calculator"></i> Number Crunch</h1>
+  <div class="math-display">
+    <div class="equation" id="equationDisplay">12 + 8 = ?</div>
+  </div>
+  <div class="input-area">
+    <input type="number" id="answerInput" placeholder="answer" autofocus>
+    <button class="btn" id="submitBtn"><i class="fas fa-check"></i> check</button>
+  </div>
+  <div class="stats">
+    <span><i class="fas fa-star"></i> score: <span id="scoreDisplay">0</span></span>
+    <span><i class="fas fa-clock"></i> time: <span id="timerDisplay">45</span>s</span>
+    <span><i class="fas fa-bolt"></i> streak: <span id="streakDisplay">0</span></span>
+  </div>
+  <div class="message" id="messageBox"><i class="fas fa-info-circle"></i> solve the equation</div>
+</div>
+<script>
+  let score = 0;
+  let streak = 0;
+  let timeLeft = 45;
+  let gameActive = false;
+  let timerInterval = null;
+  let currentAnswer = 0;
+
+  const equationDisplay = document.getElementById('equationDisplay');
+  const answerInput = document.getElementById('answerInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const timerDisplay = document.getElementById('timerDisplay');
+  const streakDisplay = document.getElementById('streakDisplay');
+  const messageBox = document.getElementById('messageBox');
+
+  function generateEquation() {
+    const ops = ['+', '-', '×'];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    let a, b, answer;
+    if (op === '+') { a = Math.floor(Math.random() * 30) + 2; b = Math.floor(Math.random() * 30) + 2; answer = a + b; }
+    else if (op === '-') { a = Math.floor(Math.random() * 30) + 5; b = Math.floor(Math.random() * a) + 1; answer = a - b; }
+    else { a = Math.floor(Math.random() * 10) + 2; b = Math.floor(Math.random() * 8) + 2; answer = a * b; }
+    equationDisplay.textContent = `${a} ${op} ${b} = ?`;
+    currentAnswer = answer;
+    answerInput.value = '';
+    answerInput.focus();
+  }
+
+  function updateUI() {
+    scoreDisplay.textContent = score;
+    timerDisplay.textContent = timeLeft;
+    streakDisplay.textContent = streak;
+  }
+
+  function endGame(win = false) {
+    gameActive = false;
+    if (timerInterval) clearInterval(timerInterval);
+    answerInput.disabled = true;
+    submitBtn.disabled = true;
+    if (win) {
+      messageBox.innerHTML = `<i class="fas fa-trophy"></i> 🎉 YOU WIN! final score: ${score}`;
+    } else {
+      messageBox.innerHTML = `<i class="fas fa-times-circle"></i> ⏰ time\'s up! final score: ${score}`;
+    }
+  }
+
+  function startGame() {
+    score = 0; streak = 0; timeLeft = 45; gameActive = true;
+    answerInput.disabled = false; submitBtn.disabled = false;
+    updateUI();
+    messageBox.innerHTML = '<i class="fas fa-play"></i> solve as fast as you can!';
+    generateEquation();
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = timeLeft;
+      if (timeLeft <= 0) { endGame(false); }
+    }, 1000);
+  }
+
+  function handleSubmit() {
+    if (!gameActive) { startGame(); return; }
+    const val = parseInt(answerInput.value);
+    if (isNaN(val)) { messageBox.innerHTML = '<i class="fas fa-exclamation-triangle"></i> enter a number!'; return; }
+    if (val === currentAnswer) {
+      score += 10 + streak * 2;
+      streak++;
+      messageBox.innerHTML = `<i class="fas fa-check-circle" style="color:#7cf5e0;"></i> correct! +${10 + (streak-1)*2}`;
+    } else {
+      streak = 0;
+      messageBox.innerHTML = `<i class="fas fa-times-circle" style="color:#ff7a7a;"></i> wrong! answer was ${currentAnswer}`;
+    }
+    updateUI();
+    if (score >= 150) { endGame(true); return; }
+    generateEquation();
+  }
+
+  answerInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSubmit(); } });
+  submitBtn.addEventListener('click', handleSubmit);
+
+  startGame();
+</script>
+</body>
+</html>

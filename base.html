@@ -36,7 +36,6 @@
         .section-title i { color: #ffb347; }
         .section-title .count { font-size: 0.7rem; color: #4a6a8a; font-weight: 400; margin-left: 6px; }
 
-        /* ===== UPDATE LOG ===== */
         .update-log { background: rgba(0,0,0,0.3); border-radius: 1.5rem; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(100,200,255,0.08); position: relative; overflow: hidden; }
         .update-log::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #ff6b35, #ffd93d, #7cf5b0, #4fc3f7); }
         .update-log-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 0.8rem; }
@@ -98,7 +97,7 @@
         </div>
     </div>
 
-    <!-- ===== UPDATE LOG ===== -->
+    <!-- UPDATE LOG -->
     <div class="update-log" id="updateLog">
         <div class="update-log-header">
             <div class="title">
@@ -121,6 +120,7 @@
             <div class="update-item"><span class="emoji">📦</span> Galactic Delivery <span class="new-badge">new</span></div>
             <div class="update-item"><span class="emoji">🌀</span> Black Hole Escape <span class="new-badge">new</span></div>
             <div class="update-item"><span class="emoji">🏛️</span> Alien Zoo <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">⚡</span> Stimulation Overload</div>
             <div class="update-item"><span class="emoji">👤</span> Login & Register System</div>
             <div class="update-item"><span class="emoji">🏆</span> Leaderboard</div>
             <div class="update-item"><span class="emoji">💾</span> Auto-save Progress</div>
@@ -132,7 +132,7 @@
     <div class="section-title"><i class="fas fa-globe"></i> space <span class="count">(9)</span></div>
     <div class="pick-grid" id="spaceGrid"></div>
 
-    <div class="section-title"><i class="fas fa-gamepad"></i> arcade <span class="count">(11)</span></div>
+    <div class="section-title"><i class="fas fa-gamepad"></i> arcade <span class="count">(12)</span></div>
     <div class="pick-grid" id="arcadeGrid"></div>
 
     <div class="section-title"><i class="fas fa-hospital"></i> simulation <span class="count">(3)</span></div>
@@ -193,7 +193,8 @@ const GAMES = {
         { id: 'beatbop', name: 'Beat Bop', icon: 'fa-music', sub: 'rhythm game', file: 'a/beatbop.html' },
         { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', sub: '15 puzzle', file: 'a/slidepuzzle.html' },
         { id: 'whackamole', name: 'Whack-A-Mole', icon: 'fa-hammer', sub: 'arcade classic', file: 'a/whackamole.html' },
-        { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html' }
+        { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html' },
+        { id: 'stim', name: 'Stimulation Overload', icon: 'fa-bolt', sub: 'clicker game', file: 'https://stimclickerweb.netlify.app' }
     ],
     sim: [
         { id: 'doctor', name: 'MediCore', icon: 'fa-hospital', sub: 'hospital sim rpg', file: 'sim/doctor.html' },
@@ -390,7 +391,8 @@ function renderCards() {
                 const pct = Math.min(100, (progress.xp || 0) * 2);
                 const playedHtml = progress.played ? '<span class="played-badge"><i class="fas fa-check-circle" style="color:#7cf5b0;"></i> ' + progress.xp + ' XP</span>' : '';
                 const progressHtml = progress.played ? '<div class="progress-bar"><div class="fill" style="width:' + pct + '%;"></div></div>' : '';
-                return '<a href="' + g.file + '" class="pick-card" onclick="handleGameClick(\'' + g.id + '\')"><div class="icon-wrap"><i class="fas ' + g.icon + '"></i></div><h3>' + g.name + '</h3><div class="sub">' + g.sub + '</div><span class="arrow"><i class="fas fa-arrow-right"></i> go</span>' + progressHtml + playedHtml + '</a>';
+                const target = g.file.startsWith('http') ? 'target="_blank"' : '';
+                return '<a href="' + g.file + '" ' + target + ' class="pick-card" onclick="handleGameClick(\'' + g.id + '\')"><div class="icon-wrap"><i class="fas ' + g.icon + '"></i></div><h3>' + g.name + '</h3><div class="sub">' + g.sub + '</div><span class="arrow"><i class="fas fa-arrow-right"></i> go</span>' + progressHtml + playedHtml + '</a>';
             }).join('');
         }
     });

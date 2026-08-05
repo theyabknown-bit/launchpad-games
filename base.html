@@ -35,6 +35,23 @@
         .section-title { color: #8ab4d8; font-size: 1.1rem; font-weight: 600; margin: 1.8rem 0 0.5rem 0; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; }
         .section-title i { color: #ffb347; }
         .section-title .count { font-size: 0.7rem; color: #4a6a8a; font-weight: 400; margin-left: 6px; }
+
+        /* ===== UPDATE LOG ===== */
+        .update-log { background: rgba(0,0,0,0.3); border-radius: 1.5rem; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(100,200,255,0.08); position: relative; overflow: hidden; }
+        .update-log::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #ff6b35, #ffd93d, #7cf5b0, #4fc3f7); }
+        .update-log-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 0.8rem; }
+        .update-log-header .title { color: #ffd93d; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .update-log-header .version { color: #4a6a8a; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 0.2rem 1rem; border-radius: 40px; border: 1px solid #2a4a5a; display: flex; align-items: center; gap: 6px; }
+        .update-log-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.6rem; }
+        .update-item { display: flex; align-items: center; gap: 8px; color: #b0d4f0; font-size: 0.85rem; padding: 0.3rem 0.6rem; background: rgba(255,255,255,0.02); border-radius: 0.6rem; transition: 0.15s; }
+        .update-item:hover { background: rgba(255,255,255,0.05); }
+        .update-item .emoji { font-size: 1.2rem; }
+        .update-item .new-badge { background: #ff6b35; color: white; font-size: 0.5rem; font-weight: 700; padding: 0.05rem 0.4rem; border-radius: 20px; text-transform: uppercase; margin-left: auto; animation: pulseBadge 2s infinite; }
+        @keyframes pulseBadge { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .update-log-toggle { background: none; border: none; color: #4a6a8a; cursor: pointer; font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 20px; transition: 0.15s; }
+        .update-log-toggle:hover { color: #8ab4d8; background: rgba(255,255,255,0.05); }
+        .update-log-collapsed .update-log-body { display: none; }
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; padding: 1rem; }
         .modal-overlay.show { display: flex; }
         .modal-box { background: #1a2a3a; border-radius: 2rem; padding: 2rem; max-width: 450px; width: 100%; border: 2px solid #4fc3f7; box-shadow: 0 0 60px rgba(79,195,247,0.1); max-height: 90vh; overflow-y: auto; }
@@ -63,7 +80,7 @@
         .lb-filters .btn { background: #1a3a5a; border: 1px solid #2a5a7a; padding: 0.3rem 1rem; border-radius: 40px; color: white; cursor: pointer; font-size: 0.8rem; transition: 0.15s; }
         .lb-filters .btn:hover { background: #2a5a7a; }
         .lb-filters .btn.active { background: #4fc3f7; border-color: #4fc3f7; color: #0b1a26; }
-        @media (max-width: 600px) { .launchpad { padding: 1.5rem; } .pick-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 600px) { .launchpad { padding: 1.5rem; } .pick-grid { grid-template-columns: 1fr 1fr; } .update-log-body { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
@@ -78,6 +95,37 @@
             </div>
             <a href="leaderboard.html" class="leaderboard-btn"><i class="fas fa-trophy"></i> Leaderboard</a>
             <div class="start-badge"><i class="fas fa-save"></i> <span id="saveStatus">auto-saved</span></div>
+        </div>
+    </div>
+
+    <!-- ===== UPDATE LOG ===== -->
+    <div class="update-log" id="updateLog">
+        <div class="update-log-header">
+            <div class="title">
+                <i class="fas fa-rocket" style="color:#ff6b35;"></i>
+                🚀 Launchpad Update v3.0
+                <span style="font-size:0.6rem; background:#ff6b35; padding:0.05rem 0.5rem; border-radius:20px; color:white; font-weight:400;">LIVE</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span class="version"><i class="fas fa-calendar-alt"></i> Aug 2026</span>
+                <button class="update-log-toggle" id="updateToggle" onclick="toggleUpdateLog()">
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+            </div>
+        </div>
+        <div class="update-log-body" id="updateBody">
+            <div class="update-item"><span class="emoji">🌍</span> Planet Builder <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">👾</span> Alien Translator <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">🚀</span> Space Station Manager <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">⛏️</span> Asteroid Mining <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">📦</span> Galactic Delivery <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">🌀</span> Black Hole Escape <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">🏛️</span> Alien Zoo <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">👤</span> Login & Register System</div>
+            <div class="update-item"><span class="emoji">🏆</span> Leaderboard</div>
+            <div class="update-item"><span class="emoji">💾</span> Auto-save Progress</div>
+            <div class="update-item"><span class="emoji">📱</span> Mobile Responsive</div>
+            <div class="update-item"><span class="emoji">⭐</span> XP & Leveling System</div>
         </div>
     </div>
 
@@ -313,6 +361,18 @@ function handleRegister() {
     closeModal('registerModal');
 }
 
+// ===================== UPDATE LOG =====================
+function toggleUpdateLog() {
+    const log = document.getElementById('updateLog');
+    log.classList.toggle('update-log-collapsed');
+    const icon = document.querySelector('#updateToggle i');
+    if (log.classList.contains('update-log-collapsed')) {
+        icon.className = 'fas fa-chevron-down';
+    } else {
+        icon.className = 'fas fa-chevron-up';
+    }
+}
+
 // ===================== RENDER CARDS =====================
 function renderCards() {
     const save = loadSave();
@@ -348,7 +408,6 @@ function init() {
     updateUserUI();
     renderCards();
     
-    // Auto-save every 30 seconds
     setInterval(function() {
         const save = loadSave();
         saveData(save);
@@ -369,7 +428,6 @@ document.getElementById('switchToLogin').addEventListener('click', function() { 
 
 document.getElementById('logoutBtn').addEventListener('click', logoutUser);
 
-// Close modals when clicking outside
 document.querySelectorAll('.modal-overlay').forEach(function(modal) {
     modal.addEventListener('click', function(e) {
         if (e.target === this) closeModal(this.id);
@@ -377,6 +435,7 @@ document.querySelectorAll('.modal-overlay').forEach(function(modal) {
 });
 
 window.handleGameClick = handleGameClick;
+window.toggleUpdateLog = toggleUpdateLog;
 window.init = init;
 
 init();

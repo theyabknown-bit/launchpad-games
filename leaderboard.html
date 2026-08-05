@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Leaderboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b1a26;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background-image: radial-gradient(circle at 20% 30%, #1a3a4a 0%, #07131c 90%);
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(12px);
+            border-radius: 3rem;
+            padding: 2.5rem;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 30px 60px -20px rgba(0,0,0,0.8);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .header h1 {
+            color: white;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header h1 i { color: #ffd700; }
+        .back-btn {
+            background: #1a3045;
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            text-decoration: none;
+            color: #b6ddf5;
+            border: 1px solid #3a6b88;
+            font-weight: 500;
+            transition: 0.15s;
+        }
+        .back-btn:hover { background: #2a4a6a; }
+        .filters {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .filters .btn {
+            background: #1a3a5a;
+            border: 1px solid #2a5a7a;
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.15s;
+        }
+        .filters .btn:hover { background: #2a5a7a; }
+        .filters .btn.active { background: #4fc3f7; border-color: #4fc3f7; color: #0b1a26; }
+        .leaderboard {
+            background: rgba(0,0,0,0.2);
+            border-radius: 1.5rem;
+            padding: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        .lb-header {
+            display: grid;
+            grid-template-columns: 50px 1fr 120px 100px;
+            padding: 0.8rem 1.2rem;
+            color: #4a6a8a;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .lb-entry {
+            display: grid;
+            grid-template-columns: 50px 1fr 120px 100px;
+            padding: 0.8rem 1.2rem;
+            color: #b0d4f0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            align-items: center;
+            transition: 0.15s;
+        }
+        .lb-entry:hover { background: rgba(255,255,255,0.02); }
+        .lb-entry .rank {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .lb-entry .rank.gold { color: #ffd700; }
+        .lb-entry .rank.silver { color: #c0c0c0; }
+        .lb-entry .rank.bronze { color: #cd7f32; }
+        .lb-entry .name {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .lb-entry .name .icon { font-size: 1.2rem; }
+        .lb-entry .score {
+            color: #f5c87c;
+            font-weight: 700;
+            text-align: right;
+        }
+        .lb-entry .game {
+            color: #4a6a8a;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .empty {
+            text-align: center;
+            padding: 2rem;
+            color: #4a6a8a;
+        }
+        .empty i { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+        .total-scores {
+            text-align: center;
+            color: #4a6a8a;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.03);
+        }
+        @media (max-width: 600px) {
+            .container { padding: 1.5rem; }
+            .lb-header { grid-template-columns: 40px 1fr 70px 60px; font-size: 0.7rem; }
+            .lb-entry { grid-template-columns: 40px 1fr 70px 60px; font-size: 0.85rem; padding: 0.6rem 0.8rem; }
+            .header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-trophy"></i> Leaderboard</h1>
+        <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> back</a>
+    </div>
+
+    <div class="filters">
+        <button class="btn active" data-filter="all">🏆 All</button>
+        <button class="btn" data-filter="space">🚀 Space</button>
+        <button class="btn" data-filter="arcade">🎮 Arcade</button>
+        <button class="btn" data-filter="sim">🏥 Simulation</button>
+    </div>
+
+    <div class="leaderboard" id="leaderboardContainer">
+        <div class="lb-header">
+            <span>Rank</span>
+            <span>Player</span>
+            <span style="text-align:right;">Score</span>
+            <span style="text-align:right;">Game</span>
+        </div>
+        <div id="scoresList">
+            <div class="empty"><i class="fas fa-trophy"></i> No scores yet. Be the first to play!</div>
+        </div>
+    </div>
+    <div class="total-scores" id="totalScores">Total: 0 scores</div>
+</div>
+
+<script>
+    // ===================== SCORES DATA =====================
+    // This data is loaded from scores.txt via Java backend
+    // For now, we're using a static array that matches your scores.txt
+    
+    const scoresData = [
+        { username: "Theyab", gameId: "asteroid", gameName: "Asteroid Dodge", score: 2500, category: "space" }
+    ];
+
+    // ===================== RENDER FUNCTION =====================
+    function renderScores(filter = 'all') {
+        let filtered = scoresData;
+        if (filter !== 'all') {
+            filtered = scoresData.filter(s => s.category === filter);
+        }
+        
+        // Sort by score descending
+        filtered.sort((a, b) => b.score - a.score);
+        
+        const container = document.getElementById('scoresList');
+        const totalSpan = document.getElementById('totalScores');
+        
+        if (filtered.length === 0) {
+            container.innerHTML = <div class="empty"><i class="fas fa-trophy"></i> No scores for this category yet.</div>;
+            totalSpan.textContent = Total: 0 scores;
+            return;
+        }
+        
+        let html = '';
+        filtered.forEach((entry, index) => {
+            let rankClass = '';
+            let rankIcon = '';
+            if (index === 0) { rankClass = 'gold'; rankIcon = '🥇'; }
+            else if (index === 1) { rankClass = 'silver'; rankIcon = '🥈'; }
+            else if (index === 2) { rankClass = 'bronze'; rankIcon = '🥉'; }
+            else { rankIcon = #; }
+            
+            const categoryEmoji = entry.category === 'space' ? '🚀' : entry.category === 'arcade' ? '🎮' : '🏥';
+            
+            html += 
+                <div class="lb-entry">
+                    <span class="rank "></span>
+                    <span class="name"><span class="icon"></span> </span>
+                    <span class="score"></span>
+                    <span class="game"></span>
+                </div>
+            ;
+        });
+        
+        container.innerHTML = html;
+        totalSpan.textContent = Total:  scores;
+    }
+
+    // ===================== FILTER BUTTONS =====================
+    document.querySelectorAll('.filters .btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filters .btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            renderScores(this.dataset.filter);
+        });
+    });
+
+    // ===================== LOAD SCORES FROM JAVA BACKEND =====================
+    // In the future, this will fetch from your Java server
+    // For now, we use the static data above
+    
+    // To add scores dynamically, use:
+    // function addScore(username, gameId, gameName, score, category) {
+    //     scoresData.push({ username, gameId, gameName, score, category });
+    //     renderScores('all');
+    // }
+
+    // ===================== INIT =====================
+    renderScores('all');
+
+    console.log('🏆 Leaderboard loaded!');
+    console.log('Total scores:', scoresData.length);
+</script>
+</body>
+</html>

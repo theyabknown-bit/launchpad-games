@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -128,48 +128,49 @@
 </div>
 
 <script>
-    const GAMES = {
-        space: [
-            { id: 'space', name: 'Space Explorer', icon: 'fa-globe', sub: 'fly & discover', file: 'space/space.html' },
-            { id: 'asteroid', name: 'Asteroid Dodge', icon: 'fa-meteor', sub: 'survive · space', file: 'space/asteroiddodge.html' },
-            { id: 'planetbuilder', name: 'Planet Builder', icon: 'fa-globe', sub: 'grow planets', file: 'space/PlanetBuilder.html' },
-            { id: 'aliens', name: 'Alien Translator', icon: 'fa-language', sub: 'decode messages', file: 'space/AlienTranslator.html' },
-            { id: 'station', name: 'Space Station', icon: 'fa-rocket', sub: 'build & manage', file: 'space/SpaceStationManager.html' },
-            { id: 'mining', name: 'Asteroid Mining', icon: 'fa-pickaxe', sub: 'mine resources', file: 'space/AsteroidMining.html' },
-            { id: 'delivery', name: 'Galactic Delivery', icon: 'fa-shipping-fast', sub: 'deliver packages', file: 'space/GalacticDelivery.html' },
-            { id: 'blackhole', name: 'Black Hole Escape', icon: 'fa-circle', sub: 'escape the pull', file: 'space/BlackHoleEscape.html' },
-            { id: 'alienzoo', name: 'Alien Zoo', icon: 'fa-paw', sub: 'collect & care', file: 'space/AlienZoo.html' }
-        ],
-        arcade: [
-            { id: 'scam', name: 'ScamSavvy', icon: 'fa-shield-halved', sub: 'interactive quiz', file: 'a/scam.html' },
-            { id: 'wordblitz', name: 'Word Blitz', icon: 'fa-keyboard', sub: 'typing challenge', file: 'a/wordblitz.html' },
-            { id: 'colormatch', name: 'Color Match', icon: 'fa-palette', sub: 'memory · reflex', file: 'a/colormatch.html' },
-            { id: 'numbercrunch', name: 'Number Crunch', icon: 'fa-calculator', sub: 'math puzzle', file: 'a/numbercrunch.html' },
-            { id: 'reactiontap', name: 'Reaction Tap', icon: 'fa-hand-pointer', sub: 'speed test', file: 'a/reactiontap.html' },
-            { id: 'draw', name: 'Draw It!', icon: 'fa-paint-brush', sub: '50 prompts', file: 'a/draw.html' },
-            { id: 'typeracer', name: 'Type Racer', icon: 'fa-keyboard', sub: 'speed typing', file: 'a/typeracer.html' },
-            { id: 'beatbop', name: 'Beat Bop', icon: 'fa-music', sub: 'rhythm game', file: 'a/beatbop.html' },
-            { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', sub: '15 puzzle', file: 'a/slidepuzzle.html' },
-            { id: 'whackamole', name: 'Whack-A-Mole', icon: 'fa-hammer', sub: 'arcade classic', file: 'a/whackamole.html' },
-            { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html' }
-        ],
-        sim: [
-            { id: 'doctor', name: 'MediCore', icon: 'fa-hospital', sub: 'hospital sim · rpg', file: 'sim/doctor.html' },
-            { id: 'cashier', name: 'Cashier Sim', icon: 'fa-cash-register', sub: 'retail · math', file: 'sim/cashier.html' },
-            { id: 'hotel', name: 'Hotel Sim', icon: 'fa-hotel', sub: 'luxury management', file: 'sim/hotel.html' }
-        ]
+const GAMES = {
+    space: [
+        { id: 'space', name: 'Space Explorer', icon: 'fa-globe', sub: 'fly & discover', file: 'space/space.html' },
+        { id: 'asteroid', name: 'Asteroid Dodge', icon: 'fa-meteor', sub: 'survive Â· space', file: 'space/asteroiddodge.html' },
+        { id: 'planetbuilder', name: 'Planet Builder', icon: 'fa-globe', sub: 'grow planets', file: 'space/PlanetBuilder.html' },
+        { id: 'aliens', name: 'Alien Translator', icon: 'fa-language', sub: 'decode messages', file: 'space/AlienTranslator.html' },
+        { id: 'station', name: 'Space Station', icon: 'fa-rocket', sub: 'build & manage', file: 'space/SpaceStationManager.html' },
+        { id: 'mining', name: 'Asteroid Mining', icon: 'fa-pickaxe', sub: 'mine resources', file: 'space/AsteroidMining.html' },
+        { id: 'delivery', name: 'Galactic Delivery', icon: 'fa-shipping-fast', sub: 'deliver packages', file: 'space/GalacticDelivery.html' },
+        { id: 'blackhole', name: 'Black Hole Escape', icon: 'fa-circle', sub: 'escape the pull', file: 'space/BlackHoleEscape.html' },
+        { id: 'alienzoo', name: 'Alien Zoo', icon: 'fa-paw', sub: 'collect & care', file: 'space/AlienZoo.html' }
+    ],
+    arcade: [
+        { id: 'scam', name: 'ScamSavvy', icon: 'fa-shield-halved', sub: 'interactive quiz', file: 'a/scam.html' },
+        { id: 'wordblitz', name: 'Word Blitz', icon: 'fa-keyboard', sub: 'typing challenge', file: 'a/wordblitz.html' },
+        { id: 'colormatch', name: 'Color Match', icon: 'fa-palette', sub: 'memory Â· reflex', file: 'a/colormatch.html' },
+        { id: 'numbercrunch', name: 'Number Crunch', icon: 'fa-calculator', sub: 'math puzzle', file: 'a/numbercrunch.html' },
+        { id: 'reactiontap', name: 'Reaction Tap', icon: 'fa-hand-pointer', sub: 'speed test', file: 'a/reactiontap.html' },
+        { id: 'draw', name: 'Draw It!', icon: 'fa-paint-brush', sub: '50 prompts', file: 'a/draw.html' },
+        { id: 'typeracer', name: 'Type Racer', icon: 'fa-keyboard', sub: 'speed typing', file: 'a/typeracer.html' },
+        { id: 'beatbop', name: 'Beat Bop', icon: 'fa-music', sub: 'rhythm game', file: 'a/beatbop.html' },
+        { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', sub: '15 puzzle', file: 'a/slidepuzzle.html' },
+        { id: 'whackamole', name: 'Whack-A-Mole', icon: 'fa-hammer', sub: 'arcade classic', file: 'a/whackamole.html' },
+        { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html' }
+    ],
+    sim: [
+        { id: 'doctor', name: 'MediCore', icon: 'fa-hospital', sub: 'hospital sim Â· rpg', file: 'sim/doctor.html' },
+        { id: 'cashier', name: 'Cashier Sim', icon: 'fa-cash-register', sub: 'retail Â· math', file: 'sim/cashier.html' },
+        { id: 'hotel', name: 'Hotel Sim', icon: 'fa-hotel', sub: 'luxury management', file: 'sim/hotel.html' }
+    ]
+};
+
+function renderCards() {
+    const sections = {
+        space: document.getElementById('spaceGrid'),
+        arcade: document.getElementById('arcadeGrid'),
+        sim: document.getElementById('simGrid')
     };
 
-    function renderCards() {
-        const sections = {
-            space: document.getElementById('spaceGrid'),
-            arcade: document.getElementById('arcadeGrid'),
-            sim: document.getElementById('simGrid')
-        };
-
-        Object.keys(sections).forEach(section => {
-            const games = GAMES[section];
-            const container = sections[section];
+    Object.keys(sections).forEach(section => {
+        const games = GAMES[section];
+        const container = sections[section];
+        if (container) {
             container.innerHTML = games.map(g => {
                 return 
                     <a href="" class="pick-card">
@@ -182,12 +183,11 @@
                     </a>
                 ;
             }).join('');
-        });
-    }
+        }
+    });
+}
 
-    renderCards();
+renderCards();
 </script>
 </body>
 </html>
-
-<script>init();</script>

@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Memory Card</title>
+<style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#0b1a26;font-family:Segoe UI,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}.game-box{background:rgba(18,28,40,0.95);border-radius:2.5rem;padding:2rem;border:1px solid rgba(100,200,255,0.12);max-width:650px;width:100%;text-align:center;}.back{display:inline-block;margin-bottom:1rem;color:#b6ddf5;text-decoration:none;background:#1c4055;padding:0.3rem 1.2rem;border-radius:40px;border:1px solid #3a6b88;}.back:hover{background:#2a5a78;}h1{color:white;font-size:2rem;margin-bottom:0.5rem;}h1 i{color:#7fc9ff;}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;margin:1rem 0;max-width:400px;margin-left:auto;margin-right:auto;}.card{aspect-ratio:1;background:#1a3a5a;border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:2.5rem;cursor:pointer;transition:0.15s;border:2px solid #2a5a7a;user-select:none;}.card:hover:not(.matched):not(.flipped){transform:scale(1.05);border-color:#7fc9ff;}.card.flipped{background:#1a4a3a;border-color:#7cf5b0;transform:scale(0.95);}.card.matched{background:#1a4a3a;border-color:#7cf5b0;cursor:default;opacity:0.7;}.stats{display:flex;justify-content:space-between;color:#9bbfd9;margin-top:1rem;flex-wrap:wrap;gap:0.5rem;}.btn{background:#1a3a5a;border:1px solid #2a5a7a;padding:0.5rem 1.5rem;border-radius:40px;color:white;cursor:pointer;transition:0.15s;}.btn:hover{background:#2a5a7a;}.message{margin-top:0.5rem;padding:0.6rem;border-radius:1rem;background:#0f172a;color:#b0d4f0;min-height:40px;border-left:4px solid #7fc9ff;}
+@media(max-width:500px){.grid{gap:0.5rem;}.card{font-size:1.8rem;}}
+</style></head>
+<body>
+<div class="game-box">
+<a href="../base.html" class="back"><i class="fas fa-arrow-left"></i> back</a>
+<h1><i class="fas fa-brain"></i> Memory Card</h1>
+<div class="grid" id="grid"></div>
+<div class="stats">
+<span>Moves: <span id="moves">0</span></span>
+<span>Matches: <span id="matches">0</span>/8</span>
+</div>
+<button class="btn" onclick="resetGame()"><i class="fas fa-rotate"></i> restart</button>
+<div class="message" id="msg"><i class="fas fa-info-circle"></i> Flip cards and find matching pairs!</div>
+</div>
+<script>
+const EMOJIS = ['🚀','⭐','🌍','🪐','☀️','🌙','🛸','👾'];
+let cards=[], flipped=[], matched=0, moves=0, locked=false;
+const grid=document.getElementById('grid'), movesDisplay=document.getElementById('moves'), matchesDisplay=document.getElementById('matches'), msg=document.getElementById('msg');
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function initGame(){const deck=[...EMOJIS,...EMOJIS];cards=shuffle(deck).map((emoji,i)=>({id:i,emoji,flipped:false,matched:false}));flipped=[];matched=0;moves=0;locked=false;render();}
+function render(){grid.innerHTML=cards.map(c=><div class="card  " onclick="flipCard()"></div>).join('');movesDisplay.textContent=moves;matchesDisplay.textContent=matched;}
+function flipCard(id){if(locked||cards[id].flipped||cards[id].matched)return;cards[id].flipped=true;flipped.push(id);render();if(flipped.length===2){moves++;locked=true;const [a,b]=flipped;if(cards[a].emoji===cards[b].emoji){cards[a].matched=true;cards[b].matched=true;matched++;flipped=[];locked=false;render();if(matched===8){msg.innerHTML='<i class="fas fa-trophy" style="color:#ffd700;"></i> 🎉 YOU WIN! All matches found!';}return;}setTimeout(()=>{cards[a].flipped=false;cards[b].flipped=false;flipped=[];locked=false;render();},800);}}
+function resetGame(){initGame();msg.innerHTML='<i class="fas fa-info-circle"></i> Flip cards and find matching pairs!';}
+initGame();
+</script>
+</body>
+</html>

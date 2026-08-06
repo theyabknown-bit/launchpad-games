@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <title>Launchpad</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -181,7 +180,7 @@
     <div id="playerStats"></div>
     <div class="section-title"><i class="fas fa-globe"></i> space <span class="count">(9)</span></div>
     <div class="pick-grid" id="spaceGrid"></div>
-    <div class="section-title"><i class="fas fa-gamepad"></i> arcade <span class="count">(17)</span></div>
+    <div class="section-title"><i class="fas fa-gamepad"></i> arcade <span class="count">(16)</span></div>
     <div class="pick-grid" id="arcadeGrid"></div>
     <div class="section-title"><i class="fas fa-hospital"></i> simulation <span class="count">(4)</span></div>
     <div class="pick-grid" id="simGrid"></div>
@@ -231,7 +230,6 @@
     </div>
 </div>
 <script>
-// ===================== GAME DATA =====================
 const GAMES = {
     space: [
         { id: 'space', name: 'Space Explorer', icon: 'fa-globe', sub: 'fly discover', file: 'space/space.html' },
@@ -244,7 +242,6 @@ const GAMES = {
         { id: 'blackhole', name: 'Black Hole Escape', icon: 'fa-circle', sub: 'escape the pull', file: 'space/BlackHoleEscape.html' },
         { id: 'alienzoo', name: 'Alien Zoo', icon: 'fa-paw', sub: 'collect care', file: 'space/AlienZoo.html' }
     ],
-
     arcade: [
         { id: 'tictactoe', name: 'Tic Tac Toe', icon: 'fa-times', sub: 'classic game', file: 'a/tictactoe.html' },
         { id: 'snake', name: 'Snake', icon: 'fa-dragon', sub: 'eat & grow', file: 'a/snake.html' },
@@ -271,7 +268,6 @@ const GAMES = {
     ]
 };
 
-// ===================== SAVE SYSTEM =====================
 const SAVE_KEY = 'launchpad_progress';
 const USER_KEY = 'launchpad_user';
 const FRIENDS_KEY = 'launchpad_friends';
@@ -344,7 +340,6 @@ function updateGameProgress(gameId) {
     renderStats();
 }
 
-// ===================== USER SYSTEM =====================
 var currentUser = null;
 var darkMode = true;
 
@@ -394,7 +389,6 @@ function updateUserUI() {
     }
 }
 
-// ===================== FRIEND SYSTEM =====================
 function getFriends() {
     try {
         var data = localStorage.getItem(FRIENDS_KEY);
@@ -524,7 +518,6 @@ function handleAddFriend() {
     document.getElementById('friendSearch').value = '';
 }
 
-// ===================== UI FUNCTIONS =====================
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
@@ -706,7 +699,6 @@ function init() {
     }, 30000);
 }
 
-// ===================== EVENT LISTENERS =====================
 document.getElementById('loginBtn').addEventListener('click', function() { openModal('loginModal'); });
 document.getElementById('closeLoginModal').addEventListener('click', function() { closeModal('loginModal'); });
 document.getElementById('loginSubmitBtn').addEventListener('click', handleLogin);

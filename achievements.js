@@ -61,12 +61,41 @@ function saveAchievements() {
 }
 
 function showAchievementNotification(achievement) {
+    // Remove any existing notifications
+    const oldNotifs = document.querySelectorAll('.achievement-notification');
+    oldNotifs.forEach(el => el.remove());
+    
     const notification = document.createElement('div');
+    notification.className = 'achievement-notification';
     notification.style.cssText = 'position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#ffd700,#ff6b35);color:white;padding:15px 25px;border-radius:15px;z-index:9999;box-shadow:0 10px 40px rgba(0,0,0,0.5);animation:slideIn 0.5s ease;font-family:Segoe UI,sans-serif;max-width:300px;';
     notification.innerHTML = '<div style="font-size:2rem;">' + achievement.icon + '</div><div style="font-weight:700;">🏆 Achievement Unlocked!</div><div>' + achievement.name + '</div><div style="font-size:0.8rem;opacity:0.8;">' + achievement.desc + '</div>';
     document.body.appendChild(notification);
+    
+    // Add animation styles if not already present
+    if (!document.getElementById('achievement-styles')) {
+        const style = document.createElement('style');
+        style.id = 'achievement-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                0% { transform: translateX(100%); opacity: 0; }
+                100% { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                0% { transform: translateX(0); opacity: 1; }
+                100% { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.5s ease forwards';
         setTimeout(() => notification.remove(), 500);
     }, 4000);
 }
+
+// Also add to window for global access
+window.ACHIEVEMENTS = ACHIEVEMENTS;
+window.checkAchievements = checkAchievements;
+window.unlockAchievement = unlockAchievement;
+window.getAchievements = getAchievements;

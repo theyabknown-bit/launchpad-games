@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <title>Launchpad</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -191,9 +192,9 @@
         <button class="close-btn" id="closeLoginModal"><i class="fas fa-times"></i></button>
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
         <div class="error-msg" id="loginError">Invalid username or password</div>
-        <label>Username</label>
+        <label for="loginUsername">Username</label>
         <input type="text" id="loginUsername" placeholder="Enter username">
-        <label>Password</label>
+        <label for="loginPassword">Password</label>
         <input type="password" id="loginPassword" placeholder="Enter password">
         <button class="submit-btn" id="loginSubmitBtn">Login</button>
         <div class="switch-link" id="switchToRegister">Don't have an account? Register</div>
@@ -204,11 +205,11 @@
         <button class="close-btn" id="closeRegisterModal"><i class="fas fa-times"></i></button>
         <h2><i class="fas fa-user-plus"></i> Register</h2>
         <div class="error-msg" id="registerError">Username or email already exists</div>
-        <label>Username</label>
+        <label for="registerUsername">Username</label>
         <input type="text" id="registerUsername" placeholder="Choose a username">
-        <label>Email</label>
+        <label for="registerEmail">Email</label>
         <input type="email" id="registerEmail" placeholder="Enter your email">
-        <label>Password</label>
+        <label for="registerPassword">Password</label>
         <input type="password" id="registerPassword" placeholder="Choose a password">
         <button class="submit-btn" id="registerSubmitBtn">Register</button>
         <div class="switch-link" id="switchToLogin">Already have an account? Login</div>
@@ -219,6 +220,7 @@
         <button class="close-btn" id="closeFriendsModal"><i class="fas fa-times"></i></button>
         <h2><i class="fas fa-users"></i> Friends</h2>
         <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap;">
+            <label for="friendSearch" style="display:none;">Search Friends</label>
             <input type="text" id="friendSearch" placeholder="Search username..." style="flex:1; padding:0.5rem; border-radius:0.8rem; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.06); color:white; outline:none; font-size:0.9rem;">
             <button class="submit-btn" id="addFriendBtn" style="width:auto; padding:0.5rem 1.2rem; font-size:0.8rem;">Add</button>
         </div>
@@ -230,6 +232,7 @@
     </div>
 </div>
 <script>
+// ===================== GAME DATA =====================
 const GAMES = {
     space: [
         { id: 'space', name: 'Space Explorer', icon: 'fa-globe', sub: 'fly discover', file: 'space/space.html' },
@@ -269,39 +272,46 @@ const GAMES = {
     ]
 };
 
+// ===================== SAVE SYSTEM =====================
 const SAVE_KEY = 'launchpad_progress';
 const USER_KEY = 'launchpad_user';
 const FRIENDS_KEY = 'launchpad_friends';
 
 function getDefaultSave() {
     const games = {};
-    Object.values(GAMES).flat().forEach(g => {
+    Object.values(GAMES).flat().forEach(function(g) {
         games[g.id] = { played: false, xp: 0 };
     });
-    return { games, totalXp: 0, gamesPlayed: 0, lastSave: null };
+    return { games: games, totalXp: 0, gamesPlayed: 0, lastSave: null };
 }
 
 function loadSave() {
     try {
-        const data = localStorage.getItem(SAVE_KEY);
+        var data = localStorage.getItem(SAVE_KEY);
         if (data) {
-            const parsed = JSON.parse(data);
-            let modified = false;
-            Object.values(GAMES).flat().forEach(g => {
+            var parsed = JSON.parse(data);
+            var modified = false;
+            Object.values(GAMES).flat().forEach(function(g) {
                 if (!parsed.games[g.id]) {
                     parsed.games[g.id] = { played: false, xp: 0 };
                     modified = true;
                 }
             });
             if (modified) {
-                parsed.totalXp = Object.values(parsed.games).reduce((sum, g) => sum + (g.xp || 0), 0);
-                parsed.gamesPlayed = Object.values(parsed.games).filter(g => g.played).length;
+                var totalXp = 0;
+                var gamesPlayed = 0;
+                Object.values(parsed.games).forEach(function(g) {
+                    totalXp += (g.xp || 0);
+                    if (g.played) gamesPlayed++;
+                });
+                parsed.totalXp = totalXp;
+                parsed.gamesPlayed = gamesPlayed;
                 saveData(parsed);
             }
             return parsed;
         }
-    } catch (e) {}
-    const def = getDefaultSave();
+    } catch(e) {}
+    var def = getDefaultSave();
     saveData(def);
     return def;
 }
@@ -312,30 +322,38 @@ function saveData(data) {
 }
 
 function updateGameProgress(gameId) {
-    const save = loadSave();
+    var save = loadSave();
     if (!save.games[gameId]) {
         save.games[gameId] = { played: false, xp: 0 };
     }
-    const game = save.games[gameId];
+    var game = save.games[gameId];
     if (!game.played) {
         game.played = true;
         save.gamesPlayed = (save.gamesPlayed || 0) + 1;
     }
     game.xp = (game.xp || 0) + 1;
-    save.totalXp = Object.values(save.games).reduce((sum, g) => sum + (g.xp || 0), 0);
+    var totalXp = 0;
+    var gamesPlayed = 0;
+    Object.values(save.games).forEach(function(g) {
+        totalXp += (g.xp || 0);
+        if (g.played) gamesPlayed++;
+    });
+    save.totalXp = totalXp;
+    save.gamesPlayed = gamesPlayed;
     saveData(save);
     renderCards();
     renderStats();
 }
 
-let currentUser = null;
-let darkMode = true;
+// ===================== USER SYSTEM =====================
+var currentUser = null;
+var darkMode = true;
 
 function loadUser() {
     try {
-        const data = localStorage.getItem(USER_KEY);
+        var data = localStorage.getItem(USER_KEY);
         if (data) {
-            const parsed = JSON.parse(data);
+            var parsed = JSON.parse(data);
             if (parsed.username) {
                 currentUser = parsed.username;
                 return true;
@@ -346,12 +364,12 @@ function loadUser() {
 }
 
 function saveUserData(username, email) {
-    const users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
+    var users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
     if (!users[username]) {
         users[username] = { password: '', email: email || '' };
     }
     localStorage.setItem('launchpad_users', JSON.stringify(users));
-    localStorage.setItem(USER_KEY, JSON.stringify({ username, email }));
+    localStorage.setItem(USER_KEY, JSON.stringify({ username: username, email: email }));
     currentUser = username;
     updateUserUI();
 }
@@ -363,9 +381,9 @@ function logoutUser() {
 }
 
 function updateUserUI() {
-    const display = document.getElementById('usernameDisplay');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    var display = document.getElementById('usernameDisplay');
+    var loginBtn = document.getElementById('loginBtn');
+    var logoutBtn = document.getElementById('logoutBtn');
     if (currentUser) {
         display.innerHTML = '<i class="fas fa-user"></i> ' + currentUser;
         loginBtn.style.display = 'none';
@@ -377,9 +395,10 @@ function updateUserUI() {
     }
 }
 
+// ===================== FRIEND SYSTEM =====================
 function getFriends() {
     try {
-        const data = localStorage.getItem(FRIENDS_KEY);
+        var data = localStorage.getItem(FRIENDS_KEY);
         if (data) {
             return JSON.parse(data);
         }
@@ -394,13 +413,25 @@ function saveFriends(data) {
 function addFriend(username) {
     if (!currentUser) { alert('Please login first!'); return; }
     if (username === currentUser) { alert('You cannot add yourself!'); return; }
-    const friends = getFriends();
-    if (friends.friends.includes(username)) { alert('Already friends!'); return; }
-    if (friends.requests.some(r => r.from === currentUser && r.to === username && r.status === 'pending')) { 
-        alert('Request already sent to ' + username + '!'); 
-        return; 
+    var friends = getFriends();
+    if (friends.friends.indexOf(username) !== -1) { alert('Already friends!'); return; }
+    
+    var alreadySent = false;
+    for (var i = 0; i < friends.requests.length; i++) {
+        if (friends.requests[i].from === currentUser && friends.requests[i].to === username && friends.requests[i].status === 'pending') {
+            alreadySent = true;
+            break;
+        }
     }
-    const existingRequest = friends.requests.find(r => r.from === username && r.to === currentUser && r.status === 'pending');
+    if (alreadySent) { alert('Request already sent to ' + username + '!'); return; }
+    
+    var existingRequest = null;
+    for (var j = 0; j < friends.requests.length; j++) {
+        if (friends.requests[j].from === username && friends.requests[j].to === currentUser && friends.requests[j].status === 'pending') {
+            existingRequest = friends.requests[j];
+            break;
+        }
+    }
     if (existingRequest) {
         existingRequest.status = 'accepted';
         friends.friends.push(username);
@@ -416,74 +447,98 @@ function addFriend(username) {
 }
 
 function acceptFriend(username) {
-    const friends = getFriends();
-    const request = friends.requests.find(r => r.from === username && r.to === currentUser && r.status === 'pending');
-    if (request) {
-        request.status = 'accepted';
-        friends.friends.push(username);
-        saveFriends(friends);
-        renderFriends();
+    var friends = getFriends();
+    for (var i = 0; i < friends.requests.length; i++) {
+        if (friends.requests[i].from === username && friends.requests[i].to === currentUser && friends.requests[i].status === 'pending') {
+            friends.requests[i].status = 'accepted';
+            friends.friends.push(username);
+            saveFriends(friends);
+            renderFriends();
+            break;
+        }
     }
 }
 
 function declineFriend(username) {
-    const friends = getFriends();
-    friends.requests = friends.requests.filter(r => r.from !== username || r.to !== currentUser || r.status !== 'pending');
+    var friends = getFriends();
+    var newRequests = [];
+    for (var i = 0; i < friends.requests.length; i++) {
+        if (!(friends.requests[i].from === username && friends.requests[i].to === currentUser && friends.requests[i].status === 'pending')) {
+            newRequests.push(friends.requests[i]);
+        }
+    }
+    friends.requests = newRequests;
     saveFriends(friends);
     renderFriends();
 }
 
 function removeFriend(username) {
     if (!confirm('Remove ' + username + ' from friends?')) return;
-    const friends = getFriends();
-    friends.friends = friends.friends.filter(f => f !== username);
+    var friends = getFriends();
+    var newFriends = [];
+    for (var i = 0; i < friends.friends.length; i++) {
+        if (friends.friends[i] !== username) newFriends.push(friends.friends[i]);
+    }
+    friends.friends = newFriends;
     saveFriends(friends);
     renderFriends();
 }
 
 function renderFriends() {
-    const friends = getFriends();
-    const listEl = document.getElementById('friendList');
-    const requestsEl = document.getElementById('friendRequests');
+    var friends = getFriends();
+    var listEl = document.getElementById('friendList');
+    var requestsEl = document.getElementById('friendRequests');
     
     if (friends.friends.length === 0) {
         listEl.innerHTML = '<div class="lb-empty">No friends yet. Add some!</div>';
     } else {
-        listEl.innerHTML = friends.friends.map(f => {
-            return '<div class="friend-item"><span class="friend-name"><i class="fas fa-user-circle"></i> ' + f + '</span><span class="friend-status online">● Online</span><button class="friend-remove" onclick="removeFriend(\'' + f + '\')">✕</button></div>';
-        }).join('');
+        var html = '';
+        for (var i = 0; i < friends.friends.length; i++) {
+            var f = friends.friends[i];
+            html += '<div class="friend-item"><span class="friend-name"><i class="fas fa-user-circle"></i> ' + f + '</span><span class="friend-status online">● Online</span><button class="friend-remove" onclick="removeFriend(\'' + f + '\')">✕</button></div>';
+        }
+        listEl.innerHTML = html;
     }
     
-    const pending = friends.requests.filter(r => r.to === currentUser && r.status === 'pending');
+    var pending = [];
+    for (var j = 0; j < friends.requests.length; j++) {
+        if (friends.requests[j].to === currentUser && friends.requests[j].status === 'pending') {
+            pending.push(friends.requests[j]);
+        }
+    }
     if (pending.length === 0) {
         requestsEl.innerHTML = '<div class="lb-empty">No pending requests</div>';
     } else {
-        requestsEl.innerHTML = pending.map(r => {
-            return '<div class="friend-item"><span class="friend-name"><i class="fas fa-user-plus"></i> ' + r.from + '</span><div><button class="friend-request-btn" onclick="acceptFriend(\'' + r.from + '\')">Accept</button><button class="friend-remove" onclick="declineFriend(\'' + r.from + '\')">✕</button></div></div>';
-        }).join('');
+        var html2 = '';
+        for (var k = 0; k < pending.length; k++) {
+            var r = pending[k];
+            html2 += '<div class="friend-item"><span class="friend-name"><i class="fas fa-user-plus"></i> ' + r.from + '</span><div><button class="friend-request-btn" onclick="acceptFriend(\'' + r.from + '\')">Accept</button><button class="friend-remove" onclick="declineFriend(\'' + r.from + '\')">✕</button></div></div>';
+        }
+        requestsEl.innerHTML = html2;
     }
 }
 
 function handleAddFriend() {
-    const search = document.getElementById('friendSearch').value.trim();
+    var search = document.getElementById('friendSearch').value.trim();
     if (!search) return;
     addFriend(search);
     document.getElementById('friendSearch').value = '';
 }
 
+// ===================== UI FUNCTIONS =====================
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
 function handleLogin() {
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
-    const error = document.getElementById('loginError');
+    var username = document.getElementById('loginUsername').value.trim();
+    var password = document.getElementById('loginPassword').value.trim();
+    var error = document.getElementById('loginError');
     if (!username || !password) {
         error.textContent = 'Please enter username and password';
         error.classList.add('show');
         return;
     }
-    const users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
+    var users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
     if (!users[username] || users[username].password !== password) {
         error.textContent = 'Invalid username or password';
         error.classList.add('show');
@@ -491,17 +546,17 @@ function handleLogin() {
     }
     error.classList.remove('show');
     currentUser = username;
-    localStorage.setItem(USER_KEY, JSON.stringify({ username, email: users[username].email || '' }));
+    localStorage.setItem(USER_KEY, JSON.stringify({ username: username, email: users[username].email || '' }));
     updateUserUI();
     closeModal('loginModal');
     renderStats();
 }
 
 function handleRegister() {
-    const username = document.getElementById('registerUsername').value.trim();
-    const email = document.getElementById('registerEmail').value.trim();
-    const password = document.getElementById('registerPassword').value.trim();
-    const error = document.getElementById('registerError');
+    var username = document.getElementById('registerUsername').value.trim();
+    var email = document.getElementById('registerEmail').value.trim();
+    var password = document.getElementById('registerPassword').value.trim();
+    var error = document.getElementById('registerError');
     
     if (!username || !email || !password) {
         error.textContent = 'Please fill in all fields';
@@ -513,7 +568,7 @@ function handleRegister() {
         error.classList.add('show');
         return;
     }
-    if (!email.includes('@') || !email.includes('.')) {
+    if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
         error.textContent = 'Please enter a valid email address';
         error.classList.add('show');
         return;
@@ -524,7 +579,7 @@ function handleRegister() {
         return;
     }
     
-    const users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
+    var users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
     
     if (users[username]) {
         error.textContent = 'Username already exists';
@@ -532,19 +587,26 @@ function handleRegister() {
         return;
     }
     
-    const emailExists = Object.values(users).some(u => u.email === email);
+    var emailExists = false;
+    var userKeys = Object.keys(users);
+    for (var i = 0; i < userKeys.length; i++) {
+        if (users[userKeys[i]].email === email) {
+            emailExists = true;
+            break;
+        }
+    }
     if (emailExists) {
         error.textContent = 'Email already registered';
         error.classList.add('show');
         return;
     }
     
-    users[username] = { password, email };
+    users[username] = { password: password, email: email };
     localStorage.setItem('launchpad_users', JSON.stringify(users));
     error.classList.remove('show');
     
     currentUser = username;
-    localStorage.setItem(USER_KEY, JSON.stringify({ username, email }));
+    localStorage.setItem(USER_KEY, JSON.stringify({ username: username, email: email }));
     updateUserUI();
     closeModal('registerModal');
     renderStats();
@@ -554,13 +616,13 @@ function handleRegister() {
 function toggleTheme() {
     darkMode = !darkMode;
     document.body.classList.toggle('light-mode', !darkMode);
-    const icon = document.querySelector('#themeToggle i');
+    var icon = document.querySelector('#themeToggle i');
     icon.className = darkMode ? 'fas fa-moon' : 'fas fa-sun';
     localStorage.setItem('launchpad_theme', darkMode ? 'dark' : 'light');
 }
 
 function loadTheme() {
-    const saved = localStorage.getItem('launchpad_theme');
+    var saved = localStorage.getItem('launchpad_theme');
     if (saved === 'light') {
         darkMode = false;
         document.body.classList.add('light-mode');
@@ -573,18 +635,22 @@ function loadTheme() {
 }
 
 function toggleUpdateLog() {
-    const log = document.getElementById('updateLog');
+    var log = document.getElementById('updateLog');
     log.classList.toggle('update-log-collapsed');
-    const icon = document.querySelector('#updateToggle i');
+    var icon = document.querySelector('#updateToggle i');
     icon.className = log.classList.contains('update-log-collapsed') ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
 }
 
 function renderStats() {
-    const save = loadSave();
-    const totalGames = Object.values(GAMES).flat().length;
-    const played = save.gamesPlayed || 0;
-    const xp = save.totalXp || 0;
-    const container = document.getElementById('playerStats');
+    var save = loadSave();
+    var totalGames = 0;
+    var gameKeys = Object.keys(GAMES);
+    for (var i = 0; i < gameKeys.length; i++) {
+        totalGames += GAMES[gameKeys[i]].length;
+    }
+    var played = save.gamesPlayed || 0;
+    var xp = save.totalXp || 0;
+    var container = document.getElementById('playerStats');
     if (!container) return;
     container.innerHTML = 
         '<div class="stat-grid">' +
@@ -595,26 +661,31 @@ function renderStats() {
 }
 
 function renderCards() {
-    const save = loadSave();
-    const sections = {
+    var save = loadSave();
+    var sections = {
         space: document.getElementById('spaceGrid'),
         arcade: document.getElementById('arcadeGrid'),
         sim: document.getElementById('simGrid')
     };
-    Object.keys(sections).forEach(section => {
-        const games = GAMES[section];
-        const container = sections[section];
+    var sectionKeys = Object.keys(sections);
+    for (var s = 0; s < sectionKeys.length; s++) {
+        var section = sectionKeys[s];
+        var games = GAMES[section];
+        var container = sections[section];
         if (container) {
-            container.innerHTML = games.map(g => {
-                const progress = save.games[g.id] || { played: false, xp: 0 };
-                const pct = Math.min(100, (progress.xp || 0) * 2);
-                const playedHtml = progress.played ? '<span class="played-badge"><i class="fas fa-check-circle" style="color:#7cf5b0;"></i> ' + progress.xp + ' XP</span>' : '';
-                const progressHtml = progress.played ? '<div class="progress-bar"><div class="fill" style="width:' + pct + '%;"></div></div>' : '';
-                const target = g.file.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : '';
-                return '<a href="' + g.file + '" ' + target + ' class="pick-card" onclick="handleGameClick(\'' + g.id + '\')"><div class="icon-wrap"><i class="fas ' + g.icon + '"></i></div><h3>' + g.name + '</h3><div class="sub">' + g.sub + '</div><span class="arrow"><i class="fas fa-arrow-right"></i> go</span>' + progressHtml + playedHtml + '</a>';
-            }).join('');
+            var html = '';
+            for (var g = 0; g < games.length; g++) {
+                var game = games[g];
+                var progress = save.games[game.id] || { played: false, xp: 0 };
+                var pct = Math.min(100, (progress.xp || 0) * 2);
+                var playedHtml = progress.played ? '<span class="played-badge"><i class="fas fa-check-circle" style="color:#7cf5b0;"></i> ' + progress.xp + ' XP</span>' : '';
+                var progressHtml = progress.played ? '<div class="progress-bar"><div class="fill" style="width:' + pct + '%;"></div></div>' : '';
+                var target = game.file.indexOf('http') === 0 ? 'target="_blank" rel="noopener noreferrer"' : '';
+                html += '<a href="' + game.file + '" ' + target + ' class="pick-card" onclick="handleGameClick(\'' + game.id + '\')"><div class="icon-wrap"><i class="fas ' + game.icon + '"></i></div><h3>' + game.name + '</h3><div class="sub">' + game.sub + '</div><span class="arrow"><i class="fas fa-arrow-right"></i> go</span>' + progressHtml + playedHtml + '</a>';
+            }
+            container.innerHTML = html;
         }
-    });
+    }
 }
 
 function handleGameClick(gameId) {
@@ -630,12 +701,13 @@ function init() {
     renderCards();
     renderStats();
     setInterval(function() {
-        const save = loadSave();
+        var save = loadSave();
         saveData(save);
         renderStats();
     }, 30000);
 }
 
+// ===================== EVENT LISTENERS =====================
 document.getElementById('loginBtn').addEventListener('click', function() { openModal('loginModal'); });
 document.getElementById('closeLoginModal').addEventListener('click', function() { closeModal('loginModal'); });
 document.getElementById('loginSubmitBtn').addEventListener('click', handleLogin);
@@ -660,8 +732,8 @@ document.getElementById('addFriendBtn').addEventListener('click', handleAddFrien
 document.getElementById('friendSearch').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleAddFriend(); });
 
 document.getElementById('feedbackBtn').addEventListener('click', function() {
-    const subject = encodeURIComponent('Launchpad Feedback');
-    const body = encodeURIComponent('Hello! I have some feedback about Launchpad:\n\n');
+    var subject = encodeURIComponent('Launchpad Feedback');
+    var body = encodeURIComponent('Hello! I have some feedback about Launchpad:\n\n');
     window.location.href = 'mailto:theyabandtherandomboyoff97@gmail.com?subject=' + subject + '&body=' + body;
 });
 

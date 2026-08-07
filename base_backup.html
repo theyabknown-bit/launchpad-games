@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Launchpad</title>
@@ -166,28 +167,28 @@
     </div>
     <div class="update-log" id="updateLog">
         <div class="update-log-header">
-            <div class="title"><i class="fas fa-rocket" style="color:#ff6b35;"></i> 🚀 v4.2 <span style="font-size:0.5rem; background:#ff6b35; padding:0.05rem 0.4rem; border-radius:20px; color:white; font-weight:400;">LIVE</span></div>
+            <div class="title"><i class="fas fa-rocket" style="color:#ff6b35;"></i> ðŸš€ v4.2 <span style="font-size:0.5rem; background:#ff6b35; padding:0.05rem 0.4rem; border-radius:20px; color:white; font-weight:400;">LIVE</span></div>
             <div style="display:flex; align-items:center; gap:0.3rem;">
                 <span class="version"><i class="fas fa-calendar-alt"></i> Aug 2026</span>
                 <button class="update-log-toggle" id="updateToggle" onclick="toggleUpdateLog()"><i class="fas fa-chevron-up"></i></button>
             </div>
         </div>
         <div class="update-log-body" id="updateBody">
-            <div class="update-item"><span class="emoji">✉️</span> Email Registration <span class="new-badge">new</span></div>
-            <div class="update-item"><span class="emoji">📧</span> Feedback Button <span class="new-badge">new</span></div>
-            <div class="update-item"><span class="emoji">👥</span> Friend System</div>
-            <div class="update-item"><span class="emoji">❌</span> Tic Tac Toe</div>
-            <div class="update-item"><span class="emoji">🐍</span> Snake</div>
-            <div class="update-item"><span class="emoji">💡</span> Simon Says</div>
-            <div class="update-item"><span class="emoji">🔨</span> Hangman</div>
-            <div class="update-item"><span class="emoji">🏅</span> Achievements</div>
-            <div class="update-item"><span class="emoji">📊</span> Player Stats</div>
-            <div class="update-item"><span class="emoji">🌙</span> Dark/Light Mode</div>
-            <div class="update-item"><span class="emoji">👤</span> Login & Register</div>
-            <div class="update-item"><span class="emoji">🏆</span> Leaderboard</div>
-            <div class="update-item"><span class="emoji">💾</span> Auto-save Progress</div>
-            <div class="update-item"><span class="emoji">🧠</span> Memory Card <span class="new-badge">new</span></div>
-            <div class="update-item"><span class="emoji">🔐</span> Better Registration <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">âœ‰ï¸</span> Email Registration <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">ðŸ“§</span> Feedback Button <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">ðŸ‘¥</span> Friend System</div>
+            <div class="update-item"><span class="emoji">âŒ</span> Tic Tac Toe</div>
+            <div class="update-item"><span class="emoji">ðŸ</span> Snake</div>
+            <div class="update-item"><span class="emoji">ðŸ’¡</span> Simon Says</div>
+            <div class="update-item"><span class="emoji">ðŸ”¨</span> Hangman</div>
+            <div class="update-item"><span class="emoji">ðŸ…</span> Achievements</div>
+            <div class="update-item"><span class="emoji">ðŸ“Š</span> Player Stats</div>
+            <div class="update-item"><span class="emoji">ðŸŒ™</span> Dark/Light Mode</div>
+            <div class="update-item"><span class="emoji">ðŸ‘¤</span> Login & Register</div>
+            <div class="update-item"><span class="emoji">ðŸ†</span> Leaderboard</div>
+            <div class="update-item"><span class="emoji">ðŸ’¾</span> Auto-save Progress</div>
+            <div class="update-item"><span class="emoji">ðŸ§ </span> Memory Card <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">ðŸ”</span> Better Registration <span class="new-badge">new</span></div>
         </div>
     </div>
     <div id="playerStats"></div>
@@ -509,7 +510,7 @@ function renderFriends() {
         var html = '';
         for (var i = 0; i < friends.friends.length; i++) {
             var f = friends.friends[i];
-            html += '<div class="friend-item"><span class="friend-name"><i class="fas fa-user-circle"></i> ' + f + '</span><span class="friend-status online">● Online</span><button class="friend-remove" onclick="removeFriend(\'' + f + '\')">✕</button></div>';
+            html += '<div class="friend-item"><span class="friend-name"><i class="fas fa-user-circle"></i> ' + f + '</span><span class="friend-status online">â— Online</span><button class="friend-remove" onclick="removeFriend(\'' + f + '\')">âœ•</button></div>';
         }
         listEl.innerHTML = html;
     }
@@ -526,7 +527,7 @@ function renderFriends() {
         var html2 = '';
         for (var k = 0; k < pending.length; k++) {
             var r = pending[k];
-            html2 += '<div class="friend-item"><span class="friend-name"><i class="fas fa-user-plus"></i> ' + r.from + '</span><div><button class="friend-request-btn" onclick="acceptFriend(\'' + r.from + '\')">Accept</button><button class="friend-remove" onclick="declineFriend(\'' + r.from + '\')">✕</button></div></div>';
+            html2 += '<div class="friend-item"><span class="friend-name"><i class="fas fa-user-plus"></i> ' + r.from + '</span><div><button class="friend-request-btn" onclick="acceptFriend(\'' + r.from + '\')">Accept</button><button class="friend-remove" onclick="declineFriend(\'' + r.from + '\')">âœ•</button></div></div>';
         }
         requestsEl.innerHTML = html2;
     }
@@ -543,7 +544,7 @@ function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
 // ============================================
-// 🔐 IMPROVED LOGIN FUNCTION
+// ðŸ” IMPROVED LOGIN FUNCTION
 // ============================================
 document.getElementById('loginSubmitBtn').addEventListener('click', function() {
     var username = document.getElementById('loginUsername').value.trim();
@@ -554,7 +555,7 @@ document.getElementById('loginSubmitBtn').addEventListener('click', function() {
     error.textContent = '';
     
     if (!username || !password) {
-        error.textContent = '⚠️ Please enter username and password';
+        error.textContent = 'âš ï¸ Please enter username and password';
         error.classList.add('show');
         return;
     }
@@ -562,7 +563,7 @@ document.getElementById('loginSubmitBtn').addEventListener('click', function() {
     var users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
     
     if (!users[username]) {
-        error.textContent = '⚠️ Username "' + username + '" not found. Please register first.';
+        error.textContent = 'âš ï¸ Username "' + username + '" not found. Please register first.';
         error.classList.add('show');
         document.getElementById('loginUsername').value = '';
         document.getElementById('loginUsername').focus();
@@ -570,7 +571,7 @@ document.getElementById('loginSubmitBtn').addEventListener('click', function() {
     }
     
     if (users[username].password !== password) {
-        error.textContent = '⚠️ Incorrect password. Please try again.';
+        error.textContent = 'âš ï¸ Incorrect password. Please try again.';
         error.classList.add('show');
         document.getElementById('loginPassword').value = '';
         document.getElementById('loginPassword').focus();
@@ -594,7 +595,7 @@ document.getElementById('loginPassword').addEventListener('keydown', function(e)
 });
 
 // ============================================
-// 🔐 IMPROVED REGISTER FUNCTION
+// ðŸ” IMPROVED REGISTER FUNCTION
 // ============================================
 document.getElementById('registerSubmitBtn').addEventListener('click', function() {
     var username = document.getElementById('registerUsername').value.trim();
@@ -606,27 +607,27 @@ document.getElementById('registerSubmitBtn').addEventListener('click', function(
     error.textContent = '';
     
     if (!username || !email || !password) {
-        error.textContent = '⚠️ Please fill in all fields';
+        error.textContent = 'âš ï¸ Please fill in all fields';
         error.classList.add('show');
         return;
     }
     
     if (username.length < 3) {
-        error.textContent = '⚠️ Username must be at least 3 characters';
+        error.textContent = 'âš ï¸ Username must be at least 3 characters';
         error.classList.add('show');
         document.getElementById('registerUsername').focus();
         return;
     }
     
     if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
-        error.textContent = '⚠️ Please enter a valid email address (e.g., name@domain.com)';
+        error.textContent = 'âš ï¸ Please enter a valid email address (e.g., name@domain.com)';
         error.classList.add('show');
         document.getElementById('registerEmail').focus();
         return;
     }
     
     if (password.length < 4) {
-        error.textContent = '⚠️ Password must be at least 4 characters';
+        error.textContent = 'âš ï¸ Password must be at least 4 characters';
         error.classList.add('show');
         document.getElementById('registerPassword').focus();
         return;
@@ -635,7 +636,7 @@ document.getElementById('registerSubmitBtn').addEventListener('click', function(
     var users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
     
     if (users[username]) {
-        error.textContent = '⚠️ Username "' + username + '" is already taken. Please choose another.';
+        error.textContent = 'âš ï¸ Username "' + username + '" is already taken. Please choose another.';
         error.classList.add('show');
         document.getElementById('registerUsername').value = '';
         document.getElementById('registerUsername').focus();
@@ -654,7 +655,7 @@ document.getElementById('registerSubmitBtn').addEventListener('click', function(
     }
     
     if (emailExists) {
-        error.textContent = '⚠️ Email "' + email + '" is already registered to user "' + existingUser + '"';
+        error.textContent = 'âš ï¸ Email "' + email + '" is already registered to user "' + existingUser + '"';
         error.classList.add('show');
         document.getElementById('registerEmail').value = '';
         document.getElementById('registerEmail').focus();
@@ -678,7 +679,7 @@ document.getElementById('registerSubmitBtn').addEventListener('click', function(
     document.getElementById('registerEmail').value = '';
     document.getElementById('registerPassword').value = '';
     
-    alert('🎉 Registration successful! Welcome ' + username + '!');
+    alert('ðŸŽ‰ Registration successful! Welcome ' + username + '!');
 });
 
 document.getElementById('registerPassword').addEventListener('keydown', function(e) {

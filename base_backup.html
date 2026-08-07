@@ -6,7 +6,6 @@
     <title>Launchpad</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* [KEEP ALL YOUR EXISTING STYLES - DON'T CHANGE ANYTHING] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0b1a26; font-family: 'Segoe UI', Roboto, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; background-image: radial-gradient(circle at 20% 30%, #1a3a4a 0%, #07131c 90%); transition: background 0.3s; }
         body.light-mode { background: #f0f7fe; background-image: none; }
@@ -97,8 +96,19 @@
         .modal-box .submit-btn:active { transform: scale(0.96); }
         .modal-box .switch-link { color: #4fc3f7; cursor: pointer; text-align: center; margin-top: 0.6rem; font-size: 0.85rem; touch-action: manipulation; }
         .modal-box .switch-link:hover { text-decoration: underline; }
-        .modal-box .error-msg { color: #ff7a7a; font-size: 0.8rem; margin-bottom: 0.4rem; display: none; }
-        .modal-box .error-msg.show { display: block; }
+        .error-msg {
+            background: rgba(255, 0, 0, 0.1);
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            border-left: 3px solid #ff6b6b;
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-bottom: 0.8rem;
+            display: none;
+        }
+        .error-msg.show {
+            display: block !important;
+        }
         .friend-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.03); color: #b0d4f0; font-size: 0.85rem; }
         .light-mode .friend-item { color: #0b1a26; border-bottom-color: rgba(0,0,0,0.03); }
         .friend-item .friend-name { font-weight: 500; }
@@ -177,6 +187,7 @@
             <div class="update-item"><span class="emoji">🏆</span> Leaderboard</div>
             <div class="update-item"><span class="emoji">💾</span> Auto-save Progress</div>
             <div class="update-item"><span class="emoji">🧠</span> Memory Card <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">🔐</span> Better Registration <span class="new-badge">new</span></div>
         </div>
     </div>
     <div id="playerStats"></div>
@@ -187,11 +198,13 @@
     <div class="section-title"><i class="fas fa-hospital"></i> simulation <span class="count">(4)</span></div>
     <div class="pick-grid" id="simGrid"></div>
 </div>
+
+<!-- LOGIN MODAL -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
         <button class="close-btn" id="closeLoginModal"><i class="fas fa-times"></i></button>
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
-        <div class="error-msg" id="loginError">Invalid username or password</div>
+        <div class="error-msg" id="loginError"></div>
         <label for="loginUsername">Username</label>
         <input type="text" id="loginUsername" placeholder="Enter username">
         <label for="loginPassword">Password</label>
@@ -200,21 +213,25 @@
         <div class="switch-link" id="switchToRegister">Don't have an account? Register</div>
     </div>
 </div>
+
+<!-- REGISTER MODAL -->
 <div class="modal-overlay" id="registerModal">
     <div class="modal-box">
         <button class="close-btn" id="closeRegisterModal"><i class="fas fa-times"></i></button>
         <h2><i class="fas fa-user-plus"></i> Register</h2>
-        <div class="error-msg" id="registerError">Username or email already exists</div>
+        <div class="error-msg" id="registerError"></div>
         <label for="registerUsername">Username</label>
-        <input type="text" id="registerUsername" placeholder="Choose a username">
+        <input type="text" id="registerUsername" placeholder="Choose a username" autocomplete="off">
         <label for="registerEmail">Email</label>
-        <input type="email" id="registerEmail" placeholder="Enter your email">
+        <input type="email" id="registerEmail" placeholder="Enter your email" autocomplete="off">
         <label for="registerPassword">Password</label>
-        <input type="password" id="registerPassword" placeholder="Choose a password">
+        <input type="password" id="registerPassword" placeholder="Choose a password (min 4 characters)">
         <button class="submit-btn" id="registerSubmitBtn">Register</button>
         <div class="switch-link" id="switchToLogin">Already have an account? Login</div>
     </div>
 </div>
+
+<!-- FRIENDS MODAL -->
 <div class="modal-overlay" id="friendsModal">
     <div class="modal-box">
         <button class="close-btn" id="closeFriendsModal"><i class="fas fa-times"></i></button>
@@ -231,6 +248,7 @@
         </div>
     </div>
 </div>
+
 <script>
 const GAMES = {
     space: [
@@ -261,7 +279,6 @@ const GAMES = {
         { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', sub: '15 puzzle', file: 'a/slidepuzzle.html' },
         { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html' },
         { id: 'stim', name: 'Stimulation Overload', icon: 'fa-bolt', sub: 'clicker game', file: 'https://stimclickerweb.netlify.app' },
-        // ✅ FIXED: Memory Card added here with correct path!
         { id: 'memory', name: 'Memory Card', icon: 'fa-brain', sub: 'flip & match', file: 'a/memorycard.html' }
     ],
     sim: [
@@ -525,90 +542,154 @@ function handleAddFriend() {
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-function handleLogin() {
+// ============================================
+// 🔐 IMPROVED LOGIN FUNCTION
+// ============================================
+document.getElementById('loginSubmitBtn').addEventListener('click', function() {
     var username = document.getElementById('loginUsername').value.trim();
     var password = document.getElementById('loginPassword').value.trim();
     var error = document.getElementById('loginError');
+    
+    error.classList.remove('show');
+    error.textContent = '';
+    
     if (!username || !password) {
-        error.textContent = 'Please enter username and password';
+        error.textContent = '⚠️ Please enter username and password';
         error.classList.add('show');
         return;
     }
+    
     var users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
-    if (!users[username] || users[username].password !== password) {
-        error.textContent = 'Invalid username or password';
+    
+    if (!users[username]) {
+        error.textContent = '⚠️ Username "' + username + '" not found. Please register first.';
         error.classList.add('show');
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginUsername').focus();
         return;
     }
+    
+    if (users[username].password !== password) {
+        error.textContent = '⚠️ Incorrect password. Please try again.';
+        error.classList.add('show');
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginPassword').focus();
+        return;
+    }
+    
     error.classList.remove('show');
     currentUser = username;
     localStorage.setItem(USER_KEY, JSON.stringify({ username: username, email: users[username].email || '' }));
     updateUserUI();
     closeModal('loginModal');
     renderStats();
-}
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+});
 
-function handleRegister() {
+document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('loginSubmitBtn').click();
+    }
+});
+
+// ============================================
+// 🔐 IMPROVED REGISTER FUNCTION
+// ============================================
+document.getElementById('registerSubmitBtn').addEventListener('click', function() {
     var username = document.getElementById('registerUsername').value.trim();
     var email = document.getElementById('registerEmail').value.trim();
     var password = document.getElementById('registerPassword').value.trim();
     var error = document.getElementById('registerError');
     
+    error.classList.remove('show');
+    error.textContent = '';
+    
     if (!username || !email || !password) {
-        error.textContent = 'Please fill in all fields';
+        error.textContent = '⚠️ Please fill in all fields';
         error.classList.add('show');
         return;
     }
+    
     if (username.length < 3) {
-        error.textContent = 'Username must be at least 3 characters';
+        error.textContent = '⚠️ Username must be at least 3 characters';
         error.classList.add('show');
+        document.getElementById('registerUsername').focus();
         return;
     }
+    
     if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
-        error.textContent = 'Please enter a valid email address';
+        error.textContent = '⚠️ Please enter a valid email address (e.g., name@domain.com)';
         error.classList.add('show');
+        document.getElementById('registerEmail').focus();
         return;
     }
+    
     if (password.length < 4) {
-        error.textContent = 'Password must be at least 4 characters';
+        error.textContent = '⚠️ Password must be at least 4 characters';
         error.classList.add('show');
+        document.getElementById('registerPassword').focus();
         return;
     }
     
     var users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
     
     if (users[username]) {
-        error.textContent = 'Username already exists';
+        error.textContent = '⚠️ Username "' + username + '" is already taken. Please choose another.';
         error.classList.add('show');
+        document.getElementById('registerUsername').value = '';
+        document.getElementById('registerUsername').focus();
         return;
     }
     
     var emailExists = false;
+    var existingUser = '';
     var userKeys = Object.keys(users);
     for (var i = 0; i < userKeys.length; i++) {
         if (users[userKeys[i]].email === email) {
             emailExists = true;
+            existingUser = userKeys[i];
             break;
         }
     }
+    
     if (emailExists) {
-        error.textContent = 'Email already registered';
+        error.textContent = '⚠️ Email "' + email + '" is already registered to user "' + existingUser + '"';
         error.classList.add('show');
+        document.getElementById('registerEmail').value = '';
+        document.getElementById('registerEmail').focus();
         return;
     }
     
-    users[username] = { password: password, email: email };
+    users[username] = { 
+        password: password, 
+        email: email,
+        created: new Date().toISOString()
+    };
     localStorage.setItem('launchpad_users', JSON.stringify(users));
-    error.classList.remove('show');
     
     currentUser = username;
     localStorage.setItem(USER_KEY, JSON.stringify({ username: username, email: email }));
     updateUserUI();
     closeModal('registerModal');
     renderStats();
+    
+    document.getElementById('registerUsername').value = '';
+    document.getElementById('registerEmail').value = '';
+    document.getElementById('registerPassword').value = '';
+    
     alert('🎉 Registration successful! Welcome ' + username + '!');
-}
+});
 
+document.getElementById('registerPassword').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('registerSubmitBtn').click();
+    }
+});
+
+// ============================================
+// TOGGLE THEME
+// ============================================
 function toggleTheme() {
     darkMode = !darkMode;
     document.body.classList.toggle('light-mode', !darkMode);
@@ -703,15 +784,12 @@ function init() {
     }, 30000);
 }
 
+// EVENT LISTENERS
 document.getElementById('loginBtn').addEventListener('click', function() { openModal('loginModal'); });
 document.getElementById('closeLoginModal').addEventListener('click', function() { closeModal('loginModal'); });
-document.getElementById('loginSubmitBtn').addEventListener('click', handleLogin);
-document.getElementById('loginPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleLogin(); });
 document.getElementById('switchToRegister').addEventListener('click', function() { closeModal('loginModal'); openModal('registerModal'); });
 
 document.getElementById('closeRegisterModal').addEventListener('click', function() { closeModal('registerModal'); });
-document.getElementById('registerSubmitBtn').addEventListener('click', handleRegister);
-document.getElementById('registerPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleRegister(); });
 document.getElementById('switchToLogin').addEventListener('click', function() { closeModal('registerModal'); openModal('loginModal'); });
 
 document.getElementById('logoutBtn').addEventListener('click', logoutUser);

@@ -6,6 +6,7 @@
     <title>Launchpad</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* [KEEP ALL YOUR EXISTING STYLES - DON'T CHANGE ANYTHING] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0b1a26; font-family: 'Segoe UI', Roboto, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; background-image: radial-gradient(circle at 20% 30%, #1a3a4a 0%, #07131c 90%); transition: background 0.3s; }
         body.light-mode { background: #f0f7fe; background-image: none; }
@@ -175,12 +176,13 @@
             <div class="update-item"><span class="emoji">👤</span> Login & Register</div>
             <div class="update-item"><span class="emoji">🏆</span> Leaderboard</div>
             <div class="update-item"><span class="emoji">💾</span> Auto-save Progress</div>
+            <div class="update-item"><span class="emoji">🧠</span> Memory Card <span class="new-badge">new</span></div>
         </div>
     </div>
     <div id="playerStats"></div>
     <div class="section-title"><i class="fas fa-globe"></i> space <span class="count">(9)</span></div>
     <div class="pick-grid" id="spaceGrid"></div>
-    <div class="section-title"><i class="fas fa-gamepad"></i> arcade <span class="count">(16)</span></div>
+    <div class="section-title"><i class="fas fa-gamepad"></i> arcade <span class="count">(17)</span></div>
     <div class="pick-grid" id="arcadeGrid"></div>
     <div class="section-title"><i class="fas fa-hospital"></i> simulation <span class="count">(4)</span></div>
     <div class="pick-grid" id="simGrid"></div>
@@ -258,7 +260,9 @@ const GAMES = {
         { id: 'beatbop', name: 'Beat Bop', icon: 'fa-music', sub: 'rhythm game', file: 'a/beatbop.html' },
         { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', sub: '15 puzzle', file: 'a/slidepuzzle.html' },
         { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html' },
-        { id: 'stim', name: 'Stimulation Overload', icon: 'fa-bolt', sub: 'clicker game', file: 'https://stimclickerweb.netlify.app' }
+        { id: 'stim', name: 'Stimulation Overload', icon: 'fa-bolt', sub: 'clicker game', file: 'https://stimclickerweb.netlify.app' },
+        // ✅ FIXED: Memory Card added here with correct path!
+        { id: 'memory', name: 'Memory Card', icon: 'fa-brain', sub: 'flip & match', file: 'a/memorycard.html' }
     ],
     sim: [
         { id: 'sims', name: 'Sims Mini', icon: 'fa-user', sub: 'virtual life', file: 'sim/sims.html' },

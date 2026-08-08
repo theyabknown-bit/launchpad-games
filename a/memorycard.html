@@ -44,6 +44,75 @@ h1{color:#4fc3f7;margin-bottom:10px;}
     <div class="message" id="message">🎯 Find all matching pairs!</div>
 </div>
 <script>
+    // ============================================================
+    // FIXED SOUND SYSTEM - WORKS ON FIRST CLICK
+    // ============================================================
+    let soundEnabled = true;
+    let audioCtx = null;
+    let audioUnlocked = false;
+
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            audioUnlocked = true;
+            console.log('🔊 Audio unlocked!');
+        } catch(e) { console.log('Audio error:', e); }
+    }
+
+    // Unlock audio on any click
+    document.addEventListener('click', unlockAudio, { once: false });
+    document.addEventListener('touchstart', unlockAudio, { once: false });
+    document.addEventListener('keydown', unlockAudio, { once: false });
+
+    function getAudioCtx() {
+        if (!audioCtx) {
+            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    function playTone(frequency, duration = 150, type = 'sine') {
+        if (!soundEnabled) return;
+        try {
+            const ctx = getAudioCtx();
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.value = frequency;
+            gain.gain.setValueAtTime(0.12, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + duration / 1000);
+        } catch(e) { console.log('Play error:', e); }
+    }
+
+    function playClick() { playTone(600, 80); }
+    function playWin() { 
+        playTone(523, 150); 
+        setTimeout(() => playTone(659, 150), 150); 
+        setTimeout(() => playTone(784, 200), 300); 
+    }
+    function playLose() { 
+        playTone(300, 200); 
+        setTimeout(() => playTone(200, 300), 200); 
+    }
+    function playCorrect() { playTone(800, 100); }
+    function playWrong() { playTone(250, 200); }
+    function playLevelUp() { 
+        playTone(440, 100); 
+        setTimeout(() => playTone(523, 100), 100); 
+        setTimeout(() => playTone(659, 150), 200); 
+    }
 const EMOJIS=['🚀','🛸','🌍','⭐','🌙','🪐','☄️','👾'];
 let cards=[], flipped=[], matched=0, moves=0, lock=false;
 
@@ -104,43 +173,8 @@ function flipCard(index){
 
 function resetGame(){initGame();}
 initGame();
-    // ============================================================
-    // SOUND SYSTEM - UNIVERSAL
-    // ============================================================
-    let soundEnabled = true;
-    let audioCtx = null;
-
-    function getAudioCtx() {
-        if (!audioCtx) {
-            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-        }
-        return audioCtx;
-    }
-
-    function playTone(frequency, duration = 150, type = 'sine') {
-        if (!soundEnabled) return;
-        try {
-            const ctx = getAudioCtx();
-            if (!ctx) return;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = type;
-            osc.frequency.value = frequency;
-            gain.gain.value = 0.12;
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + duration / 1000);
-        } catch(e) {}
-    }
-
-    function playClick() { playTone(600, 80); }
-    function playWin() { playTone(523, 150); setTimeout(() => playTone(659, 150), 150); setTimeout(() => playTone(784, 200), 300); }
-    function playLose() { playTone(300, 200); setTimeout(() => playTone(200, 300), 200); }
-    function playCorrect() { playTone(800, 100); }
-    function playWrong() { playTone(250, 200); }
-    function playLevelUp() { playTone(440, 100); setTimeout(() => playTone(523, 100), 100); setTimeout(() => playTone(659, 150), 200); }
+    
+    
 
     // Add sound toggle to settings
     function addSoundToggle() {
@@ -276,4 +310,5 @@ initGame();
 </script>
 </body>
 </html>
+
 

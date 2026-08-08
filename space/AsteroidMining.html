@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⛏️ Astrio Miner</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -50,54 +49,17 @@
             padding: 20px;
             border: 2px solid #1a3344;
             margin: 10px 0;
-            min-height: 280px;
-            position: relative;
-            overflow: hidden;
+            min-height: 200px;
         }
 
-        /* Asteroid emoji animations */
         .asteroid-display {
             font-size: 8rem;
             display: block;
             margin: 10px 0;
-            animation: floatAsteroid 3s ease-in-out infinite;
-            text-shadow: 0 0 40px rgba(255, 215, 0, 0.1);
             cursor: pointer;
             transition: transform 0.2s;
         }
         .asteroid-display:active { transform: scale(0.85); }
-
-        @keyframes floatAsteroid {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-15px) rotate(5deg); }
-        }
-
-        .asteroid-display.diamond {
-            animation: diamondShine 1.5s ease-in-out infinite;
-            filter: drop-shadow(0 0 30px rgba(0, 255, 200, 0.3));
-        }
-        @keyframes diamondShine {
-            0%, 100% { transform: translateY(0) rotate(-5deg) scale(1); }
-            50% { transform: translateY(-15px) rotate(5deg) scale(1.1); filter: drop-shadow(0 0 60px rgba(0, 255, 200, 0.6)); }
-        }
-
-        .asteroid-display.gold {
-            animation: goldPulse 1.2s ease-in-out infinite;
-            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.3));
-        }
-        @keyframes goldPulse {
-            0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.3)); }
-            50% { transform: translateY(-10px) scale(1.08); filter: drop-shadow(0 0 60px rgba(255, 215, 0, 0.6)); }
-        }
-
-        .asteroid-display.crystal {
-            animation: crystalGlow 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 30px rgba(100, 200, 255, 0.3));
-        }
-        @keyframes crystalGlow {
-            0%, 100% { transform: translateY(0) rotate(0deg); filter: drop-shadow(0 0 30px rgba(100, 200, 255, 0.3)); }
-            50% { transform: translateY(-12px) rotate(10deg); filter: drop-shadow(0 0 60px rgba(100, 200, 255, 0.6)); }
-        }
 
         .mine-info {
             display: flex;
@@ -117,7 +79,6 @@
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.2s;
-            touch-action: manipulation;
             font-family: 'Segoe UI', sans-serif;
         }
         .btn:active { transform: scale(0.95); }
@@ -140,7 +101,7 @@
             pointer-events: none; z-index: 999; overflow: hidden;
         }
         .particle {
-            position: absolute; font-size: 28px; font-weight: 700;
+            position: absolute; font-size: 28px;
             animation: floatUp 1.2s ease-out forwards;
             pointer-events: none;
         }
@@ -148,35 +109,6 @@
             0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); }
             100% { opacity: 0; transform: translateY(-180px) scale(1.5) rotate(30deg); }
         }
-
-        .settings-panel {
-            background: #1a3344;
-            border-radius: 16px;
-            padding: 15px;
-            margin: 10px 0;
-            border: 1px solid #2a4a5e;
-            display: none;
-        }
-        .settings-panel.open { display: block; }
-        .settings-panel h3 { color: #4fc3f7; margin-bottom: 10px; font-size: 1rem; }
-        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        .settings-item:last-child { border-bottom: none; }
-        .settings-item .label { font-size: 0.9rem; color: #d0e8f0; }
-        .settings-toggle {
-            width: 44px; height: 24px; background: #2a4a5e; border-radius: 30px;
-            cursor: pointer; position: relative; transition: 0.3s;
-        }
-        .settings-toggle.active { background: #4fc3f7; }
-        .settings-toggle .knob {
-            width: 18px; height: 18px; background: white; border-radius: 50%;
-            position: absolute; top: 3px; left: 3px; transition: 0.3s;
-        }
-        .settings-toggle.active .knob { left: 23px; }
-        .settings-btn-icon {
-            background: none; border: none; color: #8899aa; font-size: 1.2rem;
-            cursor: pointer; padding: 4px 8px; transition: 0.2s;
-        }
-        .settings-btn-icon:hover { color: #4fc3f7; transform: rotate(30deg); }
 
         @media (max-width: 480px) {
             .container { margin-top: 50px; }
@@ -191,39 +123,23 @@
 </head>
 <body>
 
-<a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+<a href="../base.html" class="back-btn">← Back</a>
 
 <div class="container">
-    <h1><i class="fas fa-pickaxe" style="color:#ffd93d;"></i> Astrio Miner</h1>
-    <p class="subtitle">⛏️ Mine asteroids for resources!</p>
+    <h1>⛏️ Astrio Miner</h1>
+    <p class="subtitle">Mine asteroids for resources!</p>
 
     <div class="stats">
-        <div class="stat-box"><span id="resources">0</span><span class="label">💰 Resources</span></div>
-        <div class="stat-box"><span id="mines">0</span><span class="label">⛏️ Mines</span></div>
-        <div class="stat-box"><span id="combo">0</span><span class="label">🔥 Combo</span></div>
-    </div>
-
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
-        <button class="settings-btn-icon" id="settingsBtn">⚙️</button>
-    </div>
-
-    <div class="settings-panel" id="settingsPanel">
-        <h3>⚙️ Settings</h3>
-        <div class="settings-item">
-            <span class="label">🔊 Sound Effects</span>
-            <div class="settings-toggle active" id="soundToggle"><div class="knob"></div></div>
-        </div>
-        <div class="settings-item">
-            <span class="label">✨ Particles</span>
-            <div class="settings-toggle active" id="particleToggle"><div class="knob"></div></div>
-        </div>
+        <div class="stat-box"><span id="resources">0</span><span class="label">Resources</span></div>
+        <div class="stat-box"><span id="mines">0</span><span class="label">Mines</span></div>
+        <div class="stat-box"><span id="combo">0</span><span class="label">Combo</span></div>
     </div>
 
     <div class="mine-area">
         <span class="asteroid-display" id="asteroidEmoji">☄️</span>
         <div class="mine-info">
-            <span>💎 <span id="mineValue">1-10</span> resources</span>
-            <span>⚡ <span id="minePower">1x</span> power</span>
+            <span>💎 <span id="mineValue">1-5</span></span>
+            <span>⚡ <span id="minePower">1x</span></span>
         </div>
     </div>
 
@@ -239,160 +155,124 @@
 
 <script>
 // ============================================================
-// SOUND SYSTEM
+// ASTRIO MINER - SIMPLE WORKING VERSION
 // ============================================================
-let soundEnabled = true;
-let particleEnabled = true;
-let audioCtx = null;
-let audioUnlocked = false;
-
-function unlockAudio() {
-    if (audioUnlocked) return;
-    try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        audioUnlocked = true;
-    } catch(e) {}
-}
-document.addEventListener('click', unlockAudio);
-document.addEventListener('touchstart', unlockAudio);
-
-function getAudioCtx() {
-    if (!audioCtx) {
-        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-    }
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    return audioCtx;
-}
-
-function playTone(freq, dur = 150) {
-    if (!soundEnabled) return;
-    try {
-        const ctx = getAudioCtx();
-        if (!ctx) return;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.12, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur / 1000);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + dur / 1000);
-    } catch(e) {}
-}
-
-function playClick() { playTone(600, 80); }
-function playWin() { playTone(523, 150); setTimeout(() => playTone(659, 150), 150); }
-function playLevelUp() { playTone(440, 100); setTimeout(() => playTone(523, 100), 100); }
 
 // ============================================================
-// PARTICLES
+// GAME STATE
 // ============================================================
-function spawnParticle(x, y, text, color = '#ffd700') {
-    if (!particleEnabled) return;
-    const container = document.getElementById('particleContainer');
-    if (!container) return;
-    const el = document.createElement('div');
-    el.className = 'particle';
-    el.textContent = text;
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    el.style.color = color;
-    container.appendChild(el);
-    setTimeout(() => el.remove(), 1200);
-}
+var resources = 0;
+var mines = 0;
+var combo = 0;
 
-function spawnMineParticles(x, y) {
-    const emojis = ['💎', '✨', '⭐', '💫', '🔮', '🌟'];
-    const colors = ['#ffd700', '#ff6b6b', '#7cf5b0', '#4fc3f7', '#ff9f43', '#a29bfe'];
-    for (let i = 0; i < 8; i++) {
-        setTimeout(() => {
-            spawnParticle(
-                x + (Math.random() - 0.5) * 100,
-                y + (Math.random() - 0.5) * 100 - 20,
-                emojis[Math.floor(Math.random() * emojis.length)],
-                colors[Math.floor(Math.random() * colors.length)]
-            );
-        }, i * 50);
-    }
-}
-
-// ============================================================
-// GAME LOGIC
-// ============================================================
-let resources = 0;
-let mines = 0;
-let combo = 0;
-let asteroidTypes = [
-    { emoji: '☄️', name: 'Asteroid', min: 1, max: 5, color: '#8899aa' },
-    { emoji: '🪨', name: 'Rock', min: 3, max: 8, color: '#bbaa88' },
-    { emoji: '💎', name: 'Diamond', min: 10, max: 25, color: '#7cf5b0' },
-    { emoji: '🌟', name: 'Star Fragment', min: 5, max: 15, color: '#ffd93d' },
-    { emoji: '🔮', name: 'Crystal', min: 8, max: 20, color: '#4fc3f7' },
-    { emoji: '✨', name: 'Stardust', min: 15, max: 30, color: '#a29bfe' },
-    { emoji: '💫', name: 'Cosmic Gem', min: 20, max: 50, color: '#ff9f43' },
-    { emoji: '⭐', name: 'Star Core', min: 30, max: 60, color: '#ffd700' }
+var asteroidTypes = [
+    { emoji: '☄️', name: 'Asteroid', min: 1, max: 5 },
+    { emoji: '🪨', name: 'Rock', min: 3, max: 8 },
+    { emoji: '💎', name: 'Diamond', min: 10, max: 25 },
+    { emoji: '🌟', name: 'Star Fragment', min: 5, max: 15 },
+    { emoji: '🔮', name: 'Crystal', min: 8, max: 20 },
+    { emoji: '✨', name: 'Stardust', min: 15, max: 30 },
+    { emoji: '💫', name: 'Cosmic Gem', min: 20, max: 50 },
+    { emoji: '⭐', name: 'Star Core', min: 30, max: 60 }
 ];
 
-let currentAsteroid = asteroidTypes[0];
+var currentAsteroid = asteroidTypes[0];
 
+// ============================================================
+// UI UPDATE
+// ============================================================
 function updateUI() {
     document.getElementById('resources').textContent = resources;
     document.getElementById('mines').textContent = mines;
     document.getElementById('combo').textContent = combo;
 }
 
+// ============================================================
+// NEW ASTEROID
+// ============================================================
 function newAsteroid() {
-    // Weighted random - rarer asteroids appear less often
-    let weights = [35, 25, 10, 15, 12, 8, 5, 3];
-    let totalWeight = weights.reduce((a, b) => a + b, 0);
-    let random = Math.random() * totalWeight;
-    let idx = 0;
+    var weights = [35, 25, 10, 15, 12, 8, 5, 3];
+    var totalWeight = 0;
+    for (var i = 0; i < weights.length; i++) {
+        totalWeight += weights[i];
+    }
+    var random = Math.random() * totalWeight;
+    var idx = 0;
     while (random > weights[idx]) {
         random -= weights[idx];
         idx++;
     }
     currentAsteroid = asteroidTypes[idx];
     
-    const emoji = document.getElementById('asteroidEmoji');
-    emoji.textContent = currentAsteroid.emoji;
-    emoji.className = 'asteroid-display';
-    if (currentAsteroid.emoji === '💎') emoji.classList.add('diamond');
-    else if (currentAsteroid.emoji === '🌟' || currentAsteroid.emoji === '⭐') emoji.classList.add('gold');
-    else if (currentAsteroid.emoji === '🔮' || currentAsteroid.emoji === '💫') emoji.classList.add('crystal');
-    
+    document.getElementById('asteroidEmoji').textContent = currentAsteroid.emoji;
     document.getElementById('mineValue').textContent = currentAsteroid.min + '-' + currentAsteroid.max;
     document.getElementById('minePower').textContent = (1 + Math.floor(combo / 5)) + 'x';
 }
 
+// ============================================================
+// PARTICLES
+// ============================================================
+function spawnParticle(x, y, text, color) {
+    var container = document.getElementById('particleContainer');
+    if (!container) return;
+    var el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = text;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.color = color || '#ffd700';
+    container.appendChild(el);
+    setTimeout(function() { el.remove(); }, 1200);
+}
+
+function spawnMineParticles(x, y) {
+    var emojis = ['💎', '✨', '⭐', '💫', '🔮', '🌟'];
+    var colors = ['#ffd700', '#ff6b6b', '#7cf5b0', '#4fc3f7', '#ff9f43', '#a29bfe'];
+    for (var i = 0; i < 8; i++) {
+        (function(i) {
+            setTimeout(function() {
+                spawnParticle(
+                    x + (Math.random() - 0.5) * 100,
+                    y + (Math.random() - 0.5) * 100 - 20,
+                    emojis[Math.floor(Math.random() * emojis.length)],
+                    colors[Math.floor(Math.random() * colors.length)]
+                );
+            }, i * 50);
+        })(i);
+    }
+}
+
+// ============================================================
+// MINE FUNCTION
+// ============================================================
 function mine() {
-    const amount = Math.floor(Math.random() * (currentAsteroid.max - currentAsteroid.min + 1)) + currentAsteroid.min;
-    const comboBonus = 1 + Math.floor(combo / 5);
-    const totalAmount = amount * comboBonus;
+    var amount = Math.floor(Math.random() * (currentAsteroid.max - currentAsteroid.min + 1)) + currentAsteroid.min;
+    var comboBonus = 1 + Math.floor(combo / 5);
+    var totalAmount = amount * comboBonus;
     
     resources += totalAmount;
     mines++;
     combo++;
     
-    // Effects
-    const btn = document.getElementById('mineBtn');
-    const rect = btn.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
+    var btn = document.getElementById('mineBtn');
+    var rect = btn.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
     spawnMineParticles(cx, cy);
-    playClick();
     
-    document.getElementById('message').textContent = `⛏️ Mined ${totalAmount} ${currentAsteroid.name} resources! (${amount} × ${comboBonus}x combo)`;
+    var msg = document.getElementById('message');
+    msg.textContent = '⛏️ Mined ' + totalAmount + ' ' + currentAsteroid.name + '! (' + amount + ' × ' + comboBonus + 'x)';
     
-    if (combo >= 10) document.getElementById('message').textContent = '🔥 COMBO x' + combo + '! Amazing!';
-    else if (combo >= 5) document.getElementById('message').textContent = '⚡ Combo x' + combo + '! Keep going!';
+    if (combo >= 10) msg.textContent = '🔥 COMBO x' + combo + '! AMAZING!';
+    else if (combo >= 5) msg.textContent = '⚡ Combo x' + combo + '! Keep going!';
     
     updateUI();
     newAsteroid();
 }
 
+// ============================================================
+// RESET FUNCTION
+// ============================================================
 function resetGame() {
     if (!confirm('Reset all progress?')) return;
     resources = 0;
@@ -401,51 +281,39 @@ function resetGame() {
     updateUI();
     newAsteroid();
     document.getElementById('message').textContent = '🔄 Reset! Start mining again!';
-    playClick();
 }
 
 // ============================================================
-// SETTINGS
+// SETUP EVENT LISTENERS
 // ============================================================
-document.getElementById('settingsBtn').addEventListener('click', function() {
-    document.getElementById('settingsPanel').classList.toggle('open');
-});
-
-document.querySelectorAll('.settings-toggle').forEach(toggle => {
-    toggle.addEventListener('click', function() {
-        this.classList.toggle('active');
-        const id = this.id;
-        if (id === 'soundToggle') soundEnabled = this.classList.contains('active');
-        if (id === 'particleToggle') particleEnabled = this.classList.contains('active');
+document.addEventListener('DOMContentLoaded', function() {
+    // Mine button
+    document.getElementById('mineBtn').addEventListener('click', mine);
+    
+    // Reset button
+    document.getElementById('resetBtn').addEventListener('click', resetGame);
+    
+    // Click asteroid
+    document.getElementById('asteroidEmoji').addEventListener('click', mine);
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            mine();
+        }
+        if (e.key === 'r' || e.key === 'R') {
+            resetGame();
+        }
     });
+    
+    // Init
+    newAsteroid();
+    updateUI();
+    document.getElementById('message').textContent = '☄️ Click the asteroid or press Space to mine!';
+    console.log('⛏️ Astrio Miner loaded!');
+    console.log('⌨️ Space=Mine  R=Reset');
 });
-
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
-document.getElementById('mineBtn').addEventListener('click', mine);
-document.getElementById('resetBtn').addEventListener('click', resetGame);
-
-// Keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    if (e.key === ' ' || e.key === 'Enter') {
-        e.preventDefault();
-        mine();
-    }
-    if (e.key === 'r' || e.key === 'R') resetGame();
-});
-
-// Click asteroid to mine too
-document.getElementById('asteroidEmoji').addEventListener('click', mine);
-
-// ============================================================
-// INIT
-// ============================================================
-newAsteroid();
-updateUI();
-document.getElementById('message').textContent = '☄️ Click the asteroid or press Space to mine!';
-console.log('⛏️ Astrio Miner loaded!');
-console.log('⌨️ Space=Mine  R=Reset');
 </script>
 </body>
 </html>

@@ -702,6 +702,23 @@
             }
         }
 
+        /* Save Indicator */
+        #saveIndicator {
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            padding: 6px 0;
+            margin-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            cursor: default;
+        }
+        #saveIndicator .save-icon {
+            color: #4fc3f7;
+        }
+        #saveIndicator .save-time {
+            color: #888;
+        }
+
         @media (max-width: 480px) {
             #app {
                 padding: 14px 12px 12px;
@@ -771,7 +788,7 @@
             <div class="powerup" id="powerupAuto">🤖 Auto <span class="timer" id="autoTimer"></span></div>
         </div>
 
-        <!-- Daily Reward - FIXED TIMER -->
+        <!-- Daily Reward -->
         <div class="daily-reward">
             <div class="daily-text">
                 🎁 <span>Daily Reward</span>
@@ -963,6 +980,9 @@
             <div class="flavor">✨ Your brain is a dopamine factory ✨</div>
             <a href="#" class="email-link">✉️ theyabandtherandomboyoff97@gmail.com</a>
         </div>
+
+        <!-- Save Indicator -->
+        <div id="saveIndicator">💾 <span class="save-icon">Auto-saved</span> <span class="save-time" id="saveTime">just now</span></div>
     </div>
 
     <!-- Particles -->
@@ -970,7 +990,7 @@
 
     <script>
         // ============================================================
-        // STIMULATION OVERLOAD - ALL FEATURES WORKING
+        // STIMULATION OVERLOAD - FULL VERSION WITH SAVE SYSTEM
         // ============================================================
 
         // ============================================================
@@ -985,7 +1005,6 @@
         let critPrice = 50;
         let totalClicks = 0;
 
-        // Upgrades
         let frenzyActive = false;
         let frenzyTimer = 0;
         let passiveIncome = 0;
@@ -993,7 +1012,6 @@
         let grindMultiplier = 1;
         let grindCount = 0;
 
-        // Premium
         let robotCount = 0;
         let robotPrice = 100;
         let goldenLevel = 0;
@@ -1004,7 +1022,6 @@
         let megaLevel = 0;
         let megaPrice = 1000;
 
-        // Special
         let stockUnlocked = false;
         let slimeOwned = false;
         let waxOwned = false;
@@ -1012,16 +1029,14 @@
         let prestigeLevel = 0;
         let prestigeBonus = 1;
 
-        // Stock        let stockPrices = [100, 150, 200, 250, 300];
+        let stockPrices = [100, 150, 200, 250, 300];
         let stockNames = ['🚀 Tech', '🌿 Green', '💰 Gold', '⚡ Energy', '🎮 Gaming'];
         let stockShares = [0, 0, 0, 0, 0];
 
-        // Daily - FIXED
         let dailyClaimed = false;
-        let dailyTimer = 0; // in seconds
-        const DAILY_COOLDOWN = 86400; // 24 hours in seconds
+        let dailyTimer = 0;
+        const DAILY_COOLDOWN = 86400;
 
-        // Powerups
         let x2Powerup = false;
         let x2Timer = 0;
         let autoPowerup = false;
@@ -1060,108 +1075,12 @@
         }
 
         // ============================================================
-        // SAVE / LOAD
-        // ============================================================
-        function saveGame() {
-            try {
-                const data = {
-                    points,
-                    autoClickers,
-                    clickMultiplier,
-                    critLevel,
-                    autoPrice,
-                    multPrice,
-                    critPrice,
-                    totalClicks,
-                    frenzyActive,
-                    frenzyTimer,
-                    passiveIncome,
-                    autoCritLevel,
-                    grindMultiplier,
-                    grindCount,
-                    robotCount,
-                    robotPrice,
-                    goldenLevel,
-                    goldenPrice,
-                    achievementBonus,
-                    simileLevel,
-                    similePrice,
-                    megaLevel,
-                    megaPrice,
-                    stockUnlocked,
-                    slimeOwned,
-                    waxOwned,
-                    prestigeUnlocked,
-                    prestigeLevel,
-                    prestigeBonus,
-                    stockPrices,
-                    stockShares,
-                    dailyClaimed,
-                    dailyTimer,
-                    x2Powerup,
-                    x2Timer,
-                    autoPowerup,
-                    autoTimer
-                };
-                localStorage.setItem('stimOverloadSave', JSON.stringify(data));
-            } catch (e) {}
-        }
-
-        function loadGame() {
-            try {
-                const saved = localStorage.getItem('stimOverloadSave');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    Object.assign(this, data);
-                    return true;
-                }
-            } catch (e) {}
-            return false;
-        }
-
-        // ============================================================
-        // DAILY REWARD TIMER - FIXED
-        // ============================================================
-        function formatDailyTime(seconds) {
-            if (seconds <= 0) return 'Ready to claim!';
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = Math.floor(seconds % 60);
-
-            if (hours > 0) {
-                return `${hours}h ${minutes}m ${secs}s`;
-            } else if (minutes > 0) {
-                return `${minutes}m ${secs}s`;
-            } else {
-                return `${secs}s`;
-            }
-        }
-
-        function updateDailyTimer() {
-            const timerDisplay = document.getElementById('dailyTimerDisplay');
-            const dailyBtn = document.getElementById('dailyBtn');
-
-            if (dailyClaimed) {
-                const timeLeft = Math.max(0, dailyTimer);
-                timerDisplay.textContent = '⏳ ' + formatDailyTime(timeLeft);
-                dailyBtn.disabled = true;
-                dailyBtn.textContent = '⏳ Wait';
-            } else {
-                timerDisplay.textContent = '✨ Ready to claim!';
-                dailyBtn.disabled = false;
-                dailyBtn.textContent = 'Claim ✦1,000';
-            }
-        }
-
-        // ============================================================
         // UPDATE UI
         // ============================================================
         function updateUI() {
-            // Stats
             document.getElementById('pointsDisplay').textContent = Math.floor(points).toLocaleString();
             document.getElementById('totalClicksDisplay').textContent = totalClicks;
 
-            // Rate
             let rate = autoClickers + robotCount * 2 + passiveIncome + achievementBonus;
             if (slimeOwned) rate += 0.5;
             if (waxOwned) rate += 2;
@@ -1169,13 +1088,11 @@
             rate *= grindMultiplier * prestigeBonus;
             document.getElementById('rateDisplay').textContent = Math.floor(rate);
 
-            // Level
             const level = Math.floor(totalClicks / 100) + 1;
             document.getElementById('levelNum').textContent = level;
             const progress = (totalClicks % 100) / 100 * 100;
             document.getElementById('levelFill').style.width = progress + '%';
 
-            // Click power
             let clickPower = clickMultiplier;
             if (frenzyActive) clickPower *= 2;
             if (x2Powerup) clickPower *= 2;
@@ -1184,12 +1101,10 @@
             if (megaLevel > 0) clickPower *= (1 + megaLevel * 1);
             document.getElementById('clickPowerDisplay').textContent = '+' + Math.floor(clickPower);
 
-            // Auto count
             document.getElementById('autoCount').textContent = autoClickers;
             document.getElementById('multLevel').textContent = clickMultiplier;
             document.getElementById('critLevel').textContent = critLevel;
 
-            // Frenzy
             const frenzyBtn = document.getElementById('buyFrenzyBtn');
             if (frenzyActive) {
                 frenzyBtn.textContent = '⏳ ' + Math.ceil(frenzyTimer) + 's';
@@ -1203,7 +1118,6 @@
                 document.getElementById('frenzyStatus').textContent = 'Ready';
             }
 
-            // Powerups
             const x2 = document.getElementById('powerupX2');
             if (x2Powerup) {
                 x2.classList.add('active');
@@ -1222,10 +1136,8 @@
                 document.getElementById('autoTimer').textContent = '';
             }
 
-            // Daily - UPDATE TIMER
-            updateDailyTimer();
+            updateDailyUI();
 
-            // Shop buttons
             const buttons = {
                 'buyAutoBtn': autoPrice,
                 'buyMultBtn': multPrice,
@@ -1247,7 +1159,6 @@
                 const btn = document.getElementById(id);
                 if (!btn) continue;
 
-                // Special cases
                 if (id === 'buySlimeBtn' && slimeOwned) {
                     btn.textContent = '✅ Owned';
                     btn.disabled = true;
@@ -1277,7 +1188,6 @@
                 btn.disabled = points < price;
             }
 
-            // Other stats
             document.getElementById('passiveBonus').textContent = passiveIncome;
             document.getElementById('autoCritLevel').textContent = autoCritLevel;
             document.getElementById('robotCount').textContent = robotCount;
@@ -1288,7 +1198,6 @@
             document.getElementById('grindMultDisplay').textContent = grindMultiplier.toFixed(2);
             document.getElementById('grindMeter').textContent = '🔥 Grind: ' + grindCount;
 
-            // Wheel
             const wheelBtn = document.getElementById('wheelBtn');
             if (wheelBtn) {
                 if (wheelCooldown > 0) {
@@ -1300,17 +1209,14 @@
                 }
             }
 
-            // Prestige
             document.getElementById('prestigeLevel').textContent = prestigeLevel;
             document.getElementById('prestigeBonus').textContent = prestigeBonus.toFixed(2);
 
-            // Stock
             if (stockUnlocked) {
                 document.getElementById('stockSection').classList.add('visible');
                 updateStockUI();
             }
 
-            // Streak
             const streakDisplay = document.getElementById('streakDisplay');
             if (totalClicks > 0 && totalClicks % 10 === 0) {
                 streakDisplay.textContent = '🔥 Streak x' + Math.floor(totalClicks / 10) + '!';
@@ -1319,6 +1225,35 @@
                 streakDisplay.textContent = '🔥 Click to build your streak!';
                 streakDisplay.style.color = '#ff6b6b';
             }
+        }
+
+        // ============================================================
+        // DAILY REWARD UI
+        // ============================================================
+        function updateDailyUI() {
+            const timerDisplay = document.getElementById('dailyTimerDisplay');
+            const dailyBtn = document.getElementById('dailyBtn');
+
+            if (dailyClaimed) {
+                const timeLeft = Math.max(0, dailyTimer);
+                timerDisplay.textContent = '⏳ ' + formatTime(timeLeft);
+                dailyBtn.disabled = true;
+                dailyBtn.textContent = '⏳ Wait';
+            } else {
+                timerDisplay.textContent = '✨ Ready to claim!';
+                dailyBtn.disabled = false;
+                dailyBtn.textContent = 'Claim ✦1,000';
+            }
+        }
+
+        function formatTime(seconds) {
+            if (seconds <= 0) return 'Ready!';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            if (minutes > 0) return `${minutes}m ${secs}s`;
+            return `${secs}s`;
         }
 
         // ============================================================
@@ -1473,7 +1408,7 @@
         }
 
         function buyStock() {
-            if (points < 2500) return;
+            if (points < 2500 || stockUnlocked) return;
             points -= 2500;
             stockUnlocked = true;
             updateUI();
@@ -1519,7 +1454,7 @@
         }
 
         // ============================================================
-        // DAILY REWARD - FIXED
+        // DAILY REWARD
         // ============================================================
         function claimDaily() {
             if (dailyClaimed) return;
@@ -1527,7 +1462,6 @@
             dailyClaimed = true;
             dailyTimer = DAILY_COOLDOWN;
 
-            // Particle celebration
             for (let i = 0; i < 15; i++) {
                 setTimeout(() => {
                     spawnParticle(
@@ -1655,7 +1589,6 @@
             totalClicks += 1;
             grindCount += 1;
 
-            // Auto-crit
             if (autoCritLevel > 0 && totalClicks % 5 === 0) {
                 points += Math.floor(amount * 5);
                 spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ AUTO CRIT!', '#34c759');
@@ -1686,80 +1619,9 @@
         }
 
         // ============================================================
-        // GAME LOOP
-        // ============================================================
-        function setupGameLoop() {
-            setInterval(() => {
-                // Idle income
-                let rate = autoClickers + robotCount * 2 + passiveIncome + achievementBonus;
-                if (slimeOwned) rate += 0.5;
-                if (waxOwned) rate += 2;
-                if (autoPowerup) rate *= 2;
-                rate *= grindMultiplier * prestigeBonus;
-
-                if (rate > 0) {
-                    points += Math.floor(rate);
-                }
-
-                // Frenzy timer
-                if (frenzyActive) {
-                    frenzyTimer -= 1;
-                    if (frenzyTimer <= 0) {
-                        frenzyActive = false;
-                    }
-                }
-
-                // X2 Powerup timer
-                if (x2Powerup) {
-                    x2Timer -= 1;
-                    if (x2Timer <= 0) {
-                        x2Powerup = false;
-                    }
-                }
-
-                // Auto Powerup timer
-                if (autoPowerup) {
-                    autoTimer -= 1;
-                    if (autoTimer <= 0) {
-                        autoPowerup = false;
-                    }
-                }
-
-                // Daily timer - FIXED: decrement and auto-reset when done
-                if (dailyClaimed) {
-                    dailyTimer -= 1;
-                    if (dailyTimer <= 0) {
-                        dailyClaimed = false;
-                        dailyTimer = 0;
-                        // Show notification
-                        const timerDisplay = document.getElementById('dailyTimerDisplay');
-                        timerDisplay.textContent = '✨ Ready to claim!';
-                    }
-                }
-
-                // Wheel cooldown
-                if (wheelCooldown > 0) {
-                    wheelCooldown -= 1;
-                }
-
-                // Stock price updates
-                if (stockUnlocked) {
-                    stockPrices = stockPrices.map(p => Math.max(50, p + (Math.random() - 0.5) * 10));
-                }
-
-                // Achievement bonus
-                achievementBonus = Math.floor(totalClicks / 1000);
-
-                updateUI();
-                saveGame();
-            }, 1000);
-        }
-
-        // ============================================================
         // POWERUP CLICK HANDLERS
         // ============================================================
         function setupPowerups() {
-            // 2x Powerup
             document.getElementById('powerupX2').addEventListener('click', function() {
                 if (x2Powerup || points < 50) return;
                 points -= 50;
@@ -1770,7 +1632,6 @@
                 spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ 2x ACTIVE!', '#ffd700');
             });
 
-            // Auto Powerup
             document.getElementById('powerupAuto').addEventListener('click', function() {
                 if (autoPowerup || points < 75) return;
                 points -= 75;
@@ -1783,17 +1644,109 @@
         }
 
         // ============================================================
-        // PRESTIGE BUTTON - FIXED
+        // SAVE SYSTEM - COMPLETE
         // ============================================================
-        function setupPrestige() {
-            const prestigeBtns = document.querySelectorAll('.upgrade.premium:last-child button');
-            if (prestigeBtns.length > 0) {
-                prestigeBtns[0].addEventListener('click', function(e) {
-                    if (prestigeUnlocked && points >= 10000) {
-                        doPrestige();
+        function saveGame() {
+            try {
+                const data = {
+                    points, autoClickers, clickMultiplier, critLevel,
+                    autoPrice, multPrice, critPrice, totalClicks,
+                    frenzyActive, frenzyTimer, passiveIncome, autoCritLevel,
+                    grindMultiplier, grindCount, robotCount, robotPrice,
+                    goldenLevel, goldenPrice, achievementBonus,
+                    simileLevel, similePrice, megaLevel, megaPrice,
+                    stockUnlocked, slimeOwned, waxOwned,
+                    prestigeUnlocked, prestigeLevel, prestigeBonus,
+                    stockPrices, stockShares,
+                    dailyClaimed, dailyTimer,
+                    x2Powerup, x2Timer, autoPowerup, autoTimer,
+                    wheelCooldown,
+                    savedAt: Date.now()
+                };
+                localStorage.setItem('stimOverloadSave', JSON.stringify(data));
+                updateSaveTime('just now');
+            } catch (e) { console.log('Save error:', e); }
+        }
+
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem('stimOverloadSave');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data.savedAt && (Date.now() - data.savedAt) > 30 * 24 * 60 * 60 * 1000) {
+                        console.log('Save too old');
+                        return false;
                     }
-                });
+                    Object.assign(window, data);
+                    console.log('✅ Game loaded!');
+                    updateSaveTime('loaded');
+                    return true;
+                }
+            } catch (e) { console.log('Load error:', e); }
+            return false;
+        }
+
+        function resetSave() {
+            if (confirm('⚠️ Delete ALL saved progress? This cannot be undone!')) {
+                localStorage.removeItem('stimOverloadSave');
+                location.reload();
             }
+        }
+
+        function updateSaveTime(text) {
+            const el = document.getElementById('saveTime');
+            if (el) el.textContent = text;
+        }
+
+        // ============================================================
+        // GAME LOOP
+        // ============================================================
+        function setupGameLoop() {
+            setInterval(() => {
+                let rate = autoClickers + robotCount * 2 + passiveIncome + achievementBonus;
+                if (slimeOwned) rate += 0.5;
+                if (waxOwned) rate += 2;
+                if (autoPowerup) rate *= 2;
+                rate *= grindMultiplier * prestigeBonus;
+
+                if (rate > 0) {
+                    points += Math.floor(rate);
+                }
+
+                if (frenzyActive) {
+                    frenzyTimer -= 1;
+                    if (frenzyTimer <= 0) frenzyActive = false;
+                }
+
+                if (x2Powerup) {
+                    x2Timer -= 1;
+                    if (x2Timer <= 0) x2Powerup = false;
+                }
+
+                if (autoPowerup) {
+                    autoTimer -= 1;
+                    if (autoTimer <= 0) autoPowerup = false;
+                }
+
+                if (dailyClaimed) {
+                    dailyTimer -= 1;
+                    if (dailyTimer <= 0) {
+                        dailyClaimed = false;
+                        dailyTimer = 0;
+                    }
+                }
+
+                if (wheelCooldown > 0) wheelCooldown -= 1;
+
+                if (stockUnlocked) {
+                    stockPrices = stockPrices.map(p => Math.max(50, p + (Math.random() - 0.5) * 10));
+                }
+
+                achievementBonus = Math.floor(totalClicks / 1000);
+
+                updateUI();
+                saveGame();
+            }, 1000);
         }
 
         // ============================================================
@@ -1805,15 +1758,54 @@
             loadGame();
             updateUI();
             setupPowerups();
-            setupPrestige();
             setupGameLoop();
+
+            // Add reset button to footer
+            const footer = document.querySelector('.footer');
+            if (footer) {
+                const resetDiv = document.createElement('div');
+                resetDiv.style.cssText = 'margin-top:6px;';
+                resetDiv.innerHTML = `
+                    <button onclick="resetSave()" style="
+                        background: rgba(255,59,48,0.08);
+                        border: 1px solid rgba(255,59,48,0.12);
+                        color: #ff3b30;
+                        padding: 3px 14px;
+                        border-radius: 30px;
+                        font-size: 10px;
+                        cursor: pointer;
+                        font-family: 'Segoe UI', sans-serif;
+                        transition: 0.2s;
+                    " onmouseover="this.style.background='rgba(255,59,48,0.15)'" onmouseout="this.style.background='rgba(255,59,48,0.08)'">
+                        🗑️ Delete Save
+                    </button>
+                `;
+                footer.appendChild(resetDiv);
+            }
 
             console.log('✅ All features loaded!');
             console.log('📧 Email: theyabandtherandomboyoff97@gmail.com');
-            console.log('⏰ Daily reward resets every 24 hours');
+            console.log('💾 Press Ctrl+S to save manually');
         }
 
-        // Start when page loads
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveGame();
+                updateSaveTime('just now 💾');
+                alert('💾 Game saved!');
+            }
+            // Prestige shortcut
+            if (e.key === 'p' && e.shiftKey) {
+                if (prestigeUnlocked && points >= 10000) doPrestige();
+            }
+        });
+
+        // Save on page close
+        window.addEventListener('beforeunload', saveGame);
+
+        // Start
         init();
     </script>
 </body>

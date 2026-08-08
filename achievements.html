@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Achievements</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b1a26;
+            color: #d0e8f0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 30px 60px -20px rgba(0,0,0,0.8);
+        }
+        .back-btn {
+            display: inline-block;
+            color: #4fc3f7;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            transition: 0.2s;
+        }
+        .back-btn:hover { color: #7cf5b0; transform: translateX(-4px); }
+        h1 { color: #4fc3f7; font-size: 2.5rem; margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: #8899aa; text-align: center; margin-bottom: 2rem; font-size: 1rem; }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+        .stat-box {
+            background: #1a3344;
+            padding: 12px 8px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #2a4a5e;
+        }
+        .stat-box .number { color: #4fc3f7; font-size: 1.5rem; font-weight: 700; display: block; }
+        .stat-box .label { color: #8899aa; font-size: 0.6rem; text-transform: uppercase; }
+
+        .achievement-grid {
+            display: grid;
+            gap: 12px;
+        }
+        .achievement {
+            background: #1a3344;
+            border-radius: 16px;
+            padding: 16px 20px;
+            border: 2px solid #2a4a5e;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: 0.2s;
+        }
+        .achievement.unlocked {
+            border-color: #7cf5b0;
+            background: #1a4a3a;
+        }
+        .achievement.locked {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+        }
+        .achievement .icon { font-size: 2.5rem; min-width: 50px; text-align: center; }
+        .achievement .info { flex: 1; }
+        .achievement .info .name { font-weight: 700; font-size: 1.1rem; color: #f0f8ff; }
+        .achievement .info .desc { font-size: 0.85rem; color: #8899aa; }
+        .achievement .info .progress { font-size: 0.75rem; color: #4a6a8a; margin-top: 4px; }
+        .achievement .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .achievement .badge.unlocked { background: #1a4a3a; color: #7cf5b0; }
+        .achievement .badge.locked { background: #2a2a3a; color: #4a6a8a; }
+
+        @media (max-width: 480px) {
+            .stats-summary { grid-template-columns: repeat(2, 1fr); }
+            .achievement { padding: 12px 14px; }
+            .achievement .icon { font-size: 2rem; min-width: 40px; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Launchpad</a>
+    <h1>🏆 Achievements</h1>
+    <p class="subtitle">Track your gaming progress!</p>
+
+    <div class="stats-summary">
+        <div class="stat-box">
+            <span class="number" id="totalGames">0</span>
+            <span class="label">Games Played</span>
+        </div>
+        <div class="stat-box">
+            <span class="number" id="totalXp">0</span>
+            <span class="label">Total XP</span>
+        </div>
+        <div class="stat-box">
+            <span class="number" id="playerLevel">1</span>
+            <span class="label">Level</span>
+        </div>
+        <div class="stat-box">
+            <span class="number" id="achievementCount">0</span>
+            <span class="label">Unlocked</span>
+        </div>
+    </div>
+
+    <div class="achievement-grid" id="achievementGrid"></div>
+</div>
+
+<script>
+// ============================================================
+// ACHIEVEMENTS DATA
+// ============================================================
+const ACHIEVEMENTS = [
+    { 
+        id: 'first_game',
+        name: '🎮 First Game!',
+        desc: 'Play your first game',
+        emoji: '🎮',
+        check: (progress) => (progress.gamesPlayed || 0) >= 1
+    },
+    { 
+        id: 'game_master',
+        name: '🎯 Game Master!',
+        desc: 'Play 10 different games',
+        emoji: '👑',
+        check: (progress) => (progress.gamesPlayed || 0) >= 10
+    },
+    { 
+        id: 'xp_collector',
+        name: '⭐ XP Collector!',
+        desc: 'Earn 100 total XP',
+        emoji: '⭐',
+        check: (progress) => (progress.totalXp || 0) >= 100
+    },
+    { 
+        id: 'level_up',
+        name: '⬆️ Level Up!',
+        desc: 'Reach Level 5',
+        emoji: '🏅',
+        check: (progress) => {
+            const level = Math.floor((progress.totalXp || 0) / 100) + 1;
+            return level >= 5;
+        }
+    }
+];
+
+// ============================================================
+// LOAD PROGRESS
+// ============================================================
+function loadProgress() {
+    try {
+        const data = localStorage.getItem('launchpad_progress');
+        if (data) {
+            return JSON.parse(data);
+        }
+    } catch(e) {}
+    return { games: {}, totalXp: 0, gamesPlayed: 0 };
+}
+
+function loadAchievements() {
+    try {
+        const data = localStorage.getItem('launchpad_achievements');
+        if (data) {
+            return JSON.parse(data);
+        }
+    } catch(e) {}
+    return [];
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function render() {
+    const progress = loadProgress();
+    const unlocked = loadAchievements();
+    
+    // Stats
+    const gamesPlayed = progress.gamesPlayed || 0;
+    const totalXp = progress.totalXp || 0;
+    const level = Math.floor(totalXp / 100) + 1;
+    
+    document.getElementById('totalGames').textContent = gamesPlayed;
+    document.getElementById('totalXp').textContent = totalXp;
+    document.getElementById('playerLevel').textContent = level;
+    document.getElementById('achievementCount').textContent = unlocked.length + '/4';
+
+    // Achievement grid
+    const grid = document.getElementById('achievementGrid');
+    grid.innerHTML = '';
+
+    ACHIEVEMENTS.forEach(ach => {
+        const isUnlocked = unlocked.includes(ach.id);
+        const div = document.createElement('div');
+        div.className = 'achievement ' + (isUnlocked ? 'unlocked' : 'locked');
+        
+        div.innerHTML = `
+            <div class="icon">${ach.emoji}</div>
+            <div class="info">
+                <div class="name">${ach.name}</div>
+                <div class="desc">${ach.desc}</div>
+            </div>
+            <span class="badge ${isUnlocked ? 'unlocked' : 'locked'}">
+                ${isUnlocked ? '✅ Unlocked' : '🔒 Locked'}
+            </span>
+        `;
+        grid.appendChild(div);
+    });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+render();
+
+// Refresh every 5 seconds
+setInterval(render, 5000);
+</script>
+</body>
+</html>

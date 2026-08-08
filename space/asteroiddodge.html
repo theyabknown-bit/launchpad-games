@@ -1,369 +1,653 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>☄️ Asteroid Dodge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☄️ ASTRI DODGE · asteroid survival</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
         body {
-            background: #0b1a26;
-            color: #d0e8f0;
-            font-family: 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
+            background: radial-gradient(circle at 20% 20%, #0b0f1c, #03050a);
             display: flex;
-            align-items: center;
             justify-content: center;
-            flex-direction: column;
-            padding: 20px;
+            align-items: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 1rem;
+        }
+        .game-wrapper {
+            background: #0f1422;
+            padding: 1.5rem 2rem 2rem;
+            border-radius: 3rem 3rem 2rem 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
         }
         .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: #1a3344;
+            display: inline-block;
+            margin-bottom: 12px;
             color: #4fc3f7;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 100;
+            font-weight: 600;
             font-size: 14px;
-        }
-        .back-btn:hover { background: #2a4a5e; transform: translateX(-5px); }
-        .container { max-width: 500px; width: 100%; text-align: center; margin-top: 60px; }
-        h1 { color: #4fc3f7; font-size: 2.5rem; margin-bottom: 4px; }
-        .subtitle { color: #7cf5b0; font-size: 0.9rem; margin-bottom: 15px; }
-
-        .stats { display: flex; justify-content: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
-        .stat-box { background: #1a3344; padding: 8px 16px; border-radius: 10px; min-width: 70px; border: 1px solid #2a4a5e; }
-        .stat-box span { color: #4fc3f7; font-weight: bold; font-size: 1.1rem; display: block; }
-        .stat-box .label { color: #8899aa; font-size: 0.6rem; text-transform: uppercase; }
-
-        canvas {
-            background: #0f1f2e;
-            border-radius: 20px;
-            border: 2px solid #1a3344;
-            touch-action: none;
-            width: 100%;
-            max-width: 400px;
-            height: auto;
-            aspect-ratio: 1;
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            max-width: 200px;
-            margin: 12px auto;
-        }
-        .controls button {
-            padding: 12px;
-            background: #1a3344;
-            color: #d0e8f0;
-            border: 2px solid #2a4a5e;
-            border-radius: 10px;
-            font-size: 1.3rem;
-            cursor: pointer;
             transition: 0.2s;
-            touch-action: manipulation;
         }
-        .controls button:hover { background: #2a4a5e; border-color: #4fc3f7; }
-        .controls button:active { transform: scale(0.92); }
-        .controls .empty { visibility: hidden; }
-
-        .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
-        .btn {
-            padding: 10px 24px;
+        .back-btn:hover { color: #7cf5b0; transform: translateX(-4px); }
+        canvas {
+            display: block;
+            width: 800px;
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 800 / 600;
+            background: #0a0e1a;
+            border-radius: 24px;
+            box-shadow: inset 0 0 40px rgba(0, 20, 40, 0.8), 0 8px 32px #00000080;
+            cursor: none;
+            touch-action: none;
+        }
+        .panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.2rem;
+            color: #b4d0ff;
+            text-shadow: 0 2px 3px #00000080;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            padding: 0 0.2rem;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .score-box {
+            background: #1a2238;
+            padding: 0.4rem 1.4rem;
+            border-radius: 40px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #b3e4ff;
+            box-shadow: inset 0 2px 6px #00000066, 0 2px 0 #3a4a6a;
+            backdrop-filter: blur(2px);
+        }
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            background: #1a2238;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            color: #7c9bd6;
+            box-shadow: inset 0 2px 6px #00000044;
+        }
+        .stat-item span { color: #ffd93d; font-weight: 700; }
+        .controls {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #1f2b44;
             border: none;
-            border-radius: 12px;
-            font-weight: 700;
+            color: #d6eaff;
+            font-weight: 600;
             font-size: 1rem;
+            padding: 0.4rem 1.4rem;
+            border-radius: 40px;
+            box-shadow: inset 0 -3px 0 #0b111f, 0 4px 10px #00000055;
+            transition: all 0.08s ease;
             cursor: pointer;
-            transition: all 0.2s;
-            touch-action: manipulation;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(2px);
+            border: 1px solid #3e527a30;
         }
-        .btn:active { transform: scale(0.95); }
-        .btn-start {
-            background: linear-gradient(135deg, #4fc3f7, #1a6a8a);
-            color: white;
+        button:hover {
+            background: #2a3b5e;
+            transform: scale(0.97);
+            box-shadow: inset 0 -2px 0 #0b111f;
         }
-        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(79,195,247,0.2); }
-        .btn-reset {
-            background: #1a3344;
-            color: #d0e8f0;
-            border: 2px solid #2a4a5e;
+        button:active {
+            transform: scale(0.92);
+            box-shadow: inset 0 2px 6px #000000aa;
         }
-        .btn-reset:hover { background: #2a4a5e; border-color: #ff6b6b; }
-
-        .message { font-size: 1.1rem; min-height: 30px; color: #ffd93d; margin: 8px 0; font-weight: 600; }
-
-        @media (max-width: 480px) {
-            .container { margin-top: 50px; }
-            h1 { font-size: 2rem; }
-            .controls { max-width: 160px; gap: 5px; }
-            .controls button { padding: 8px; font-size: 1.1rem; }
-            .btn { padding: 8px 18px; font-size: 0.9rem; }
-            .stats { gap: 10px; }
-            .stat-box { padding: 6px 12px; min-width: 60px; }
-            .back-btn { font-size: 12px; padding: 8px 12px; top: 10px; left: 10px; }
+        .status {
+            color: #7c9bd6;
+            font-size: 0.85rem;
+            background: #111a2b;
+            padding: 0.2rem 1.2rem;
+            border-radius: 30px;
+            border-left: 2px solid #3b5a8a;
+        }
+        .save-indicator {
+            font-size: 0.7rem;
+            color: #4a6a8a;
+            text-align: center;
+            margin-top: 6px;
+        }
+        @media (max-width: 700px) {
+            .game-wrapper { padding: 1rem; }
+            .panel { flex-wrap: wrap; gap: 0.6rem; justify-content: center; }
+            .score-box { font-size: 1.2rem; }
+            .stat-item { font-size: 0.7rem; padding: 0.2rem 0.8rem; }
         }
     </style>
 </head>
 <body>
-
-<a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
-
-<div class="container">
-    <h1><i class="fas fa-meteor" style="color:#ff6b6b;"></i> Asteroid Dodge</h1>
-    <p class="subtitle">☄️ Dodge the asteroids!</p>
-
-    <div class="stats">
-        <div class="stat-box"><span id="score">0</span><span class="label">Score</span></div>
-        <div class="stat-box"><span id="highScore">0</span><span class="label">Best</span></div>
-        <div class="stat-box"><span id="destroyed">0</span><span class="label">💥 Destroyed</span></div>
+<div class="game-wrapper">
+    <a href="../base.html" class="back-btn">← Back to Launchpad</a>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="panel">
+        <div class="score-box">💠 <span id="scoreDisplay">0</span></div>
+        <div class="stats-row">
+            <div class="stat-item">⭐ XP: <span id="xpDisplay">0</span></div>
+            <div class="stat-item">🏅 Level: <span id="levelDisplay">1</span></div>
+            <div class="stat-item">🏆 Best: <span id="highDisplay">0</span></div>
+        </div>
+        <div class="controls">
+            <span class="status" id="statusDisplay">✦ active</span>
+            <button id="resetButton">↻ restart</button>
+        </div>
     </div>
-
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-
-    <div class="controls">
-        <div class="empty"></div>
-        <button id="upBtn">⬆</button>
-        <div class="empty"></div>
-        <button id="leftBtn">⬅</button>
-        <button id="downBtn">⬇</button>
-        <button id="rightBtn">➡</button>
-    </div>
-
-    <div class="btn-group">
-        <button class="btn btn-start" id="startBtn">▶ Start</button>
-        <button class="btn btn-reset" id="resetBtn">🔄 Reset Score</button>
-    </div>
-
-    <div class="message" id="message">🎯 Dodge the asteroids!</div>
+    <div class="save-indicator" id="saveIndicator">💾 Auto-saved</div>
 </div>
 
 <script>
-// ============================================================
-// ASTEROID DODGER - SIMPLE WORKING VERSION
-// ============================================================
+    (function(){
+        // ============================================================
+        // CANVAS SETUP
+        // ============================================================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreSpan = document.getElementById('scoreDisplay');
+        const xpSpan = document.getElementById('xpDisplay');
+        const levelSpan = document.getElementById('levelDisplay');
+        const highSpan = document.getElementById('highDisplay');
+        const statusSpan = document.getElementById('statusDisplay');
+        const saveIndicator = document.getElementById('saveIndicator');
 
-// Canvas setup
-var canvas = document.getElementById('gameCanvas');
-var ctx = canvas.getContext('2d');
+        const W = 800, H = 600;
 
-// Player
-var player = { x: 185, y: 350, w: 30, h: 30 };
+        // ============================================================
+        // PLAYER
+        // ============================================================
+        const player = {
+            x: 400, y: 500,
+            radius: 14,
+            speed: 5.5
+        };
 
-// Game state
-var asteroids = [];
-var score = 0;
-var highScore = parseInt(localStorage.getItem('asteroidHigh')) || 0;
-var destroyed = 0;
-var gameActive = false;
-var gameInterval = null;
-var spawnInterval = null;
+        // ============================================================
+        // GAME STATE
+        // ============================================================
+        let asteroids = [];
+        let score = 0;
+        let xp = 0;
+        let level = 1;
+        let highScore = 0;
+        let gameOver = false;
+        let frameId = null;
+        let frameCounter = 0;
 
-// Stars for background
-var stars = [];
-for (var i = 0; i < 50; i++) {
-    stars.push({
-        x: Math.random() * 400,
-        y: Math.random() * 400,
-        size: Math.random() * 2 + 0.5,
-        brightness: Math.random() * 0.5 + 0.1
-    });
-}
+        // Movement flags
+        const keys = {
+            ArrowLeft: false, ArrowRight: false,
+            ArrowUp: false, ArrowDown: false
+        };
+        let pointerX = null;
+        let pointerY = null;
+        let pointerActive = false;
 
-// ============================================================
-// DRAW
-// ============================================================
-function draw() {
-    // Clear
-    ctx.fillStyle = '#0f1f2e';
-    ctx.fillRect(0, 0, 400, 400);
+        // ============================================================
+        // ASTEROID PARAMS
+        // ============================================================
+        const ASTEROID_BASE_SPEED = 2.5;
+        const ASTEROID_SPAWN_RATE = 26;
+        const MAX_ASTEROIDS = 28;
+        const PLAYER_SAFE_RADIUS = 80;
 
-    // Draw stars
-    for (var i = 0; i < stars.length; i++) {
-        ctx.fillStyle = 'rgba(255,255,255,' + stars[i].brightness + ')';
-        ctx.fillRect(stars[i].x, stars[i].y, stars[i].size, stars[i].size);
-    }
-
-    // Draw player
-    ctx.shadowColor = '#4fc3f7';
-    ctx.shadowBlur = 15;
-    ctx.fillStyle = '#4fc3f7';
-    ctx.fillRect(player.x, player.y, player.w, player.h);
-    ctx.shadowBlur = 0;
-
-    // Draw player emoji
-    ctx.font = '20px sans-serif';
-    ctx.fillStyle = '#0b1a26';
-    ctx.fillText('🚀', player.x + 4, player.y + 22);
-
-    // Draw asteroids
-    for (var i = 0; i < asteroids.length; i++) {
-        var a = asteroids[i];
-        ctx.shadowColor = a.color;
-        ctx.shadowBlur = 20;
-        ctx.fillStyle = a.color;
-        ctx.beginPath();
-        ctx.arc(a.x, a.y, a.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        
-        // Asteroid emoji
-        ctx.font = (a.size * 0.8) + 'px sans-serif';
-        ctx.fillStyle = '#0b1a26';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(a.emoji, a.x, a.y + 2);
-    }
-}
-
-// ============================================================
-// UPDATE
-// ============================================================
-function update() {
-    // Move asteroids
-    for (var i = 0; i < asteroids.length; i++) {
-        asteroids[i].y += asteroids[i].speed;
-    }
-
-    // Remove off-screen asteroids
-    asteroids = asteroids.filter(function(a) { return a.y < 420; });
-
-    // Check collisions
-    for (var i = 0; i < asteroids.length; i++) {
-        var a = asteroids[i];
-        if (a.x > player.x && a.x < player.x + player.w &&
-            a.y > player.y && a.y < player.y + player.h) {
-            endGame();
-            return;
+        // ============================================================
+        // SAVE SYSTEM
+        // ============================================================
+        function saveGame() {
+            try {
+                const data = {
+                    highScore: highScore,
+                    xp: xp,
+                    level: level
+                };
+                localStorage.setItem('asteroidDodgeSave', JSON.stringify(data));
+                saveIndicator.textContent = '💾 Saved!';
+                setTimeout(() => { saveIndicator.textContent = '💾 Auto-saved'; }, 2000);
+            } catch(e) {}
         }
-    }
 
-    draw();
-}
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem('asteroidDodgeSave');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    highScore = data.highScore || 0;
+                    xp = data.xp || 0;
+                    level = data.level || 1;
+                    highSpan.textContent = highScore;
+                    xpSpan.textContent = xp;
+                    levelSpan.textContent = level;
+                    return true;
+                }
+            } catch(e) {}
+            return false;
+        }
 
-// ============================================================
-// SPAWN ASTEROID
-// ============================================================
-function spawnAsteroid() {
-    if (!gameActive) return;
-    var size = Math.random() * 20 + 10;
-    var colors = ['#ff6b6b', '#ffd93d', '#ff9f43', '#a29bfe', '#4fc3f7', '#7cf5b0'];
-    var emojis = ['☄️', '🪨', '💎', '⭐', '🔥', '💫'];
-    asteroids.push({
-        x: Math.random() * 370 + 15,
-        y: -size,
-        size: size,
-        speed: Math.random() * 3 + 1.5,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        emoji: emojis[Math.floor(Math.random() * emojis.length)]
-    });
-}
+        // Auto-save every 10 seconds
+        setInterval(saveGame, 10000);
 
-// ============================================================
-// START GAME
-// ============================================================
-function startGame() {
-    if (gameActive) return;
-    score = 0;
-    destroyed = 0;
-    asteroids = [];
-    player = { x: 185, y: 350, w: 30, h: 30 };
-    document.getElementById('score').textContent = 0;
-    document.getElementById('highScore').textContent = highScore;
-    document.getElementById('destroyed').textContent = 0;
-    document.getElementById('message').textContent = '⚡ Playing! Dodge!';
-    document.getElementById('startBtn').textContent = '⏳ Playing';
-    gameActive = true;
+        // ============================================================
+        // XP & LEVEL SYSTEM
+        // ============================================================
+        function addXP(amount) {
+            xp += amount;
+            // Level up every 100 XP
+            while (xp >= level * 100) {
+                level++;
+                statusSpan.textContent = '⬆️ Level ' + level + '!';
+                statusSpan.style.color = '#ffd93d';
+                setTimeout(() => {
+                    statusSpan.textContent = '✦ active';
+                    statusSpan.style.color = '#7c9bd6';
+                }, 1500);
+            }
+            xpSpan.textContent = xp;
+            levelSpan.textContent = level;
+            saveGame();
+        }
 
-    if (gameInterval) clearInterval(gameInterval);
-    if (spawnInterval) clearInterval(spawnInterval);
+        // ============================================================
+        // RESET GAME
+        // ============================================================
+        function resetGame() {
+            gameOver = false;
+            score = 0;
+            asteroids = [];
+            player.x = 400;
+            player.y = 500;
+            frameCounter = 0;
+            pointerActive = false;
+            pointerX = null;
+            pointerY = null;
+            for (let k in keys) keys[k] = false;
+            statusSpan.textContent = '✦ active';
+            statusSpan.style.color = '#7c9bd6';
+            updateUI();
+            saveGame();
+        }
 
-    gameInterval = setInterval(update, 50);
-    spawnInterval = setInterval(spawnAsteroid, 700);
+        // ============================================================
+        // UPDATE UI
+        // ============================================================
+        function updateUI() {
+            scoreSpan.textContent = score;
+            xpSpan.textContent = xp;
+            levelSpan.textContent = level;
+            highSpan.textContent = highScore;
+        }
 
-    setTimeout(spawnAsteroid, 200);
-}
+        // ============================================================
+        // SPAWN ASTEROID
+        // ============================================================
+        function spawnAsteroid() {
+            if (asteroids.length >= MAX_ASTEROIDS) return;
+            const radius = 12 + Math.floor(Math.random() * 19);
+            let x, y;
+            const edge = Math.floor(Math.random() * 4);
+            const margin = 20;
+            if (edge === 0) {
+                x = margin + Math.random() * (W - 2 * margin);
+                y = -radius - 2;
+            } else if (edge === 1) {
+                x = W + radius + 2;
+                y = margin + Math.random() * (H - 2 * margin);
+            } else if (edge === 2) {
+                x = margin + Math.random() * (W - 2 * margin);
+                y = H + radius + 2;
+            } else {
+                x = -radius - 2;
+                y = margin + Math.random() * (H - 2 * margin);
+            }
 
-// ============================================================
-// END GAME
-// ============================================================
-function endGame() {
-    gameActive = false;
-    if (gameInterval) clearInterval(gameInterval);
-    if (spawnInterval) clearInterval(spawnInterval);
+            const dx = x - player.x;
+            const dy = y - player.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < PLAYER_SAFE_RADIUS + radius) {
+                const angle = Math.atan2(dy, dx);
+                const push = PLAYER_SAFE_RADIUS + radius + 10;
+                x = player.x + Math.cos(angle) * push;
+                y = player.y + Math.sin(angle) * push;
+                x = Math.min(Math.max(x, -30), W + 30);
+                y = Math.min(Math.max(y, -30), H + 30);
+            }
 
-    if (score > highScore) {
-        highScore = score;
-        localStorage.setItem('asteroidHigh', highScore);
-        document.getElementById('message').textContent = '🎉 NEW HIGH SCORE: ' + highScore + '!';
-    } else {
-        document.getElementById('message').textContent = '💀 Game Over! Score: ' + score;
-    }
+            const angleToCenter = Math.atan2(H/2 - y, W/2 - x);
+            const speed = ASTEROID_BASE_SPEED + (Math.random() * 1.8 - 0.9);
+            const vx = Math.cos(angleToCenter + (Math.random() - 0.5) * 0.8) * speed;
+            const vy = Math.sin(angleToCenter + (Math.random() - 0.5) * 0.8) * speed;
 
-    document.getElementById('highScore').textContent = highScore;
-    document.getElementById('startBtn').textContent = '▶ Play Again';
-    draw();
-}
+            asteroids.push({
+                x, y,
+                radius,
+                vx, vy,
+                color: `hsl(${30 + Math.floor(Math.random() * 30)}, 70%, ${35 + Math.random() * 30}%)`
+            });
+        }
 
-// ============================================================
-// RESET SCORE
-// ============================================================
-function resetScore() {
-    highScore = 0;
-    localStorage.setItem('asteroidHigh', 0);
-    document.getElementById('highScore').textContent = 0;
-    document.getElementById('message').textContent = '🔄 High score reset!';
-}
+        // ============================================================
+        // UPDATE
+        // ============================================================
+        function update() {
+            if (gameOver) return;
 
-// ============================================================
-// MOVE PLAYER
-// ============================================================
-function movePlayer(dx, dy) {
-    if (!gameActive) return;
-    player.x = Math.max(0, Math.min(400 - player.w, player.x + dx));
-    player.y = Math.max(0, Math.min(400 - player.h, player.y + dy));
-}
+            // Player movement
+            let dx = 0, dy = 0;
+            if (keys.ArrowLeft) dx -= 1;
+            if (keys.ArrowRight) dx += 1;
+            if (keys.ArrowUp) dy -= 1;
+            if (keys.ArrowDown) dy += 1;
 
-// ============================================================
-// KEYBOARD CONTROLS
-// ============================================================
-document.addEventListener('keydown', function(e) {
-    if (!gameActive) return;
-    if (e.key === 'ArrowLeft') movePlayer(-20, 0);
-    if (e.key === 'ArrowRight') movePlayer(20, 0);
-    if (e.key === 'ArrowUp') movePlayer(0, -20);
-    if (e.key === 'ArrowDown') movePlayer(0, 20);
-    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!gameActive) startGame(); }
-});
+            if (pointerActive && pointerX !== null && pointerY !== null) {
+                const deltaX = pointerX - player.x;
+                const deltaY = pointerY - player.y;
+                const dist = Math.hypot(deltaX, deltaY);
+                if (dist > 2) {
+                    const move = Math.min(player.speed, dist);
+                    dx = (deltaX / dist) * move;
+                    dy = (deltaY / dist) * move;
+                } else {
+                    dx = 0; dy = 0;
+                }
+            } else {
+                if (dx !== 0 && dy !== 0) {
+                    const len = Math.hypot(dx, dy);
+                    dx = (dx / len) * player.speed;
+                    dy = (dy / len) * player.speed;
+                } else {
+                    dx *= player.speed;
+                    dy *= player.speed;
+                }
+            }
 
-// ============================================================
-// BUTTON CONTROLS
-// ============================================================
-document.getElementById('leftBtn').addEventListener('click', function() { movePlayer(-20, 0); });
-document.getElementById('rightBtn').addEventListener('click', function() { movePlayer(20, 0); });
-document.getElementById('upBtn').addEventListener('click', function() { movePlayer(0, -20); });
-document.getElementById('downBtn').addEventListener('click', function() { movePlayer(0, 20); });
+            player.x = Math.min(Math.max(player.x + dx, player.radius), W - player.radius);
+            player.y = Math.min(Math.max(player.y + dy, player.radius), H - player.radius);
 
-document.getElementById('startBtn').addEventListener('click', startGame);
-document.getElementById('resetBtn').addEventListener('click', resetScore);
+            // Spawn asteroids
+            frameCounter++;
+            if (frameCounter % ASTEROID_SPAWN_RATE === 0) {
+                spawnAsteroid();
+                if (asteroids.length < 6 && Math.random() < 0.3) spawnAsteroid();
+            }
 
-// ============================================================
-// INIT
-// ============================================================
-document.getElementById('highScore').textContent = highScore;
-draw();
-document.getElementById('message').textContent = '🎯 Dodge the asteroids!';
-console.log('☄️ Asteroid Dodge loaded!');
-console.log('⌨️ Arrow keys to move, Space to start');
+            // Move asteroids & collision
+            for (let i = asteroids.length - 1; i >= 0; i--) {
+                const a = asteroids[i];
+                a.x += a.vx;
+                a.y += a.vy;
+
+                if (a.x < -a.radius - 40) a.x = W + a.radius + 40;
+                if (a.x > W + a.radius + 40) a.x = -a.radius - 40;
+                if (a.y < -a.radius - 40) a.y = H + a.radius + 40;
+                if (a.y > H + a.radius + 40) a.y = -a.radius - 40;
+
+                if (!gameOver) {
+                    const dx = player.x - a.x;
+                    const dy = player.y - a.y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < player.radius + a.radius) {
+                        gameOver = true;
+                        statusSpan.textContent = '☠️ game over';
+                        statusSpan.style.color = '#ff8484';
+                        // Update high score
+                        if (score > highScore) {
+                            highScore = score;
+                            highSpan.textContent = highScore;
+                            saveGame();
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (gameOver) return;
+
+            // Score and XP
+            if (frameCounter % 6 === 0) {
+                score++;
+                // Earn XP every 10 points
+                if (score % 10 === 0) {
+                    addXP(5);
+                }
+                updateUI();
+            }
+        }
+
+        // ============================================================
+        // DRAW
+        // ============================================================
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+
+            // Stars
+            ctx.fillStyle = '#ffffff08';
+            for (let i = 0; i < 60; i++) {
+                if (i % 2 === 0) continue;
+                const sx = (i * 37) % W, sy = (i * 53) % H;
+                ctx.beginPath();
+                ctx.arc(sx, sy, (i % 3) + 0.5, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255,240,200,${0.2 + (i % 5) * 0.05})`;
+                ctx.fill();
+            }
+
+            // Asteroids
+            for (let a of asteroids) {
+                ctx.shadowColor = '#b07c4a';
+                ctx.shadowBlur = 16;
+                ctx.beginPath();
+                ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2);
+                ctx.fillStyle = a.color || '#6f4e2e';
+                ctx.fill();
+                ctx.shadowBlur = 6;
+                ctx.fillStyle = '#362614';
+                ctx.beginPath();
+                ctx.arc(a.x - a.radius * 0.25, a.y - a.radius * 0.2, a.radius * 0.25, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(a.x + a.radius * 0.3, a.y + a.radius * 0.15, a.radius * 0.15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#c9a87c60';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(a.x, a.y, a.radius - 2, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            ctx.shadowBlur = 0;
+
+            // Player
+            const px = player.x, py = player.y, r = player.radius;
+            ctx.shadowColor = '#7fc7ff';
+            ctx.shadowBlur = 30;
+            ctx.beginPath();
+            ctx.moveTo(px + r * 1.2, py);
+            ctx.lineTo(px - r * 0.8, py - r * 0.7);
+            ctx.lineTo(px - r * 0.5, py);
+            ctx.lineTo(px - r * 0.8, py + r * 0.7);
+            ctx.closePath();
+            ctx.fillStyle = '#a8d8ff';
+            ctx.fill();
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = '#d6f0ff';
+            ctx.beginPath();
+            ctx.arc(px + r * 0.1, py, r * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = '#b8e2ff';
+            ctx.beginPath();
+            ctx.arc(px - r * 0.1, py - r * 0.1, r * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 40;
+            ctx.fillStyle = '#7fc7ff30';
+            ctx.beginPath();
+            ctx.arc(px - r * 0.7, py, r * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Level indicator
+            if (!gameOver) {
+                ctx.font = '16px "Segoe UI", sans-serif';
+                ctx.fillStyle = '#ffd93d';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillText('🏅 Lv.' + level, 15, 15);
+            }
+
+            // Game over
+            if (gameOver) {
+                ctx.fillStyle = '#00000070';
+                ctx.fillRect(0, 0, W, H);
+                ctx.font = 'bold 48px "Segoe UI", system-ui, sans-serif';
+                ctx.fillStyle = '#ffbaba';
+                ctx.shadowColor = '#ff0000aa';
+                ctx.shadowBlur = 40;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('☄️ CRASH', 400, 240);
+                ctx.font = '22px sans-serif';
+                ctx.fillStyle = '#ddd0ff';
+                ctx.shadowBlur = 0;
+                ctx.fillText('Score: ' + score + '  |  XP: ' + xp, 400, 320);
+                ctx.fillText('press restart', 400, 380);
+                ctx.shadowBlur = 0;
+            }
+
+            // Pointer
+            if (pointerActive && pointerX !== null && pointerY !== null && !gameOver) {
+                ctx.beginPath();
+                ctx.arc(pointerX, pointerY, 10, 0, Math.PI * 2);
+                ctx.strokeStyle = '#aacbff60';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 8]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.beginPath();
+                ctx.arc(pointerX, pointerY, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#aacbff40';
+                ctx.fill();
+            }
+        }
+
+        // ============================================================
+        // LOOP
+        // ============================================================
+        function loop() {
+            update();
+            draw();
+            frameId = requestAnimationFrame(loop);
+        }
+
+        // ============================================================
+        // EVENTS
+        // ============================================================
+        function keyHandler(e, value) {
+            const key = e.key;
+            if (key in keys) {
+                e.preventDefault();
+                keys[key] = value;
+            }
+        }
+        window.addEventListener('keydown', (e) => keyHandler(e, true));
+        window.addEventListener('keyup', (e) => keyHandler(e, false));
+
+        function handlePointerStart(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+                pointerActive = true;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+                pointerActive = true;
+            }
+            const canvasX = (clientX - rect.left) * scaleX;
+            const canvasY = (clientY - rect.top) * scaleY;
+            pointerX = Math.min(Math.max(canvasX, 0), W);
+            pointerY = Math.min(Math.max(canvasY, 0), H);
+        }
+
+        function handlePointerMove(e) {
+            e.preventDefault();
+            if (!pointerActive) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            const canvasX = (clientX - rect.left) * scaleX;
+            const canvasY = (clientY - rect.top) * scaleY;
+            pointerX = Math.min(Math.max(canvasX, 0), W);
+            pointerY = Math.min(Math.max(canvasY, 0), H);
+        }
+
+        function handlePointerEnd(e) {
+            e.preventDefault();
+            pointerActive = false;
+            pointerX = null;
+            pointerY = null;
+        }
+
+        canvas.addEventListener('mousedown', handlePointerStart);
+        window.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('mouseup', handlePointerEnd);
+        canvas.addEventListener('touchstart', handlePointerStart, { passive: false });
+        window.addEventListener('touchmove', handlePointerMove, { passive: false });
+        window.addEventListener('touchend', handlePointerEnd, { passive: false });
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        document.getElementById('resetButton').addEventListener('click', resetGame);
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        loadGame();
+        highSpan.textContent = highScore;
+        xpSpan.textContent = xp;
+        levelSpan.textContent = level;
+        resetGame();
+        loop();
+
+        window.addEventListener('beforeunload', ()=>{
+            saveGame();
+            if(frameId) cancelAnimationFrame(frameId);
+        });
+
+        // Manual save on visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) saveGame();
+        });
+
+    })();
 </script>
 </body>
 </html>

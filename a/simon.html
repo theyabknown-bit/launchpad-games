@@ -1,1 +1,619 @@
-﻿
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💡 Simon Says</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b1a26;
+            color: #d0e8f0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #1a3344;
+            color: #4fc3f7;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+        .back-btn:hover {
+            background: #2a4a5e;
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4fc3f7;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(79, 195, 247, 0.3);
+        }
+        .subtitle {
+            color: #7cf5b0;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-box {
+            background: #1a3344;
+            padding: 10px 20px;
+            border-radius: 10px;
+            min-width: 80px;
+        }
+        .stat-box span {
+            color: #4fc3f7;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: block;
+        }
+        .stat-box .label {
+            color: #8899aa;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .simon-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #0f1f2e;
+            border-radius: 20px;
+            border: 2px solid #1a3344;
+        }
+
+        .simon-btn {
+            aspect-ratio: 1;
+            border-radius: 20px;
+            border: 3px solid #1a3344;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            position: relative;
+            min-height: 120px;
+            touch-action: manipulation;
+        }
+
+        .simon-btn:active {
+            transform: scale(0.92);
+        }
+
+        .simon-btn .btn-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .simon-btn.red {
+            background: #c0392b;
+            box-shadow: 0 8px 0 #78281f;
+        }
+        .simon-btn.red.active {
+            background: #ff6b6b;
+            box-shadow: 0 0 30px rgba(255,107,107,0.6);
+            transform: scale(0.95);
+        }
+        .simon-btn.red.lit {
+            background: #ff6b6b;
+            box-shadow: 0 0 50px rgba(255,107,107,0.8);
+        }
+
+        .simon-btn.blue {
+            background: #2980b9;
+            box-shadow: 0 8px 0 #1a5276;
+        }
+        .simon-btn.blue.active {
+            background: #4fc3f7;
+            box-shadow: 0 0 30px rgba(79,195,247,0.6);
+            transform: scale(0.95);
+        }
+        .simon-btn.blue.lit {
+            background: #4fc3f7;
+            box-shadow: 0 0 50px rgba(79,195,247,0.8);
+        }
+
+        .simon-btn.green {
+            background: #27ae60;
+            box-shadow: 0 8px 0 #1a6a3a;
+        }
+        .simon-btn.green.active {
+            background: #7cf5b0;
+            box-shadow: 0 0 30px rgba(124,245,176,0.6);
+            transform: scale(0.95);
+        }
+        .simon-btn.green.lit {
+            background: #7cf5b0;
+            box-shadow: 0 0 50px rgba(124,245,176,0.8);
+        }
+
+        .simon-btn.yellow {
+            background: #f39c12;
+            box-shadow: 0 8px 0 #b86d0e;
+        }
+        .simon-btn.yellow.active {
+            background: #ffd93d;
+            box-shadow: 0 0 30px rgba(255,217,61,0.6);
+            transform: scale(0.95);
+        }
+        .simon-btn.yellow.lit {
+            background: #ffd93d;
+            box-shadow: 0 0 50px rgba(255,217,61,0.8);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #1a3344;
+            color: #d0e8f0;
+            border: 2px solid #2a4a5e;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #2a4a5e;
+            border-color: #4fc3f7;
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background: #4fc3f7;
+            color: #0b1a26;
+            border-color: #4fc3f7;
+        }
+        .btn-primary:hover {
+            background: #7cf5b0;
+            border-color: #7cf5b0;
+        }
+        .btn-danger {
+            background: #ff6b6b;
+            color: #0b1a26;
+            border-color: #ff6b6b;
+        }
+        .btn-danger:hover {
+            background: #ff4444;
+            border-color: #ff4444;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .message {
+            font-size: 1.3rem;
+            min-height: 40px;
+            color: #ffd93d;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+
+        .difficulty {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .difficulty .btn {
+            font-size: 0.8rem;
+            padding: 8px 18px;
+        }
+        .difficulty .btn.active {
+            background: #4fc3f7;
+            color: #0b1a26;
+            border-color: #4fc3f7;
+        }
+
+        @media (max-width: 480px) {
+            .simon-btn { min-height: 80px; }
+            h1 { font-size: 2rem; }
+            .stats { gap: 15px; }
+            .stat-box { padding: 8px 15px; min-width: 60px; }
+            .simon-btn .btn-label { font-size: 0.5rem; bottom: 5px; }
+            .back-btn { font-size: 12px; padding: 8px 14px; top: 10px; left: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="../base.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+    <div class="container">
+        <h1><i class="fas fa-lightbulb" style="color: #ffd93d;"></i> Simon Says</h1>
+        <p class="subtitle">Repeat the pattern!</p>
+
+        <div class="stats">
+            <div class="stat-box">
+                <span id="score">0</span>
+                <span class="label">Score</span>
+            </div>
+            <div class="stat-box">
+                <span id="highScore">0</span>
+                <span class="label">Best</span>
+            </div>
+            <div class="stat-box">
+                <span id="level">1</span>
+                <span class="label">Level</span>
+            </div>
+        </div>
+
+        <div class="message" id="message">🎯 Watch the pattern!</div>
+
+        <div class="difficulty">
+            <button class="btn active" data-speed="1000" onclick="setDifficulty(1000, this)">🐢 Easy</button>
+            <button class="btn" data-speed="700" onclick="setDifficulty(700, this)">⚡ Medium</button>
+            <button class="btn" data-speed="400" onclick="setDifficulty(400, this)">🔥 Hard</button>
+        </div>
+
+        <div class="simon-board" id="board">
+            <div class="simon-btn red" data-color="red" onclick="handleClick('red')">
+                <span class="btn-label">Red</span>
+            </div>
+            <div class="simon-btn blue" data-color="blue" onclick="handleClick('blue')">
+                <span class="btn-label">Blue</span>
+            </div>
+            <div class="simon-btn green" data-color="green" onclick="handleClick('green')">
+                <span class="btn-label">Green</span>
+            </div>
+            <div class="simon-btn yellow" data-color="yellow" onclick="handleClick('yellow')">
+                <span class="btn-label">Yellow</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn" onclick="startGame()">
+                <i class="fas fa-play"></i> Start
+            </button>
+            <button class="btn btn-danger" onclick="resetGame()">
+                <i class="fas fa-redo"></i> Reset
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // SAVE SYSTEM (Universal)
+        // ============================================
+        function loadGameState(gameId) {
+            try {
+                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+                if (save.gameStates && save.gameStates[gameId]) {
+                    return save.gameStates[gameId].data;
+                }
+            } catch(e) { return null; }
+            return null;
+        }
+
+        function saveGameState(gameId, stateData) {
+            try {
+                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+                if (!save.gameStates) save.gameStates = {};
+                save.gameStates[gameId] = { data: stateData, timestamp: new Date().toISOString() };
+                localStorage.setItem('launchpad_progress', JSON.stringify(save));
+                return true;
+            } catch(e) { return false; }
+        }
+
+        function updateGameProgress(gameId) {
+            try {
+                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+                if (!save.games) save.games = {};
+                if (!save.games[gameId]) save.games[gameId] = { played: false, xp: 0 };
+                var game = save.games[gameId];
+                if (!game.played) { game.played = true; save.gamesPlayed = (save.gamesPlayed || 0) + 1; }
+                game.xp = (game.xp || 0) + 1;
+                var totalXp = 0, gamesPlayed = 0;
+                Object.values(save.games).forEach(function(g) { totalXp += (g.xp || 0); if (g.played) gamesPlayed++; });
+                save.totalXp = totalXp;
+                save.gamesPlayed = gamesPlayed;
+                localStorage.setItem('launchpad_progress', JSON.stringify(save));
+            } catch(e) {}
+        }
+
+        // ============================================
+        // SIMON SAYS GAME
+        // ============================================
+        const GAME_ID = 'simon';
+        const COLORS = ['red', 'blue', 'green', 'yellow'];
+
+        let sequence = [];
+        let playerSequence = [];
+        let isPlaying = false;
+        let isPlayerTurn = false;
+        let score = 0;
+        let highScore = parseInt(localStorage.getItem('simonHighScore')) || 0;
+        let level = 1;
+        let speed = 1000;
+        let gameStarted = false;
+
+        // Sound effects using Web Audio API
+        let audioCtx = null;
+
+        function getAudioCtx() {
+            if (!audioCtx) {
+                try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+            }
+            return audioCtx;
+        }
+
+        function playTone(frequency, duration = 0.15) {
+            try {
+                const ctx = getAudioCtx();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        const colorSounds = {
+            red: 220,
+            blue: 330,
+            green: 440,
+            yellow: 550
+        };
+
+        function playColorSound(color) {
+            playTone(colorSounds[color] || 440);
+        }
+
+        function getColorElement(color) {
+            return document.querySelector(`.simon-btn[data-color="${color}"]`);
+        }
+
+        function lightColor(color, duration = 300) {
+            const el = getColorElement(color);
+            if (!el) return;
+            el.classList.add('lit');
+            playColorSound(color);
+            setTimeout(() => el.classList.remove('lit'), duration);
+        }
+
+        function flashColor(color) {
+            return new Promise(resolve => {
+                lightColor(color, 400);
+                setTimeout(resolve, 400);
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('level').textContent = level;
+        }
+
+        function setMessage(text, isError = false) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.style.color = isError ? '#ff6b6b' : '#ffd93d';
+        }
+
+        function setDifficulty(newSpeed, btn) {
+            if (isPlaying) return;
+            speed = newSpeed;
+            document.querySelectorAll('.difficulty .btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            setMessage('🎯 Difficulty: ' + btn.textContent.trim());
+        }
+
+        function startGame() {
+            if (isPlaying) return;
+            gameStarted = true;
+            updateGameProgress(GAME_ID);
+            sequence = [];
+            playerSequence = [];
+            score = 0;
+            level = 1;
+            isPlaying = true;
+            isPlayerTurn = false;
+            document.getElementById('startBtn').disabled = true;
+            setMessage('🎯 Watch the pattern!');
+            updateUI();
+            setTimeout(showSequence, 500);
+        }
+
+        function showSequence() {
+            const newColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+            sequence.push(newColor);
+            playerSequence = [];
+            isPlayerTurn = false;
+            setMessage('👀 Watch...');
+
+            let i = 0;
+            function showNext() {
+                if (i >= sequence.length) {
+                    isPlayerTurn = true;
+                    setMessage('🎯 Your turn!');
+                    document.getElementById('startBtn').disabled = false;
+                    return;
+                }
+                flashColor(sequence[i]).then(() => {
+                    i++;
+                    setTimeout(showNext, speed * 0.3);
+                });
+            }
+            setTimeout(showNext, 400);
+        }
+
+        function handleClick(color) {
+            if (!isPlayerTurn || !isPlaying) return;
+
+            playerSequence.push(color);
+            lightColor(color, 200);
+
+            const index = playerSequence.length - 1;
+            if (playerSequence[index] !== sequence[index]) {
+                // Wrong!
+                setMessage('❌ Wrong! Game Over!', true);
+                isPlaying = false;
+                isPlayerTurn = false;
+                document.getElementById('startBtn').disabled = false;
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem('simonHighScore', highScore);
+                    setMessage('🎉 New High Score: ' + highScore + '!', false);
+                    updateUI();
+                }
+                // Save game state
+                saveGameState(GAME_ID, { score: score, highScore: highScore, level: level });
+                return;
+            }
+
+            if (playerSequence.length === sequence.length) {
+                // Correct! Level up!
+                score += sequence.length * 10;
+                level++;
+                setMessage('✅ Correct! Level ' + level + '!', false);
+                updateUI();
+                isPlayerTurn = false;
+                document.getElementById('startBtn').disabled = true;
+                setTimeout(() => {
+                    showSequence();
+                }, 800);
+            }
+
+            // Auto-save progress
+            saveGameState(GAME_ID, { score: score, highScore: highScore, level: level });
+        }
+
+        function resetGame() {
+            if (isPlaying) {
+                if (!confirm('Reset game?')) return;
+            }
+            isPlaying = false;
+            isPlayerTurn = false;
+            sequence = [];
+            playerSequence = [];
+            score = 0;
+            level = 1;
+            document.getElementById('startBtn').disabled = false;
+            setMessage('🔄 Game reset! Press Start to play.');
+            updateUI();
+        }
+
+        // ============================================
+        // KEYBOARD SUPPORT
+        // ============================================
+        document.addEventListener('keydown', function(e) {
+            const keyMap = {
+                '1': 'red',
+                '2': 'blue',
+                '3': 'green',
+                '4': 'yellow',
+                'r': 'red',
+                'b': 'blue',
+                'g': 'green',
+                'y': 'yellow'
+            };
+            const color = keyMap[e.key.toLowerCase()];
+            if (color && isPlayerTurn) {
+                handleClick(color);
+            }
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (!isPlaying) startGame();
+            }
+        });
+
+        // ============================================
+        // LOAD SAVED STATE
+        // ============================================
+        function loadSavedState() {
+            const state = loadGameState(GAME_ID);
+            if (state) {
+                score = state.score || 0;
+                highScore = state.highScore || parseInt(localStorage.getItem('simonHighScore')) || 0;
+                level = state.level || 1;
+                updateUI();
+                setMessage('📂 Loaded saved game! Press Start.');
+                return true;
+            }
+            return false;
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        function init() {
+            highScore = parseInt(localStorage.getItem('simonHighScore')) || 0;
+            loadSavedState();
+            updateUI();
+            setMessage('🎯 Press Start to play!');
+
+            // Touch feedback
+            document.querySelectorAll('.simon-btn').forEach(btn => {
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                });
+            });
+        }
+
+        // Make functions global for onclick
+        window.startGame = startGame;
+        window.resetGame = resetGame;
+        window.handleClick = handleClick;
+        window.setDifficulty = setDifficulty;
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

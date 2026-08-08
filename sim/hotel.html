@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏨 Hotel Sim</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0b1a26;color:#d0e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;flex-direction:column;}
+.back-btn{position:fixed;top:20px;left:20px;background:#1a3344;color:#4fc3f7;padding:12px 20px;border-radius:8px;text-decoration:none;}
+.back-btn:hover{background:#2a4a5e;transform:translateX(-5px);}
+.container{max-width:500px;width:100%;text-align:center;}
+h1{color:#4fc3f7;margin-bottom:10px;}
+.stats{display:flex;justify-content:center;gap:20px;margin-bottom:20px;}
+.stat-box{background:#1a3344;padding:10px 20px;border-radius:10px;min-width:80px;}
+.stat-box span{color:#4fc3f7;font-weight:bold;font-size:1.2rem;display:block;}
+.stat-box .label{color:#8899aa;font-size:0.7rem;text-transform:uppercase;}
+.room-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0;}
+.room{aspect-ratio:1;background:#1a3344;border-radius:12px;border:2px solid #2a4a5e;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;cursor:pointer;transition:0.15s;flex-direction:column;}
+.room:hover{transform:scale(1.05);border-color:#4fc3f7;}
+.room.occupied{background:#1a4a3a;border-color:#7cf5b0;}
+.room .room-status{font-size:0.6rem;color:#8899aa;}
+.btn{background:#4fc3f7;color:#0b1a26;border:none;padding:12px 25px;border-radius:8px;font-size:1rem;cursor:pointer;}
+.btn:hover{background:#7cf5b0;}
+.message{font-size:1.2rem;min-height:30px;color:#ffd93d;margin:10px 0;}
+</style>
+</head>
+<body>
+<a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+<div class="container">
+    <h1><i class="fas fa-hotel" style="color:#4fc3f7;"></i> Hotel Sim</h1>
+    <div class="stats">
+        <div class="stat-box"><span id="revenue">0</span><span class="label">💰 Revenue</span></div>
+        <div class="stat-box"><span id="guests">0</span><span class="label">Guests</span></div>
+        <div class="stat-box"><span id="rooms">0</span><span class="label">Rooms</span></div>
+    </div>
+    <div class="room-grid" id="roomGrid"></div>
+    <button class="btn" id="resetBtn">🔄 Reset Hotel</button>
+    <div class="message" id="message">🏨 Check in guests to earn revenue!</div>
+</div>
+<script>
+let rooms=[], revenue=0, guests=0;
+const roomNames=['101','102','103','201','202','203','301','302','303'];
+
+function initRooms(){
+    rooms=rooms.map(r=>({...r}));
+    if(rooms.length===0){
+        rooms=roomNames.map(name=>({name,occupied:false,guest:null}));
+    }
+    renderRooms();
+}
+
+function renderRooms(){
+    const grid=document.getElementById('roomGrid');
+    grid.innerHTML='';
+    rooms.forEach((room,index)=>{
+        const div=document.createElement('div');
+        div.className='room'+(room.occupied?' occupied':'');
+        div.innerHTML=`
+            <span>${room.name}</span>
+            <span class="room-status">${room.occupied?'👤 Occupied':'🟢 Available'}</span>
+        `;
+        div.addEventListener('click',()=>toggleRoom(index));
+        grid.appendChild(div);
+    });
+    updateStats();
+}
+
+function toggleRoom(index){
+    const room=rooms[index];
+    if(!room.occupied){
+        // Check in
+        room.occupied=true;
+        room.guest='Guest '+(guests+1);
+        guests++;
+        revenue+=Math.floor(Math.random()*50)+20;
+        document.getElementById('message').textContent='✅ Checked in '+room.guest+' to room '+room.name+'!';
+    }else{
+        // Check out
+        room.occupied=false;
+        room.guest=null;
+        document.getElementById('message').textContent='👋 Checked out from room '+room.name;
+    }
+    renderRooms();
+    updateStats();
+}
+
+function updateStats(){
+    document.getElementById('revenue').textContent=revenue;
+    document.getElementById('guests').textContent=guests;
+    document.getElementById('rooms').textContent=rooms.filter(r=>r.occupied).length;
+}
+
+function resetHotel(){
+    rooms=[];
+    revenue=0;guests=0;
+    initRooms();
+    document.getElementById('message').textContent='🔄 Hotel reset!';
+}
+
+document.getElementById('resetBtn').addEventListener('click',resetHotel);
+initRooms();
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏥 MediCore</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0b1a26;color:#d0e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;flex-direction:column;}
+.back-btn{position:fixed;top:20px;left:20px;background:#1a3344;color:#4fc3f7;padding:12px 20px;border-radius:8px;text-decoration:none;}
+.back-btn:hover{background:#2a4a5e;transform:translateX(-5px);}
+.container{max-width:500px;width:100%;text-align:center;}
+h1{color:#4fc3f7;margin-bottom:10px;}
+.stats{display:flex;justify-content:center;gap:20px;margin-bottom:20px;}
+.stat-box{background:#1a3344;padding:10px 20px;border-radius:10px;min-width:80px;}
+.stat-box span{color:#4fc3f7;font-weight:bold;font-size:1.2rem;display:block;}
+.stat-box .label{color:#8899aa;font-size:0.7rem;text-transform:uppercase;}
+.patient{font-size:3rem;margin:10px 0;}
+.health-bar{width:100%;height:20px;background:#1a3344;border-radius:10px;overflow:hidden;margin:10px 0;}
+.health-bar .fill{height:100%;background:linear-gradient(90deg,#ff6b6b,#7cf5b0);border-radius:10px;transition:width 0.5s;}
+.btn{background:#4fc3f7;color:#0b1a26;border:none;padding:12px 25px;border-radius:8px;font-size:1rem;cursor:pointer;margin:5px;}
+.btn:hover{background:#7cf5b0;}
+.btn-heal{background:linear-gradient(135deg,#7cf5b0,#2d8b4e);color:white;}
+.btn-damage{background:linear-gradient(135deg,#ff6b6b,#c0392b);color:white;}
+.message{font-size:1.2rem;min-height:30px;color:#ffd93d;margin:10px 0;}
+</style>
+</head>
+<body>
+<a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+<div class="container">
+    <h1><i class="fas fa-hospital" style="color:#4fc3f7;"></i> MediCore</h1>
+    <div class="stats">
+        <div class="stat-box"><span id="score">0</span><span class="label">Patients Healed</span></div>
+        <div class="stat-box"><span id="health">100</span><span class="label">Health</span></div>
+    </div>
+    <div class="patient" id="patientEmoji">👨‍⚕️</div>
+    <div class="health-bar"><div class="fill" id="healthBar" style="width:100%"></div></div>
+    <div class="message" id="message">🏥 Heal the patient!</div>
+    <button class="btn btn-heal" id="healBtn">💉 Heal (+10)</button>
+    <button class="btn btn-damage" id="damageBtn">⚡ Damage (-5)</button>
+    <button class="btn" id="resetBtn">🔄 Reset</button>
+</div>
+<script>
+let health=100,score=0;
+const emojis=['👨‍⚕️','👩‍⚕️','🧑‍⚕️','🩺','💊'];
+
+function updateUI(){
+    document.getElementById('health').textContent=Math.round(health);
+    document.getElementById('score').textContent=score;
+    document.getElementById('healthBar').style.width=Math.max(0,health)+'%';
+    if(health>70)document.getElementById('healthBar').style.background='linear-gradient(90deg,#7cf5b0,#4fc3f7)';
+    else if(health>30)document.getElementById('healthBar').style.background='linear-gradient(90deg,#ffd93d,#ff9f43)';
+    else document.getElementById('healthBar').style.background='linear-gradient(90deg,#ff6b6b,#c0392b)';
+    document.getElementById('patientEmoji').textContent=emojis[Math.floor(health/25)%emojis.length];
+}
+
+function heal(){
+    if(health>=100){document.getElementById('message').textContent='✅ Patient is fully healthy!';return;}
+    health=Math.min(100,health+10);
+    score++;
+    document.getElementById('message').textContent='💉 Healed! +10 health';
+    updateUI();
+}
+
+function damage(){
+    health=Math.max(0,health-5);
+    document.getElementById('message').textContent='⚡ Patient took damage! -5 health';
+    updateUI();
+    if(health<=0){document.getElementById('message').textContent='💀 Patient died! Press Reset to try again!';}
+}
+
+function resetGame(){
+    health=100;score=0;
+    document.getElementById('message').textContent='🔄 New patient!';
+    updateUI();
+}
+
+document.getElementById('healBtn').addEventListener('click',heal);
+document.getElementById('damageBtn').addEventListener('click',damage);
+document.getElementById('resetBtn').addEventListener('click',resetGame);
+updateUI();
+</script>
+</body>
+</html>

@@ -1,0 +1,556 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👤 Sims Mini - Energy Life</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b1a26;
+            color: #d0e8f0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #1a3344;
+            color: #4fc3f7;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            z-index: 100;
+        }
+        .back-btn:hover { background: #2a4a5e; transform: translateX(-5px); }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            margin-top: 60px;
+            text-align: center;
+        }
+        h1 {
+            color: #4fc3f7;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(79, 195, 247, 0.3);
+        }
+        .subtitle { color: #7cf5b0; margin-bottom: 20px; font-size: 1.1rem; }
+
+        .sim-card {
+            background: #0f1f2e;
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid #1a3344;
+            margin: 15px 0;
+        }
+        .sim-avatar {
+            font-size: 5rem;
+            margin: 10px 0;
+            display: block;
+        }
+        .sim-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4fc3f7;
+        }
+
+        .stat-bar {
+            margin: 12px 0;
+            text-align: left;
+        }
+        .stat-bar .label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #8899aa;
+            margin-bottom: 4px;
+        }
+        .stat-bar .bar {
+            width: 100%;
+            height: 12px;
+            background: #1a3344;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .stat-bar .bar .fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        .stat-bar .bar .fill.energy { background: linear-gradient(90deg, #4fc3f7, #7cf5b0); }
+        .stat-bar .bar .fill.happiness { background: linear-gradient(90deg, #ffd93d, #ff9f43); }
+        .stat-bar .bar .fill.hunger { background: linear-gradient(90deg, #ff6b6b, #ff9f43); }
+        .stat-bar .bar .fill.sleep { background: linear-gradient(90deg, #a29bfe, #6c5ce7); }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .actions .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+        .actions .btn:active { transform: scale(0.95); }
+        .actions .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .btn-work { background: linear-gradient(135deg, #4fc3f7, #1a6a8a); color: white; }
+        .btn-eat { background: linear-gradient(135deg, #ffd93d, #f5a623); color: #0b1a26; }
+        .btn-sleep { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; }
+        .btn-play { background: linear-gradient(135deg, #7cf5b0, #2d8b4e); color: #0b1a26; }
+        .btn-dead { background: linear-gradient(135deg, #ff6b6b, #c0392b); color: white; }
+
+        .btn-reset {
+            background: #4fc3f7;
+            color: #0b1a26;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .btn-reset:hover { background: #7cf5b0; }
+
+        .message {
+            font-size: 1.2rem;
+            min-height: 40px;
+            color: #ffd93d;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        .message.dead {
+            color: #ff6b6b;
+            font-size: 1.5rem;
+        }
+        .message.dead .skull {
+            font-size: 3rem;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin: 5px 0;
+        }
+        .status-badge.alive { background: #1a4a3a; color: #7cf5b0; }
+        .status-badge.dead { background: #3a1a1a; color: #ff6b6b; animation: pulseDead 1s infinite; }
+
+        @keyframes pulseDead {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .death-screen {
+            background: rgba(255,0,0,0.05);
+            border: 2px solid #ff6b6b;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 15px 0;
+        }
+        .death-screen .big-skull {
+            font-size: 6rem;
+            display: block;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 480px) {
+            .actions { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .actions .btn { font-size: 0.8rem; padding: 10px; }
+            h1 { font-size: 2rem; }
+            .sim-avatar { font-size: 4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="../base.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+    <div class="container">
+        <h1><i class="fas fa-user" style="color: #4fc3f7;"></i> Sims Mini</h1>
+        <p class="subtitle">Keep your sim alive!</p>
+
+        <div class="sim-card" id="simCard">
+            <span class="sim-avatar" id="simAvatar">👤</span>
+            <div class="sim-name" id="simName">Your Sim</div>
+            <div>
+                <span class="status-badge alive" id="statusBadge">✅ Alive</span>
+            </div>
+
+            <div class="stat-bar">
+                <div class="label">
+                    <span>⚡ Energy</span>
+                    <span id="energyText">100%</span>
+                </div>
+                <div class="bar">
+                    <div class="fill energy" id="energyBar" style="width:100%"></div>
+                </div>
+            </div>
+
+            <div class="stat-bar">
+                <div class="label">
+                    <span>😊 Happiness</span>
+                    <span id="happinessText">100%</span>
+                </div>
+                <div class="bar">
+                    <div class="fill happiness" id="happinessBar" style="width:100%"></div>
+                </div>
+            </div>
+
+            <div class="stat-bar">
+                <div class="label">
+                    <span>🍖 Hunger</span>
+                    <span id="hungerText">100%</span>
+                </div>
+                <div class="bar">
+                    <div class="fill hunger" id="hungerBar" style="width:100%"></div>
+                </div>
+            </div>
+
+            <div class="stat-bar">
+                <div class="label">
+                    <span>😴 Sleep</span>
+                    <span id="sleepText">100%</span>
+                </div>
+                <div class="bar">
+                    <div class="fill sleep" id="sleepBar" style="width:100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="message" id="message">🎯 Keep your sim alive!</div>
+
+        <div class="actions" id="actions">
+            <button class="btn btn-work" id="workBtn">💼 Work (+Energy)</button>
+            <button class="btn btn-eat" id="eatBtn">🍕 Eat (+Hunger)</button>
+            <button class="btn btn-sleep" id="sleepBtn">😴 Sleep (+Sleep)</button>
+            <button class="btn btn-play" id="playBtn">🎮 Play (+Happiness)</button>
+        </div>
+
+        <button class="btn-reset" id="resetBtn">🔄 Reset Sim</button>
+        <div style="margin-top: 10px; font-size: 0.7rem; color: #444;">
+            ⚡ Energy regenerates slowly (1% per 5 seconds)
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // SIMS MINI - ENERGY SYSTEM
+        // ============================================
+
+        // Save system
+        function updateGameProgress(gameId) {
+            try {
+                var s = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+                if (!s.games) s.games = {};
+                if (!s.games[gameId]) s.games[gameId] = { played: false, xp: 0 };
+                var g = s.games[gameId];
+                if (!g.played) { g.played = true; s.gamesPlayed = (s.gamesPlayed || 0) + 1; }
+                g.xp = (g.xp || 0) + 1;
+                var t = 0, p = 0;
+                Object.values(s.games).forEach(function(x) { t += (x.xp || 0); if (x.played) p++; });
+                s.totalXp = t; s.gamesPlayed = p;
+                localStorage.setItem('launchpad_progress', JSON.stringify(s));
+            } catch(e) {}
+        }
+
+        // Game state
+        const GAME_ID = 'sims';
+        let sim = {
+            energy: 100,
+            happiness: 100,
+            hunger: 100,
+            sleep: 100,
+            isDead: false,
+            lastSave: Date.now()
+        };
+
+        let gameInterval = null;
+        let energyRegenInterval = null;
+
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem('simsMiniData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    sim = data;
+                    // If sim was dead, keep it dead
+                    if (sim.isDead) {
+                        showDeathScreen();
+                    }
+                    return true;
+                }
+            } catch(e) {}
+            return false;
+        }
+
+        function saveGame() {
+            try {
+                sim.lastSave = Date.now();
+                localStorage.setItem('simsMiniData', JSON.stringify(sim));
+            } catch(e) {}
+        }
+
+        function updateUI() {
+            document.getElementById('energyText').textContent = Math.round(sim.energy) + '%';
+            document.getElementById('energyBar').style.width = Math.max(0, sim.energy) + '%';
+
+            document.getElementById('happinessText').textContent = Math.round(sim.happiness) + '%';
+            document.getElementById('happinessBar').style.width = Math.max(0, sim.happiness) + '%';
+
+            document.getElementById('hungerText').textContent = Math.round(sim.hunger) + '%';
+            document.getElementById('hungerBar').style.width = Math.max(0, sim.hunger) + '%';
+
+            document.getElementById('sleepText').textContent = Math.round(sim.sleep) + '%';
+            document.getElementById('sleepBar').style.width = Math.max(0, sim.sleep) + '%';
+
+            const badge = document.getElementById('statusBadge');
+            const msg = document.getElementById('message');
+            const actions = document.getElementById('actions');
+
+            if (sim.isDead) {
+                badge.className = 'status-badge dead';
+                badge.textContent = '💀 DEAD';
+                msg.className = 'message dead';
+                msg.innerHTML = '<span class="skull">💀</span> YOUR SIM DIED! 💀';
+                actions.style.display = 'none';
+                document.getElementById('simCard').style.borderColor = '#ff6b6b';
+                document.getElementById('simAvatar').textContent = '💀';
+                document.getElementById('simName').style.color = '#ff6b6b';
+            } else {
+                badge.className = 'status-badge alive';
+                badge.textContent = '✅ Alive';
+                msg.className = 'message';
+                msg.textContent = '🎯 Keep your sim alive!';
+                actions.style.display = 'grid';
+                document.getElementById('simCard').style.borderColor = '#1a3344';
+                document.getElementById('simAvatar').textContent = '👤';
+                document.getElementById('simName').style.color = '#4fc3f7';
+            }
+        }
+
+        function checkDeath() {
+            if (sim.isDead) return true;
+
+            // Check if any stat is 0 or below
+            if (sim.energy <= 0 || sim.happiness <= 0 || sim.hunger <= 0 || sim.sleep <= 0) {
+                sim.isDead = true;
+                // Record that the sim died
+                updateGameProgress(GAME_ID);
+                saveGame();
+                updateUI();
+                showDeathScreen();
+                return true;
+            }
+            return false;
+        }
+
+        function showDeathScreen() {
+            const msg = document.getElementById('message');
+            msg.className = 'message dead';
+            msg.innerHTML = `
+                <span class="skull">💀</span>
+                YOUR SIM DIED!<br>
+                <span style="font-size:1rem; color:#8899aa;">
+                    Energy: ${Math.round(sim.energy)}% | Happiness: ${Math.round(sim.happiness)}%<br>
+                    Hunger: ${Math.round(sim.hunger)}% | Sleep: ${Math.round(sim.sleep)}%
+                </span>
+            `;
+            document.getElementById('actions').style.display = 'none';
+            document.getElementById('simCard').style.borderColor = '#ff6b6b';
+            document.getElementById('simAvatar').textContent = '💀';
+            document.getElementById('simName').style.color = '#ff6b6b';
+            const badge = document.getElementById('statusBadge');
+            badge.className = 'status-badge dead';
+            badge.textContent = '💀 DEAD';
+        }
+
+        // Actions
+        function work() {
+            if (sim.isDead) return;
+            if (sim.energy < 10) { document.getElementById('message').textContent = '❌ Too tired to work!'; return; }
+            sim.energy = Math.min(100, sim.energy + 15);
+            sim.happiness = Math.max(0, sim.happiness - 5);
+            sim.hunger = Math.max(0, sim.hunger - 10);
+            sim.sleep = Math.max(0, sim.sleep - 8);
+            document.getElementById('message').textContent = '💼 Worked hard! +15 Energy';
+            saveGame();
+            updateUI();
+            checkDeath();
+        }
+
+        function eat() {
+            if (sim.isDead) return;
+            if (sim.hunger >= 90) { document.getElementById('message').textContent = '🍖 Not hungry!'; return; }
+            sim.hunger = Math.min(100, sim.hunger + 25);
+            sim.energy = Math.max(0, sim.energy + 5);
+            sim.happiness = Math.min(100, sim.happiness + 5);
+            document.getElementById('message').textContent = '🍕 Delicious! +25 Hunger';
+            saveGame();
+            updateUI();
+            checkDeath();
+        }
+
+        function sleep() {
+            if (sim.isDead) return;
+            if (sim.sleep >= 90) { document.getElementById('message').textContent = '😴 Not sleepy!'; return; }
+            sim.sleep = Math.min(100, sim.sleep + 30);
+            sim.energy = Math.min(100, sim.energy + 10);
+            sim.hunger = Math.max(0, sim.hunger - 5);
+            document.getElementById('message').textContent = '😴 Zzz... +30 Sleep';
+            saveGame();
+            updateUI();
+            checkDeath();
+        }
+
+        function play() {
+            if (sim.isDead) return;
+            if (sim.happiness >= 90) { document.getElementById('message').textContent = '😊 Already happy!'; return; }
+            sim.happiness = Math.min(100, sim.happiness + 20);
+            sim.energy = Math.max(0, sim.energy - 8);
+            sim.hunger = Math.max(0, sim.hunger - 5);
+            document.getElementById('message').textContent = '🎮 Fun! +20 Happiness';
+            saveGame();
+            updateUI();
+            checkDeath();
+        }
+
+        function resetSim() {
+            if (!confirm('Reset your sim? This will start a new life!')) return;
+            sim = {
+                energy: 100,
+                happiness: 100,
+                hunger: 100,
+                sleep: 100,
+                isDead: false,
+                lastSave: Date.now()
+            };
+            document.getElementById('actions').style.display = 'grid';
+            saveGame();
+            updateUI();
+            document.getElementById('message').textContent = '🔄 New life begun! Keep your sim alive!';
+            document.getElementById('simCard').style.borderColor = '#1a3344';
+            document.getElementById('simAvatar').textContent = '👤';
+            document.getElementById('simName').style.color = '#4fc3f7';
+            updateGameProgress(GAME_ID);
+        }
+
+        // ============================================
+        // GAME LOOP - DECAY AND REGEN
+        // ============================================
+        function startGameLoop() {
+            if (gameInterval) clearInterval(gameInterval);
+            if (energyRegenInterval) clearInterval(energyRegenInterval);
+
+            // Decay stats every 5 seconds
+            gameInterval = setInterval(() => {
+                if (sim.isDead) return;
+
+                // Decay stats
+                sim.energy = Math.max(0, sim.energy - 2);
+                sim.hunger = Math.max(0, sim.hunger - 3);
+                sim.sleep = Math.max(0, sim.sleep - 2);
+                sim.happiness = Math.max(0, sim.happiness - 1);
+
+                // Check for death
+                if (checkDeath()) {
+                    saveGame();
+                    updateUI();
+                    return;
+                }
+
+                // Update UI
+                updateUI();
+                saveGame();
+
+                // Warning messages when stats are low
+                const msg = document.getElementById('message');
+                if (sim.energy < 20) msg.textContent = '⚠️ Low Energy! Rest or work!';
+                else if (sim.hunger < 20) msg.textContent = '⚠️ Starving! Eat something!';
+                else if (sim.sleep < 20) msg.textContent = '⚠️ Exhausted! Get some sleep!';
+                else if (sim.happiness < 20) msg.textContent = '⚠️ Sad! Do something fun!';
+                else if (!msg.textContent.includes('⚠️') && !msg.textContent.includes('💀') && !msg.textContent.includes('🎯')) {
+                    msg.textContent = '🎯 Keep your sim alive!';
+                }
+
+            }, 5000);
+
+            // Energy regeneration (1% per 5 seconds)
+            energyRegenInterval = setInterval(() => {
+                if (sim.isDead) return;
+                if (sim.energy < 100) {
+                    sim.energy = Math.min(100, sim.energy + 1);
+                    updateUI();
+                    saveGame();
+                }
+            }, 5000);
+        }
+
+        // ============================================
+        // KEYBOARD SHORTCUTS
+        // ============================================
+        document.addEventListener('keydown', function(e) {
+            if (sim.isDead) return;
+            switch(e.key) {
+                case 'w': case 'W': work(); break;
+                case 'e': case 'E': eat(); break;
+                case 's': case 'S': sleep(); break;
+                case 'p': case 'P': play(); break;
+                case 'r': case 'R': resetSim(); break;
+            }
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        function init() {
+            loadGame();
+            updateUI();
+            startGameLoop();
+
+            // Event listeners
+            document.getElementById('workBtn').addEventListener('click', work);
+            document.getElementById('eatBtn').addEventListener('click', eat);
+            document.getElementById('sleepBtn').addEventListener('click', sleep);
+            document.getElementById('playBtn').addEventListener('click', play);
+            document.getElementById('resetBtn').addEventListener('click', resetSim);
+
+            if (sim.isDead) {
+                showDeathScreen();
+            }
+
+            console.log('🧑 Sims Mini - Energy System Loaded!');
+            console.log('⚡ Energy regenerates 1% per 5 seconds');
+            console.log('💀 If any stat hits 0, your sim dies!');
+            console.log('⌨️  W=Work  E=Eat  S=Sleep  P=Play  R=Reset');
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

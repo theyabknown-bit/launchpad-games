@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💰 Cashier Sim</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0b1a26;color:#d0e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;flex-direction:column;}
+.back-btn{position:fixed;top:20px;left:20px;background:#1a3344;color:#4fc3f7;padding:12px 20px;border-radius:8px;text-decoration:none;}
+.back-btn:hover{background:#2a4a5e;transform:translateX(-5px);}
+.container{max-width:500px;width:100%;text-align:center;}
+h1{color:#4fc3f7;margin-bottom:10px;}
+.stats{display:flex;justify-content:center;gap:20px;margin-bottom:20px;}
+.stat-box{background:#1a3344;padding:10px 20px;border-radius:10px;min-width:80px;}
+.stat-box span{color:#4fc3f7;font-weight:bold;font-size:1.2rem;display:block;}
+.stat-box .label{color:#8899aa;font-size:0.7rem;text-transform:uppercase;}
+.item-display{font-size:2rem;padding:20px;background:#1a3344;border-radius:12px;border:2px solid #2a4a5e;margin:15px 0;min-height:80px;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.item-display .price{font-size:1.5rem;color:#ffd93d;margin-top:5px;}
+.btn{background:#4fc3f7;color:#0b1a26;border:none;padding:12px 25px;border-radius:8px;font-size:1rem;cursor:pointer;margin:5px;}
+.btn:hover{background:#7cf5b0;}
+.btn-sell{background:linear-gradient(135deg,#7cf5b0,#2d8b4e);color:white;}
+.btn-skip{background:linear-gradient(135deg,#ffd93d,#f5a623);color:#0b1a26;}
+.message{font-size:1.2rem;min-height:30px;color:#ffd93d;margin:10px 0;}
+</style>
+</head>
+<body>
+<a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+<div class="container">
+    <h1><i class="fas fa-cash-register" style="color:#4fc3f7;"></i> Cashier Sim</h1>
+    <div class="stats">
+        <div class="stat-box"><span id="money">0</span><span class="label">💰 Money</span></div>
+        <div class="stat-box"><span id="customers">0</span><span class="label">Customers</span></div>
+    </div>
+    <div class="item-display" id="itemDisplay">
+        <span id="itemName">🍕 Pizza</span>
+        <span class="price" id="itemPrice">✦10</span>
+    </div>
+    <button class="btn btn-sell" id="sellBtn">💰 Sell (✦10)</button>
+    <button class="btn btn-skip" id="skipBtn">⏭️ Skip</button>
+    <div class="message" id="message">🏪 Serve customers to earn money!</div>
+</div>
+<script>
+const ITEMS=[
+    {name:'🍕 Pizza',price:10},{name:'🍔 Burger',price:15},{name:'🌮 Taco',price:8},
+    {name:'🍣 Sushi',price:20},{name:'🍜 Ramen',price:12},{name:'🥗 Salad',price:7},
+    {name:'🍰 Cake',price:18},{name:'☕ Coffee',price:5},{name:'🧋 Bubble Tea',price:9}
+];
+let money=0,customers=0,currentItem=0;
+
+function updateUI(){
+    document.getElementById('money').textContent=money;
+    document.getElementById('customers').textContent=customers;
+}
+
+function newItem(){
+    currentItem=Math.floor(Math.random()*ITEMS.length);
+    document.getElementById('itemName').textContent=ITEMS[currentItem].name;
+    document.getElementById('itemPrice').textContent='✦'+ITEMS[currentItem].price;
+    document.getElementById('sellBtn').textContent='💰 Sell (✦'+ITEMS[currentItem].price+')';
+}
+
+function sell(){
+    money+=ITEMS[currentItem].price;
+    customers++;
+    document.getElementById('message').textContent='✅ Sold '+ITEMS[currentItem].name+' for ✦'+ITEMS[currentItem].price+'!';
+    updateUI();
+    newItem();
+}
+
+function skip(){
+    document.getElementById('message').textContent='⏭️ Skipped '+ITEMS[currentItem].name;
+    newItem();
+}
+
+document.getElementById('sellBtn').addEventListener('click',sell);
+document.getElementById('skipBtn').addEventListener('click',skip);
+newItem();
+updateUI();
+document.getElementById('message').textContent='🏪 Serve customers to earn money!';
+</script>
+</body>
+</html>

@@ -1,0 +1,615 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>🧠 Stimulation Overload</title>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1864151801780474"
+         crossorigin="anonymous">
+    </script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: #0a0a12;
+            color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            padding: 12px;
+        }
+        
+        /* BACK BUTTON */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,215,0,0.1);
+            color: #ffd700;
+            padding: 12px 20px;
+            border: 1px solid rgba(255,215,0,0.2);
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .back-btn:hover {
+            background: rgba(255,215,0,0.2);
+            transform: translateX(-5px);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            right: -50%;
+            bottom: -50%;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(245, 166, 35, 0.04) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(108, 92, 231, 0.04) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 50%, rgba(245, 166, 35, 0.02) 0%, transparent 70%);
+            z-index: -1;
+            animation: bgFloat 20s ease-in-out infinite alternate;
+        }
+        @keyframes bgFloat { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(2%, 1%) rotate(2deg); } }
+
+        #app {
+            max-width: 420px;
+            width: 100%;
+            background: rgba(18, 16, 30, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 20px 18px 18px;
+            border: 1px solid rgba(255,255,255,0.04);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 1;
+            max-height: 100vh;
+            overflow-y: auto;
+            margin-top: 60px;
+        }
+        #app::-webkit-scrollbar { width: 4px; }
+        #app::-webkit-scrollbar-track { background: transparent; }
+        #app::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+
+        /* AD BANNER */
+        .ad-banner {
+            background: rgba(255,215,0,0.04);
+            border-radius: 16px;
+            padding: 8px;
+            margin: 8px 0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255,215,0,0.15);
+            overflow: hidden;
+        }
+        .ad-banner ins.adsbygoogle {
+            display: block;
+            width: 100%;
+            min-height: 90px;
+        }
+        .ad-label {
+            color: #444;
+            font-size: 10px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 2px 0;
+        }
+
+        /* REST OF STYLES - Keeping it clean */
+        .stats { text-align: center; padding: 2px 0 8px; }
+        .stats .points { font-size: 48px; font-weight: 900; color: #f0f0f0; line-height: 1.05; letter-spacing: -2px; }
+        .stats .points .currency { color: #ffd700; font-weight: 700; font-size: 28px; }
+        .clicker-area { display: flex; justify-content: center; margin: 6px 0 10px; position: relative; }
+        #clickBtn {
+            width: 170px; height: 170px; border-radius: 50%; border: none;
+            background: linear-gradient(145deg, #ffd700, #f5a623);
+            color: #1a1a2e; font-size: 16px; font-weight: 800;
+            box-shadow: 0 12px 0 #b8860b, 0 20px 60px rgba(255,215,0,0.2);
+            cursor: pointer; transition: all 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            line-height: 1.3; position: relative; touch-action: manipulation;
+            will-change: transform; z-index: 2; font-family: 'Segoe UI', sans-serif;
+        }
+        #clickBtn:active { transform: scale(0.87) translateY(6px); box-shadow: 0 4px 0 #b8860b, 0 15px 40px rgba(255,215,0,0.15); }
+        #clickBtn .emoji { font-size: 38px; line-height: 1; margin-bottom: 4px; }
+        #clickBtn .label { font-size: 14px; opacity: 0.85; letter-spacing: 0.5px; font-weight: 600; }
+        #clickBtn .power { font-size: 12px; opacity: 0.7; background: rgba(0,0,0,0.08); padding: 2px 16px; border-radius: 30px; margin-top: 3px; font-weight: 500; }
+        #clickBtn.frenzy { background: linear-gradient(145deg, #ff6b6b, #c0392b); box-shadow: 0 12px 0 #78281f, 0 20px 60px rgba(192,57,43,0.3); animation: frenzyPulse 0.3s ease-in-out infinite alternate; }
+        @keyframes frenzyPulse { 0% { transform: scale(1); } 100% { transform: scale(1.04); } }
+
+        /* WHEEL - FIXED */
+        .wheel-section {
+            background: rgba(255,215,0,0.04);
+            border-radius: 18px;
+            padding: 12px;
+            margin: 6px 0 8px;
+            border: 1px solid rgba(255,215,0,0.04);
+            text-align: center;
+        }
+        .wheel-section .wheel-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: linear-gradient(135deg, #ffd700, #f5a623);
+            color: #1a1a2e;
+            width: 100%;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .wheel-section .wheel-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,215,0,0.15); }
+        .wheel-section .wheel-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .wheel-section .wheel-result { margin-top: 8px; font-size: 15px; color: #ffd700; min-height: 26px; font-weight: 600; }
+
+        /* SHOP */
+        .shop { margin-top: 4px; }
+        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .shop-header h2 { font-size: 15px; font-weight: 700; color: #ddd; letter-spacing: -0.3px; }
+        .upgrade {
+            background: rgba(255,255,255,0.03);
+            border-radius: 18px;
+            padding: 10px 14px;
+            margin-bottom: 7px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: all 0.2s;
+        }
+        .upgrade .info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+        .upgrade .info .name { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; letter-spacing: -0.2px; color: #f0f0f0; }
+        .upgrade .info .desc { font-size: 12px; color: #666; font-weight: 400; }
+        .upgrade .info .owned { font-size: 12px; color: #ffd700; font-weight: 600; }
+        .upgrade button {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.04);
+            color: #f0f0f0;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 70px;
+            text-align: center;
+            touch-action: manipulation;
+            flex-shrink: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .upgrade button:disabled { opacity: 0.3; transform: none; cursor: not-allowed; }
+        .upgrade button:not(:disabled):hover { background: rgba(255,215,0,0.06); border-color: rgba(255,215,0,0.1); color: #ffd700; }
+
+        .particle-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+        .particle { position: absolute; font-size: 22px; font-weight: 700; animation: floatUp 1.2s ease-out forwards; pointer-events: none; font-family: 'Segoe UI', sans-serif; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); } 100% { opacity: 0; transform: translateY(-160px) scale(1.2) rotate(15deg); } }
+
+        @media (max-width: 480px) {
+            #app { padding: 16px 14px 14px; border-radius: 32px; max-height: 98vh; }
+            #clickBtn { width: 140px; height: 140px; font-size: 14px; }
+            #clickBtn .emoji { font-size: 32px; }
+            .stats .points { font-size: 40px; }
+            .back-btn { font-size: 12px; padding: 8px 14px; top: 10px; left: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- BACK BUTTON -->
+<a href="../base.html" class="back-btn">
+    ← Back to Launchpad
+</a>
+
+<div id="app">
+    <!-- AD BANNER -->
+    <div class="ad-label">📢 Sponsored Content</div>
+    <div class="ad-banner" id="adBanner">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-1864151801780474"
+             data-ad-slot="2779984220"
+             data-ad-format="auto"
+             data-full-width-responsive="true">
+        </ins>
+    </div>
+
+    <div class="stats">
+        <div class="points"><span class="currency">✦</span><span id="pointsDisplay">0</span></div>
+    </div>
+
+    <!-- CLICKER -->
+    <div class="clicker-area">
+        <button id="clickBtn">
+            <span class="emoji">⚡</span>
+            <span class="label">TAP</span>
+            <span class="power" id="clickPowerDisplay">+1</span>
+        </button>
+    </div>
+
+    <!-- WHEEL - FIXED -->
+    <div class="wheel-section">
+        <button class="wheel-btn" id="wheelBtn">🎰 Spin the Wheel (✦500)</button>
+        <div class="wheel-result" id="wheelResult">🎯 Win up to 5,000 points!</div>
+    </div>
+
+    <!-- SHOP -->
+    <div class="shop">
+        <div class="shop-header">
+            <h2>📈 Upgrades</h2>
+        </div>
+        <div class="upgrade">
+            <div class="info">
+                <span class="name">🤖 Auto-Tapper</span>
+                <span class="desc">+1 per second</span>
+                <span class="owned">Owned: <span id="autoCount">0</span></span>
+            </div>
+            <button id="buyAutoBtn">Buy</button>
+        </div>
+        <div class="upgrade">
+            <div class="info">
+                <span class="name">💎 Boost</span>
+                <span class="desc">+1 per tap</span>
+                <span class="owned">Level: <span id="multLevel">1</span></span>
+            </div>
+            <button id="buyMultBtn">Buy</button>
+        </div>
+        <div class="upgrade">
+            <div class="info">
+                <span class="name">🎰 Lucky Strike</span>
+                <span class="desc">10% chance for 5x!</span>
+                <span class="owned">Level: <span id="critLevel">0</span></span>
+            </div>
+            <button id="buyCritBtn">Buy</button>
+        </div>
+    </div>
+
+    <!-- PARTICLES -->
+    <div class="particle-container" id="particleContainer"></div>
+</div>
+
+<script>
+// ============================================================
+// COMPLETE GAME LOGIC
+// ============================================================
+
+const state = {
+    points: 0,
+    autoClickers: 0,
+    clickMultiplier: 1,
+    critLevel: 0,
+    autoPrice: 15,
+    multPrice: 25,
+    critPrice: 50,
+    wheelCooldown: 0,
+    totalClicks: 0,
+    totalEarnings: 0
+};
+
+const $ = id => document.getElementById(id);
+
+// ============================================================
+// LOAD ADS
+// ============================================================
+function loadAds() {
+    try {
+        if (typeof adsbygoogle !== 'undefined') {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+            console.log('✅ Ads loaded!');
+        }
+    } catch(e) { console.log('⚠️ Ad error:', e.message); }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(loadAds, 500);
+    setTimeout(loadAds, 1500);
+    setTimeout(loadAds, 3000);
+});
+
+// ============================================================
+// SAVE / LOAD
+// ============================================================
+function saveGame() {
+    try {
+        localStorage.setItem('stimOverload', JSON.stringify(state));
+    } catch(e) {}
+}
+
+function loadGame() {
+    try {
+        const saved = localStorage.getItem('stimOverload');
+        if (saved) {
+            const data = JSON.parse(saved);
+            Object.assign(state, data);
+            return true;
+        }
+    } catch(e) {}
+    return false;
+}
+
+// ============================================================
+// PARTICLES
+// ============================================================
+function spawnParticle(x, y, text, color = '#ffd700') {
+    const container = $('particleContainer');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = text;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.color = color;
+    el.style.fontSize = (18 + Math.random() * 18) + 'px';
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 1500);
+}
+
+function spawnClickParticles(btnEl, amount = 5) {
+    const rect = btnEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const texts = ['+1', '🔥', '⚡', '💥', '✨', '⭐', '💎'];
+    const colors = ['#ffd700', '#ff6b6b', '#34c759', '#ff9ff3', '#54a0ff', '#ff9f43', '#a29bfe'];
+    const count = Math.min(amount, 8);
+    for (let i = 0; i < count; i++) {
+        const offsetX = (Math.random() - 0.5) * 100;
+        const offsetY = (Math.random() - 0.5) * 100 - 20;
+        const txt = texts[Math.floor(Math.random() * texts.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        setTimeout(() => spawnParticle(cx + offsetX, cy + offsetY, txt, color), i * 30);
+    }
+}
+
+// ============================================================
+// SHOW POPUP
+// ============================================================
+function showPopup(title, desc) {
+    const result = $('wheelResult');
+    if (result) {
+        result.textContent = desc;
+        result.style.color = '#ffd700';
+        setTimeout(() => {
+            result.textContent = '🎯 Win up to 5,000 points!';
+            result.style.color = '#ffd700';
+        }, 3000);
+    }
+}
+
+// ============================================================
+// UPDATE UI
+// ============================================================
+function updateUI() {
+    $('pointsDisplay').textContent = Math.floor(state.points).toLocaleString();
+    $('autoCount').textContent = state.autoClickers;
+    $('multLevel').textContent = state.clickMultiplier;
+    $('critLevel').textContent = state.critLevel;
+
+    let clickPower = state.clickMultiplier;
+    $('clickPowerDisplay').textContent = '+' + clickPower;
+
+    const buyButtons = {
+        'buyAutoBtn': state.autoPrice,
+        'buyMultBtn': state.multPrice,
+        'buyCritBtn': state.critPrice
+    };
+
+    for (const [id, price] of Object.entries(buyButtons)) {
+        const btn = $(id);
+        if (btn) {
+            btn.textContent = 'Buy (✦' + price + ')';
+            btn.disabled = state.points < price;
+        }
+    }
+
+    const wheelBtn = $('wheelBtn');
+    if (wheelBtn) {
+        wheelBtn.disabled = state.points < 500 || state.wheelCooldown > 0;
+        if (state.wheelCooldown > 0) {
+            wheelBtn.textContent = '⏳ ' + Math.ceil(state.wheelCooldown) + 's';
+        } else {
+            wheelBtn.textContent = '🎰 Spin the Wheel (✦500)';
+        }
+    }
+}
+
+// ============================================================
+// BUY FUNCTIONS
+// ============================================================
+function buyAuto() {
+    if (state.points < state.autoPrice) return;
+    state.points -= state.autoPrice;
+    state.autoClickers += 1;
+    state.autoPrice = Math.floor(state.autoPrice * 1.18) + 2;
+    updateUI();
+    saveGame();
+}
+
+function buyMultiplier() {
+    if (state.points < state.multPrice) return;
+    state.points -= state.multPrice;
+    state.clickMultiplier += 1;
+    state.multPrice = Math.floor(state.multPrice * 1.22) + 3;
+    updateUI();
+    saveGame();
+}
+
+function buyCrit() {
+    if (state.points < state.critPrice) return;
+    state.points -= state.critPrice;
+    state.critLevel += 1;
+    state.critPrice = Math.floor(state.critPrice * 1.30) + 5;
+    updateUI();
+    saveGame();
+}
+
+// ============================================================
+// WHEEL - FIXED
+// ============================================================
+function spinWheel() {
+    if (state.points < 500 || state.wheelCooldown > 0) return;
+    
+    state.points -= 500;
+    state.wheelCooldown = 30;
+
+    const prizes = [
+        { text: '💀 Lose 200', amount: -200 },
+        { text: '💰 Win 100', amount: 100 },
+        { text: '💰 Win 250', amount: 250 },
+        { text: '💰 Win 500', amount: 500 },
+        { text: '💰 Win 1000', amount: 1000 },
+        { text: '💰 Win 2000', amount: 2000 },
+        { text: '💰 Win 5000', amount: 5000 },
+        { text: '⭐ 2x Multiplier!', amount: 'multiplier' },
+        { text: '⚡ Powerup!', amount: 'powerup' }
+    ];
+
+    const prize = prizes[Math.floor(Math.random() * prizes.length)];
+    const resultDiv = $('wheelResult');
+
+    if (prize.amount === 'multiplier') {
+        state.clickMultiplier *= 2;
+        resultDiv.textContent = '⭐ 2x Multiplier!';
+        setTimeout(() => {
+            state.clickMultiplier = Math.ceil(state.clickMultiplier / 2);
+            updateUI();
+        }, 30000);
+        showPopup('⭐', '2x Multiplier for 30 seconds!');
+    } else if (prize.amount === 'powerup') {
+        state.points += 500;
+        resultDiv.textContent = '⚡ Powerup! +500 points!';
+        showPopup('⚡', 'Powerup! +500 points!');
+    } else {
+        state.points = Math.max(0, state.points + prize.amount);
+        if (prize.amount < 0) {
+            resultDiv.textContent = prize.text + '!';
+            resultDiv.style.color = '#ff6b6b';
+        } else {
+            resultDiv.textContent = '🎉 ' + prize.text + '!';
+            resultDiv.style.color = '#ffd700';
+            // Spawn celebration particles
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    spawnParticle(
+                        Math.random() * window.innerWidth,
+                        Math.random() * window.innerHeight,
+                        ['🎉', '⭐', '💎', '✨', '🎊'][Math.floor(Math.random() * 5)],
+                        '#ffd700'
+                    );
+                }, i * 100);
+            }
+        }
+    }
+
+    updateUI();
+    saveGame();
+
+    // Cooldown timer
+    const interval = setInterval(() => {
+        state.wheelCooldown -= 1;
+        updateUI();
+        if (state.wheelCooldown <= 0) {
+            clearInterval(interval);
+            resultDiv.textContent = '🎯 Win up to 5,000 points!';
+            resultDiv.style.color = '#ffd700';
+            updateUI();
+        }
+    }, 1000);
+}
+
+// ============================================================
+// CLICK HANDLER
+// ============================================================
+function setupClickHandler() {
+    $('clickBtn').addEventListener('click', function(e) {
+        let amount = state.clickMultiplier;
+        const isCrit = Math.random() < (state.critLevel * 0.10);
+        if (isCrit) amount = amount * 5;
+        
+        state.points += Math.floor(amount);
+        state.totalClicks += 1;
+        state.totalEarnings += Math.floor(amount);
+
+        if (isCrit) {
+            const rect = this.getBoundingClientRect();
+            spawnParticle(rect.left + rect.width / 2 - 20, rect.top - 20, '💥 CRIT!', '#ff6b6b');
+        }
+
+        spawnClickParticles(this, 3);
+        
+        this.style.transform = 'scale(0.85)';
+        this.style.boxShadow = '0 4px 0 #b8860b, 0 15px 40px rgba(255,215,0,0.2)';
+        setTimeout(() => {
+            this.style.transform = '';
+            this.style.boxShadow = '';
+        }, 100);
+
+        updateUI();
+        saveGame();
+    });
+}
+
+// ============================================================
+// GAME LOOP
+// ============================================================
+function setupGameLoop() {
+    setInterval(() => {
+        let totalAuto = state.autoClickers;
+        if (totalAuto > 0) {
+            state.points += totalAuto;
+            state.totalEarnings += totalAuto;
+            updateUI();
+            saveGame();
+        }
+    }, 1000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+    console.log('🧠 Stimulation Overload - Loading...');
+    console.log('📢 Ad Unit: 2779984220');
+
+    loadGame();
+    updateUI();
+
+    // Setup event listeners
+    $('buyAutoBtn').addEventListener('click', buyAuto);
+    $('buyMultBtn').addEventListener('click', buyMultiplier);
+    $('buyCritBtn').addEventListener('click', buyCrit);
+    $('wheelBtn').addEventListener('click', spinWheel);
+
+    setupClickHandler();
+    setupGameLoop();
+
+    console.log('✅ Game loaded!');
+    console.log('📧 Email: theyabandtherandomboyoff97@gmail.com');
+}
+
+// Start
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+</script>
+</body>
+</html>

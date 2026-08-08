@@ -148,7 +148,115 @@
         </div>
     </div>
 </div>
-</body>
+<script>    // ============================================================
+    // UNIVERSAL SOUND SYSTEM - FIXED FOR ALL GAMES
+    // ============================================================
+    let soundEnabled = true;
+    let audioCtx = null;
+    let audioUnlocked = false;
+
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            audioUnlocked = true;
+            console.log('🔊 Audio unlocked!');
+        } catch(e) { console.log('Audio error:', e); }
+    }
+
+    // Unlock on any user interaction
+    document.addEventListener('click', unlockAudio, { once: false });
+    document.addEventListener('touchstart', unlockAudio, { once: false });
+    document.addEventListener('keydown', unlockAudio, { once: false });
+
+    function getAudioCtx() {
+        if (!audioCtx) {
+            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    function playTone(frequency, duration = 150, volume = 0.12, type = 'sine') {
+        if (!soundEnabled) return;
+        try {
+            const ctx = getAudioCtx();
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+            gain.gain.setValueAtTime(volume, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + duration / 1000);
+        } catch(e) { console.log('Play error:', e); }
+    }
+
+    // Sound effects
+    function playClick() { playTone(600, 80); }
+    function playWin() { 
+        playTone(523, 150); 
+        setTimeout(() => playTone(659, 150), 150); 
+        setTimeout(() => playTone(784, 200), 300); 
+    }
+    function playLose() { 
+        playTone(300, 200); 
+        setTimeout(() => playTone(200, 300), 200); 
+    }
+    function playCorrect() { playTone(800, 100); }
+    function playWrong() { playTone(250, 200); }
+    function playLevelUp() { 
+        playTone(440, 100); 
+        setTimeout(() => playTone(523, 100), 100); 
+        setTimeout(() => playTone(659, 150), 200); 
+    }
+    function playAchievement() {
+        // Special achievement sound - ascending tones
+        playTone(523, 150, 0.15);
+        setTimeout(() => playTone(659, 150, 0.15), 150);
+        setTimeout(() => playTone(784, 150, 0.15), 300);
+        setTimeout(() => playTone(1047, 200, 0.12), 450);
+        setTimeout(() => playTone(1318, 250, 0.10), 600);
+    }
+    function playMine() { playTone(500, 80, 0.10, 'square'); }
+    function playCrash() { playTone(150, 400, 0.15); setTimeout(() => playTone(100, 300, 0.10), 200); }
+    function playCollect() { playTone(880, 100, 0.10); setTimeout(() => playTone(1100, 120, 0.10), 100); }
+
+    // Add sound toggle to settings if it exists
+    function addSoundToggle() {
+        const settings = document.getElementById('settingsPanel');
+        if (!settings) return;
+        // Check if toggle already exists
+        if (settings.querySelector('#soundToggle')) return;
+        const item = document.createElement('div');
+        item.className = 'settings-item';
+        item.innerHTML = `
+            <span class="label">🔊 Sound Effects</span>
+            <div class="settings-toggle active" id="soundToggle"><div class="knob"></div></div>
+        `;
+        settings.appendChild(item);
+        document.getElementById('soundToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            soundEnabled = this.classList.contains('active');
+            if (soundEnabled) playClick();
+        });
+    }
+
+    // Try to add sound toggle when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(addSoundToggle, 500);
+    });
+
+    console.log('🔊 Sound system loaded!');</script></body>
 </html>
+
 
 

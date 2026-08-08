@@ -395,6 +395,7 @@ renderGrid();
 
     // Show achievement popup
     function showAchievementPopup(emoji, title, desc) {
+        try { playAchievement(); } catch(e) {}
         // Check if popup already exists
         let popup = document.getElementById('achievementPopupGlobal');
         if (!popup) {
@@ -524,6 +525,7 @@ renderGrid();
 </script>
 </body>
 </html>
+
 
 
 

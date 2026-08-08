@@ -307,6 +307,7 @@ document.getElementById('clearBtn').addEventListener('click',()=>{ctx.fillStyle=
 
     // Show achievement popup
     function showAchievementPopup(emoji, title, desc) {
+        try { playAchievement(); } catch(e) {}
         // Check if popup already exists
         let popup = document.getElementById('achievementPopupGlobal');
         if (!popup) {
@@ -436,6 +437,7 @@ document.getElementById('clearBtn').addEventListener('click',()=>{ctx.fillStyle=
 </script>
 </body>
 </html>
+
 
 
 

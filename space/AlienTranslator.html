@@ -325,6 +325,7 @@ document.getElementById('humanInput').addEventListener('keydown', (e) => {
 
     // Show achievement popup
     function showAchievementPopup(emoji, title, desc) {
+        try { playAchievement(); } catch(e) {}
         // Check if popup already exists
         let popup = document.getElementById('achievementPopupGlobal');
         if (!popup) {
@@ -454,6 +455,7 @@ document.getElementById('humanInput').addEventListener('keydown', (e) => {
 </script>
 </body>
 </html>
+
 
 
 

@@ -525,6 +525,7 @@ console.log('⌨️ Space=Deliver  S=Skip  R=Reset');
 
     // Show achievement popup
     function showAchievementPopup(emoji, title, desc) {
+        try { playAchievement(); } catch(e) {}
         // Check if popup already exists
         let popup = document.getElementById('achievementPopupGlobal');
         if (!popup) {
@@ -654,5 +655,6 @@ console.log('⌨️ Space=Deliver  S=Skip  R=Reset');
 </script>
 </body>
 </html>
+
 
 

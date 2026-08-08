@@ -378,6 +378,7 @@ msg.textContent='🎯 Type the text as fast as you can!';
 
     // Show achievement popup
     function showAchievementPopup(emoji, title, desc) {
+        try { playAchievement(); } catch(e) {}
         // Check if popup already exists
         let popup = document.getElementById('achievementPopupGlobal');
         if (!popup) {
@@ -507,6 +508,7 @@ msg.textContent='🎯 Type the text as fast as you can!';
 </script>
 </body>
 </html>
+
 
 
 

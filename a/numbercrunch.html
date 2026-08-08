@@ -379,6 +379,7 @@ msg.textContent='🎯 Solve math problems fast!';
 
     // Show achievement popup
     function showAchievementPopup(emoji, title, desc) {
+        try { playAchievement(); } catch(e) {}
         // Check if popup already exists
         let popup = document.getElementById('achievementPopupGlobal');
         if (!popup) {
@@ -508,6 +509,7 @@ msg.textContent='🎯 Solve math problems fast!';
 </script>
 </body>
 </html>
+
 
 
 

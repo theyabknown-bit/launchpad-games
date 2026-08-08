@@ -130,6 +130,176 @@ function endGame(){
 document.getElementById('startBtn').addEventListener('click',startGame);
 highDisplay.textContent=highScore;
 initGrid();
+    // ============================================================
+    // SOUND SYSTEM - UNIVERSAL
+    // ============================================================
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function getAudioCtx() {
+        if (!audioCtx) {
+            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+        }
+        return audioCtx;
+    }
+
+    function playTone(frequency, duration = 150, type = 'sine') {
+        if (!soundEnabled) return;
+        try {
+            const ctx = getAudioCtx();
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.value = frequency;
+            gain.gain.value = 0.12;
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + duration / 1000);
+        } catch(e) {}
+    }
+
+    function playClick() { playTone(600, 80); }
+    function playWin() { playTone(523, 150); setTimeout(() => playTone(659, 150), 150); setTimeout(() => playTone(784, 200), 300); }
+    function playLose() { playTone(300, 200); setTimeout(() => playTone(200, 300), 200); }
+    function playCorrect() { playTone(800, 100); }
+    function playWrong() { playTone(250, 200); }
+    function playLevelUp() { playTone(440, 100); setTimeout(() => playTone(523, 100), 100); setTimeout(() => playTone(659, 150), 200); }
+
+    // Add sound toggle to settings
+    function addSoundToggle() {
+        const settings = document.getElementById('settingsPanel');
+        if (!settings) return;
+        const item = document.createElement('div');
+        item.className = 'settings-item';
+        item.innerHTML = `
+            <span class="label">🔊 Sound Effects</span>
+            <div class="settings-toggle active" id="soundToggle"><div class="knob"></div></div>
+        `;
+        settings.appendChild(item);
+        document.getElementById('soundToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            soundEnabled = this.classList.contains('active');
+            if (soundEnabled) playClick();
+        });
+    }
+
+    // Minigame: Quick Tap Challenge
+    function startQuickTap() {
+        if (document.getElementById('minigameOverlay')) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'minigameOverlay';
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; padding: 20px;
+            animation: fadeIn 0.3s ease;
+        `;
+        overlay.innerHTML = `
+            <div style="background: #1a1a2e; border-radius: 24px; padding: 30px; max-width: 400px; width: 100%; text-align: center; border: 2px solid rgba(255,215,0,0.1);">
+                <h2 style="color: #ffd700; margin-bottom: 10px;">🎯 Quick Tap Challenge</h2>
+                <p style="color: #888; margin-bottom: 15px;">Tap as fast as you can!</p>
+                <div style="font-size: 72px; margin: 15px 0;" id="tapCounter">0</div>
+                <div style="font-size: 24px; color: #ff6b6b; margin-bottom: 10px;" id="tapTimer">3s</div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button id="tapBtn" style="
+                        background: linear-gradient(135deg, #ffd700, #f5a623);
+                        border: none; padding: 15px 40px; border-radius: 30px;
+                        font-weight: 700; font-size: 18px; color: #1a1a2e;
+                        cursor: pointer; font-family: 'Segoe UI', sans-serif;
+                    ">👆 TAP!</button>
+                    <button onclick="this.closest('#minigameOverlay').remove()" style="
+                        background: rgba(255,255,255,0.05);
+                        border: 1px solid rgba(255,255,255,0.1);
+                        padding: 15px 20px; border-radius: 30px;
+                        color: #888; cursor: pointer; font-size: 14px;
+                        font-family: 'Segoe UI', sans-serif;
+                    ">✕ Close</button>
+                </div>
+                <div id="tapResult" style="margin-top: 10px; color: #7cf5b0; font-weight: 700;"></div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        let taps = 0;
+        let timeLeft = 3;
+        let active = true;
+
+        const tapBtn = document.getElementById('tapBtn');
+        const counter = document.getElementById('tapCounter');
+        const timer = document.getElementById('tapTimer');
+        const result = document.getElementById('tapResult');
+
+        tapBtn.addEventListener('click', function() {
+            if (!active) return;
+            taps++;
+            counter.textContent = taps;
+            playClick();
+            this.style.transform = 'scale(0.9)';
+            setTimeout(() => this.style.transform = '', 100);
+        });
+
+        const interval = setInterval(() => {
+            timeLeft--;
+            timer.textContent = timeLeft + 's';
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                active = false;
+                tapBtn.disabled = true;
+                tapBtn.style.opacity = '0.5';
+                const reward = taps * 50;
+                result.textContent = '🏆 You tapped ' + taps + ' times! +' + reward + ' points!';
+                playWin();
+                // Add points if game supports it
+                if (typeof points !== 'undefined') {
+                    points += reward;
+                    if (typeof updateUI === 'function') updateUI();
+                    if (typeof saveGame === 'function') saveGame();
+                }
+                setTimeout(() => {
+                    overlay.querySelector('button:last-child').click();
+                }, 3000);
+            }
+        }, 1000);
+
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = '@keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }';
+        document.head.appendChild(style);
+    }
+
+    // Add minigame button to games
+    function addMinigameButton() {
+        const container = document.querySelector('.container') || document.querySelector('#app');
+        if (!container) return;
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.style.cssText = `
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white; border: none; padding: 10px 20px;
+            border-radius: 30px; font-weight: 700; font-size: 13px;
+            cursor: pointer; margin: 5px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: 0.2s;
+        `;
+        btn.textContent = '🎯 Quick Tap Challenge';
+        btn.onmouseover = function() { this.style.transform = 'scale(1.05)'; };
+        btn.onmouseout = function() { this.style.transform = ''; };
+        btn.onclick = startQuickTap;
+        container.appendChild(btn);
+    }
+
+    // Initialize sound and minigame
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add sound toggle if settings exist
+        setTimeout(addSoundToggle, 100);
+        // Add minigame button
+        setTimeout(addMinigameButton, 200);
+    });
 </script>
 </body>
 </html>
+

@@ -1,1 +1,198 @@
-﻿
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com;">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>❌ slidepuzzle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0b1a26; color: #d0e8f0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .back-btn { position: fixed; top: 20px; left: 20px; background: #1a3344; color: #4fc3f7; padding: 10px 20px; border-radius: 8px; text-decoration: none; }
+        .back-btn:hover { background: #2a4a5e; }
+        .container { text-align: center; padding: 20px; }
+        h1 { color: #4fc3f7; margin-bottom: 20px; }
+        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; margin: 20px auto; }
+        .cell { width: 100px; height: 100px; background: #1a3344; border: 2px solid #2a4a5e; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 3rem; cursor: pointer; transition: 0.2s; }
+        .cell:hover:not(.taken) { transform: scale(1.05); border-color: #4fc3f7; }
+        .cell.taken { cursor: default; opacity: 0.9; }
+        .cell.x { color: #4fc3f7; }
+        .cell.o { color: #7cf5b0; }
+        .status { font-size: 1.2rem; margin: 10px 0; color: #ffd93d; }
+        .btn { background: #4fc3f7; color: #0b1a26; border: none; padding: 10px 30px; border-radius: 8px; font-size: 1rem; cursor: pointer; margin: 10px; transition: 0.2s; }
+        .btn:hover { background: #7cf5b0; transform: scale(1.05); }
+        .btn-danger { background: #ff6b6b; }
+        .btn-danger:hover { background: #ff4444; }
+        @media (max-width: 480px) { .board { grid-template-columns: repeat(3, 80px); gap: 8px; } .cell { width: 80px; height: 80px; font-size: 2.5rem; } }
+    </style>
+</head>
+<body>
+    <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    <div class="container">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.8rem;">🚀</span><div><div style="font-size:1.2rem;font-weight:700;background:linear-gradient(135deg,#4fc3f7,#7cf5b0,#ffd93d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">LAUNCHPAD</div><div style="font-size:0.5rem;color:#7cf5b0;letter-spacing:3px;">READINESS TO LAUNCH</div></div></div>
+        <div class="status" id="status">Your turn (X)</div>
+        <div class="board" id="board"></div>
+        <div>
+            <button class="btn" onclick="resetGame()">ðŸ”„ New Game</button>
+            <button class="btn btn-danger" onclick="resetAndSave()">ðŸ—‘ï¸ Reset & Save</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // SAVE FUNCTIONS (from base.html)
+        // ============================================
+        function loadGameState(gameId) {
+            try {
+                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+                if (save.gameStates && save.gameStates[gameId]) {
+                    return save.gameStates[gameId].data;
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        function saveGameState(gameId, stateData) {
+            try {
+                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+                if (!save.gameStates) save.gameStates = {};
+                save.gameStates[gameId] = { data: stateData, timestamp: new Date().toISOString() };
+                localStorage.setItem('launchpad_progress', JSON.stringify(save));
+                return true;
+            } catch(e) { return false; }
+        }
+
+        function updateGameProgress(gameId) {
+            try {
+                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+                if (!save.games) save.games = {};
+                if (!save.games[gameId]) save.games[gameId] = { played: false, xp: 0 };
+                var game = save.games[gameId];
+                if (!game.played) { game.played = true; save.gamesPlayed = (save.gamesPlayed || 0) + 1; }
+                game.xp = (game.xp || 0) + 1;
+                var totalXp = 0, gamesPlayed = 0;
+                Object.values(save.games).forEach(function(g) { totalXp += (g.xp || 0); if (g.played) gamesPlayed++; });
+                save.totalXp = totalXp;
+                save.gamesPlayed = gamesPlayed;
+                localStorage.setItem('launchpad_progress', JSON.stringify(save));
+            } catch(e) {}
+        }
+
+        // ============================================
+        // slidepuzzle GAME
+        // ============================================
+        const GAME_ID = 'slidepuzzle';
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let gameActive = true;
+
+        function renderBoard() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell' + (board[i] ? ' taken' : '');
+                if (board[i] === 'X') cell.classList.add('x');
+                if (board[i] === 'O') cell.classList.add('o');
+                cell.textContent = board[i];
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => handleClick(i));
+                boardEl.appendChild(cell);
+            }
+            updateStatus();
+        }
+
+        function handleClick(index) {
+            if (!gameActive || board[index] !== '') return;
+            board[index] = currentPlayer;
+            const winner = checkWinner();
+            if (winner) {
+                gameActive = false;
+                document.getElementById('status').textContent = 'ðŸ† ' + winner + ' wins!';
+                saveState();
+                updateGameProgress(GAME_ID);
+                renderBoard();
+                return;
+            }
+            if (board.every(cell => cell !== '')) {
+                gameActive = false;
+                document.getElementById('status').textContent = 'ðŸ¤ Draw!';
+                saveState();
+                renderBoard();
+                return;
+            }
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            document.getElementById('status').textContent = 'Your turn (' + currentPlayer + ')';
+            saveState();
+            renderBoard();
+        }
+
+        function checkWinner() {
+            const winPatterns = [
+                [0,1,2], [3,4,5], [6,7,8],
+                [0,3,6], [1,4,7], [2,5,8],
+                [0,4,8], [2,4,6]
+            ];
+            for (const pattern of winPatterns) {
+                const [a,b,c] = pattern;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            return null;
+        }
+
+        function saveState() {
+            saveGameState(GAME_ID, {
+                board: board,
+                currentPlayer: currentPlayer,
+                gameActive: gameActive
+            });
+        }
+
+        function loadState() {
+            const state = loadGameState(GAME_ID);
+            if (state) {
+                board = state.board || ['', '', '', '', '', '', '', '', ''];
+                currentPlayer = state.currentPlayer || 'X';
+                gameActive = state.gameActive !== undefined ? state.gameActive : true;
+                return true;
+            }
+            return false;
+        }
+
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            document.getElementById('status').textContent = 'Your turn (X)';
+            saveState();
+            renderBoard();
+        }
+
+        function resetAndSave() {
+            resetGame();
+            alert('âœ… Game reset and saved!');
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        if (!loadState()) {
+            resetGame();
+        } else {
+            renderBoard();
+            document.getElementById('status').textContent = gameActive ? 'Your turn (' + currentPlayer + ')' : 'Game Over';
+        }
+
+        // Auto-save every 10 seconds
+        setInterval(saveState, 10000);
+    </script>
+</body>
+</html>
+
+
+
+

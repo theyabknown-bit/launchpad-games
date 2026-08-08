@@ -1,1 +1,131 @@
-﻿
+﻿<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏎️ Type Racer</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0b1a26;color:#d0e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;flex-direction:column;}
+.back-btn{position:fixed;top:20px;left:20px;background:#1a3344;color:#4fc3f7;padding:12px 20px;border-radius:8px;text-decoration:none;}
+.back-btn:hover{background:#2a4a5e;transform:translateX(-5px);}
+.container{max-width:500px;width:100%;text-align:center;}
+h1{color:#4fc3f7;margin-bottom:10px;}
+.stats{display:flex;justify-content:center;gap:20px;margin-bottom:20px;}
+.stat-box{background:#1a3344;padding:10px 20px;border-radius:10px;min-width:80px;}
+.stat-box span{color:#4fc3f7;font-weight:bold;font-size:1.2rem;display:block;}
+.stat-box .label{color:#8899aa;font-size:0.7rem;text-transform:uppercase;}
+.text-display{font-size:1.5rem;padding:20px;background:#1a3344;border-radius:12px;border:2px solid #2a4a5e;min-height:80px;margin:15px 0;line-height:1.8;font-family:'Courier New',monospace;text-align:left;word-wrap:break-word;}
+.text-display .correct{color:#7cf5b0;}
+.text-display .wrong{color:#ff6b6b;}
+.text-display .current{background:rgba(79,195,247,0.2);}
+input{display:none;}
+.btn{background:#4fc3f7;color:#0b1a26;border:none;padding:12px 25px;border-radius:8px;font-size:1rem;cursor:pointer;}
+.btn:hover{background:#7cf5b0;}
+.message{font-size:1.2rem;min-height:30px;color:#ffd93d;margin:10px 0;}
+</style>
+</head>
+<body>
+<a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+<div class="container">
+    <h1><i class="fas fa-tachometer-alt" style="color:#4fc3f7;"></i> Type Racer</h1>
+    <div class="stats">
+        <div class="stat-box"><span id="score">0</span><span class="label">WPM</span></div>
+        <div class="stat-box"><span id="time">30</span><span class="label">Time</span></div>
+        <div class="stat-box"><span id="highScore">0</span><span class="label">Best</span></div>
+    </div>
+    <div class="text-display" id="textDisplay"></div>
+    <input type="text" id="hiddenInput">
+    <button class="btn" id="startBtn">▶ Start Game</button>
+    <div class="message" id="message">🎯 Type the text as fast as you can!</div>
+</div>
+<script>
+function updateGameProgress(gameId){try{var s=JSON.parse(localStorage.getItem('launchpad_progress')||'{}');if(!s.games)s.games={};if(!s.games[gameId])s.games[gameId]={played:false,xp:0};var g=s.games[gameId];if(!g.played){g.played=true;s.gamesPlayed=(s.gamesPlayed||0)+1;}g.xp=(g.xp||0)+1;var t=0,p=0;Object.values(s.games).forEach(function(x){t+=(x.xp||0);if(x.played)p++;});s.totalXp=t;s.gamesPlayed=p;localStorage.setItem('launchpad_progress',JSON.stringify(s));}catch(e){}}
+
+const TEXTS=['The quick brown fox jumps over the lazy dog.','Practice makes perfect.','Coding is fun and exciting.','JavaScript is powerful.','Keep calm and code on.','Learning new things every day.','Technology changes the world.','Dream big and work hard.','Always be curious.','Never give up.'];
+let score=0,timeLeft=30,highScore=parseInt(localStorage.getItem('typeHigh'))||0;
+let gameActive=false,timerInterval=null,currentIndex=0,charIndex=0,charsTyped=0,wrongTyped=0;
+let currentText='';
+
+const display=document.getElementById('textDisplay'),input=document.getElementById('hiddenInput');
+const scoreDisplay=document.getElementById('score'),timeDisplay=document.getElementById('time');
+const highDisplay=document.getElementById('highScore'),msg=document.getElementById('message');
+
+function loadText(){
+    currentText=TEXTS[Math.floor(Math.random()*TEXTS.length)];
+    charIndex=0;charsTyped=0;wrongTyped=0;
+    renderText();
+}
+
+function renderText(){
+    let html='';
+    for(let i=0;i<currentText.length;i++){
+        if(i<charIndex){
+            html+='<span class="correct">'+currentText[i]+'</span>';
+        }else{
+            html+='<span>'+currentText[i]+'</span>';
+        }
+    }
+    display.innerHTML=html;
+}
+
+function startGame(){
+    if(gameActive)return;
+    updateGameProgress('typeracer');
+    score=0;timeLeft=30;currentIndex=0;
+    scoreDisplay.textContent=0;timeDisplay.textContent=30;
+    highDisplay.textContent=highScore;
+    document.getElementById('startBtn').textContent='⏳ Playing...';
+    gameActive=true;
+    msg.textContent='⚡ Start typing!';
+    loadText();
+    input.focus();
+    timerInterval=setInterval(()=>{
+        timeLeft--;
+        timeDisplay.textContent=timeLeft;
+        if(timeLeft<=0)endGame();
+    },1000);
+}
+
+function endGame(){
+    gameActive=false;
+    clearInterval(timerInterval);
+    const wpm=Math.round((charsTyped/5)/((30-timeLeft)/60));
+    const finalScore=Math.max(0,wpm);
+    if(finalScore>highScore){highScore=finalScore;localStorage.setItem('typeHigh',highScore);}
+    highDisplay.textContent=highScore;
+    msg.textContent='🎉 Done! WPM: '+finalScore;
+    document.getElementById('startBtn').textContent='▶ Play Again';
+}
+
+input.addEventListener('input',function(e){
+    if(!gameActive)return;
+    const typed=input.value;
+    const expected=currentText[charIndex];
+    if(typed===expected){
+        charIndex++;
+        charsTyped++;
+        renderText();
+        if(charIndex>=currentText.length){
+            score=Math.round((charsTyped/5)/((30-timeLeft)/60));
+            scoreDisplay.textContent=score;
+            loadText();
+            msg.textContent='✅ Complete! Next word...';
+            setTimeout(()=>msg.textContent='⚡ Keep typing!',500);
+        }
+        input.value='';
+    }else{
+        input.value='';
+        wrongTyped++;
+        if(wrongTyped>5){
+            msg.textContent='❌ Too many mistakes! Focus!';
+            setTimeout(()=>msg.textContent='⚡ Keep typing!',1000);
+        }
+    }
+});
+
+document.getElementById('startBtn').addEventListener('click',startGame);
+highDisplay.textContent=highScore;
+msg.textContent='🎯 Type the text as fast as you can!';
+</script>
+</body>
+</html>

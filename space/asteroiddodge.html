@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>☄️ Asteroid Dodge</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0b1a26;color:#d0e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;flex-direction:column;}
+.back-btn{position:fixed;top:20px;left:20px;background:#1a3344;color:#4fc3f7;padding:12px 20px;border-radius:8px;text-decoration:none;}
+.back-btn:hover{background:#2a4a5e;transform:translateX(-5px);}
+.container{max-width:500px;width:100%;text-align:center;}
+h1{color:#4fc3f7;margin-bottom:10px;}
+.stats{display:flex;justify-content:center;gap:20px;margin-bottom:20px;}
+.stat-box{background:#1a3344;padding:10px 20px;border-radius:10px;min-width:80px;}
+.stat-box span{color:#4fc3f7;font-weight:bold;font-size:1.2rem;display:block;}
+.stat-box .label{color:#8899aa;font-size:0.7rem;text-transform:uppercase;}
+canvas{background:#0f1f2e;border-radius:12px;border:2px solid #1a3344;touch-action:none;}
+.controls{display:flex;gap:10px;justify-content:center;margin:15px 0;flex-wrap:wrap;}
+.controls button{background:#1a3344;color:#d0e8f0;border:2px solid #2a4a5e;padding:10px 20px;border-radius:8px;font-size:1.2rem;cursor:pointer;touch-action:manipulation;}
+.controls button:hover{background:#2a4a5e;border-color:#4fc3f7;}
+.btn{background:#4fc3f7;color:#0b1a26;border:none;padding:12px 25px;border-radius:8px;font-size:1rem;cursor:pointer;}
+.btn:hover{background:#7cf5b0;}
+.message{font-size:1.2rem;min-height:30px;color:#ffd93d;margin:10px 0;}
+</style>
+</head>
+<body>
+<a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+<div class="container">
+    <h1><i class="fas fa-meteor" style="color:#ff6b6b;"></i> Asteroid Dodge</h1>
+    <div class="stats">
+        <div class="stat-box"><span id="score">0</span><span class="label">Score</span></div>
+        <div class="stat-box"><span id="highScore">0</span><span class="label">Best</span></div>
+    </div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="controls">
+        <button id="leftBtn">⬅</button>
+        <button id="rightBtn">➡</button>
+        <button id="upBtn">⬆</button>
+        <button id="downBtn">⬇</button>
+    </div>
+    <button class="btn" id="startBtn">▶ Start</button>
+    <div class="message" id="message">🎯 Dodge the asteroids!</div>
+</div>
+<script>
+const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
+let player={x:200,y:350,w:30,h:30},asteroids=[],score=0,highScore=parseInt(localStorage.getItem('asteroidHigh'))||0;
+let gameActive=false,gameInterval=null,spawnInterval=null;
+
+function draw(){
+    ctx.fillStyle='#0f1f2e';ctx.fillRect(0,0,400,400);
+    ctx.fillStyle='#4fc3f7';ctx.fillRect(player.x,player.y,player.w,player.h);
+    asteroids.forEach(a=>{ctx.fillStyle=a.color||'#ff6b6b';ctx.beginPath();ctx.arc(a.x,a.y,a.size,0,Math.PI*2);ctx.fill();});
+}
+
+function update(){
+    asteroids.forEach(a=>{a.y+=a.speed;});
+    asteroids=asteroids.filter(a=>a.y<400);
+    asteroids.forEach(a=>{
+        if(a.x>player.x&&a.x<player.x+player.w&&a.y>player.y&&a.y<player.y+player.h){endGame();}
+    });
+    draw();
+}
+
+function spawnAsteroid(){
+    if(!gameActive)return;
+    asteroids.push({x:Math.random()*380+10,y:0,size:Math.random()*20+10,speed:Math.random()*3+1,color:['#ff6b6b','#ffd93d','#ff9f43','#a29bfe'][Math.floor(Math.random()*4)]});
+}
+
+function startGame(){
+    if(gameActive)return;
+    score=0;asteroids=[];player={x:200,y:350,w:30,h:30};
+    document.getElementById('score').textContent=0;document.getElementById('highScore').textContent=highScore;
+    document.getElementById('message').textContent='⚡ Playing!';
+    document.getElementById('startBtn').textContent='⏳ Playing';
+    gameActive=true;
+    if(gameInterval)clearInterval(gameInterval);if(spawnInterval)clearInterval(spawnInterval);
+    gameInterval=setInterval(update,50);
+    spawnInterval=setInterval(spawnAsteroid,800);
+}
+
+function endGame(){
+    gameActive=false;
+    if(gameInterval)clearInterval(gameInterval);if(spawnInterval)clearInterval(spawnInterval);
+    if(score>highScore){highScore=score;localStorage.setItem('asteroidHigh',highScore);}
+    document.getElementById('highScore').textContent=highScore;
+    document.getElementById('message').textContent='💀 Game Over! Score: '+score;
+    document.getElementById('startBtn').textContent='▶ Play Again';
+}
+
+document.addEventListener('keydown',(e)=>{
+    if(!gameActive)return;
+    if(e.key==='ArrowLeft'&&player.x>0)player.x-=20;
+    if(e.key==='ArrowRight'&&player.x<370)player.x+=20;
+    if(e.key==='ArrowUp'&&player.y>0)player.y-=20;
+    if(e.key==='ArrowDown'&&player.y<370)player.y+=20;
+    if(e.key===' '||e.key==='Enter')startGame();
+});
+document.getElementById('leftBtn').addEventListener('click',()=>{if(gameActive&&player.x>0)player.x-=20;});
+document.getElementById('rightBtn').addEventListener('click',()=>{if(gameActive&&player.x<370)player.x+=20;});
+document.getElementById('upBtn').addEventListener('click',()=>{if(gameActive&&player.y>0)player.y-=20;});
+document.getElementById('downBtn').addEventListener('click',()=>{if(gameActive&&player.y<370)player.y+=20;});
+document.getElementById('startBtn').addEventListener('click',startGame);
+document.getElementById('highScore').textContent=highScore;
+draw();
+</script>
+</body>
+</html>

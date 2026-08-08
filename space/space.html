@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 Space Explorer</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0b1a26;color:#d0e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;flex-direction:column;}
+.back-btn{position:fixed;top:20px;left:20px;background:#1a3344;color:#4fc3f7;padding:12px 20px;border-radius:8px;text-decoration:none;}
+.back-btn:hover{background:#2a4a5e;transform:translateX(-5px);}
+.container{max-width:500px;width:100%;text-align:center;}
+h1{color:#4fc3f7;margin-bottom:10px;}
+.stats{display:flex;justify-content:center;gap:20px;margin-bottom:20px;}
+.stat-box{background:#1a3344;padding:10px 20px;border-radius:10px;min-width:80px;}
+.stat-box span{color:#4fc3f7;font-weight:bold;font-size:1.2rem;display:block;}
+.stat-box .label{color:#8899aa;font-size:0.7rem;text-transform:uppercase;}
+.planet{width:150px;height:150px;border-radius:50%;margin:20px auto;display:flex;align-items:center;justify-content:center;font-size:4rem;transition:0.3s;cursor:pointer;border:3px solid #2a4a5e;}
+.planet:hover{transform:scale(1.05);border-color:#4fc3f7;}
+.planet.explored{background:#1a4a3a;border-color:#7cf5b0;}
+.planet .status{font-size:0.8rem;position:absolute;margin-top:100px;background:#1a3344;padding:4px 12px;border-radius:20px;}
+.btn{background:#4fc3f7;color:#0b1a26;border:none;padding:12px 25px;border-radius:8px;font-size:1rem;cursor:pointer;}
+.btn:hover{background:#7cf5b0;}
+.message{font-size:1.2rem;min-height:30px;color:#ffd93d;margin:10px 0;}
+</style>
+</head>
+<body>
+<a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+<div class="container">
+    <h1><i class="fas fa-globe" style="color:#4fc3f7;"></i> Space Explorer</h1>
+    <div class="stats">
+        <div class="stat-box"><span id="score">0</span><span class="label">Explored</span></div>
+        <div class="stat-box"><span id="total">9</span><span class="label">Total</span></div>
+    </div>
+    <div class="planet" id="planet" onclick="explore()">🌍<div class="status">Click to explore</div></div>
+    <div class="message" id="message">🌌 Explore the cosmos!</div>
+    <button class="btn" onclick="resetGame()">🔄 New Mission</button>
+</div>
+<script>
+const PLANETS=['🌍','🪐','🌙','⭐','☄️','🛸','🌌','🔭','🚀'];
+const NAMES=['Earth','Saturn','Moon','Star','Comet','UFO','Galaxy','Telescope','Rocket'];
+let score=0,total=0,current=0;
+
+function updateUI(){document.getElementById('score').textContent=score;document.getElementById('total').textContent=PLANETS.length;}
+function explore(){
+    const planet=document.getElementById('planet');
+    if(current>=PLANETS.length){document.getElementById('message').textContent='🎉 All explored!';return;}
+    planet.textContent=PLANETS[current];
+    document.getElementById('message').textContent='🌌 Explored: '+NAMES[current]+'!';
+    planet.classList.add('explored');
+    score++;current++;updateUI();
+    if(current>=PLANETS.length){document.getElementById('message').textContent='🚀 Mission Complete! All planets explored!';}
+}
+function resetGame(){current=0;score=0;document.getElementById('planet').classList.remove('explored');document.getElementById('planet').textContent='🌍';document.getElementById('message').textContent='🌌 New mission!';updateUI();}
+updateUI();
+</script>
+</body>
+</html>

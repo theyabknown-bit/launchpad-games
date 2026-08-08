@@ -1,56 +1,98 @@
 ﻿<!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐉 Alien Zoo</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<style>
-*{{margin:0;padding:0;box-sizing:border-box;}}
-body{{background:#0b1a26;color:#d0e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;flex-direction:column;}}
-.back-btn{{position:fixed;top:20px;left:20px;background:#1a3344;color:#4fc3f7;padding:12px 20px;border-radius:8px;text-decoration:none;}}
-.back-btn:hover{{background:#2a4a5e;transform:translateX(-5px);}}
-.container{{max-width:500px;width:100%;text-align:center;}}
-h1{{color:#4fc3f7;margin-bottom:10px;}}
-.stats{{display:flex;justify-content:center;gap:20px;margin-bottom:20px;}}
-.stat-box{{background:#1a3344;padding:10px 20px;border-radius:10px;min-width:80px;}}
-.stat-box span{{color:#4fc3f7;font-weight:bold;font-size:1.2rem;display:block;}}
-.stat-box .label{{color:#8899aa;font-size:0.7rem;text-transform:uppercase;}}
-.btn{{background:#4fc3f7;color:#0b1a26;border:none;padding:12px 25px;border-radius:8px;font-size:1rem;cursor:pointer;}}
-.btn:hover{{background:#7cf5b0;}}
-.message{{font-size:1.2rem;min-height:30px;color:#ffd93d;margin:10px 0;}}
-.game-area{{background:#0f1f2e;border-radius:12px;padding:30px;margin:15px 0;border:2px solid #1a3344;min-height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;}}
-.big-emoji{{font-size:5rem;}}
-.click-btn{{background:#ff6b6b;color:#0b1a26;border:none;padding:15px 40px;border-radius:30px;font-size:1.2rem;font-weight:700;cursor:pointer;transition:0.2s;}}
-.click-btn:hover{{transform:scale(1.05);}}
-.click-btn:active{{transform:scale(0.95);}}
-</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐉 Alien Zoo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0b1a26; color: #d0e8f0; font-family: 'Segoe UI', Roboto, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+        .back-btn { position: fixed; top: 20px; left: 20px; background: #1a3344; color: #4fc3f7; padding: 12px 20px; border: none; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; z-index: 100; }
+        .back-btn:hover { background: #2a4a5e; transform: translateX(-5px); }
+        .container { max-width: 500px; width: 100%; text-align: center; margin-top: 60px; }
+        h1 { color: #4fc3f7; font-size: 2.5rem; margin-bottom: 10px; }
+        .stats { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat-box { background: #1a3344; padding: 10px 20px; border-radius: 10px; min-width: 80px; border: 1px solid #2a4a5e; }
+        .stat-box span { color: #4fc3f7; font-weight: bold; font-size: 1.2rem; display: block; }
+        .stat-box .label { color: #8899aa; font-size: 0.7rem; text-transform: uppercase; }
+        .zoo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        .animal-card { background: #1a3344; border: 2px solid #2a4a5e; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .animal-card:hover { transform: scale(1.05); border-color: #4fc3f7; }
+        .animal-card .emoji { font-size: 2.5rem; display: block; }
+        .animal-card .name { font-size: 0.7rem; color: #8899aa; }
+        .animal-card .count { font-size: 0.9rem; color: #ffd93d; font-weight: 700; }
+        .animal-card.collected { border-color: #7cf5b0; background: #1a4a3a; }
+        .btn { background: #4fc3f7; color: #0b1a26; border: none; padding: 12px 25px; border-radius: 8px; font-size: 1rem; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #7cf5b0; }
+        .message { font-size: 1.2rem; min-height: 30px; color: #ffd93d; margin: 10px 0; }
+    </style>
 </head>
 <body>
 <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
 <div class="container">
-    <h1><i class="fa-paw" style="color:#ff6b6b;"></i> Alien Zoo</h1>
+    <h1><i class="fas fa-paw" style="color:#ff6b6b;"></i> Alien Zoo</h1>
     <div class="stats">
-        <div class="stat-box"><span id="score">0</span><span class="label">Score</span></div>
-        <div class="stat-box"><span id="clicks">0</span><span class="label">Clicks</span></div>
+        <div class="stat-box"><span id="collected">0</span><span class="label">Collected</span></div>
+        <div class="stat-box"><span id="total">6</span><span class="label">Total</span></div>
     </div>
-    <div class="game-area">
-        <div class="big-emoji">🐉</div>
-        <button class="click-btn" id="clickBtn">Click Me! ✨</button>
-    </div>
-    <div class="message" id="message">🎯 Click to explore!</div>
-    <button class="btn" onclick="resetGame()">🔄 Reset</button>
+    <div class="zoo-grid" id="zooGrid"></div>
+    <button class="btn" id="resetBtn">🔄 Reset Zoo</button>
+    <div class="message" id="message">🐉 Collect all alien creatures!</div>
 </div>
 <script>
-let score=0,clicks=0;
-function updateUI(){{document.getElementById('score').textContent=score;document.getElementById('clicks').textContent=clicks;}}
-document.getElementById('clickBtn').addEventListener('click',function(){{
-    clicks++;score+=Math.floor(Math.random()*5)+1;
-    document.getElementById('message').textContent='✨ +'+score+' points!';
-    updateUI();
-    this.style.transform='scale(0.9)';
-    setTimeout(()=>this.style.transform='',100);
-}});
-function resetGame(){{score=0;clicks=0;updateUI();document.getElementById('message').textContent='🔄 Reset! Start again!';}}
-updateUI();
+const ANIMALS = [
+    { name: 'Gloop', emoji: '🟢', collected: false },
+    { name: 'Zorp', emoji: '🟣', collected: false },
+    { name: 'Flarp', emoji: '🔵', collected: false },
+    { name: 'Gorg', emoji: '🟠', collected: false },
+    { name: 'Spleen', emoji: '🟡', collected: false },
+    { name: 'Wumbo', emoji: '🔴', collected: false }
+];
+let collected = 0;
+
+function renderZoo() {
+    const grid = document.getElementById('zooGrid');
+    grid.innerHTML = '';
+    ANIMALS.forEach((animal, index) => {
+        const card = document.createElement('div');
+        card.className = 'animal-card' + (animal.collected ? ' collected' : '');
+        card.innerHTML = `
+            <span class="emoji">${animal.emoji}</span>
+            <div class="name">${animal.name}</div>
+            <div class="count">${animal.collected ? '✅' : '❌'}</div>
+        `;
+        card.addEventListener('click', () => collectAnimal(index));
+        grid.appendChild(card);
+    });
+    document.getElementById('collected').textContent = ANIMALS.filter(a => a.collected).length;
+    document.getElementById('total').textContent = ANIMALS.length;
+}
+
+function collectAnimal(index) {
+    const animal = ANIMALS[index];
+    if (animal.collected) {
+        document.getElementById('message').textContent = '🔍 Already collected ' + animal.name + '!';
+        return;
+    }
+    animal.collected = true;
+    collected++;
+    document.getElementById('message').textContent = '🐾 Collected ' + animal.name + '!';
+    renderZoo();
+    if (ANIMALS.every(a => a.collected)) {
+        document.getElementById('message').textContent = '🎉 ZOO COMPLETE! You collected all aliens!';
+    }
+}
+
+function resetZoo() {
+    ANIMALS.forEach(a => a.collected = false);
+    collected = 0;
+    document.getElementById('message').textContent = '🔄 Zoo reset!';
+    renderZoo();
+}
+
+document.getElementById('resetBtn').addEventListener('click', resetZoo);
+renderZoo();
 </script>
 </body>
 </html>

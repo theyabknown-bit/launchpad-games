@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>☄️ Asteroid Dodge</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -53,14 +52,13 @@
             max-width: 400px;
             height: auto;
             aspect-ratio: 1;
-            cursor: none;
         }
 
         .controls {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            max-width: 250px;
+            max-width: 200px;
             margin: 12px auto;
         }
         .controls button {
@@ -104,63 +102,11 @@
 
         .message { font-size: 1.1rem; min-height: 30px; color: #ffd93d; margin: 8px 0; font-weight: 600; }
 
-        .settings-panel {
-            background: #1a3344;
-            border-radius: 16px;
-            padding: 15px;
-            margin: 10px 0;
-            border: 1px solid #2a4a5e;
-            display: none;
-        }
-        .settings-panel.open { display: block; }
-        .settings-panel h3 { color: #4fc3f7; margin-bottom: 10px; font-size: 1rem; }
-        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        .settings-item:last-child { border-bottom: none; }
-        .settings-item .label { font-size: 0.9rem; color: #d0e8f0; }
-        .settings-toggle {
-            width: 44px; height: 24px; background: #2a4a5e; border-radius: 30px;
-            cursor: pointer; position: relative; transition: 0.3s;
-        }
-        .settings-toggle.active { background: #4fc3f7; }
-        .settings-toggle .knob {
-            width: 18px; height: 18px; background: white; border-radius: 50%;
-            position: absolute; top: 3px; left: 3px; transition: 0.3s;
-        }
-        .settings-toggle.active .knob { left: 23px; }
-        .settings-btn-icon {
-            background: none; border: none; color: #8899aa; font-size: 1.2rem;
-            cursor: pointer; padding: 4px 8px; transition: 0.2s;
-        }
-        .settings-btn-icon:hover { color: #4fc3f7; transform: rotate(30deg); }
-
-        .particle-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 999; overflow: hidden;
-        }
-        .particle {
-            position: absolute; font-size: 22px; font-weight: 700;
-            animation: floatUp 1.2s ease-out forwards;
-            pointer-events: none;
-        }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); }
-            100% { opacity: 0; transform: translateY(-160px) scale(1.4) rotate(20deg); }
-        }
-
-        .explosion {
-            position: fixed; pointer-events: none; z-index: 1000;
-            font-size: 50px; animation: explode 0.8s ease-out forwards;
-        }
-        @keyframes explode {
-            0% { opacity: 1; transform: translate(0,0) scale(0.3) rotate(0deg); }
-            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(2) rotate(60deg); }
-        }
-
         @media (max-width: 480px) {
             .container { margin-top: 50px; }
             h1 { font-size: 2rem; }
-            .controls { max-width: 200px; gap: 6px; }
-            .controls button { padding: 10px; font-size: 1.1rem; }
+            .controls { max-width: 160px; gap: 5px; }
+            .controls button { padding: 8px; font-size: 1.1rem; }
             .btn { padding: 8px 18px; font-size: 0.9rem; }
             .stats { gap: 10px; }
             .stat-box { padding: 6px 12px; min-width: 60px; }
@@ -182,36 +128,12 @@
         <div class="stat-box"><span id="destroyed">0</span><span class="label">💥 Destroyed</span></div>
     </div>
 
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
-        <button class="settings-btn-icon" id="settingsBtn">⚙️</button>
-    </div>
-
-    <div class="settings-panel" id="settingsPanel">
-        <h3>⚙️ Settings</h3>
-        <div class="settings-item">
-            <span class="label">🔊 Sound Effects</span>
-            <div class="settings-toggle active" id="soundToggle"><div class="knob"></div></div>
-        </div>
-        <div class="settings-item">
-            <span class="label">💥 Explosions</span>
-            <div class="settings-toggle active" id="explosionToggle"><div class="knob"></div></div>
-        </div>
-        <div class="settings-item">
-            <span class="label">✨ Particles</span>
-            <div class="settings-toggle active" id="particleToggle"><div class="knob"></div></div>
-        </div>
-        <div class="settings-item">
-            <span class="label">🌟 Stars Background</span>
-            <div class="settings-toggle active" id="starsToggle"><div class="knob"></div></div>
-        </div>
-    </div>
-
     <canvas id="gameCanvas" width="400" height="400"></canvas>
 
     <div class="controls">
-        <button class="empty"></button>
+        <div class="empty"></div>
         <button id="upBtn">⬆</button>
-        <button class="empty"></button>
+        <div class="empty"></div>
         <button id="leftBtn">⬅</button>
         <button id="downBtn">⬇</button>
         <button id="rightBtn">➡</button>
@@ -225,188 +147,31 @@
     <div class="message" id="message">🎯 Dodge the asteroids!</div>
 </div>
 
-<div class="particle-container" id="particleContainer"></div>
-
 <script>
-    // ============================================================
-    // FIXED SOUND SYSTEM - WORKS ON FIRST CLICK
-    // ============================================================
-    let soundEnabled = true;
-    let audioCtx = null;
-    let audioUnlocked = false;
-
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            audioUnlocked = true;
-            console.log('🔊 Audio unlocked!');
-        } catch(e) { console.log('Audio error:', e); }
-    }
-
-    // Unlock audio on any click
-    document.addEventListener('click', unlockAudio, { once: false });
-    document.addEventListener('touchstart', unlockAudio, { once: false });
-    document.addEventListener('keydown', unlockAudio, { once: false });
-
-    function getAudioCtx() {
-        if (!audioCtx) {
-            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        return audioCtx;
-    }
-
-    function playTone(frequency, duration = 150, type = 'sine') {
-        if (!soundEnabled) return;
-        try {
-            const ctx = getAudioCtx();
-            if (!ctx) return;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = type;
-            osc.frequency.value = frequency;
-            gain.gain.setValueAtTime(0.12, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + duration / 1000);
-        } catch(e) { console.log('Play error:', e); }
-    }
-
-    function playClick() { playTone(600, 80); }
-    function playWin() { 
-        playTone(523, 150); 
-        setTimeout(() => playTone(659, 150), 150); 
-        setTimeout(() => playTone(784, 200), 300); 
-    }
-    function playLose() { 
-        playTone(300, 200); 
-        setTimeout(() => playTone(200, 300), 200); 
-    }
-    function playCorrect() { playTone(800, 100); }
-    function playWrong() { playTone(250, 200); }
-    function playLevelUp() { 
-        playTone(440, 100); 
-        setTimeout(() => playTone(523, 100), 100); 
-        setTimeout(() => playTone(659, 150), 200); 
-    }
 // ============================================================
-// SETTINGS
+// ASTEROID DODGER - SIMPLE WORKING VERSION
 // ============================================================
-let soundEnabled = true;
-let explosionEnabled = true;
-let particleEnabled = true;
-let starsEnabled = true;
 
-document.getElementById('settingsBtn').addEventListener('click', function() {
-    document.getElementById('settingsPanel').classList.toggle('open');
-});
+// Canvas setup
+var canvas = document.getElementById('gameCanvas');
+var ctx = canvas.getContext('2d');
 
-document.querySelectorAll('.settings-toggle').forEach(toggle => {
-    toggle.addEventListener('click', function() {
-        this.classList.toggle('active');
-        const id = this.id;
-        if (id === 'soundToggle') soundEnabled = this.classList.contains('active');
-        if (id === 'explosionToggle') explosionEnabled = this.classList.contains('active');
-        if (id === 'particleToggle') particleEnabled = this.classList.contains('active');
-        if (id === 'starsToggle') starsEnabled = this.classList.contains('active');
-    });
-});
+// Player
+var player = { x: 185, y: 350, w: 30, h: 30 };
 
-// ============================================================
-// PARTICLES & EXPLOSIONS
-// ============================================================
-function spawnParticle(x, y, text, color = '#ffd700') {
-    if (!particleEnabled) return;
-    const container = document.getElementById('particleContainer');
-    if (!container) return;
-    const el = document.createElement('div');
-    el.className = 'particle';
-    el.textContent = text;
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    el.style.color = color;
-    container.appendChild(el);
-    setTimeout(() => el.remove(), 1200);
-}
+// Game state
+var asteroids = [];
+var score = 0;
+var highScore = parseInt(localStorage.getItem('asteroidHigh')) || 0;
+var destroyed = 0;
+var gameActive = false;
+var gameInterval = null;
+var spawnInterval = null;
 
-function spawnExplosion(x, y, emojis = ['💥','✨','⭐','🔥','☄️']) {
-    if (!explosionEnabled) return;
-    for (let i = 0; i < 6; i++) {
-        setTimeout(() => {
-            const el = document.createElement('div');
-            el.className = 'explosion';
-            el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            el.style.left = (x - 30 + Math.random() * 60) + 'px';
-            el.style.top = (y - 30 + Math.random() * 60) + 'px';
-            const angle = Math.random() * 360;
-            const dist = 40 + Math.random() * 70;
-            el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
-            el.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 800);
-        }, i * 50);
-    }
-}
-
-function spawnStars(count = 50) {
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    for (let i = 0; i < count; i++) {
-        const x = Math.random() * 400;
-        const y = Math.random() * 400;
-        const size = Math.random() * 2 + 0.5;
-        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.5 + 0.1})`;
-        ctx.fillRect(x, y, size, size);
-    }
-}
-
-// ============================================================
-// SOUND
-// ============================================================
-function playTone(freq, dur = 150) {
-    if (!soundEnabled) return;
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.value = 0.1;
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur / 1000);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + dur / 1000);
-    } catch(e) {}
-}
-
-// ============================================================
-// GAME LOGIC
-// ============================================================
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-let player = { x: 185, y: 350, w: 30, h: 30 };
-let asteroids = [];
-let score = 0;
-let highScore = parseInt(localStorage.getItem('asteroidHigh')) || 0;
-let destroyed = 0;
-let gameActive = false;
-let gameInterval = null;
-let spawnInterval = null;
-let starField = [];
-
-// Generate stars
-for (let i = 0; i < 80; i++) {
-    starField.push({
+// Stars for background
+var stars = [];
+for (var i = 0; i < 50; i++) {
+    stars.push({
         x: Math.random() * 400,
         y: Math.random() * 400,
         size: Math.random() * 2 + 0.5,
@@ -414,31 +179,35 @@ for (let i = 0; i < 80; i++) {
     });
 }
 
+// ============================================================
+// DRAW
+// ============================================================
 function draw() {
-    ctx.clearRect(0, 0, 400, 400);
+    // Clear
+    ctx.fillStyle = '#0f1f2e';
+    ctx.fillRect(0, 0, 400, 400);
 
-    // Stars background
-    if (starsEnabled) {
-        starField.forEach(star => {
-            ctx.fillStyle = `rgba(255,255,255,${star.brightness})`;
-            ctx.fillRect(star.x, star.y, star.size, star.size);
-        });
+    // Draw stars
+    for (var i = 0; i < stars.length; i++) {
+        ctx.fillStyle = 'rgba(255,255,255,' + stars[i].brightness + ')';
+        ctx.fillRect(stars[i].x, stars[i].y, stars[i].size, stars[i].size);
     }
 
-    // Player ship
+    // Draw player
     ctx.shadowColor = '#4fc3f7';
     ctx.shadowBlur = 15;
     ctx.fillStyle = '#4fc3f7';
     ctx.fillRect(player.x, player.y, player.w, player.h);
     ctx.shadowBlur = 0;
 
-    // Player emoji overlay
+    // Draw player emoji
     ctx.font = '20px sans-serif';
     ctx.fillStyle = '#0b1a26';
     ctx.fillText('🚀', player.x + 4, player.y + 22);
 
-    // Asteroids
-    asteroids.forEach(a => {
+    // Draw asteroids
+    for (var i = 0; i < asteroids.length; i++) {
+        var a = asteroids[i];
         ctx.shadowColor = a.color;
         ctx.shadowBlur = 20;
         ctx.fillStyle = a.color;
@@ -446,44 +215,62 @@ function draw() {
         ctx.arc(a.x, a.y, a.size, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
-
-        // Asteroid emoji on top
+        
+        // Asteroid emoji
         ctx.font = (a.size * 0.8) + 'px sans-serif';
         ctx.fillStyle = '#0b1a26';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(['☄️','🪨','💎','⭐','🔥'][Math.floor(Math.random() * 5)], a.x, a.y + 2);
-    });
+        ctx.fillText(a.emoji, a.x, a.y + 2);
+    }
 }
 
+// ============================================================
+// UPDATE
+// ============================================================
 function update() {
-    asteroids.forEach(a => { a.y += a.speed; });
-    asteroids = asteroids.filter(a => a.y < 420);
+    // Move asteroids
+    for (var i = 0; i < asteroids.length; i++) {
+        asteroids[i].y += asteroids[i].speed;
+    }
+
+    // Remove off-screen asteroids
+    asteroids = asteroids.filter(function(a) { return a.y < 420; });
 
     // Check collisions
-    asteroids.forEach((a, index) => {
+    for (var i = 0; i < asteroids.length; i++) {
+        var a = asteroids[i];
         if (a.x > player.x && a.x < player.x + player.w &&
             a.y > player.y && a.y < player.y + player.h) {
             endGame();
+            return;
         }
-    });
+    }
 
     draw();
 }
 
+// ============================================================
+// SPAWN ASTEROID
+// ============================================================
 function spawnAsteroid() {
     if (!gameActive) return;
-    const size = Math.random() * 20 + 10;
-    const colors = ['#ff6b6b', '#ffd93d', '#ff9f43', '#a29bfe', '#4fc3f7', '#7cf5b0'];
+    var size = Math.random() * 20 + 10;
+    var colors = ['#ff6b6b', '#ffd93d', '#ff9f43', '#a29bfe', '#4fc3f7', '#7cf5b0'];
+    var emojis = ['☄️', '🪨', '💎', '⭐', '🔥', '💫'];
     asteroids.push({
         x: Math.random() * 370 + 15,
         y: -size,
         size: size,
         speed: Math.random() * 3 + 1.5,
-        color: colors[Math.floor(Math.random() * colors.length)]
+        color: colors[Math.floor(Math.random() * colors.length)],
+        emoji: emojis[Math.floor(Math.random() * emojis.length)]
     });
 }
 
+// ============================================================
+// START GAME
+// ============================================================
 function startGame() {
     if (gameActive) return;
     score = 0;
@@ -503,25 +290,16 @@ function startGame() {
     gameInterval = setInterval(update, 50);
     spawnInterval = setInterval(spawnAsteroid, 700);
 
-    // First asteroid immediately
     setTimeout(spawnAsteroid, 200);
 }
 
+// ============================================================
+// END GAME
+// ============================================================
 function endGame() {
     gameActive = false;
     if (gameInterval) clearInterval(gameInterval);
     if (spawnInterval) clearInterval(spawnInterval);
-
-    // Explosion at player position
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const px = rect.left + player.x / scaleX;
-    const py = rect.top + player.y / scaleY;
-    spawnExplosion(px, py, ['💥','☄️','💀','🔥','💫']);
-
-    playTone(150, 300);
-    playTone(100, 400);
 
     if (score > highScore) {
         highScore = score;
@@ -536,6 +314,9 @@ function endGame() {
     draw();
 }
 
+// ============================================================
+// RESET SCORE
+// ============================================================
 function resetScore() {
     highScore = 0;
     localStorage.setItem('asteroidHigh', 0);
@@ -544,7 +325,7 @@ function resetScore() {
 }
 
 // ============================================================
-// CONTROLS
+// MOVE PLAYER
 // ============================================================
 function movePlayer(dx, dy) {
     if (!gameActive) return;
@@ -552,7 +333,10 @@ function movePlayer(dx, dy) {
     player.y = Math.max(0, Math.min(400 - player.h, player.y + dy));
 }
 
-document.addEventListener('keydown', (e) => {
+// ============================================================
+// KEYBOARD CONTROLS
+// ============================================================
+document.addEventListener('keydown', function(e) {
     if (!gameActive) return;
     if (e.key === 'ArrowLeft') movePlayer(-20, 0);
     if (e.key === 'ArrowRight') movePlayer(20, 0);
@@ -561,10 +345,13 @@ document.addEventListener('keydown', (e) => {
     if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!gameActive) startGame(); }
 });
 
-document.getElementById('leftBtn').addEventListener('click', () => movePlayer(-20, 0));
-document.getElementById('rightBtn').addEventListener('click', () => movePlayer(20, 0));
-document.getElementById('upBtn').addEventListener('click', () => movePlayer(0, -20));
-document.getElementById('downBtn').addEventListener('click', () => movePlayer(0, 20));
+// ============================================================
+// BUTTON CONTROLS
+// ============================================================
+document.getElementById('leftBtn').addEventListener('click', function() { movePlayer(-20, 0); });
+document.getElementById('rightBtn').addEventListener('click', function() { movePlayer(20, 0); });
+document.getElementById('upBtn').addEventListener('click', function() { movePlayer(0, -20); });
+document.getElementById('downBtn').addEventListener('click', function() { movePlayer(0, 20); });
 
 document.getElementById('startBtn').addEventListener('click', startGame);
 document.getElementById('resetBtn').addEventListener('click', resetScore);
@@ -580,4 +367,3 @@ console.log('⌨️ Arrow keys to move, Space to start');
 </script>
 </body>
 </html>
-

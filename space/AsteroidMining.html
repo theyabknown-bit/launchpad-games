@@ -1,273 +1,685 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⛏️ Astrio Miner</title>
+    <title>⛏️ ASTRITO · book upgrades</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; box-sizing: border-box; user-select: none; }
         body {
-            background: #0b1a26;
-            color: #d0e8f0;
-            font-family: 'Segoe UI', sans-serif;
             min-height: 100vh;
+            background: radial-gradient(circle at 20% 20%, #0b111f, #03050a);
             display: flex;
-            align-items: center;
             justify-content: center;
-            flex-direction: column;
-            padding: 20px;
+            align-items: center;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            padding: 1rem;
+        }
+        .game-wrapper {
+            background: #0f1422;
+            padding: 1.5rem 2rem 2rem;
+            border-radius: 3rem 3rem 2rem 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.04);
+            max-width: 1000px;
         }
         .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: #1a3344;
+            display: inline-block;
+            margin-bottom: 12px;
             color: #4fc3f7;
-            padding: 12px 20px;
-            border-radius: 8px;
             text-decoration: none;
+            font-weight: 600;
             font-size: 14px;
-            z-index: 100;
-        }
-        .back-btn:hover { background: #2a4a5e; }
-        .container { max-width: 500px; width: 100%; text-align: center; margin-top: 60px; }
-        h1 { color: #4fc3f7; font-size: 2.5rem; }
-        .subtitle { color: #7cf5b0; margin-bottom: 15px; }
-
-        .stats { display: flex; justify-content: center; gap: 15px; margin: 15px 0; flex-wrap: wrap; }
-        .stat-box { background: #1a3344; padding: 10px 20px; border-radius: 10px; border: 1px solid #2a4a5e; min-width: 70px; }
-        .stat-box span { color: #4fc3f7; font-weight: bold; font-size: 1.2rem; display: block; }
-        .stat-box .label { color: #8899aa; font-size: 0.7rem; }
-
-        .mine-area {
-            background: #0f1f2e;
-            border-radius: 20px;
-            padding: 30px;
-            border: 2px solid #1a3344;
-            margin: 10px 0;
-        }
-
-        #asteroidEmoji {
-            font-size: 8rem;
-            display: block;
-            cursor: pointer;
-            transition: transform 0.2s;
-            user-select: none;
-        }
-        #asteroidEmoji:active { transform: scale(0.85); }
-
-        .mine-info {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin: 10px 0;
-            font-size: 1rem;
-            color: #8899aa;
-        }
-        .mine-info span { color: #ffd93d; font-weight: 700; }
-
-        .btn-group { display: flex; gap: 10px; justify-content: center; margin: 15px 0; flex-wrap: wrap; }
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            font-family: 'Segoe UI', sans-serif;
             transition: 0.2s;
         }
-        .btn:active { transform: scale(0.95); }
-        .btn-mine {
-            background: linear-gradient(135deg, #ffd93d, #f5a623);
-            color: #0b1a26;
+        .back-btn:hover { color: #7cf5b0; transform: translateX(-4px); }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 800 / 600;
+            background: #0a0e1a;
+            border-radius: 24px;
+            box-shadow: inset 0 0 40px rgba(0,20,40,0.8), 0 8px 32px #00000080;
+            cursor: crosshair;
+            touch-action: none;
         }
-        .btn-mine:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,217,61,0.25); }
-        .btn-reset {
-            background: #1a3344;
-            color: #d0e8f0;
-            border: 2px solid #2a4a5e;
+        .panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.2rem;
+            color: #b4d0ff;
+            text-shadow: 0 2px 3px #00000080;
+            font-weight: 500;
+            gap: 0.6rem 1rem;
         }
-        .btn-reset:hover { background: #2a4a5e; }
-
-        #message {
-            font-size: 1.1rem;
-            min-height: 40px;
-            color: #ffd93d;
-            margin: 15px 0;
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem 1.8rem;
+            background: #1a2238;
+            padding: 0.4rem 1.4rem;
+            border-radius: 40px;
+            box-shadow: inset 0 2px 6px #00000066, 0 2px 0 #3a4a6a;
+        }
+        .stat-item { display: flex; align-items: center; gap: 0.3rem; font-size: 1rem; }
+        .stat-item span { font-weight: 600; color: #e0f0ff; min-width: 2.2rem; }
+        .upgrade-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            align-items: center;
+        }
+        button {
+            background: #1f2b44;
+            border: none;
+            color: #d6eaff;
             font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            box-shadow: inset 0 -3px 0 #0b111f, 0 4px 10px #00000055;
+            transition: all 0.08s ease;
+            cursor: pointer;
+            border: 1px solid #3e527a30;
+            white-space: nowrap;
         }
-
-        @media (max-width: 480px) {
-            h1 { font-size: 2rem; }
-            #asteroidEmoji { font-size: 5rem; }
-            .btn { padding: 10px 20px; font-size: 0.9rem; }
-            .stat-box { padding: 8px 12px; min-width: 60px; }
-            .stat-box span { font-size: 1rem; }
+        button:hover:not(:disabled) { background: #2a3b5e; transform: scale(0.97); }
+        button:active:not(:disabled) { transform: scale(0.92); box-shadow: inset 0 2px 6px #000000aa; }
+        button:disabled { opacity: 0.4; filter: grayscale(0.5); cursor: not-allowed; transform: none; }
+        .reset-btn { background: #3d2c3a; border-color: #6a4a5a; }
+        .reset-btn:hover:not(:disabled) { background: #5a3f4e; }
+        .status {
+            color: #7c9bd6;
+            font-size: 0.8rem;
+            background: #111a2b;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            border-left: 2px solid #3b5a8a;
+        }
+        .save-indicator {
+            font-size: 0.7rem;
+            color: #4a6a8a;
+            text-align: center;
+            margin-top: 6px;
+        }
+        @media (max-width: 700px) {
+            .game-wrapper { padding: 0.8rem; }
+            .stats { padding: 0.3rem 0.8rem; gap: 0.3rem 0.8rem; }
+            .stat-item { font-size: 0.8rem; }
+            button { font-size: 0.7rem; padding: 0.2rem 0.7rem; }
         }
     </style>
 </head>
 <body>
-
-<a href="../base.html" class="back-btn">← Back</a>
-
-<div class="container">
-    <h1>⛏️ Astrio Miner</h1>
-    <p class="subtitle">Mine asteroids for resources!</p>
-
-    <div class="stats">
-        <div class="stat-box">
-            <span id="resources">0</span>
-            <div class="label">💰 Resources</div>
+<div class="game-wrapper">
+    <a href="../base.html" class="back-btn">← Back to Launchpad</a>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="panel">
+        <div class="stats">
+            <div class="stat-item">💎 <span id="oreDisplay">0</span></div>
+            <div class="stat-item">⚡ <span id="fuelDisplay">100</span></div>
+            <div class="stat-item">⭐ XP: <span id="xpDisplay">0</span></div>
+            <div class="stat-item">🏅 Lv: <span id="levelDisplay">1</span></div>
         </div>
-        <div class="stat-box">
-            <span id="mines">0</span>
-            <div class="label">⛏️ Mines</div>
-        </div>
-        <div class="stat-box">
-            <span id="combo">0</span>
-            <div class="label">🔥 Combo</div>
+        <div class="upgrade-area">
+            <button id="upgradeDrillBtn">⛏️ drill +1 (20💎)</button>
+            <button id="upgradeFuelBtn">⛽ tank +10 (15💎)</button>
+            <button id="resetBtn" class="reset-btn">↻ restart</button>
+            <span class="status" id="statusDisplay">✦ mining</span>
         </div>
     </div>
-
-    <div class="mine-area">
-        <div id="asteroidEmoji">☄️</div>
-        <div class="mine-info">
-            <span>💎 <span id="mineValue">1-5</span></span>
-            <span>⚡ <span id="minePower">1x</span></span>
-        </div>
-    </div>
-
-    <div class="btn-group">
-        <button class="btn btn-mine" id="mineBtn">⛏️ Mine!</button>
-        <button class="btn btn-reset" id="resetBtn">🔄 Reset</button>
-    </div>
-
-    <div id="message">☄️ Click the asteroid or press Space to mine!</div>
+    <div class="save-indicator" id="saveIndicator">💾 Auto-saved</div>
 </div>
 
 <script>
-// ============================================================
-// ASTRIO MINER - SIMPLE WORKING VERSION
-// ============================================================
+(function(){
+    // ============================================================
+    // SOUND SYSTEM
+    // ============================================================
+    let soundEnabled = true;
+    let audioCtx = null;
+    let audioUnlocked = false;
 
-// Game data
-var resources = 0;
-var mines = 0;
-var combo = 0;
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            audioUnlocked = true;
+        } catch(e) {}
+    }
+    document.addEventListener('click', unlockAudio);
+    document.addEventListener('touchstart', unlockAudio);
 
-var asteroidTypes = [
-    { emoji: '☄️', name: 'Asteroid', min: 1, max: 5 },
-    { emoji: '🪨', name: 'Rock', min: 3, max: 8 },
-    { emoji: '💎', name: 'Diamond', min: 10, max: 25 },
-    { emoji: '🌟', name: 'Star Fragment', min: 5, max: 15 },
-    { emoji: '🔮', name: 'Crystal', min: 8, max: 20 },
-    { emoji: '✨', name: 'Stardust', min: 15, max: 30 },
-    { emoji: '💫', name: 'Cosmic Gem', min: 20, max: 50 },
-    { emoji: '⭐', name: 'Star Core', min: 30, max: 60 }
-];
-
-var currentAsteroid = asteroidTypes[0];
-
-// ============================================================
-// UPDATE UI
-// ============================================================
-function updateUI() {
-    document.getElementById('resources').textContent = resources;
-    document.getElementById('mines').textContent = mines;
-    document.getElementById('combo').textContent = combo;
-}
-
-// ============================================================
-// NEW ASTEROID
-// ============================================================
-function newAsteroid() {
-    var random = Math.random();
-    var idx = 0;
-    if (random < 0.35) idx = 0;
-    else if (random < 0.60) idx = 1;
-    else if (random < 0.70) idx = 2;
-    else if (random < 0.85) idx = 3;
-    else if (random < 0.93) idx = 4;
-    else if (random < 0.97) idx = 5;
-    else if (random < 0.995) idx = 6;
-    else idx = 7;
-    
-    currentAsteroid = asteroidTypes[idx];
-    
-    document.getElementById('asteroidEmoji').textContent = currentAsteroid.emoji;
-    document.getElementById('mineValue').textContent = currentAsteroid.min + '-' + currentAsteroid.max;
-    document.getElementById('minePower').textContent = (1 + Math.floor(combo / 5)) + 'x';
-}
-
-// ============================================================
-// MINE
-// ============================================================
-function mine() {
-    var amount = Math.floor(Math.random() * (currentAsteroid.max - currentAsteroid.min + 1)) + currentAsteroid.min;
-    var comboBonus = 1 + Math.floor(combo / 5);
-    var totalAmount = amount * comboBonus;
-    
-    resources += totalAmount;
-    mines++;
-    combo++;
-    
-    var msg = document.getElementById('message');
-    msg.textContent = '⛏️ Mined ' + totalAmount + ' ' + currentAsteroid.name + '! (' + amount + ' × ' + comboBonus + 'x)';
-    
-    if (combo >= 10) msg.textContent = '🔥 COMBO x' + combo + '! AMAZING!';
-    else if (combo >= 5) msg.textContent = '⚡ Combo x' + combo + '! Keep going!';
-    
-    updateUI();
-    newAsteroid();
-}
-
-// ============================================================
-// RESET
-// ============================================================
-function resetGame() {
-    if (!confirm('Reset all progress?')) return;
-    resources = 0;
-    mines = 0;
-    combo = 0;
-    updateUI();
-    newAsteroid();
-    document.getElementById('message').textContent = '🔄 Reset! Start mining again!';
-}
-
-// ============================================================
-// SETUP - RUNS WHEN PAGE LOADS
-// ============================================================
-function setup() {
-    // Mine button
-    document.getElementById('mineBtn').onclick = mine;
-    
-    // Reset button
-    document.getElementById('resetBtn').onclick = resetGame;
-    
-    // Click asteroid
-    document.getElementById('asteroidEmoji').onclick = mine;
-    
-    // Keyboard shortcuts
-    document.onkeydown = function(e) {
-        if (e.key === ' ' || e.key === 'Enter') {
-            e.preventDefault();
-            mine();
+    function getAudioCtx() {
+        if (!audioCtx) {
+            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
         }
-        if (e.key === 'r' || e.key === 'R') {
-            resetGame();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+    }
+
+    function playTone(freq, dur = 150, vol = 0.12) {
+        if (!soundEnabled) return;
+        try {
+            const ctx = getAudioCtx();
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur / 1000);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + dur / 1000);
+        } catch(e) {}
+    }
+
+    function playMine() { playTone(600, 80); }
+    function playLevelUp() { playTone(523, 150); setTimeout(() => playTone(659, 150), 150); setTimeout(() => playTone(784, 200), 300); }
+    function playBook() { playTone(800, 100); setTimeout(() => playTone(1000, 150), 150); }
+    function playUpgrade() { playTone(440, 100); setTimeout(() => playTone(523, 100), 100); }
+
+    // ============================================================
+    // CANVAS & CONTEXT
+    // ============================================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const oreSpan = document.getElementById('oreDisplay');
+    const fuelSpan = document.getElementById('fuelDisplay');
+    const xpSpan = document.getElementById('xpDisplay');
+    const levelSpan = document.getElementById('levelDisplay');
+    const statusSpan = document.getElementById('statusDisplay');
+    const saveIndicator = document.getElementById('saveIndicator');
+
+    const W = 800, H = 600;
+
+    // ============================================================
+    // XP & SAVE SYSTEM
+    // ============================================================
+    let xp = 0;
+    let level = 1;
+
+    function addXP(amount) {
+        xp += amount;
+        while (xp >= level * 100) {
+            level++;
+            playLevelUp();
+            statusSpan.textContent = '⬆️ Level ' + level + '!';
+            statusSpan.style.color = '#ffd93d';
+            setTimeout(() => {
+                statusSpan.textContent = '✦ mining';
+                statusSpan.style.color = '#7c9bd6';
+            }, 1500);
         }
+        xpSpan.textContent = xp;
+        levelSpan.textContent = level;
+        saveGame();
+    }
+
+    function saveGame() {
+        try {
+            const data = { xp, level, ore: state.ore, fuel: state.fuel, maxFuel: state.maxFuel };
+            localStorage.setItem('astrioMinerSave', JSON.stringify(data));
+            saveIndicator.textContent = '💾 Saved!';
+            setTimeout(() => { saveIndicator.textContent = '💾 Auto-saved'; }, 2000);
+        } catch(e) {}
+    }
+
+    function loadGame() {
+        try {
+            const saved = localStorage.getItem('astrioMinerSave');
+            if (saved) {
+                const data = JSON.parse(saved);
+                xp = data.xp || 0;
+                level = data.level || 1;
+                state.ore = data.ore || 0;
+                state.fuel = data.fuel || 100;
+                state.maxFuel = data.maxFuel || 100;
+                xpSpan.textContent = xp;
+                levelSpan.textContent = level;
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    setInterval(saveGame, 10000);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
+
+    // ============================================================
+    // DOCK
+    // ============================================================
+    const DOCK = { x: 720, y: 540, radius: 38, refuelRate: 0.35 };
+
+    // ============================================================
+    // GAME STATE
+    // ============================================================
+    const state = {
+        ore: 0,
+        fuel: 100,
+        maxFuel: 100,
+        level: 1,
+        drillCost: 20,
+        fuelUpgradeCost: 15,
+        fuelUpgradeAmount: 10,
+        drillPower: 1,
+        miningCooldown: 0,
+        mineRate: 12,
+        isDocked: false,
+        fuelEfficiency: 1,
+        oreBonus: 0,
+        solarRegen: 0,
+        shield: false,
+        turbo: 1,
+        rangeBonus: 0,
+        attractor: false,
+        recycler: false,
+        luckyFind: 1,
     };
-    
-    // Init
-    newAsteroid();
-    updateUI();
-    document.getElementById('message').textContent = '☄️ Click the asteroid or press Space to mine!';
-    console.log('⛏️ Astrio Miner loaded!');
-}
 
-// Start when page loads
-setup();
+    let asteroids = [];
+    const MAX_ASTEROIDS = 16;
+
+    const player = {
+        x: 400, y: 450,
+        radius: 16,
+        targetX: 400,
+        targetY: 450,
+        speed: 4.5,
+    };
+
+    let pointerX = null, pointerY = null;
+    let pointerActive = false;
+    let frame = 0;
+    let booksFound = 0;
+
+    // ============================================================
+    // SPAWN ASTEROID
+    // ============================================================
+    function spawnAsteroid(force = false) {
+        if (!force && asteroids.length >= MAX_ASTEROIDS) return;
+        const radius = 18 + Math.floor(Math.random() * 28);
+        let x, y;
+        const edge = Math.floor(Math.random() * 4);
+        const margin = 30;
+        if (edge === 0) { x = margin + Math.random() * (W - 2*margin); y = -radius - 10; }
+        else if (edge === 1) { x = W + radius + 10; y = margin + Math.random() * (H - 2*margin); }
+        else if (edge === 2) { x = margin + Math.random() * (W - 2*margin); y = H + radius + 10; }
+        else { x = -radius - 10; y = margin + Math.random() * (H - 2*margin); }
+
+        const oreValue = Math.floor(radius / 5) + 2;
+        asteroids.push({
+            x, y, radius,
+            oreValue,
+            color: `hsl(${30 + Math.random() * 30}, 60%, ${30 + Math.random() * 35}%)`,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: (Math.random() - 0.5) * 0.8,
+        });
+    }
+
+    // ============================================================
+    // MINE
+    // ============================================================
+    function mineNearest() {
+        if (state.isDocked) {
+            statusSpan.textContent = '⛵ docked - undock to mine';
+            statusSpan.style.color = '#7c9bd6';
+            return;
+        }
+
+        let closest = null;
+        let minDist = Infinity;
+        const range = 65 + state.level * 4 + (state.rangeBonus || 0);
+
+        for (let a of asteroids) {
+            const dx = a.x - player.x;
+            const dy = a.y - player.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < range + a.radius && dist < minDist) {
+                minDist = dist;
+                closest = a;
+            }
+        }
+
+        if (!closest) {
+            state.fuel = Math.max(0, state.fuel - 0.2);
+            updateUI();
+            return;
+        }
+
+        if (state.attractor && minDist > 20) {
+            const angle = Math.atan2(closest.y - player.y, closest.x - player.x);
+            closest.x += Math.cos(angle) * 0.5;
+            closest.y += Math.sin(angle) * 0.5;
+        }
+
+        const power = Math.floor((state.drillPower + state.level * 0.5) * state.turbo);
+        let mined = Math.min(closest.oreValue, Math.max(1, power));
+        if (state.luckyFind > 1) mined = Math.floor(mined * state.luckyFind);
+        mined += (state.oreBonus || 0);
+        
+        closest.oreValue -= mined;
+        state.ore += mined;
+        playMine();
+        
+        // Add XP per mine
+        addXP(1);
+
+        let fuelCost = 0.8 * state.fuelEfficiency;
+        if (state.shield) fuelCost *= 0.5;
+        if (state.recycler && Math.random() < 0.1) fuelCost = 0;
+        state.fuel = Math.max(0, state.fuel - fuelCost);
+
+        if (state.solarRegen) {
+            state.fuel = Math.min(state.maxFuel, state.fuel + state.solarRegen);
+        }
+
+        if (closest.oreValue <= 0) {
+            const index = asteroids.indexOf(closest);
+            if (index !== -1) asteroids.splice(index, 1);
+            spawnAsteroid();
+            if (asteroids.length < 5) spawnAsteroid();
+        }
+
+        updateUI();
+    }
+
+    // ============================================================
+    // UPGRADES
+    // ============================================================
+    function upgradeDrill() {
+        if (!state.isDocked) { statusSpan.textContent = '⛵ must be docked!'; return; }
+        if (state.ore < state.drillCost) return;
+        state.ore -= state.drillCost;
+        state.level++;
+        state.drillPower = 1 + Math.floor(state.level / 2);
+        state.drillCost = Math.floor(20 + state.level * 9);
+        state.mineRate = Math.max(5, 12 - state.level);
+        playUpgrade();
+        statusSpan.textContent = '🔧 drill upgraded!';
+        updateUI();
+        saveGame();
+    }
+
+    function upgradeFuel() {
+        if (!state.isDocked) { statusSpan.textContent = '⛵ must be docked!'; return; }
+        if (state.ore < state.fuelUpgradeCost) return;
+        state.ore -= state.fuelUpgradeCost;
+        state.maxFuel += state.fuelUpgradeAmount;
+        state.fuel = Math.min(state.fuel + state.fuelUpgradeAmount, state.maxFuel);
+        state.fuelUpgradeCost = Math.floor(15 + state.maxFuel * 0.4);
+        playUpgrade();
+        statusSpan.textContent = '⛽ fuel tank upgraded!';
+        updateUI();
+        saveGame();
+    }
+
+    // ============================================================
+    // RESET
+    // ============================================================
+    function resetGame() {
+        if (!confirm('Reset all progress?')) return;
+        state.ore = 0;
+        state.fuel = 100;
+        state.maxFuel = 100;
+        state.level = 1;
+        state.drillPower = 1;
+        state.drillCost = 20;
+        state.fuelUpgradeCost = 15;
+        state.mineRate = 12;
+        state.isDocked = false;
+        state.fuelEfficiency = 1;
+        state.oreBonus = 0;
+        state.solarRegen = 0;
+        state.shield = false;
+        state.turbo = 1;
+        state.rangeBonus = 0;
+        state.attractor = false;
+        state.recycler = false;
+        state.luckyFind = 1;
+        xp = 0;
+        level = 1;
+        asteroids = [];
+        booksFound = 0;
+        player.x = 400; player.y = 450;
+        player.targetX = 400; player.targetY = 450;
+        pointerActive = false;
+        pointerX = null; pointerY = null;
+        statusSpan.textContent = '✦ mining';
+        statusSpan.style.color = '#7c9bd6';
+        for (let i = 0; i < 8; i++) spawnAsteroid(true);
+        updateUI();
+        saveGame();
+        localStorage.removeItem('astrioMinerSave');
+    }
+
+    // ============================================================
+    // UI UPDATE
+    // ============================================================
+    function updateUI() {
+        oreSpan.textContent = Math.floor(state.ore);
+        fuelSpan.textContent = Math.floor(state.fuel);
+        xpSpan.textContent = xp;
+        levelSpan.textContent = level;
+        document.getElementById('upgradeDrillBtn').disabled = !state.isDocked || (state.ore < state.drillCost);
+        document.getElementById('upgradeFuelBtn').disabled = !state.isDocked || (state.ore < state.fuelUpgradeCost);
+    }
+
+    // ============================================================
+    // UPDATE & DRAW
+    // ============================================================
+    function update() {
+        // Move player
+        let targetX = player.targetX, targetY = player.targetY;
+        if (pointerActive && pointerX !== null && pointerY !== null) {
+            targetX = pointerX; targetY = pointerY;
+        }
+        const dx = targetX - player.x, dy = targetY - player.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 2) {
+            const step = Math.min(player.speed, dist);
+            player.x += (dx / dist) * step;
+            player.y += (dy / dist) * step;
+        } else {
+            player.x = targetX; player.y = targetY;
+        }
+        player.x = Math.min(Math.max(player.x, player.radius), W - player.radius);
+        player.y = Math.min(Math.max(player.y, player.radius), H - player.radius);
+
+        // Dock check
+        const dxd = player.x - DOCK.x, dyd = player.y - DOCK.y;
+        const distToDock = Math.hypot(dxd, dyd);
+        state.isDocked = (distToDock < DOCK.radius + player.radius + 5);
+
+        if (state.isDocked) {
+            state.fuel = Math.min(state.maxFuel, state.fuel + DOCK.refuelRate);
+            if (!state._wasDocked) { statusSpan.textContent = '⛵ docked - refueling...'; statusSpan.style.color = '#8ae0c0'; }
+            state._wasDocked = true;
+        } else {
+            if (state._wasDocked) { statusSpan.textContent = '✦ mining'; statusSpan.style.color = '#7c9bd6'; }
+            state._wasDocked = false;
+        }
+
+        // Mining cooldown
+        if (state.miningCooldown > 0) {
+            state.miningCooldown--;
+        } else {
+            if (pointerActive && !state.isDocked) {
+                mineNearest();
+                state.miningCooldown = state.mineRate;
+            }
+        }
+
+        // Move asteroids
+        for (let a of asteroids) {
+            a.x += a.vx; a.y += a.vy;
+            if (a.x < -a.radius - 20) a.x = W + a.radius + 20;
+            if (a.x > W + a.radius + 20) a.x = -a.radius - 20;
+            if (a.y < -a.radius - 20) a.y = H + a.radius + 20;
+            if (a.y > H + a.radius + 20) a.y = -a.radius - 20;
+        }
+
+        if (asteroids.length < 4 && frame % 10 === 0) spawnAsteroid();
+        updateUI();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        // Stars
+        for (let i = 0; i < 80; i++) {
+            const sx = (i * 53 + 13) % W, sy = (i * 71 + 7) % H;
+            ctx.beginPath();
+            ctx.arc(sx, sy, (i % 3) + 0.4, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255,240,210,${0.15 + (i % 4) * 0.06})`;
+            ctx.fill();
+        }
+        // Dock
+        ctx.shadowColor = '#5ac8a0';
+        ctx.shadowBlur = state.isDocked ? 50 : 20;
+        ctx.beginPath();
+        ctx.arc(DOCK.x, DOCK.y, DOCK.radius, 0, Math.PI * 2);
+        ctx.fillStyle = state.isDocked ? '#2a5a4a' : '#1a3a3a';
+        ctx.fill();
+        ctx.strokeStyle = '#5ac8a0';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#5ac8a0';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('⛵ DOCK', DOCK.x, DOCK.y - 28);
+        // Asteroids
+        for (let a of asteroids) {
+            ctx.shadowColor = '#b07c4a';
+            ctx.shadowBlur = 18;
+            ctx.beginPath();
+            ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2);
+            ctx.fillStyle = a.color || '#6f4e2e';
+            ctx.fill();
+            ctx.shadowBlur = 4;
+            ctx.fillStyle = '#ffecce';
+            ctx.font = 'bold 13px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('💎' + a.oreValue, a.x, a.y + 2);
+        }
+        ctx.shadowBlur = 0;
+        // Mining range
+        if (pointerActive && !state.isDocked) {
+            const range = 65 + state.level * 4 + (state.rangeBonus || 0);
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, range, 0, Math.PI * 2);
+            ctx.strokeStyle = '#7fc7ff30';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 10]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        // Player
+        const px = player.x, py = player.y, r = player.radius;
+        ctx.shadowColor = '#7fc7ff';
+        ctx.shadowBlur = 30;
+        ctx.beginPath();
+        ctx.moveTo(px + r*1.2, py);
+        ctx.lineTo(px - r*0.9, py - r*0.6);
+        ctx.lineTo(px - r*0.5, py);
+        ctx.lineTo(px - r*0.9, py + r*0.6);
+        ctx.closePath();
+        ctx.fillStyle = '#8ac0ff';
+        ctx.fill();
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = '#b8dcff';
+        ctx.beginPath();
+        ctx.arc(px + r*0.1, py, r*0.3, 0, Math.PI*2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        // Pointer
+        if (pointerActive && pointerX !== null && pointerY !== null) {
+            ctx.beginPath();
+            ctx.arc(pointerX, pointerY, 8, 0, Math.PI*2);
+            ctx.strokeStyle = '#aacbff70';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 6]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+    }
+
+    function loop() {
+        frame++;
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    // ============================================================
+    // EVENTS
+    // ============================================================
+    function handlePointerStart(e) {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        let cx, cy;
+        if (e.touches) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+        else { cx = e.clientX; cy = e.clientY; }
+        pointerX = Math.min(Math.max((cx - rect.left) * scaleX, 0), W);
+        pointerY = Math.min(Math.max((cy - rect.top) * scaleY, 0), H);
+        pointerActive = true;
+        if (!state.isDocked) {
+            mineNearest();
+            state.miningCooldown = state.mineRate;
+        }
+    }
+
+    function handlePointerMove(e) {
+        e.preventDefault();
+        if (!pointerActive) return;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        let cx, cy;
+        if (e.touches) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+        else { cx = e.clientX; cy = e.clientY; }
+        pointerX = Math.min(Math.max((cx - rect.left) * scaleX, 0), W);
+        pointerY = Math.min(Math.max((cy - rect.top) * scaleY, 0), H);
+    }
+
+    function handlePointerEnd(e) {
+        e.preventDefault();
+        pointerActive = false;
+        pointerX = null;
+        pointerY = null;
+    }
+
+    canvas.addEventListener('mousedown', handlePointerStart);
+    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mouseup', handlePointerEnd);
+    canvas.addEventListener('touchstart', handlePointerStart, { passive: false });
+    window.addEventListener('touchmove', handlePointerMove, { passive: false });
+    window.addEventListener('touchend', handlePointerEnd, { passive: false });
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    document.getElementById('upgradeDrillBtn').addEventListener('click', upgradeDrill);
+    document.getElementById('upgradeFuelBtn').addEventListener('click', upgradeFuel);
+    document.getElementById('resetBtn').addEventListener('click', resetGame);
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    loadGame();
+    updateUI();
+    for (let i = 0; i < 8; i++) spawnAsteroid(true);
+    loop();
+
+    window.addEventListener('beforeunload', saveGame);
+})();
 </script>
 </body>
 </html>

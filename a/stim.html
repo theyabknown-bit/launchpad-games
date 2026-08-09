@@ -1203,6 +1203,186 @@
     let autoPowerup = false;
     let autoTimer = 0;
     let wheelCooldown = 0;
+    // ============================================================
+    // SLIME PET FUNCTIONS
+    // ============================================================
+    let normalSlimeLevel = 1;
+    let normalSlimeXP = 0;
+    let normalSlimeHunger = 100;
+    let normalSlimeHappiness = 100;
+    let waxSlimeLevel = 1;
+    let waxSlimeXP = 0;
+    let waxSlimeHunger = 100;
+    let waxSlimeHappiness = 100;
+
+    function updateSlimeUI() {
+        const section = document.getElementById('slimeSection');
+        if (!section) return;
+
+        if (slimeOwned) {
+            section.style.display = 'block';
+            document.getElementById('normalLevel').textContent = 'Lv.' + normalSlimeLevel;
+            document.getElementById('normalEmoji').textContent = normalSlimeHappiness > 70 ? '😊' : normalSlimeHappiness > 40 ? '😐' : '😢';
+            document.getElementById('slimeHappiness').textContent = Math.floor(normalSlimeHappiness) + '%';
+            document.getElementById('slimeHunger').textContent = Math.floor(normalSlimeHunger) + '%';
+            document.getElementById('slimeXP').textContent = normalSlimeXP;
+            document.getElementById('slimeMenu').style.display = 'flex';
+
+            const normalEl = document.getElementById('normalSlime');
+            if (normalSlimeHappiness > 70) {
+                normalEl.style.borderColor = '#66dd88';
+                normalEl.style.boxShadow = '0 0 30px rgba(52,199,89,0.2)';
+            } else {
+                normalEl.style.borderColor = 'rgba(52,199,89,0.15)';
+                normalEl.style.boxShadow = 'none';
+            }
+        } else {
+            section.style.display = 'none';
+        }
+
+        // Wax slime
+        if (waxOwned) {
+            document.getElementById('waxLevel').textContent = 'Lv.' + waxSlimeLevel;
+            document.getElementById('waxEmoji').textContent = waxSlimeHappiness > 70 ? '✨' : '🔮';
+            document.getElementById('waxSlime').style.borderColor = '#ffd700';
+            document.getElementById('waxSlime').style.boxShadow = '0 0 30px rgba(255,215,0,0.2)';
+        } else {
+            document.getElementById('waxLevel').textContent = '🔒';
+            document.getElementById('waxEmoji').textContent = '🔮';
+            document.getElementById('waxSlime').style.borderColor = 'rgba(52,199,89,0.15)';
+            document.getElementById('waxSlime').style.boxShadow = 'none';
+        }
+    }
+
+    function slimeFeed() {
+        if (!slimeOwned) return;
+        if (normalSlimeHunger >= 90) {
+            document.getElementById('message').textContent = '🍖 Slime is full!';
+            return;
+        }
+        normalSlimeHunger = Math.min(100, normalSlimeHunger + 20);
+        normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 5);
+        playClick();
+        document.getElementById('message').textContent = '🍖 Slime fed!';
+        updateSlimeUI();
+        saveGame();
+    }
+
+    function slimePet() {
+        if (!slimeOwned) return;
+        normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 10);
+        normalSlimeXP += 5;
+        const xpNeeded = normalSlimeLevel * 20;
+        if (normalSlimeXP >= xpNeeded) {
+            normalSlimeXP = 0;
+            normalSlimeLevel += 1;
+            normalSlimeHappiness = 100;
+            playLevelUp();
+            document.getElementById('message').textContent = '⬆️ Slime Level ' + normalSlimeLevel + '!';
+        } else {
+            playClick();
+            document.getElementById('message').textContent = '🤗 Slime petted!';
+        }
+        updateSlimeUI();
+        saveGame();
+    }
+
+    function slimeTreat() {
+        if (!slimeOwned) return;
+        normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 25);
+        normalSlimeHunger = Math.min(100, normalSlimeHunger + 15);
+        normalSlimeXP += 10;
+        playWin();
+        document.getElementById('message').textContent = '🍭 Slime loves the treat!';
+        updateSlimeUI();
+        saveGame();
+    }
+
+    function slimePlay() {
+        if (!slimeOwned) return;
+        normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 15);
+        normalSlimeXP += 8;
+        playClick();
+        document.getElementById('message').textContent = '🎮 Slime had fun!';
+        updateSlimeUI();
+        saveGame();
+    }
+
+    function setupSlime() {
+        // Click on normal slime
+        document.getElementById('normalSlime').addEventListener('click', function() {
+            if (!slimeOwned) {
+                document.getElementById('message').textContent = '🔒 Buy a slime first!';
+                return;
+            }
+            // Random action
+            const actions = [slimeFeed, slimePet, slimeTreat, slimePlay];
+            actions[Math.floor(Math.random() * actions.length)]();
+            this.style.transform = 'scale(0.85)';
+            setTimeout(() => this.style.transform = '', 200);
+        });
+
+        // Click on wax slime
+        document.getElementById('waxSlime').addEventListener('click', function() {
+            if (!waxOwned) {
+                document.getElementById('message').textContent = '💎 Unlock Wax Slime first! (✦5,000)';
+                return;
+            }
+            waxSlimeHappiness = Math.min(100, waxSlimeHappiness + 10);
+            waxSlimeXP += 5;
+            playWin();
+            document.getElementById('message').textContent = '💎 Wax slime sparkles! ✨';
+            // Spawn sparkles
+            for (let i = 0; i < 6; i++) {
+                setTimeout(() => {
+                    spawnParticle(
+                        Math.random() * window.innerWidth,
+                        Math.random() * window.innerHeight,
+                        ['✨', '⭐', '💎', '🌟'][Math.floor(Math.random() * 4)],
+                        '#ffd700'
+                    );
+                }, i * 100);
+            }
+            updateSlimeUI();
+            saveGame();
+            this.style.transform = 'scale(0.85)';
+            setTimeout(() => this.style.transform = '', 200);
+        });
+
+        // Menu buttons
+        document.getElementById('slimeFeed').addEventListener('click', slimeFeed);
+        document.getElementById('slimePet').addEventListener('click', slimePet);
+        document.getElementById('slimeTreat').addEventListener('click', slimeTreat);
+        document.getElementById('slimePlay').addEventListener('click', slimePlay);
+    }
+
+    // Add slime stats to save/load
+    function addSlimeToSave() {
+        const data = {
+            normalSlimeLevel: normalSlimeLevel,
+            normalSlimeXP: normalSlimeXP,
+            normalSlimeHunger: normalSlimeHunger,
+            normalSlimeHappiness: normalSlimeHappiness,
+            waxSlimeLevel: waxSlimeLevel,
+            waxSlimeXP: waxSlimeXP,
+            waxSlimeHunger: waxSlimeHunger,
+            waxSlimeHappiness: waxSlimeHappiness
+        };
+        return data;
+    }
+
+    function loadSlimeData(data) {
+        if (data) {
+            normalSlimeLevel = data.normalSlimeLevel || 1;
+            normalSlimeXP = data.normalSlimeXP || 0;
+            normalSlimeHunger = data.normalSlimeHunger || 100;
+            normalSlimeHappiness = data.normalSlimeHappiness || 100;
+            waxSlimeLevel = data.waxSlimeLevel || 1;
+            waxSlimeXP = data.waxSlimeXP || 0;
+            waxSlimeHunger = data.waxSlimeHunger || 100;
+            waxSlimeHappiness = data.waxSlimeHappiness || 100;
+        }
+    }
 
     // ============================================================
     // PARTICLES
@@ -1462,6 +1642,7 @@
         stockPrices[index] = Math.max(50, price + (Math.random() - 0.5) * 15);
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1473,6 +1654,7 @@
         stockPrices[index] = Math.max(50, price + (Math.random() - 0.5) * 15);
         playClick();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1486,6 +1668,7 @@
         multPrice = Math.floor(multPrice * 1.22) + 3;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1496,6 +1679,7 @@
         critPrice = Math.floor(critPrice * 1.30) + 5;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1506,6 +1690,7 @@
         goldenPrice = Math.floor(goldenPrice * 1.4) + 100;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1516,6 +1701,7 @@
         similePrice = Math.floor(similePrice * 1.35) + 50;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1526,6 +1712,7 @@
         megaPrice = Math.floor(megaPrice * 1.5) + 200;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1536,6 +1723,7 @@
         passiveIncome += 1;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1546,6 +1734,7 @@
         autoCritLevel += 1;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1556,6 +1745,7 @@
         grindMultiplier += 0.1;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1565,6 +1755,7 @@
         stockUnlocked = true;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1574,6 +1765,7 @@
         slimeOwned = true;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1583,6 +1775,7 @@
         waxOwned = true;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1592,6 +1785,7 @@
         prestigeUnlocked = true;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1601,12 +1795,14 @@
         minigameUnlocked = true;
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
     function buyAchievement() {
         playBuy();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1617,6 +1813,7 @@
         frenzyTimer = 10;
         playPowerup();
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1642,6 +1839,7 @@
         }
 
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1671,6 +1869,7 @@
         // Keep minigame unlocked if it was
         playPrestige();
         updateUI();
+        updateSlimeUI();
         saveGame();
         alert('✨ Prestige complete! You now have a permanent ' + prestigeBonus + 'x bonus!');
     }
@@ -1707,6 +1906,7 @@
             setTimeout(() => {
                 clickMultiplier = Math.ceil(clickMultiplier / 2);
                 updateUI();
+        updateSlimeUI();
             }, 30000);
         } else if (prize.amount === 'powerup') {
             points += 500;
@@ -1736,6 +1936,7 @@
         }
 
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1797,6 +1998,7 @@
         }, 100);
 
         updateUI();
+        updateSlimeUI();
         saveGame();
     }
 
@@ -1811,6 +2013,7 @@
             x2Timer = 30;
             playPowerup();
             updateUI();
+        updateSlimeUI();
             saveGame();
             spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ 2x ACTIVE!', '#ffd700');
         });
@@ -1822,6 +2025,7 @@
             autoTimer = 20;
             playPowerup();
             updateUI();
+        updateSlimeUI();
             saveGame();
             spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '🤖 AUTO ACTIVE!', '#34c759');
         });
@@ -1928,6 +2132,7 @@
             achievementBonus = Math.floor(totalClicks / 1000);
 
             updateUI();
+        updateSlimeUI();
             saveGame();
         }, 1000);
     }
@@ -2038,6 +2243,7 @@
                 playWin();
                 points += reward;
                 updateUI();
+        updateSlimeUI();
                 saveGame();
                 setTimeout(() => {
                     overlay.querySelector('button:last-child').click();
@@ -2234,7 +2440,9 @@ function init() {
 
         loadGame();
         updateUI();
+        updateSlimeUI();
         setupPowerups();
+    setupSlime();
         setupGameLoop();
         addSoundToggle();
 
@@ -2298,3 +2506,4 @@ function init() {
     </script>
 </body>
 </html>
+

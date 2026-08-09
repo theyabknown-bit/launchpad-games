@@ -182,7 +182,7 @@
 
         <div class="clicker-area"><button id="clickBtn" onclick="handleClick()"><span class="emoji">⚡</span><span class="label">TAP</span><span class="power" id="clickPowerDisplay">+1</span></button></div>
 
-        <button class="minigame-btn" id="minigameBtn" onclick="startQuickTap()" disabled>🔒 Quick Tap Challenge (Unlock in shop)</button>
+        
 
         <div class="wheel-section"><button class="wheel-btn" id="wheelBtn" onclick="spinWheel()">🎰 Spin the Wheel (✦500)</button><div class="wheel-result" id="wheelResult">🎯 Win up to 5,000 points!</div></div>
 
@@ -202,7 +202,7 @@
             <div class="upgrade special" id="slimeUpgrade"><div class="info"><span class="name">🟢 Slime Pet <span class="badge">pet</span></span><span class="desc">Adopt a cute slime! (+0.5/s)</span><span class="owned" id="slimeStatus">🔒 Not owned</span></div><button id="buySlimeBtn" onclick="buySlime()">Adopt (✦500)</button></div>
             <div class="upgrade premium" id="waxUpgrade"><div class="info"><span class="name">💎 Wax Slime <span class="badge">rare</span></span><span class="desc">Rare slime! +2/s, shiny! ✨</span><span class="owned" id="waxStatus">🔒 Locked</span></div><button id="buyWaxBtn" onclick="buyWax()">Unlock (✦5,000)</button></div>
             <div class="upgrade premium" id="prestigeUpgrade"><div class="info"><span class="name">🔄 Prestige <span class="badge">premium</span></span><span class="desc">Reset for permanent bonus! (+100k base)</span><span class="owned" id="prestigeStatus">🔒 Locked</span></div><button id="buyPrestigeBtn" onclick="buyPrestigeUnlock()">Unlock (✦5,000)</button></div>
-            <div class="upgrade special"><div class="info"><span class="name">🎯 Quick Tap Challenge <span class="badge">unlock</span></span><span class="desc">Unlock the Quick Tap minigame!</span><span class="owned" id="minigameStatus">🔒 Locked</span></div><button id="buyMinigameBtn" onclick="buyMinigame()">Unlock (✦1,000)</button></div>
+            <button id="buyMinigameBtn" onclick="buyMinigame()">Unlock (✦1,000)</button></div>
         </div>
 
         <div class="stock-section" id="stockSection">
@@ -1610,6 +1610,7 @@ console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
 </body>
 </html>
+
 
 
 

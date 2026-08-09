@@ -2196,7 +2196,40 @@
     // ============================================================
     // INIT
     // ============================================================
-    function init() {
+        function updateSaveTime(text) {
+        const el = document.getElementById('saveTime');
+        if (el) {
+            el.textContent = text;
+            if (text !== 'just now') {
+                const now = new Date();
+                el.textContent = now.toLocaleTimeString();
+            }
+        }
+    }
+
+    function showSaveNotification() {
+        const indicator = document.getElementById('saveIndicator');
+        if (indicator) {
+            indicator.style.color = '#7cf5b0';
+            setTimeout(() => {
+                indicator.style.color = '#666';
+            }, 2000);
+        }
+    }
+
+    // Override save to show notification
+    const originalSave = saveGame;
+    saveGame = function() {
+        originalSave();
+        showSaveNotification();
+        const timeEl = document.getElementById('saveTime');
+        if (timeEl) {
+            const now = new Date();
+            timeEl.textContent = now.toLocaleTimeString();
+        }
+    };
+
+function init() {
         console.log('🧠 Stimulation Overload - Loading...');
 
         loadGame();

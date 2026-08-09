@@ -3,75 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👤 Sims Mini - Life Stages</title>
+    <title>👤 Sims Mini - Friends & Life</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0b1a26; color: #d0e8f0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .container { max-width: 500px; width: 100%; text-align: center; }
         h1 { color: #4fc3f7; font-size: 1.8rem; margin-bottom: 10px; }
-        .stats { display: flex; justify-content: center; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
-        .stat-box { background: #1a3344; padding: 5px 10px; border-radius: 10px; border: 1px solid #2a4a5e; min-width: 55px; }
-        .stat-box span { color: #4fc3f7; font-weight: bold; font-size: 0.9rem; display: block; }
-        .stat-box .label { color: #8899aa; font-size: 0.45rem; text-transform: uppercase; }
+        .stats { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
+        .stat-box { background: #1a3344; padding: 4px 8px; border-radius: 10px; border: 1px solid #2a4a5e; min-width: 50px; }
+        .stat-box span { color: #4fc3f7; font-weight: bold; font-size: 0.85rem; display: block; }
+        .stat-box .label { color: #8899aa; font-size: 0.4rem; text-transform: uppercase; }
         .stat-box.dead { border-color: #ff6b6b; }
         .stat-box.dead span { color: #ff6b6b; }
         .stat-box.life-stage { border-color: #b07cf5; }
         .stat-box.life-stage span { color: #b07cf5; }
-        .tab-bar { display: flex; gap: 3px; margin: 10px 0; flex-wrap: wrap; justify-content: center; }
-        .tab { background: #1a3344; color: #8899aa; border: 1px solid #2a4a5e; padding: 5px 10px; border-radius: 20px; cursor: pointer; font-size: 0.65rem; border: none; }
+        .stat-box.friend-box { border-color: #7cf5b0; }
+        .stat-box.friend-box span { color: #7cf5b0; }
+        .tab-bar { display: flex; gap: 3px; margin: 8px 0; flex-wrap: wrap; justify-content: center; }
+        .tab { background: #1a3344; color: #8899aa; border: 1px solid #2a4a5e; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 0.6rem; border: none; }
         .tab:hover { background: #2a4a5e; color: #d0e8f0; }
         .tab.active { background: #4fc3f7; color: #0b1a26; }
-        .panel { display: none; background: #0f1f2e; border-radius: 16px; padding: 12px; border: 1px solid #1a3344; margin: 10px 0; min-height: 180px; }
+        .panel { display: none; background: #0f1f2e; border-radius: 16px; padding: 10px; border: 1px solid #1a3344; margin: 8px 0; min-height: 150px; }
         .panel.active { display: block; }
-        .btn { padding: 6px 14px; border: none; border-radius: 10px; font-weight: 700; font-size: 0.75rem; cursor: pointer; margin: 3px; }
+        .btn { padding: 5px 12px; border: none; border-radius: 10px; font-weight: 700; font-size: 0.7rem; cursor: pointer; margin: 3px; }
         .btn-primary { background: #4fc3f7; color: #0b1a26; }
         .btn-success { background: #7cf5b0; color: #0b1a26; }
         .btn-warning { background: #ffd93d; color: #0b1a26; }
         .btn-danger { background: #ff6b6b; color: white; }
         .btn-purple { background: #b07cf5; color: #0b1a26; }
         .btn-pink { background: #ff6b9d; color: white; }
+        .btn-cyan { background: #4fc3f7; color: #0b1a26; }
         .btn:hover { transform: scale(1.05); }
         .btn:active { transform: scale(0.95); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .message { font-size: 0.95rem; min-height: 28px; color: #ffd93d; margin: 6px 0; font-weight: 600; }
-        .shop-item { background: #1a3344; border-radius: 12px; padding: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2a4a5e; }
-        .shop-item .name { font-weight: 700; color: #f0f8ff; font-size: 0.85rem; }
-        .shop-item .price { color: #ffd93d; font-weight: 700; font-size: 0.85rem; }
-        .job-card, .school-card { background: #1a3344; border-radius: 12px; padding: 8px; margin: 5px 0; border: 1px solid #2a4a5e; text-align: left; }
-        .job-card .name, .school-card .name { font-weight: 700; color: #f0f8ff; font-size: 0.9rem; }
-        .job-card .diff, .school-card .diff { font-size: 0.55rem; padding: 2px 8px; border-radius: 20px; display: inline-block; margin: 3px 0; }
+        .btn-small { padding: 3px 8px; font-size: 0.6rem; }
+        .message { font-size: 0.9rem; min-height: 25px; color: #ffd93d; margin: 5px 0; font-weight: 600; }
+        .shop-item, .friend-item { background: #1a3344; border-radius: 12px; padding: 6px; margin: 4px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2a4a5e; }
+        .shop-item .name, .friend-item .name { font-weight: 700; color: #f0f8ff; font-size: 0.8rem; }
+        .shop-item .price { color: #ffd93d; font-weight: 700; font-size: 0.8rem; }
+        .job-card, .school-card { background: #1a3344; border-radius: 12px; padding: 6px; margin: 4px 0; border: 1px solid #2a4a5e; text-align: left; }
+        .job-card .name, .school-card .name { font-weight: 700; color: #f0f8ff; font-size: 0.85rem; }
+        .job-card .diff, .school-card .diff { font-size: 0.5rem; padding: 2px 6px; border-radius: 20px; display: inline-block; margin: 2px 0; }
         .job-card .diff.easy { background: #1a4a3a; color: #7cf5b0; }
         .job-card .diff.medium { background: #3a3a1a; color: #ffd93d; }
         .job-card .diff.hard { background: #3a1a1a; color: #ff6b6b; }
         .job-card .diff.expert { background: #2a1a3a; color: #b07cf5; }
-        .location-btn { background: #1a3344; border: 2px solid #2a4a5e; border-radius: 12px; padding: 8px; margin: 3px; display: inline-block; cursor: pointer; min-width: 55px; }
+        .location-btn { background: #1a3344; border: 2px solid #2a4a5e; border-radius: 12px; padding: 6px; margin: 3px; display: inline-block; cursor: pointer; min-width: 50px; }
         .location-btn:hover { border-color: #4fc3f7; }
-        .location-btn .emoji { font-size: 1.3rem; display: block; }
-        .location-btn .name { font-size: 0.55rem; color: #d0e8f0; }
-        .back-link { display: inline-block; margin-top: 12px; color: #4fc3f7; text-decoration: none; font-size: 0.85rem; }
+        .location-btn .emoji { font-size: 1.2rem; display: block; }
+        .location-btn .name { font-size: 0.5rem; color: #d0e8f0; }
+        .back-link { display: inline-block; margin-top: 10px; color: #4fc3f7; text-decoration: none; font-size: 0.8rem; }
         .back-link:hover { text-decoration: underline; }
-        .click-challenge { background: #1a3344; border: 2px solid #ffd93d; border-radius: 12px; padding: 15px; margin: 10px 0; }
-        .click-challenge .big-btn { font-size: 2rem; padding: 20px 30px; background: #4fc3f7; color: #0b1a26; border: none; border-radius: 16px; cursor: pointer; font-weight: 700; width: 100%; }
+        .click-challenge { background: #1a3344; border: 2px solid #ffd93d; border-radius: 12px; padding: 12px; margin: 8px 0; }
+        .click-challenge .big-btn { font-size: 1.8rem; padding: 15px 25px; background: #4fc3f7; color: #0b1a26; border: none; border-radius: 16px; cursor: pointer; font-weight: 700; width: 100%; }
         .click-challenge .big-btn:hover { transform: scale(1.02); }
         .click-challenge .big-btn:active { transform: scale(0.95); }
-        .click-challenge .timer { font-size: 1.5rem; color: #ffd93d; margin: 10px 0; }
-        .click-challenge .clicks { font-size: 1.2rem; color: #7cf5b0; }
-        .death-message { background: #3a1a1a; border: 2px solid #ff6b6b; border-radius: 12px; padding: 20px; margin: 10px 0; color: #ff6b6b; font-size: 1.2rem; }
-        .death-message .big { font-size: 3rem; }
-        .school-item { background: #1a3344; border-radius: 12px; padding: 8px; margin: 5px 0; border: 1px solid #2a4a5e; }
-        .school-item .name { font-weight: 700; color: #f0f8ff; font-size: 0.9rem; }
-        .school-item .desc { font-size: 0.75rem; color: #8899aa; }
+        .click-challenge .timer { font-size: 1.3rem; color: #ffd93d; margin: 8px 0; }
+        .click-challenge .clicks { font-size: 1rem; color: #7cf5b0; }
+        .death-message { background: #3a1a1a; border: 2px solid #ff6b6b; border-radius: 12px; padding: 15px; margin: 8px 0; color: #ff6b6b; font-size: 1rem; }
+        .death-message .big { font-size: 2.5rem; }
+        .school-item { background: #1a3344; border-radius: 12px; padding: 6px; margin: 4px 0; border: 1px solid #2a4a5e; }
+        .school-item .name { font-weight: 700; color: #f0f8ff; font-size: 0.85rem; }
+        .school-item .desc { font-size: 0.7rem; color: #8899aa; }
         .school-item .completed { color: #7cf5b0; }
-        .btn-small { padding: 3px 10px; font-size: 0.65rem; }
-        .age-requirement { font-size: 0.65rem; color: #ffd93d; }
-        .locked { color: #ff6b6b; }
-        .life-stage-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin: 4px 0; }
-        .stage-baby { background: #4a6a8a; color: #d0e8f0; }
-        .stage-toddler { background: #6a8a4a; color: #d0e8f0; }
-        .stage-child { background: #8a7a4a; color: #d0e8f0; }
-        .stage-teen { background: #7a4a6a; color: #d0e8f0; }
-        .stage-adult { background: #4a6a7a; color: #d0e8f0; }
-        .stage-elder { background: #6a4a4a; color: #d0e8f0; }
+        .friend-item .friend-stage { font-size: 0.6rem; color: #b07cf5; }
+        .friend-item .friend-house { font-size: 0.6rem; color: #ffd93d; }
+        .friend-item .friend-status { font-size: 0.6rem; }
+        .friend-status.healthy { color: #7cf5b0; }
+        .friend-status.sick { color: #ff6b6b; }
+        .friend-status.dead { color: #ff6b6b; text-decoration: line-through; }
+        .house-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 6px 0; }
+        .house-btn { background: #1a3344; border: 2px solid #2a4a5e; border-radius: 10px; padding: 8px; cursor: pointer; }
+        .house-btn:hover { border-color: #4fc3f7; }
+        .house-btn .emoji { font-size: 1.5rem; display: block; }
+        .house-btn .name { font-size: 0.55rem; color: #d0e8f0; }
+        .house-btn .count { font-size: 0.5rem; color: #8899aa; }
+        .house-btn.active-house { border-color: #7cf5b0; }
     </style>
 </head>
 <body>
@@ -83,27 +90,29 @@
         <div class="stat-box"><span id="money">0</span><span class="label">💰 Money</span></div>
         <div class="stat-box"><span id="health">100</span><span class="label">❤️ Health</span></div>
         <div class="stat-box"><span id="jobDisplay">None</span><span class="label">💼 Job</span></div>
-        <div class="stat-box"><span id="educationDisplay">None</span><span class="label">🎓 Education</span></div>
+        <div class="stat-box friend-box"><span id="friendCount">0</span><span class="label">👥 Friends</span></div>
     </div>
     <div class="tab-bar">
         <button class="tab active" onclick="showPanel('home')">🏠 Home</button>
         <button class="tab" onclick="showPanel('shop')">🏪 Shop</button>
         <button class="tab" onclick="showPanel('jobs')">💼 Jobs</button>
         <button class="tab" onclick="showPanel('school')">🎓 School</button>
+        <button class="tab" onclick="showPanel('friends')">👥 Friends</button>
         <button class="tab" onclick="showPanel('car')">🚗 Car</button>
-        <button class="tab" onclick="showPanel('inventory')">📦 Inventory</button>
+        <button class="tab" onclick="showPanel('inventory')">📦 Inv</button>
     </div>
     <div class="panel active" id="panel-home">
-        <div class="message" id="homeMessage">👶 You are a baby! Click Age +1 to grow up!</div>
+        <div class="message" id="homeMessage">👶 You are a baby!</div>
         <div>
             <button class="btn btn-primary" onclick="work()">💼 Work</button>
             <button class="btn btn-success" onclick="rest()">😴 Rest</button>
             <button class="btn btn-warning" onclick="goDoctor()">🏥 Doctor</button>
             <button class="btn btn-purple" onclick="ageUp()">🎂 Age +1</button>
+            <button class="btn btn-pink" onclick="makeFriend()">👥 Make Friend</button>
             <button class="btn btn-danger" onclick="resetGame()">🔄 Reset</button>
         </div>
-        <div style="margin-top:8px;font-size:0.75rem;color:#8899aa;">
-            💡 Age up to grow • Go to school when old enough • Get a job as an adult
+        <div style="margin-top:6px;font-size:0.7rem;color:#8899aa;">
+            💡 Age up • Make friends • Go to school • Get a job
         </div>
     </div>
     <div class="panel" id="panel-shop">
@@ -111,12 +120,20 @@
         <div id="shopItems"></div>
     </div>
     <div class="panel" id="panel-jobs">
-        <div class="message" id="jobsMessage">💼 Jobs (Must be 16+ years old)</div>
+        <div class="message" id="jobsMessage">💼 Jobs (Must be 16+)</div>
         <div id="jobsList"></div>
     </div>
     <div class="panel" id="panel-school">
         <div class="message" id="schoolMessage">🎓 Education Center</div>
         <div id="schoolList"></div>
+    </div>
+    <div class="panel" id="panel-friends">
+        <div class="message" id="friendsMessage">👥 Your Friends</div>
+        <div id="friendsList"></div>
+        <div style="margin-top:8px;">
+            <button class="btn btn-cyan btn-small" onclick="visitFriend()">🏠 Visit Friend's House</button>
+            <button class="btn btn-warning btn-small" onclick="friendActivity()">🎮 Do Activity with Friend</button>
+        </div>
     </div>
     <div class="panel" id="panel-car">
         <div class="message" id="carMessage">🚗 Where to go? (Must be 16+)</div>
@@ -131,22 +148,22 @@
     <div class="panel" id="panel-inventory">
         <div class="message" id="inventoryMessage">📦 Your items</div>
         <div id="inventoryItems"></div>
-        <button class="btn btn-warning" onclick="sellAllItems()" style="margin-top:10px;">💰 Sell All</button>
+        <button class="btn btn-warning" onclick="sellAllItems()" style="margin-top:8px;">💰 Sell All</button>
     </div>
-    <div id="saveIndicator" style="font-size:0.65rem;color:#4a6a8a;margin-top:6px;">💾 Auto-saved</div>
+    <div id="saveIndicator" style="font-size:0.6rem;color:#4a6a8a;margin-top:5px;">💾 Auto-saved</div>
     <a href="../base.html" class="back-link">← Back to Hub</a>
 </div>
 
 <!-- Click Challenge Modal -->
 <div id="clickModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:#0b1a26;padding:30px;border-radius:20px;max-width:400px;width:90%;text-align:center;border:2px solid #4fc3f7;">
-        <h2 id="clickTitle" style="color:#4fc3f7;">Click Challenge!</h2>
+    <div style="background:#0b1a26;padding:25px;border-radius:20px;max-width:350px;width:90%;text-align:center;border:2px solid #4fc3f7;">
+        <h2 id="clickTitle" style="color:#4fc3f7;font-size:1.2rem;">Click Challenge!</h2>
         <div class="click-challenge">
             <div class="timer" id="clickTimer">⏱️ 5</div>
             <div class="clicks" id="clickCount">👆 0 / 10</div>
             <button class="big-btn" id="clickBtn" onclick="handleClick()">👆 CLICK ME!</button>
         </div>
-        <div id="clickResult" style="font-size:1.2rem;margin-top:10px;"></div>
+        <div id="clickResult" style="font-size:1rem;margin-top:8px;"></div>
     </div>
 </div>
 
@@ -165,152 +182,68 @@ var sick = false;
 var isDead = false;
 var education = null;
 var educationLevel = 0;
+var friends = [];
+var houses = {
+    '🏠 Blue House': { emoji: '🏠', color: '#4a7af7', residents: [] },
+    '🏡 Green House': { emoji: '🏡', color: '#4af77a', residents: [] },
+    '🏘️ Red House': { emoji: '🏘️', color: '#f74a4a', residents: [] },
+    '🏢 Apartments': { emoji: '🏢', color: '#f7a84a', residents: [] },
+    '🏩 Mansion': { emoji: '🏩', color: '#b07cf5', residents: [] }
+};
+var friendActivities = ['🎮 Played games', '🎵 Listened to music', '🍕 Ate pizza', '🎬 Watched a movie', '🏀 Played sports', '🎨 Drew pictures', '📚 Read books', '🎲 Played board games'];
 
 // ============================================================
 // LIFE STAGES
 // ============================================================
 function getLifeStage(age) {
-    if (age < 2) return { name: 'Baby', emoji: '👶', className: 'stage-baby', minAge: 0 };
-    if (age < 5) return { name: 'Toddler', emoji: '🧒', className: 'stage-toddler', minAge: 2 };
-    if (age < 11) return { name: 'Child', emoji: '👦', className: 'stage-child', minAge: 5 };
-    if (age < 14) return { name: 'Middle School', emoji: '🧑‍🎓', className: 'stage-teen', minAge: 11 };
-    if (age < 18) return { name: 'High School', emoji: '👨‍🎓', className: 'stage-teen', minAge: 14 };
-    if (age < 60) return { name: 'Adult', emoji: '👨', className: 'stage-adult', minAge: 18 };
-    return { name: 'Elder', emoji: '👴', className: 'stage-elder', minAge: 60 };
-}
-
-function getLifeStageName(age) {
-    return getLifeStage(age).name;
-}
-
-function getLifeStageEmoji(age) {
-    return getLifeStage(age).emoji;
+    if (age < 2) return { name: 'Baby', emoji: '👶', className: 'stage-baby' };
+    if (age < 5) return { name: 'Toddler', emoji: '🧒', className: 'stage-toddler' };
+    if (age < 11) return { name: 'Child', emoji: '👦', className: 'stage-child' };
+    if (age < 14) return { name: 'Middle School', emoji: '🧑‍🎓', className: 'stage-teen' };
+    if (age < 18) return { name: 'High School', emoji: '👨‍🎓', className: 'stage-teen' };
+    if (age < 60) return { name: 'Adult', emoji: '👨', className: 'stage-adult' };
+    return { name: 'Elder', emoji: '👴', className: 'stage-elder' };
 }
 
 // ============================================================
 // SCHOOLS WITH AGE REQUIREMENTS
 // ============================================================
 var SCHOOLS = [
-    {
-        id: 'kindergarten',
-        name: '🎨 Kindergarten',
-        level: 1,
-        cost: 50,
-        minAge: 2,
-        maxAge: 6,
-        description: 'Learn basics: colors, numbers, and sharing!',
-        teaches: 'You learned: Colors, numbers 1-10, and how to share! 🎨',
-        questions: [
-            { q: 'What color is the sky?', a: 'blue' },
-            { q: 'How many legs does a dog have?', a: '4' },
-            { q: 'What is 1 + 1?', a: '2' }
-        ],
-        needed: 2,
-        unlocks: []
-    },
-    {
-        id: 'elementary',
-        name: '📚 Elementary School',
-        level: 2,
-        cost: 100,
-        minAge: 6,
-        maxAge: 11,
-        description: 'Basic education - reading, writing, math!',
-        teaches: 'You learned: Reading, writing, and basic math! 📝',
-        questions: [
-            { q: 'What is 5 × 6?', a: '30' },
-            { q: 'What is the capital of France?', a: 'paris' },
-            { q: 'What is 100 - 45?', a: '55' }
-        ],
-        needed: 2,
-        unlocks: ['teacher']
-    },
-    {
-        id: 'middle_school',
-        name: '🏫 Middle School',
-        level: 3,
-        cost: 150,
-        minAge: 11,
-        maxAge: 14,
-        description: 'Advanced basics - science, history, algebra!',
-        teaches: 'You learned: Science basics, history, and algebra! 🔬',
-        questions: [
-            { q: 'What is 144 ÷ 12?', a: '12' },
-            { q: 'What is 15% of 200?', a: '30' },
-            { q: 'What is the square root of 81?', a: '9' }
-        ],
-        needed: 2,
-        unlocks: []
-    },
-    {
-        id: 'high_school',
-        name: '🎓 High School',
-        level: 4,
-        cost: 200,
-        minAge: 14,
-        maxAge: 18,
-        description: 'Advanced education - unlocks college!',
-        teaches: 'You learned: Advanced math, physics, and writing! 📖',
-        questions: [
-            { q: 'What is 7 × 8 + 4?', a: '60' },
-            { q: 'What is the square root of 144?', a: '12' },
-            { q: 'What is 256 ÷ 8?', a: '32' }
-        ],
-        needed: 3,
-        unlocks: ['college']
-    },
-    {
-        id: 'college',
-        name: '🏛️ College',
-        level: 5,
-        cost: 500,
-        minAge: 18,
-        maxAge: 99,
-        description: 'Higher education - unlocks Engineer job!',
-        teaches: 'You learned: Advanced math, physics, and engineering principles! 🔧',
-        questions: [
-            { q: 'What is 15 × 15?', a: '225' },
-            { q: 'What is 2⁵?', a: '32' },
-            { q: 'What is the area of a circle with radius 5? (use 3.14)', a: '78.5' }
-        ],
-        needed: 3,
-        unlocks: ['engineer']
-    },
-    {
-        id: 'nursing_school',
-        name: '💉 Nursing School',
-        level: 6,
-        cost: 400,
-        minAge: 18,
-        maxAge: 99,
-        description: 'Medical basics - unlocks Nurse job',
-        teaches: 'You learned: CPR, first aid, patient care, and medical terminology! 🏥',
-        questions: [
-            { q: 'What does CPR stand for?', a: 'cardiopulmonary resuscitation' },
-            { q: 'What is the normal body temperature in °F?', a: '98.6' },
-            { q: 'What does "stat" mean in medical terms?', a: 'immediately' }
-        ],
-        needed: 2,
-        unlocks: ['nurse']
-    },
-    {
-        id: 'medical_school',
-        name: '🏥 Medical School',
-        level: 7,
-        cost: 800,
-        minAge: 22,
-        maxAge: 99,
-        description: 'Advanced medical training - unlocks Doctor job',
-        teaches: 'You learned: Anatomy, diagnosis, treatment, and medical ethics! 🩺',
-        questions: [
-            { q: 'How many chambers does the human heart have?', a: '4' },
-            { q: 'What is the medical term for high blood pressure?', a: 'hypertension' },
-            { q: 'What type of blood is the universal donor?', a: 'o negative' },
-            { q: 'What part of the body produces insulin?', a: 'pancreas' }
-        ],
-        needed: 3,
-        unlocks: ['doctor']
-    }
+    { id: 'kindergarten', name: '🎨 Kindergarten', level: 1, cost: 50, minAge: 2, maxAge: 6,
+      description: 'Learn colors, numbers, and sharing!',
+      teaches: 'Colors, numbers 1-10, and how to share! 🎨',
+      questions: [{q:'What color is the sky?',a:'blue'},{q:'How many legs does a dog have?',a:'4'},{q:'What is 1 + 1?',a:'2'}],
+      needed: 2, unlocks: [] },
+    { id: 'elementary', name: '📚 Elementary School', level: 2, cost: 100, minAge: 6, maxAge: 11,
+      description: 'Reading, writing, math!',
+      teaches: 'Reading, writing, and basic math! 📝',
+      questions: [{q:'What is 5 × 6?',a:'30'},{q:'What is the capital of France?',a:'paris'},{q:'What is 100 - 45?',a:'55'}],
+      needed: 2, unlocks: ['teacher'] },
+    { id: 'middle_school', name: '🏫 Middle School', level: 3, cost: 150, minAge: 11, maxAge: 14,
+      description: 'Science, history, algebra!',
+      teaches: 'Science basics, history, and algebra! 🔬',
+      questions: [{q:'What is 144 ÷ 12?',a:'12'},{q:'What is 15% of 200?',a:'30'},{q:'What is the square root of 81?',a:'9'}],
+      needed: 2, unlocks: [] },
+    { id: 'high_school', name: '🎓 High School', level: 4, cost: 200, minAge: 14, maxAge: 18,
+      description: 'Advanced education - unlocks college!',
+      teaches: 'Advanced math, physics, and writing! 📖',
+      questions: [{q:'What is 7 × 8 + 4?',a:'60'},{q:'What is the square root of 144?',a:'12'},{q:'What is 256 ÷ 8?',a:'32'}],
+      needed: 3, unlocks: ['college'] },
+    { id: 'college', name: '🏛️ College', level: 5, cost: 500, minAge: 18, maxAge: 99,
+      description: 'Higher education - unlocks Engineer!',
+      teaches: 'Advanced math, physics, and engineering! 🔧',
+      questions: [{q:'What is 15 × 15?',a:'225'},{q:'What is 2⁵?',a:'32'},{q:'What is the area of a circle with radius 5? (use 3.14)',a:'78.5'}],
+      needed: 3, unlocks: ['engineer'] },
+    { id: 'nursing_school', name: '💉 Nursing School', level: 6, cost: 400, minAge: 18, maxAge: 99,
+      description: 'Medical basics - unlocks Nurse',
+      teaches: 'CPR, first aid, and medical terminology! 🏥',
+      questions: [{q:'What does CPR stand for?',a:'cardiopulmonary resuscitation'},{q:'What is the normal body temperature in °F?',a:'98.6'},{q:'What does "stat" mean in medical terms?',a:'immediately'}],
+      needed: 2, unlocks: ['nurse'] },
+    { id: 'medical_school', name: '🏥 Medical School', level: 7, cost: 800, minAge: 22, maxAge: 99,
+      description: 'Advanced medical - unlocks Doctor',
+      teaches: 'Anatomy, diagnosis, and medical ethics! 🩺',
+      questions: [{q:'How many chambers does the human heart have?',a:'4'},{q:'What is the medical term for high blood pressure?',a:'hypertension'},{q:'What type of blood is the universal donor?',a:'o negative'},{q:'What part of the body produces insulin?',a:'pancreas'}],
+      needed: 3, unlocks: ['doctor'] }
 ];
 
 // ============================================================
@@ -318,7 +251,7 @@ var SCHOOLS = [
 // ============================================================
 var JOBS = [
     { id: 'cashier', name: '🛒 Cashier', pay: 50, difficulty: 'easy', diffClass: 'easy', description: 'Scan items fast!', requiredEducation: 0, minAge: 16 },
-    { id: 'driver', name: '🚕 Driver', pay: 80, difficulty: 'easy', diffClass: 'easy', description: 'Drive people around town', requiredEducation: 0, minAge: 18 },
+    { id: 'driver', name: '🚕 Driver', pay: 80, difficulty: 'easy', diffClass: 'easy', description: 'Drive people around', requiredEducation: 0, minAge: 18 },
     { id: 'nurse', name: '💉 Nurse', pay: 100, difficulty: 'medium', diffClass: 'medium', description: 'Simple medical aid', requiredEducation: 6, minAge: 20 },
     { id: 'teacher', name: '📚 Teacher', pay: 120, difficulty: 'medium', diffClass: 'medium', description: 'Teach the next generation', requiredEducation: 2, minAge: 18 },
     { id: 'doctor', name: '🏥 Doctor', pay: 180, difficulty: 'hard', diffClass: 'hard', description: 'Heal the sick', requiredEducation: 7, minAge: 25 },
@@ -345,13 +278,11 @@ var LOCATIONS = {
 };
 
 // ============================================================
-// CLICK CHALLENGE VARIABLES
+// FRIEND NAMES AND STAGES
 // ============================================================
-var clickCount = 0;
-var clickTarget = 10;
-var clickTime = 5;
-var clickTimer = null;
-var clickResolve = null;
+var friendNames = ['Alex', 'Jamie', 'Taylor', 'Jordan', 'Morgan', 'Casey', 'Riley', 'Avery', 'Quinn', 'Skyler', 'Rowan', 'Emerson', 'Parker', 'Logan', 'Cameron', 'Dakota', 'Sage', 'River', 'Sawyer', 'Finley'];
+var friendStages = ['👶 Baby', '🧒 Toddler', '👦 Child', '🧑‍🎓 Middle School', '👨‍🎓 High School', '👨 Adult', '👴 Elder'];
+var houseNames = ['🏠 Blue House', '🏡 Green House', '🏘️ Red House', '🏢 Apartments', '🏩 Mansion'];
 
 // ============================================================
 // SAVE/LOAD
@@ -359,22 +290,11 @@ var clickResolve = null;
 function saveGame() {
     try {
         localStorage.setItem('simsMiniSave', JSON.stringify({
-            money: money,
-            health: health,
-            age: age,
-            job: job,
-            currentLocation: currentLocation,
-            hasCar: hasCar,
-            inventory: inventory,
-            sick: sick,
-            isDead: isDead,
-            education: education,
-            educationLevel: educationLevel
+            money, health, age, job, currentLocation, hasCar, inventory, sick, isDead,
+            education, educationLevel, friends, houses
         }));
         document.getElementById('saveIndicator').textContent = '💾 Saved!';
-        setTimeout(function() {
-            document.getElementById('saveIndicator').textContent = '💾 Auto-saved';
-        }, 2000);
+        setTimeout(function() { document.getElementById('saveIndicator').textContent = '💾 Auto-saved'; }, 2000);
     } catch(e) {}
 }
 
@@ -394,6 +314,14 @@ function loadGame() {
             isDead = d.isDead || false;
             education = d.education || null;
             educationLevel = d.educationLevel || 0;
+            friends = d.friends || [];
+            houses = d.houses || {
+                '🏠 Blue House': { emoji: '🏠', color: '#4a7af7', residents: [] },
+                '🏡 Green House': { emoji: '🏡', color: '#4af77a', residents: [] },
+                '🏘️ Red House': { emoji: '🏘️', color: '#f74a4a', residents: [] },
+                '🏢 Apartments': { emoji: '🏢', color: '#f7a84a', residents: [] },
+                '🏩 Mansion': { emoji: '🏩', color: '#b07cf5', residents: [] }
+            };
             updateUI();
             return true;
         }
@@ -409,30 +337,30 @@ function updateUI() {
     document.getElementById('health').textContent = Math.floor(health);
     document.getElementById('age').textContent = age;
     document.getElementById('jobDisplay').textContent = job ? job.name : 'None';
-    document.getElementById('educationDisplay').textContent = education ? education.name : 'None';
+    document.getElementById('friendCount').textContent = friends.length;
     
     var stage = getLifeStage(age);
     document.getElementById('lifeStage').textContent = stage.emoji + ' ' + stage.name;
     
-    var ageBox = document.getElementById('ageBox');
     if (isDead) {
-        ageBox.classList.add('dead');
+        document.getElementById('ageBox').classList.add('dead');
     } else {
-        ageBox.classList.remove('dead');
+        document.getElementById('ageBox').classList.remove('dead');
     }
     
     renderShop();
     renderJobs();
     renderSchools();
+    renderFriends();
     renderInventory();
     
     var m = document.getElementById('carMessage');
     if (age < 16) {
-        m.textContent = '🚗 You must be 16+ to drive!';
+        m.textContent = '🚗 Must be 16+ to drive!';
     } else if (!hasCar) {
-        m.textContent = '🚗 You need a car! Buy one in the shop for ✦500';
+        m.textContent = '🚗 Need a car! Buy one for ✦500';
     } else {
-        m.textContent = '🚗 Where do you want to go?';
+        m.textContent = '🚗 Where to go?';
     }
 }
 
@@ -450,8 +378,9 @@ function showPanel(p) {
             (p === 'shop' && el.textContent.includes('Shop')) ||
             (p === 'jobs' && el.textContent.includes('Jobs')) ||
             (p === 'school' && el.textContent.includes('School')) ||
+            (p === 'friends' && el.textContent.includes('Friends')) ||
             (p === 'car' && el.textContent.includes('Car')) ||
-            (p === 'inventory' && el.textContent.includes('Inventory'))) {
+            (p === 'inventory' && el.textContent.includes('Inv'))) {
             el.classList.add('active');
         }
     });
@@ -468,7 +397,9 @@ function renderShop() {
         var owned = inventory.indexOf(item.id) !== -1 || (item.id === 'car' && hasCar);
         var d = document.createElement('div');
         d.className = 'shop-item';
-        d.innerHTML = '<div><span class="name">' + item.name + '</span> <span class="price">✦' + item.price + '</span></div><button class="btn ' + (owned ? 'btn-success' : 'btn-primary') + '" onclick="buyItem(\'' + item.id + '\')" ' + (owned ? 'disabled' : '') + '>' + (owned ? '✅ Owned' : 'Buy') + '</button>';
+        var disabled = '';
+        if (item.id === 'car' && age < 16) disabled = 'disabled';
+        d.innerHTML = '<div><span class="name">' + item.name + '</span> <span class="price">✦' + item.price + '</span></div><button class="btn ' + (owned ? 'btn-success' : 'btn-primary') + '" onclick="buyItem(\'' + item.id + '\')" ' + (owned ? 'disabled' : '') + ' ' + disabled + '>' + (owned ? '✅ Owned' : 'Buy') + '</button>';
         c.appendChild(d);
     }
 }
@@ -481,12 +412,12 @@ function buyItem(id) {
     }
     if (!item) return;
     if (id === 'car' && age < 16) {
-        document.getElementById('shopMessage').textContent = '🚗 You must be 16+ to buy a car!';
+        document.getElementById('shopMessage').textContent = '🚗 Must be 16+ to buy a car!';
         return;
     }
-    if (id === 'car' && hasCar) { document.getElementById('shopMessage').textContent = '🚗 You already have a car!'; return; }
-    if (inventory.indexOf(id) !== -1) { document.getElementById('shopMessage').textContent = '✅ You already own this!'; return; }
-    if (money < item.price) { document.getElementById('shopMessage').textContent = '❌ Not enough money! Need ✦' + item.price; return; }
+    if (id === 'car' && hasCar) { document.getElementById('shopMessage').textContent = '🚗 Already have a car!'; return; }
+    if (inventory.indexOf(id) !== -1) { document.getElementById('shopMessage').textContent = '✅ Already own this!'; return; }
+    if (money < item.price) { document.getElementById('shopMessage').textContent = '❌ Need ✦' + item.price; return; }
     money -= item.price;
     if (id === 'car') { hasCar = true; } else { inventory.push(id); }
     document.getElementById('shopMessage').textContent = '✅ Purchased ' + item.name + '!';
@@ -510,92 +441,41 @@ function renderSchools() {
         
         var d = document.createElement('div');
         d.className = 'school-item';
+        var canEnroll = isRightAge && isNext && canAfford && !completed && !alreadyCompleted && !isDead;
         
-        var status = '';
-        var canEnroll = false;
-        
-        if (completed) {
-            status = ' ✅ COMPLETED!';
-        } else if (alreadyCompleted) {
-            status = ' ✅ Already completed';
-        } else if (!isRightAge && age < s.minAge) {
-            status = ' 🔒 Need to be ' + s.minAge + '+ years old';
-        } else if (!isRightAge && age > s.maxAge) {
-            status = ' 🔒 Too old for this school';
-        } else if (!isNext) {
-            status = ' 🔒 Complete previous school first';
-        } else if (!canAfford) {
-            status = ' 💰 Need ✦' + s.cost;
-        } else {
-            canEnroll = true;
-            status = ' ✅ Ready to enroll!';
-        }
-        
-        var btnText = '📚 Enroll (✦' + s.cost + ')';
-        if (completed) btnText = '✅ Completed';
-        else if (alreadyCompleted) btnText = '✅ Done';
-        else if (!isRightAge || !isNext || !canAfford || isDead) btnText = '🔒 Locked';
-        else btnText = '📚 Enroll (✦' + s.cost + ')';
-        
-        d.innerHTML = '<div class="name">' + s.name + ' <span style="font-size:0.7rem;color:#8899aa;">(Age ' + s.minAge + '-' + s.maxAge + ', Cost: ✦' + s.cost + ')</span></div>' +
+        d.innerHTML = '<div class="name">' + s.name + ' <span style="font-size:0.6rem;color:#8899aa;">(Age ' + s.minAge + '-' + s.maxAge + ', ✦' + s.cost + ')</span></div>' +
             '<div class="desc">' + s.description + '</div>' +
-            '<div style="font-size:0.75rem;color:#7cf5b0;margin:3px 0;">' + s.teaches + '</div>' +
-            '<div style="font-size:0.7rem;color:#8899aa;">' + status + '</div>' +
-            '<button class="btn btn-primary btn-small" onclick="applySchool(\'' + s.id + '\')" ' +
-            (completed || alreadyCompleted || !canEnroll || isDead ? 'disabled' : '') + '>' + btnText + '</button>';
+            '<div style="font-size:0.7rem;color:#7cf5b0;">' + s.teaches + '</div>' +
+            '<button class="btn btn-primary btn-small" onclick="applySchool(\'' + s.id + '\')" ' + (canEnroll ? '' : 'disabled') + '>' +
+            (completed ? '✅ Completed' : (alreadyCompleted ? '✅ Done' : (canEnroll ? '📚 Enroll' : '🔒 Locked'))) + '</button>';
         c.appendChild(d);
     }
 }
 
 function applySchool(id) {
     if (isDead) { document.getElementById('schoolMessage').textContent = '💀 You are dead!'; return; }
-    
     var school = null;
     for (var i = 0; i < SCHOOLS.length; i++) {
         if (SCHOOLS[i].id === id) { school = SCHOOLS[i]; break; }
     }
     if (!school) return;
-    
-    if (education && education.id === id) {
-        document.getElementById('schoolMessage').textContent = '✅ You already completed this!';
-        return;
-    }
-    
-    if (educationLevel >= school.level) {
-        document.getElementById('schoolMessage').textContent = '✅ You already completed this level!';
-        return;
-    }
-    
-    if (age < school.minAge) {
-        document.getElementById('schoolMessage').textContent = '🔒 You need to be ' + school.minAge + ' years old for this school!';
-        return;
-    }
-    
-    if (age > school.maxAge) {
-        document.getElementById('schoolMessage').textContent = '🔒 You are too old for this school!';
-        return;
-    }
-    
-    if (money < school.cost) {
-        document.getElementById('schoolMessage').textContent = '❌ Not enough money! Need ✦' + school.cost;
-        return;
-    }
-    
-    if (educationLevel !== school.level - 1) {
-        document.getElementById('schoolMessage').textContent = '🔒 You need to complete the previous school first!';
-        return;
-    }
+    if (education && education.id === id) { document.getElementById('schoolMessage').textContent = '✅ Already completed!'; return; }
+    if (educationLevel >= school.level) { document.getElementById('schoolMessage').textContent = '✅ Already done!'; return; }
+    if (age < school.minAge) { document.getElementById('schoolMessage').textContent = '🔒 Need to be ' + school.minAge + '+'; return; }
+    if (age > school.maxAge) { document.getElementById('schoolMessage').textContent = '🔒 Too old for this!'; return; }
+    if (money < school.cost) { document.getElementById('schoolMessage').textContent = '❌ Need ✦' + school.cost; return; }
+    if (educationLevel !== school.level - 1) { document.getElementById('schoolMessage').textContent = '🔒 Complete previous school first!'; return; }
     
     var passed = schoolInterview(school);
     if (passed) {
         money -= school.cost;
         education = school;
         educationLevel = school.level;
-        document.getElementById('schoolMessage').textContent = '🎓 You graduated from ' + school.name + '! ' + school.teaches;
+        document.getElementById('schoolMessage').textContent = '🎓 Graduated from ' + school.name + '!';
         updateUI();
         saveGame();
     } else {
-        document.getElementById('schoolMessage').textContent = '❌ You failed the entrance exam! Try again.';
+        document.getElementById('schoolMessage').textContent = '❌ Failed the exam! Try again.';
     }
 }
 
@@ -605,12 +485,9 @@ function schoolInterview(school) {
     var correct = 0;
     var shuffled = questions.slice().sort(function() { return 0.5 - Math.random(); });
     var asked = shuffled.slice(0, needed + 1);
-    
     for (var i = 0; i < asked.length; i++) {
-        var answer = prompt('📝 Entrance Exam Question ' + (i + 1) + ' of ' + asked.length + ':\n\n' + asked[i].q);
-        if (answer && answer.toLowerCase().trim() === asked[i].a.toLowerCase()) {
-            correct++;
-        }
+        var answer = prompt('📝 Exam Question ' + (i + 1) + ' of ' + asked.length + ':\n\n' + asked[i].q);
+        if (answer && answer.toLowerCase().trim() === asked[i].a.toLowerCase()) { correct++; }
     }
     return correct >= needed;
 }
@@ -625,19 +502,14 @@ function renderJobs() {
         var j = JOBS[i];
         var isCurrent = job && job.id === j.id;
         var canApply = educationLevel >= j.requiredEducation && age >= j.minAge;
-        var ageText = 'Need age ' + j.minAge + '+';
-        var reqText = j.requiredEducation === 0 ? 'No education required' : 
-                     'Requires: ' + getEducationName(j.requiredEducation);
-        
         var d = document.createElement('div');
         d.className = 'job-card';
         d.innerHTML = '<div class="name">' + j.name + '</div>' +
             '<span class="diff ' + j.diffClass + '">' + j.difficulty.toUpperCase() + '</span>' +
-            '<div style="font-size:0.7rem;color:#8899aa;margin:2px 0;">' + j.description + '</div>' +
-            '<div style="font-size:0.7rem;color:#7cf5b0;">💰 Pays ✦' + j.pay + '/day</div>' +
-            '<div style="font-size:0.6rem;color:#8899aa;">' + reqText + ' • ' + ageText + '</div>' +
-            '<button class="btn ' + (isCurrent ? 'btn-success' : 'btn-primary') + ' btn-small" onclick="applyJob(\'' + j.id + '\')" ' +
-            (isCurrent || !canApply || isDead || age < 16 ? 'disabled' : '') + '>' +
+            '<div style="font-size:0.65rem;color:#8899aa;">' + j.description + '</div>' +
+            '<div style="font-size:0.65rem;color:#7cf5b0;">💰 ✦' + j.pay + '/day</div>' +
+            '<div style="font-size:0.55rem;color:#8899aa;">Age ' + j.minAge + '+ • ' + (j.requiredEducation === 0 ? 'No education' : 'Requires: ' + getEducationName(j.requiredEducation)) + '</div>' +
+            '<button class="btn ' + (isCurrent ? 'btn-success' : 'btn-primary') + ' btn-small" onclick="applyJob(\'' + j.id + '\')" ' + (isCurrent || !canApply || isDead || age < 16 ? 'disabled' : '') + '>' +
             (isCurrent ? '✅ Current' : (!canApply ? '🔒 Locked' : 'Apply')) + '</button>';
         c.appendChild(d);
     }
@@ -645,290 +517,320 @@ function renderJobs() {
 
 function getEducationName(level) {
     for (var i = 0; i < SCHOOLS.length; i++) {
-        if (SCHOOLS[i].level === level) {
-            return SCHOOLS[i].name;
-        }
+        if (SCHOOLS[i].level === level) { return SCHOOLS[i].name; }
     }
     return 'Unknown';
 }
 
 function applyJob(id) {
     if (isDead) { document.getElementById('jobsMessage').textContent = '💀 You are dead!'; return; }
-    if (age < 16) {
-        document.getElementById('jobsMessage').textContent = '🔒 You must be 16+ to get a job!';
-        return;
-    }
-    if (job && job.id === id) {
-        document.getElementById('jobsMessage').textContent = '✅ You already have this job!';
-        return;
-    }
+    if (age < 16) { document.getElementById('jobsMessage').textContent = '🔒 Must be 16+ for jobs!'; return; }
+    if (job && job.id === id) { document.getElementById('jobsMessage').textContent = '✅ Already have this job!'; return; }
     var jobData = null;
     for (var i = 0; i < JOBS.length; i++) {
         if (JOBS[i].id === id) { jobData = JOBS[i]; break; }
     }
     if (!jobData) return;
+    if (age < jobData.minAge) { document.getElementById('jobsMessage').textContent = '🔒 Need to be ' + jobData.minAge + '+'; return; }
+    if (educationLevel < jobData.requiredEducation) { document.getElementById('jobsMessage').textContent = '❌ Need more education!'; return; }
     
-    if (age < jobData.minAge) {
-        document.getElementById('jobsMessage').textContent = '🔒 You need to be ' + jobData.minAge + '+ for this job!';
-        return;
-    }
-    
-    if (educationLevel < jobData.requiredEducation) {
-        document.getElementById('jobsMessage').textContent = '❌ You need more education for this job! Go to School.';
-        return;
-    }
-
     var passed = false;
-
     switch (id) {
-        case 'cashier':
-            passed = startClickChallenge(10, 5, '🛒 Cashier Test', 'Click 10 times in 5 seconds!');
-            break;
-        case 'driver':
-            passed = startClickChallenge(10, 5, '🚕 Driver Test', 'Click 10 times in 5 seconds!');
-            break;
-        case 'nurse':
-            passed = nurseInterview();
-            break;
-        case 'teacher':
-            passed = teacherInterview();
-            break;
-        case 'doctor':
-            passed = doctorInterview();
-            break;
-        case 'engineer':
-            passed = engineerInterview();
-            break;
-        case 'pilot':
-            passed = pilotInterview();
-            break;
-        case 'ceo':
-            passed = ceoInterview();
-            break;
-        default:
-            passed = false;
+        case 'cashier': passed = startClickChallenge(10, 5, '🛒 Cashier Test', 'Click 10 times!'); break;
+        case 'driver': passed = startClickChallenge(10, 5, '🚕 Driver Test', 'Click 10 times!'); break;
+        case 'nurse': passed = nurseInterview(); break;
+        case 'teacher': passed = teacherInterview(); break;
+        case 'doctor': passed = doctorInterview(); break;
+        case 'engineer': passed = engineerInterview(); break;
+        case 'pilot': passed = pilotInterview(); break;
+        case 'ceo': passed = ceoInterview(); break;
+        default: passed = false;
     }
-
     if (passed) {
         job = jobData;
-        document.getElementById('jobsMessage').textContent = '🎉 You got the job! ' + jobData.name + ' (✦' + jobData.pay + '/day)';
+        document.getElementById('jobsMessage').textContent = '🎉 Got the job! ' + jobData.name + ' (✦' + jobData.pay + '/day)';
         updateUI();
         saveGame();
     } else {
         if (id !== 'cashier' && id !== 'driver') {
-            document.getElementById('jobsMessage').textContent = '❌ Interview failed! Try again later.';
+            document.getElementById('jobsMessage').textContent = '❌ Interview failed!';
         }
     }
 }
 
 // ============================================================
-// CLICK CHALLENGE SYSTEM
+// INTERVIEW FUNCTIONS
 // ============================================================
+function nurseInterview() {
+    var qs = [{q:'What does CPR stand for?',a:'cardiopulmonary resuscitation'},{q:'What is the normal body temperature in °F?',a:'98.6'},{q:'What does "stat" mean?',a:'immediately'}];
+    return askQuestions(qs, 2);
+}
+function teacherInterview() {
+    var qs = [{q:'What is 15 × 3?',a:'45'},{q:'What is 144 ÷ 12?',a:'12'},{q:'What is 7 × 8?',a:'56'}];
+    return askQuestions(qs, 2);
+}
+function doctorInterview() {
+    var qs = [{q:'Largest organ in the human body?',a:'skin'},{q:'How many chambers in the heart?',a:'4'},{q:'Medical term for high blood pressure?',a:'hypertension'}];
+    return askQuestions(qs, 2);
+}
+function engineerInterview() {
+    var qs = [{q:'What is 256 ÷ 8?',a:'32'},{q:'What is the square root of 144?',a:'12'},{q:'If a train goes 60 mph for 2.5 hours, how far?',a:'150'}];
+    return askQuestions(qs, 2);
+}
+function pilotInterview() {
+    var r = startClickChallenge(12, 5, '✈️ Pilot Test', 'Click 12 times!');
+    var qs = [{q:'What is 24 × 7?',a:'168'},{q:'What is 1000 ÷ 25?',a:'40'},{q:'If a plane flies 500 mph for 3 hours, how far?',a:'1500'}];
+    return askQuestions(qs, 2);
+}
+function ceoInterview() {
+    var r = startClickChallenge(15, 5, '💼 CEO Test', 'Click 15 times!');
+    var qs = [{q:'What is 35 × 14?',a:'490'},{q:'What is 15% of 500?',a:'75'},{q:'What does ROI stand for?',a:'return on investment'},{q:'☣️ VIRUS PROTECTION: Best way to protect against viruses?',a:'antivirus software'}];
+    return askQuestionsWithVirus(qs, 2);
+}
+function askQuestions(qs, needed) {
+    var correct = 0;
+    var shuffled = qs.slice().sort(function() { return 0.5 - Math.random(); });
+    var asked = shuffled.slice(0, needed + 1);
+    for (var i = 0; i < asked.length; i++) {
+        var answer = prompt('📝 Question ' + (i + 1) + ' of ' + asked.length + ':\n\n' + asked[i].q);
+        if (answer && answer.toLowerCase().trim() === asked[i].a.toLowerCase()) { correct++; }
+    }
+    return correct >= needed;
+}
+function askQuestionsWithVirus(qs, needed) {
+    var correct = 0;
+    var shuffled = qs.slice().sort(function() { return 0.5 - Math.random(); });
+    var asked = shuffled.slice(0, needed + 1);
+    for (var i = 0; i < asked.length; i++) {
+        var answer = prompt('📝 Question ' + (i + 1) + ' of ' + asked.length + ':\n\n' + asked[i].q);
+        if (answer && answer.toLowerCase().trim() === asked[i].a.toLowerCase()) { correct++; }
+    }
+    var virusCorrect = false;
+    for (var i = 0; i < asked.length; i++) {
+        if (asked[i].q.includes('VIRUS')) {
+            var virusAnswer = prompt('☣️ VIRUS FINAL TEST:\n\nWhat is the best way to protect against computer viruses?');
+            if (virusAnswer && virusAnswer.toLowerCase().trim() === 'antivirus software') {
+                virusCorrect = true;
+            } else {
+                document.getElementById('jobsMessage').textContent = '❌ Need ScavyScammy protection! (Anti-virus software is correct)';
+                alert('☣️ VIRUS DETECTED! Try ScavyScammy protection!');
+                return false;
+            }
+            break;
+        }
+    }
+    return correct >= needed && virusCorrect;
+}
+
+// ============================================================
+// CLICK CHALLENGE
+// ============================================================
+var clickCount = 0, clickTarget = 10, clickTime = 5, clickTimer = null, clickResolve = null;
+
 function startClickChallenge(target, seconds, title, description) {
     return new Promise(function(resolve) {
-        clickCount = 0;
-        clickTarget = target;
-        clickTime = seconds;
-        clickResolve = resolve;
-
+        clickCount = 0; clickTarget = target; clickTime = seconds; clickResolve = resolve;
         var modal = document.getElementById('clickModal');
-        var titleEl = document.getElementById('clickTitle');
-        var timerEl = document.getElementById('clickTimer');
-        var countEl = document.getElementById('clickCount');
-        var resultEl = document.getElementById('clickResult');
+        document.getElementById('clickTitle').textContent = title;
+        document.getElementById('clickTimer').textContent = '⏱️ ' + clickTime;
+        document.getElementById('clickCount').textContent = '👆 0 / ' + clickTarget;
+        document.getElementById('clickResult').textContent = '';
         var btn = document.getElementById('clickBtn');
-
+        btn.disabled = false; btn.textContent = '👆 CLICK ME!';
         modal.style.display = 'flex';
-        titleEl.textContent = title;
-        timerEl.textContent = '⏱️ ' + clickTime;
-        countEl.textContent = '👆 0 / ' + clickTarget;
-        resultEl.textContent = '';
-        btn.disabled = false;
-        btn.textContent = '👆 CLICK ME!';
-
         if (clickTimer) clearInterval(clickTimer);
         clickTimer = setInterval(function() {
             clickTime--;
-            timerEl.textContent = '⏱️ ' + clickTime;
+            document.getElementById('clickTimer').textContent = '⏱️ ' + clickTime;
             if (clickTime <= 0) {
-                clearInterval(clickTimer);
-                btn.disabled = true;
+                clearInterval(clickTimer); btn.disabled = true;
                 if (clickCount >= clickTarget) {
-                    resultEl.textContent = '✅ PASSED! You clicked ' + clickCount + ' times!';
-                    resultEl.style.color = '#7cf5b0';
-                    setTimeout(function() {
-                        modal.style.display = 'none';
-                        if (clickResolve) clickResolve(true);
-                    }, 1000);
+                    document.getElementById('clickResult').textContent = '✅ PASSED! ' + clickCount + ' clicks!';
+                    document.getElementById('clickResult').style.color = '#7cf5b0';
+                    setTimeout(function() { modal.style.display = 'none'; if (clickResolve) clickResolve(true); }, 1000);
                 } else {
-                    resultEl.textContent = '❌ FAILED! You needed ' + clickTarget + ' clicks, got ' + clickCount;
-                    resultEl.style.color = '#ff6b6b';
-                    setTimeout(function() {
-                        modal.style.display = 'none';
-                        if (clickResolve) {
-                            document.getElementById('jobsMessage').textContent = '❌ Interview failed! Try again later.';
-                            clickResolve(false);
-                        }
-                    }, 1500);
+                    document.getElementById('clickResult').textContent = '❌ FAILED! Needed ' + clickTarget + ', got ' + clickCount;
+                    document.getElementById('clickResult').style.color = '#ff6b6b';
+                    setTimeout(function() { modal.style.display = 'none'; if (clickResolve) { document.getElementById('jobsMessage').textContent = '❌ Interview failed!'; clickResolve(false); } }, 1500);
                 }
             }
         }, 1000);
-
         window.handleClick = function() {
             if (btn.disabled) return;
             clickCount++;
-            countEl.textContent = '👆 ' + clickCount + ' / ' + clickTarget;
+            document.getElementById('clickCount').textContent = '👆 ' + clickCount + ' / ' + clickTarget;
             if (clickCount >= clickTarget) {
-                clearInterval(clickTimer);
-                btn.disabled = true;
-                resultEl.textContent = '✅ PASSED! You clicked ' + clickCount + ' times!';
-                resultEl.style.color = '#7cf5b0';
-                setTimeout(function() {
-                    modal.style.display = 'none';
-                    if (clickResolve) clickResolve(true);
-                }, 1000);
+                clearInterval(clickTimer); btn.disabled = true;
+                document.getElementById('clickResult').textContent = '✅ PASSED! ' + clickCount + ' clicks!';
+                document.getElementById('clickResult').style.color = '#7cf5b0';
+                setTimeout(function() { modal.style.display = 'none'; if (clickResolve) clickResolve(true); }, 1000);
             }
         };
     });
 }
 
 // ============================================================
-// INTERVIEW FUNCTIONS
+// FRIEND SYSTEM
 // ============================================================
-
-function nurseInterview() {
-    var questions = [
-        { q: 'What does CPR stand for?', a: 'cardiopulmonary resuscitation' },
-        { q: 'What is the normal human body temperature in °F?', a: '98.6' },
-        { q: 'What does "stat" mean in medical terms?', a: 'immediately' },
-        { q: 'What is the first step in first aid?', a: 'check' }
-    ];
-    return askQuestions(questions, 2);
-}
-
-function teacherInterview() {
-    var questions = [
-        { q: 'What is 15 × 3?', a: '45' },
-        { q: 'What is 144 ÷ 12?', a: '12' },
-        { q: 'What is 7 × 8?', a: '56' },
-        { q: 'What is 100 - 37?', a: '63' }
-    ];
-    return askQuestions(questions, 3);
-}
-
-function doctorInterview() {
-    var questions = [
-        { q: 'What is the largest organ in the human body?', a: 'skin' },
-        { q: 'How many chambers does the human heart have?', a: '4' },
-        { q: 'What is the medical term for high blood pressure?', a: 'hypertension' },
-        { q: 'What type of blood is the universal donor?', a: 'o negative' }
-    ];
-    return askQuestions(questions, 3);
-}
-
-function engineerInterview() {
-    var questions = [
-        { q: 'What is 256 ÷ 8?', a: '32' },
-        { q: 'What is the square root of 144?', a: '12' },
-        { q: 'If a train travels 60 miles per hour, how far in 2.5 hours?', a: '150' },
-        { q: 'What is 15% of 200?', a: '30' }
-    ];
-    return askQuestions(questions, 3);
-}
-
-function pilotInterview() {
-    var result = startClickChallenge(12, 5, '✈️ Pilot Test - Part 1', 'Click 12 times in 5 seconds!');
-    var mathQuestions = [
-        { q: 'What is 24 × 7?', a: '168' },
-        { q: 'What is 1000 ÷ 25?', a: '40' },
-        { q: 'If a plane flies at 500 mph for 3 hours, how far?', a: '1500' }
-    ];
-    return askQuestions(mathQuestions, 2);
-}
-
-function ceoInterview() {
-    var result = startClickChallenge(15, 5, '💼 CEO Test - Part 1', 'Click 15 times in 5 seconds!');
-    var questions = [
-        { q: 'What is 35 × 14?', a: '490' },
-        { q: 'What is 15% of 500?', a: '75' },
-        { q: 'What does ROI stand for?', a: 'return on investment' },
-        { q: 'What is the formula for profit?', a: 'revenue minus costs' },
-        { q: '☣️ VIRUS PROTECTION TEST: What is the best way to protect against computer viruses?', a: 'antivirus software' }
-    ];
-    return askQuestionsWithVirus(questions, 3);
-}
-
-function askQuestions(questions, needed) {
-    var correct = 0;
-    var shuffled = questions.slice().sort(function() { return 0.5 - Math.random(); });
-    var asked = shuffled.slice(0, needed + 1);
+function makeFriend() {
+    if (isDead) { document.getElementById('homeMessage').textContent = '💀 You are dead!'; return; }
+    if (friends.length >= 20) { document.getElementById('homeMessage').textContent = '👥 You have too many friends!'; return; }
     
-    for (var i = 0; i < asked.length; i++) {
-        var answer = prompt('📝 Interview Question ' + (i + 1) + ' of ' + asked.length + ':\n\n' + asked[i].q);
-        if (answer && answer.toLowerCase().trim() === asked[i].a.toLowerCase()) {
-            correct++;
-        }
-    }
-    return correct >= needed;
-}
-
-function askQuestionsWithVirus(questions, needed) {
-    var correct = 0;
-    var shuffled = questions.slice().sort(function() { return 0.5 - Math.random(); });
-    var asked = shuffled.slice(0, needed + 1);
+    var name = friendNames[Math.floor(Math.random() * friendNames.length)];
+    var stage = friendStages[Math.floor(Math.random() * friendStages.length)];
+    var house = houseNames[Math.floor(Math.random() * houseNames.length)];
+    var friendHealth = 70 + Math.floor(Math.random() * 30);
+    var friendAge = Math.floor(Math.random() * 80);
+    var friendSick = Math.random() < 0.1;
+    var friendJob = JOBS[Math.floor(Math.random() * JOBS.length)].name;
     
-    for (var i = 0; i < asked.length; i++) {
-        var answer = prompt('📝 Interview Question ' + (i + 1) + ' of ' + asked.length + ':\n\n' + asked[i].q);
-        if (answer && answer.toLowerCase().trim() === asked[i].a.toLowerCase()) {
-            correct++;
-        }
+    var friend = {
+        id: Date.now() + Math.random(),
+        name: name,
+        stage: stage,
+        house: house,
+        health: friendHealth,
+        age: friendAge,
+        sick: friendSick,
+        job: friendJob,
+        happiness: 70 + Math.floor(Math.random() * 30),
+        isDead: false
+    };
+    
+    friends.push(friend);
+    
+    // Add friend to house
+    if (houses[house]) {
+        houses[house].residents.push(friend.name);
     }
     
-    var virusCorrect = false;
-    for (var i = 0; i < asked.length; i++) {
-        if (asked[i].q.includes('VIRUS PROTECTION')) {
-            var virusAnswer = prompt('☣️ VIRUS PROTECTION FINAL TEST:\n\nWhat is the best way to protect against computer viruses?\n\n⚠️ This is critical for CEO position!');
-            if (virusAnswer && virusAnswer.toLowerCase().trim() === 'antivirus software') {
-                virusCorrect = true;
-            } else {
-                document.getElementById('jobsMessage').textContent = '❌ You need to try some ScavyScammy protection! (Anti-virus software is the correct answer)';
-                alert('☣️ VIRUS DETECTED! You need to try some ScavyScammy protection!');
-                return false;
-            }
-            break;
-        }
+    document.getElementById('homeMessage').textContent = '👥 You became friends with ' + name + '! (' + stage + ', lives in ' + house + ')';
+    updateUI();
+    saveGame();
+    checkFriendEvents();
+}
+
+function renderFriends() {
+    var c = document.getElementById('friendsList');
+    c.innerHTML = '';
+    if (friends.length === 0) {
+        c.innerHTML = '<div style="color:#666;padding:10px;">👥 No friends yet. Make some!</div>';
+        return;
     }
     
-    return correct >= needed && virusCorrect;
+    for (var i = 0; i < friends.length; i++) {
+        var f = friends[i];
+        var d = document.createElement('div');
+        d.className = 'friend-item';
+        var statusClass = f.isDead ? 'dead' : (f.sick ? 'sick' : 'healthy');
+        d.innerHTML = '<div><span class="name">' + f.name + '</span> <span class="friend-stage">' + f.stage + '</span></div>' +
+            '<div><span class="friend-house">' + f.house + '</span> • 💼 ' + f.job + '</div>' +
+            '<div style="font-size:0.6rem;">❤️ ' + f.health + ' 🎂 ' + f.age + ' 😊 ' + f.happiness + '%</div>' +
+            '<div><span class="friend-status ' + statusClass + '">' + (f.isDead ? '💀 DEAD' : (f.sick ? '🤒 Sick' : '✅ Healthy')) + '</span></div>' +
+            '<button class="btn btn-danger btn-small" onclick="removeFriend(' + i + ')">❌ Remove</button>';
+        c.appendChild(d);
+    }
+}
+
+function removeFriend(index) {
+    if (confirm('Remove this friend?')) {
+        var friend = friends[index];
+        if (friend && houses[friend.house]) {
+            var idx = houses[friend.house].residents.indexOf(friend.name);
+            if (idx !== -1) houses[friend.house].residents.splice(idx, 1);
+        }
+        friends.splice(index, 1);
+        updateUI();
+        saveGame();
+    }
+}
+
+function visitFriend() {
+    if (isDead) { document.getElementById('friendsMessage').textContent = '💀 You are dead!'; return; }
+    if (friends.length === 0) { document.getElementById('friendsMessage').textContent = '👥 No friends to visit!'; return; }
+    
+    var friend = friends[Math.floor(Math.random() * friends.length)];
+    if (friend.isDead) {
+        document.getElementById('friendsMessage').textContent = '💀 ' + friend.name + ' is dead! RIP.';
+        return;
+    }
+    
+    var activities = ['had a great time!', 'played games together!', 'watched a movie!', 'ate pizza!', 'talked for hours!'];
+    var activity = activities[Math.floor(Math.random() * activities.length)];
+    friend.happiness = Math.min(100, friend.happiness + 10);
+    health = Math.min(100, health + 5);
+    
+    document.getElementById('friendsMessage').textContent = '🏠 Visited ' + friend.name + ' at ' + friend.house + '! You ' + activity + ' ❤️+5';
+    updateUI();
+    saveGame();
+}
+
+function friendActivity() {
+    if (isDead) { document.getElementById('friendsMessage').textContent = '💀 You are dead!'; return; }
+    if (friends.length < 2) { document.getElementById('friendsMessage').textContent = '👥 Need at least 2 friends for activities!'; return; }
+    
+    var f1 = friends[Math.floor(Math.random() * friends.length)];
+    var f2 = friends[Math.floor(Math.random() * friends.length)];
+    while (f2 === f1) {
+        f2 = friends[Math.floor(Math.random() * friends.length)];
+    }
+    if (f1.isDead || f2.isDead) {
+        document.getElementById('friendsMessage').textContent = '💀 One of your friends is dead!';
+        return;
+    }
+    
+    var activity = friendActivities[Math.floor(Math.random() * friendActivities.length)];
+    f1.happiness = Math.min(100, f1.happiness + 15);
+    f2.happiness = Math.min(100, f2.happiness + 15);
+    health = Math.min(100, health + 8);
+    
+    document.getElementById('friendsMessage').textContent = '🎮 ' + f1.name + ' and ' + f2.name + ' ' + activity + '! You joined them! ❤️+8';
+    updateUI();
+    saveGame();
+}
+
+function checkFriendEvents() {
+    for (var i = 0; i < friends.length; i++) {
+        var f = friends[i];
+        // Random sickness
+        if (Math.random() < 0.02 && !f.sick && !f.isDead) {
+            f.sick = true;
+        }
+        // Random death for old friends
+        if (f.age > 80 && Math.random() < 0.01 && !f.isDead) {
+            f.isDead = true;
+            f.health = 0;
+        }
+        // Age friends
+        if (Math.random() < 0.03 && !f.isDead) {
+            f.age++;
+            if (f.age < 2) f.stage = '👶 Baby';
+            else if (f.age < 5) f.stage = '🧒 Toddler';
+            else if (f.age < 11) f.stage = '👦 Child';
+            else if (f.age < 14) f.stage = '🧑‍🎓 Middle School';
+            else if (f.age < 18) f.stage = '👨‍🎓 High School';
+            else if (f.age < 60) f.stage = '👨 Adult';
+            else f.stage = '👴 Elder';
+        }
+    }
 }
 
 // ============================================================
 // AGE SYSTEM
 // ============================================================
 function ageUp() {
-    if (isDead) {
-        document.getElementById('homeMessage').textContent = '💀 You are dead! You cannot age.';
-        return;
-    }
-    
+    if (isDead) { document.getElementById('homeMessage').textContent = '💀 You are dead!'; return; }
     age++;
     var stage = getLifeStage(age);
-    document.getElementById('homeMessage').textContent = '🎂 You are now ' + age + ' years old! (' + stage.emoji + ' ' + stage.name + ')';
-    
+    document.getElementById('homeMessage').textContent = '🎂 Now ' + age + ' years old! (' + stage.emoji + ' ' + stage.name + ')';
     if (age > 60) {
-        var healthLoss = Math.floor(Math.random() * 5) + 1;
-        health = Math.max(0, health - healthLoss);
-        document.getElementById('homeMessage').textContent += ' (❤️ -' + healthLoss + ' from aging)';
+        var loss = Math.floor(Math.random() * 5) + 1;
+        health = Math.max(0, health - loss);
+        document.getElementById('homeMessage').textContent += ' (❤️ -' + loss + ')';
     }
-    
-    if (age > 40 && Math.random() < 0.03) {
-        sick = true;
-        document.getElementById('homeMessage').textContent += ' 🤒 You got sick!';
-    }
-    
-    // Check for death
+    if (age > 40 && Math.random() < 0.03) { sick = true; document.getElementById('homeMessage').textContent += ' 🤒 Sick!'; }
     checkDeath();
-    
+    checkFriendEvents();
     updateUI();
     saveGame();
 }
@@ -938,76 +840,33 @@ function ageUp() {
 // ============================================================
 function checkDeath() {
     if (isDead) return;
-    
-    var deathReason = '';
-    var shouldDie = false;
-    
-    if (health <= 0) {
-        deathReason = '💀 You died from poor health!';
-        shouldDie = true;
-    }
-    
-    if (age >= 100) {
-        deathReason = '🎂 You lived to 100! Rest in peace.';
-        shouldDie = true;
-    }
-    
-    if (age > 80 && Math.random() < 0.005) {
-        deathReason = '💀 You died of old age at ' + age + '!';
-        shouldDie = true;
-    }
-    
-    if (age > 90 && Math.random() < 0.01) {
-        deathReason = '💀 You lived a long life of ' + age + ' years!';
-        shouldDie = true;
-    }
-    
-    if (shouldDie) {
-        isDead = true;
-        document.getElementById('homeMessage').innerHTML = '<div class="death-message"><span class="big">💀</span><br>' + deathReason + '<br><br>You can reset the game to start over.</div>';
+    var reason = '';
+    if (health <= 0) { reason = '💀 Died from poor health!'; isDead = true; }
+    else if (age >= 100) { reason = '🎂 Lived to 100! RIP.'; isDead = true; }
+    else if (age > 80 && Math.random() < 0.005) { reason = '💀 Died of old age at ' + age + '!'; isDead = true; }
+    else if (age > 90 && Math.random() < 0.01) { reason = '💀 Lived a long life of ' + age + ' years!'; isDead = true; }
+    if (isDead) {
+        document.getElementById('homeMessage').innerHTML = '<div class="death-message"><span class="big">💀</span><br>' + reason + '<br><br>Reset to start over.</div>';
         updateUI();
         saveGame();
     }
 }
 
 // ============================================================
-// WORK FUNCTION
+// WORK
 // ============================================================
 function work() {
-    if (isDead) {
-        document.getElementById('homeMessage').textContent = '💀 You are dead! You cannot work.';
-        return;
-    }
-    if (age < 16) {
-        document.getElementById('homeMessage').textContent = '🔒 You must be 16+ to work! You are ' + age + '.';
-        return;
-    }
-    if (!job) {
-        document.getElementById('homeMessage').textContent = '❌ You need a job first!';
-        return;
-    }
-    if (sick) {
-        document.getElementById('homeMessage').textContent = '🤒 You are sick! Go to the doctor.';
-        return;
-    }
-    if (health < 20) {
-        document.getElementById('homeMessage').textContent = '😰 Too tired! Rest first.';
-        return;
-    }
+    if (isDead) { document.getElementById('homeMessage').textContent = '💀 You are dead!'; return; }
+    if (age < 16) { document.getElementById('homeMessage').textContent = '🔒 Must be 16+ to work!'; return; }
+    if (!job) { document.getElementById('homeMessage').textContent = '❌ Need a job first!'; return; }
+    if (sick) { document.getElementById('homeMessage').textContent = '🤒 Sick! Go to doctor.'; return; }
+    if (health < 20) { document.getElementById('homeMessage').textContent = '😰 Too tired! Rest first.'; return; }
     health = Math.max(0, health - 5);
     var earned = job.pay + Math.floor(Math.random() * 20);
     money += earned;
     document.getElementById('homeMessage').textContent = '💼 Worked at ' + job.name + '! Earned ✦' + earned + ' (❤️ -5)';
-    if (Math.random() < 0.05 && !sick) {
-        sick = true;
-        document.getElementById('homeMessage').textContent += ' 🤒 You got sick!';
-    }
-    
-    if (Math.random() < 0.01) {
-        age++;
-        document.getElementById('homeMessage').textContent += ' 🎂 You aged to ' + age + '!';
-    }
-    
+    if (Math.random() < 0.05 && !sick) { sick = true; document.getElementById('homeMessage').textContent += ' 🤒 Sick!'; }
+    if (Math.random() < 0.01) { age++; document.getElementById('homeMessage').textContent += ' 🎂 Aged to ' + age + '!'; }
     checkDeath();
     updateUI();
     saveGame();
@@ -1017,10 +876,7 @@ function work() {
 // REST
 // ============================================================
 function rest() {
-    if (isDead) {
-        document.getElementById('homeMessage').textContent = '💀 You are dead! You cannot rest.';
-        return;
-    }
+    if (isDead) { document.getElementById('homeMessage').textContent = '💀 You are dead!'; return; }
     health = Math.min(100, health + 15);
     document.getElementById('homeMessage').textContent = '😴 Rested! +15 health';
     updateUI();
@@ -1031,21 +887,10 @@ function rest() {
 // DOCTOR
 // ============================================================
 function goDoctor() {
-    if (isDead) {
-        document.getElementById('homeMessage').textContent = '💀 You are dead! You cannot visit the doctor.';
-        return;
-    }
-    if (!sick && health >= 80) {
-        document.getElementById('homeMessage').textContent = '💚 You are healthy!';
-        return;
-    }
-    if (money < 50) {
-        document.getElementById('homeMessage').textContent = '❌ Doctor costs ✦50!';
-        return;
-    }
-    money -= 50;
-    sick = false;
-    health = Math.min(100, health + 30);
+    if (isDead) { document.getElementById('homeMessage').textContent = '💀 You are dead!'; return; }
+    if (!sick && health >= 80) { document.getElementById('homeMessage').textContent = '💚 Healthy!'; return; }
+    if (money < 50) { document.getElementById('homeMessage').textContent = '❌ Doctor costs ✦50!'; return; }
+    money -= 50; sick = false; health = Math.min(100, health + 30);
     document.getElementById('homeMessage').textContent = '🏥 Visited doctor! +30 health, -✦50';
     updateUI();
     saveGame();
@@ -1055,18 +900,9 @@ function goDoctor() {
 // DRIVE
 // ============================================================
 function driveTo(loc) {
-    if (isDead) {
-        document.getElementById('carMessage').textContent = '💀 You are dead! You cannot drive.';
-        return;
-    }
-    if (age < 16) {
-        document.getElementById('carMessage').textContent = '🚗 You must be 16+ to drive! You are ' + age + '.';
-        return;
-    }
-    if (!hasCar) {
-        document.getElementById('carMessage').textContent = '🚗 You need a car!';
-        return;
-    }
+    if (isDead) { document.getElementById('carMessage').textContent = '💀 You are dead!'; return; }
+    if (age < 16) { document.getElementById('carMessage').textContent = '🚗 Must be 16+ to drive!'; return; }
+    if (!hasCar) { document.getElementById('carMessage').textContent = '🚗 Need a car!'; return; }
     var name = LOCATIONS[loc];
     if (!name) return;
     currentLocation = name;
@@ -1082,7 +918,7 @@ function renderInventory() {
     var c = document.getElementById('inventoryItems');
     c.innerHTML = '';
     if (inventory.length === 0 && !hasCar) {
-        c.innerHTML = '<div style="color:#666;padding:10px;">📭 No items yet.</div>';
+        c.innerHTML = '<div style="color:#666;padding:10px;">📭 No items.</div>';
         return;
     }
     if (hasCar) {
@@ -1110,8 +946,7 @@ function sellItem(id) {
     if (isDead) { document.getElementById('inventoryMessage').textContent = '💀 You are dead!'; return; }
     if (id === 'car') {
         if (!hasCar) return;
-        money += 300;
-        hasCar = false;
+        money += 300; hasCar = false;
         document.getElementById('inventoryMessage').textContent = '💰 Sold car for ✦300!';
     } else {
         var index = inventory.indexOf(id);
@@ -1131,10 +966,7 @@ function sellItem(id) {
 
 function sellAllItems() {
     if (isDead) { document.getElementById('inventoryMessage').textContent = '💀 You are dead!'; return; }
-    if (inventory.length === 0 && !hasCar) {
-        document.getElementById('inventoryMessage').textContent = '📭 Nothing to sell!';
-        return;
-    }
+    if (inventory.length === 0 && !hasCar) { document.getElementById('inventoryMessage').textContent = '📭 Nothing to sell!'; return; }
     var total = 0, count = 0;
     if (hasCar) { total += 300; hasCar = false; count++; }
     for (var i = 0; i < inventory.length; i++) {
@@ -1157,35 +989,30 @@ function sellAllItems() {
 // ============================================================
 function resetGame() {
     if (!confirm('⚠️ Reset all progress?')) return;
-    money = 0;
-    health = 100;
-    age = 0;
-    job = null;
-    currentLocation = 'Home';
-    hasCar = false;
-    inventory = [];
-    sick = false;
-    isDead = false;
-    education = null;
-    educationLevel = 0;
+    money = 0; health = 100; age = 0; job = null; currentLocation = 'Home';
+    hasCar = false; inventory = []; sick = false; isDead = false;
+    education = null; educationLevel = 0; friends = [];
+    houses = {
+        '🏠 Blue House': { emoji: '🏠', color: '#4a7af7', residents: [] },
+        '🏡 Green House': { emoji: '🏡', color: '#4af77a', residents: [] },
+        '🏘️ Red House': { emoji: '🏘️', color: '#f74a4a', residents: [] },
+        '🏢 Apartments': { emoji: '🏢', color: '#f7a84a', residents: [] },
+        '🏩 Mansion': { emoji: '🏩', color: '#b07cf5', residents: [] }
+    };
     updateUI();
     saveGame();
-    document.getElementById('homeMessage').textContent = '🔄 Game reset! Start a new life!';
+    document.getElementById('homeMessage').textContent = '🔄 Reset! Start a new life!';
 }
 
 // ============================================================
-// AUTO-SAVE
+// AUTO-SAVE & START
 // ============================================================
 setInterval(saveGame, 10000);
-
-// ============================================================
-// START
-// ============================================================
 loadGame();
 updateUI();
 var stage = getLifeStage(age);
-document.getElementById('homeMessage').textContent = '👶 Welcome to Sims Mini! You are a ' + stage.name + '. Click Age +1 to grow up!';
-console.log('✅ Sims Mini loaded with Life Stages!');
+document.getElementById('homeMessage').textContent = '👶 Welcome! You are a ' + stage.name + '. Make friends and grow up!';
+console.log('✅ Sims Mini loaded with Friends system!');
 </script>
 </body>
 </html>

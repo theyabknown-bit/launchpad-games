@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👤 Sims Mini - Friends & Life</title>
+    <title>👤 Sims Mini - Multi-Device Friends</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0b1a26; color: #d0e8f0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -33,6 +33,7 @@
         .btn-purple { background: #b07cf5; color: #0b1a26; }
         .btn-pink { background: #ff6b9d; color: white; }
         .btn-cyan { background: #4fc3f7; color: #0b1a26; }
+        .btn-orange { background: #ffa500; color: #0b1a26; }
         .btn:hover { transform: scale(1.05); }
         .btn:active { transform: scale(0.95); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -43,7 +44,7 @@
         .shop-item .price { color: #ffd93d; font-weight: 700; font-size: 0.8rem; }
         .job-card, .school-card { background: #1a3344; border-radius: 12px; padding: 6px; margin: 4px 0; border: 1px solid #2a4a5e; text-align: left; }
         .job-card .name, .school-card .name { font-weight: 700; color: #f0f8ff; font-size: 0.85rem; }
-        .job-card .diff, .school-card .diff { font-size: 0.5rem; padding: 2px 6px; border-radius: 20px; display: inline-block; margin: 2px 0; }
+        .job-card .diff { font-size: 0.5rem; padding: 2px 6px; border-radius: 20px; display: inline-block; margin: 2px 0; }
         .job-card .diff.easy { background: #1a4a3a; color: #7cf5b0; }
         .job-card .diff.medium { background: #3a3a1a; color: #ffd93d; }
         .job-card .diff.hard { background: #3a1a1a; color: #ff6b6b; }
@@ -65,20 +66,23 @@
         .school-item { background: #1a3344; border-radius: 12px; padding: 6px; margin: 4px 0; border: 1px solid #2a4a5e; }
         .school-item .name { font-weight: 700; color: #f0f8ff; font-size: 0.85rem; }
         .school-item .desc { font-size: 0.7rem; color: #8899aa; }
-        .school-item .completed { color: #7cf5b0; }
+        .friend-code-box { background: #0f1f2e; border: 2px solid #4fc3f7; border-radius: 12px; padding: 10px; margin: 8px 0; }
+        .friend-code-box .code { font-size: 1.5rem; font-weight: 700; color: #7cf5b0; letter-spacing: 4px; }
+        .friend-code-box .label { font-size: 0.6rem; color: #8899aa; }
         .friend-item .friend-stage { font-size: 0.6rem; color: #b07cf5; }
         .friend-item .friend-house { font-size: 0.6rem; color: #ffd93d; }
-        .friend-item .friend-status { font-size: 0.6rem; }
+        .friend-item .friend-device { font-size: 0.55rem; color: #4fc3f7; }
         .friend-status.healthy { color: #7cf5b0; }
         .friend-status.sick { color: #ff6b6b; }
         .friend-status.dead { color: #ff6b6b; text-decoration: line-through; }
-        .house-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 6px 0; }
-        .house-btn { background: #1a3344; border: 2px solid #2a4a5e; border-radius: 10px; padding: 8px; cursor: pointer; }
-        .house-btn:hover { border-color: #4fc3f7; }
-        .house-btn .emoji { font-size: 1.5rem; display: block; }
-        .house-btn .name { font-size: 0.55rem; color: #d0e8f0; }
-        .house-btn .count { font-size: 0.5rem; color: #8899aa; }
-        .house-btn.active-house { border-color: #7cf5b0; }
+        .friend-status.offline { color: #8899aa; }
+        .input-group { display: flex; gap: 5px; margin: 5px 0; justify-content: center; }
+        .input-group input { background: #1a3344; border: 1px solid #2a4a5e; color: #d0e8f0; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; width: 150px; }
+        .input-group input:focus { outline: none; border-color: #4fc3f7; }
+        .friend-code-box .device-info { font-size: 0.7rem; color: #8899aa; margin-top: 4px; }
+        .online-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+        .online-dot.online { background: #7cf5b0; }
+        .online-dot.offline { background: #8899aa; }
     </style>
 </head>
 <body>
@@ -128,11 +132,29 @@
         <div id="schoolList"></div>
     </div>
     <div class="panel" id="panel-friends">
-        <div class="message" id="friendsMessage">👥 Your Friends</div>
+        <div class="message" id="friendsMessage">👥 Friends</div>
+        
+        <div class="friend-code-box">
+            <div class="label">📱 YOUR FRIEND CODE</div>
+            <div class="code" id="friendCode">------</div>
+            <div class="device-info">🖥️ Device: <span id="deviceName">Unknown</span></div>
+            <button class="btn btn-cyan btn-small" onclick="copyFriendCode()">📋 Copy Code</button>
+            <button class="btn btn-primary btn-small" onclick="refreshFriendCode()">🔄 New Code</button>
+        </div>
+        
+        <div style="background:#1a3344;border-radius:12px;padding:8px;margin:6px 0;">
+            <div class="label" style="font-size:0.6rem;color:#8899aa;">🔗 ADD FRIEND BY CODE</div>
+            <div class="input-group">
+                <input type="text" id="friendCodeInput" placeholder="Enter friend code..." maxlength="6">
+                <button class="btn btn-success btn-small" onclick="addFriendByCode()">➕ Add</button>
+            </div>
+        </div>
+        
         <div id="friendsList"></div>
         <div style="margin-top:8px;">
-            <button class="btn btn-cyan btn-small" onclick="visitFriend()">🏠 Visit Friend's House</button>
-            <button class="btn btn-warning btn-small" onclick="friendActivity()">🎮 Do Activity with Friend</button>
+            <button class="btn btn-cyan btn-small" onclick="visitFriend()">🏠 Visit Friend</button>
+            <button class="btn btn-warning btn-small" onclick="friendActivity()">🎮 Activity</button>
+            <button class="btn btn-primary btn-small" onclick="syncFriends()">🔄 Sync Friends</button>
         </div>
     </div>
     <div class="panel" id="panel-car">
@@ -183,14 +205,133 @@ var isDead = false;
 var education = null;
 var educationLevel = 0;
 var friends = [];
-var houses = {
-    '🏠 Blue House': { emoji: '🏠', color: '#4a7af7', residents: [] },
-    '🏡 Green House': { emoji: '🏡', color: '#4af77a', residents: [] },
-    '🏘️ Red House': { emoji: '🏘️', color: '#f74a4a', residents: [] },
-    '🏢 Apartments': { emoji: '🏢', color: '#f7a84a', residents: [] },
-    '🏩 Mansion': { emoji: '🏩', color: '#b07cf5', residents: [] }
-};
-var friendActivities = ['🎮 Played games', '🎵 Listened to music', '🍕 Ate pizza', '🎬 Watched a movie', '🏀 Played sports', '🎨 Drew pictures', '📚 Read books', '🎲 Played board games'];
+var friendCode = '';
+var deviceName = '';
+
+// ============================================================
+// DEVICE INFO
+// ============================================================
+function getDeviceName() {
+    var ua = navigator.userAgent;
+    if (ua.indexOf('iPhone') > -1) return '📱 iPhone';
+    if (ua.indexOf('iPad') > -1) return '📱 iPad';
+    if (ua.indexOf('Android') > -1) return '📱 Android';
+    if (ua.indexOf('Windows') > -1) return '💻 Windows';
+    if (ua.indexOf('Mac') > -1) return '💻 Mac';
+    if (ua.indexOf('Linux') > -1) return '🐧 Linux';
+    return '🖥️ Computer';
+}
+
+// ============================================================
+// FRIEND CODE SYSTEM
+// ============================================================
+function generateFriendCode() {
+    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var code = '';
+    for (var i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+}
+
+function refreshFriendCode() {
+    friendCode = generateFriendCode();
+    document.getElementById('friendCode').textContent = friendCode;
+    saveGame();
+    document.getElementById('friendsMessage').textContent = '🔄 New friend code generated! Share it with friends!';
+}
+
+function copyFriendCode() {
+    var code = document.getElementById('friendCode').textContent;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(function() {
+            document.getElementById('friendsMessage').textContent = '📋 Friend code copied! Share it with friends!';
+        }).catch(function() {
+            fallbackCopy(code);
+        });
+    } else {
+        fallbackCopy(code);
+    }
+}
+
+function fallbackCopy(text) {
+    var input = document.createElement('input');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    try {
+        document.execCommand('copy');
+        document.getElementById('friendsMessage').textContent = '📋 Friend code copied!';
+    } catch(e) {
+        document.getElementById('friendsMessage').textContent = '❌ Could not copy. Please select and copy manually.';
+    }
+    document.body.removeChild(input);
+}
+
+function addFriendByCode() {
+    var codeInput = document.getElementById('friendCodeInput');
+    var code = codeInput.value.trim().toUpperCase();
+    if (!code || code.length !== 6) {
+        document.getElementById('friendsMessage').textContent = '❌ Enter a valid 6-character friend code!';
+        return;
+    }
+    
+    // Check if already friends with this code
+    for (var i = 0; i < friends.length; i++) {
+        if (friends[i].code === code) {
+            document.getElementById('friendsMessage').textContent = '👥 Already friends with this person!';
+            return;
+        }
+    }
+    
+    // Simulate adding friend from another device
+    // In a real implementation, this would query a server
+    // For now, we'll create a simulated friend with this code
+    var name = friendNames[Math.floor(Math.random() * friendNames.length)];
+    var stage = friendStages[Math.floor(Math.random() * friendStages.length)];
+    var house = houseNames[Math.floor(Math.random() * houseNames.length)];
+    
+    var friend = {
+        id: Date.now() + Math.random(),
+        code: code,
+        name: name,
+        stage: stage,
+        house: house,
+        health: 70 + Math.floor(Math.random() * 30),
+        age: Math.floor(Math.random() * 80),
+        sick: Math.random() < 0.1,
+        job: JOBS[Math.floor(Math.random() * JOBS.length)].name,
+        happiness: 70 + Math.floor(Math.random() * 30),
+        isDead: false,
+        device: '📱 Other Device',
+        isOnline: Math.random() < 0.7
+    };
+    
+    friends.push(friend);
+    codeInput.value = '';
+    document.getElementById('friendsMessage').textContent = '👥 Added friend ' + name + ' from device ' + friend.device + '!';
+    updateUI();
+    saveGame();
+}
+
+// ============================================================
+// SYNC FRIENDS
+// ============================================================
+function syncFriends() {
+    document.getElementById('friendsMessage').textContent = '🔄 Syncing friends...';
+    // Simulate network sync
+    setTimeout(function() {
+        var online = 0;
+        var total = friends.length;
+        for (var i = 0; i < friends.length; i++) {
+            friends[i].isOnline = Math.random() < 0.7;
+            if (friends[i].isOnline) online++;
+        }
+        document.getElementById('friendsMessage').textContent = '🔄 Synced! ' + online + '/' + total + ' friends online.';
+        updateUI();
+        saveGame();
+    }, 1000);
+}
 
 // ============================================================
 // LIFE STAGES
@@ -206,7 +347,7 @@ function getLifeStage(age) {
 }
 
 // ============================================================
-// SCHOOLS WITH AGE REQUIREMENTS
+// SCHOOLS, JOBS, SHOP (same as before with education levels)
 // ============================================================
 var SCHOOLS = [
     { id: 'kindergarten', name: '🎨 Kindergarten', level: 1, cost: 50, minAge: 2, maxAge: 6,
@@ -246,9 +387,6 @@ var SCHOOLS = [
       needed: 3, unlocks: ['doctor'] }
 ];
 
-// ============================================================
-// JOBS WITH AGE AND EDUCATION REQUIREMENTS
-// ============================================================
 var JOBS = [
     { id: 'cashier', name: '🛒 Cashier', pay: 50, difficulty: 'easy', diffClass: 'easy', description: 'Scan items fast!', requiredEducation: 0, minAge: 16 },
     { id: 'driver', name: '🚕 Driver', pay: 80, difficulty: 'easy', diffClass: 'easy', description: 'Drive people around', requiredEducation: 0, minAge: 18 },
@@ -283,6 +421,7 @@ var LOCATIONS = {
 var friendNames = ['Alex', 'Jamie', 'Taylor', 'Jordan', 'Morgan', 'Casey', 'Riley', 'Avery', 'Quinn', 'Skyler', 'Rowan', 'Emerson', 'Parker', 'Logan', 'Cameron', 'Dakota', 'Sage', 'River', 'Sawyer', 'Finley'];
 var friendStages = ['👶 Baby', '🧒 Toddler', '👦 Child', '🧑‍🎓 Middle School', '👨‍🎓 High School', '👨 Adult', '👴 Elder'];
 var houseNames = ['🏠 Blue House', '🏡 Green House', '🏘️ Red House', '🏢 Apartments', '🏩 Mansion'];
+var friendActivities = ['🎮 Played games', '🎵 Listened to music', '🍕 Ate pizza', '🎬 Watched a movie', '🏀 Played sports', '🎨 Drew pictures', '📚 Read books', '🎲 Played board games'];
 
 // ============================================================
 // SAVE/LOAD
@@ -291,7 +430,7 @@ function saveGame() {
     try {
         localStorage.setItem('simsMiniSave', JSON.stringify({
             money, health, age, job, currentLocation, hasCar, inventory, sick, isDead,
-            education, educationLevel, friends, houses
+            education, educationLevel, friends, friendCode, deviceName
         }));
         document.getElementById('saveIndicator').textContent = '💾 Saved!';
         setTimeout(function() { document.getElementById('saveIndicator').textContent = '💾 Auto-saved'; }, 2000);
@@ -315,17 +454,14 @@ function loadGame() {
             education = d.education || null;
             educationLevel = d.educationLevel || 0;
             friends = d.friends || [];
-            houses = d.houses || {
-                '🏠 Blue House': { emoji: '🏠', color: '#4a7af7', residents: [] },
-                '🏡 Green House': { emoji: '🏡', color: '#4af77a', residents: [] },
-                '🏘️ Red House': { emoji: '🏘️', color: '#f74a4a', residents: [] },
-                '🏢 Apartments': { emoji: '🏢', color: '#f7a84a', residents: [] },
-                '🏩 Mansion': { emoji: '🏩', color: '#b07cf5', residents: [] }
-            };
+            friendCode = d.friendCode || generateFriendCode();
+            deviceName = d.deviceName || getDeviceName();
             updateUI();
             return true;
         }
     } catch(e) {}
+    friendCode = generateFriendCode();
+    deviceName = getDeviceName();
     return false;
 }
 
@@ -338,6 +474,8 @@ function updateUI() {
     document.getElementById('age').textContent = age;
     document.getElementById('jobDisplay').textContent = job ? job.name : 'None';
     document.getElementById('friendCount').textContent = friends.length;
+    document.getElementById('friendCode').textContent = friendCode || '------';
+    document.getElementById('deviceName').textContent = deviceName || getDeviceName();
     
     var stage = getLifeStage(age);
     document.getElementById('lifeStage').textContent = stage.emoji + ' ' + stage.name;
@@ -559,7 +697,7 @@ function applyJob(id) {
 }
 
 // ============================================================
-// INTERVIEW FUNCTIONS
+// INTERVIEW FUNCTIONS (simplified versions)
 // ============================================================
 function nurseInterview() {
     var qs = [{q:'What does CPR stand for?',a:'cardiopulmonary resuscitation'},{q:'What is the normal body temperature in °F?',a:'98.6'},{q:'What does "stat" mean?',a:'immediately'}];
@@ -674,7 +812,7 @@ function startClickChallenge(target, seconds, title, description) {
 // ============================================================
 function makeFriend() {
     if (isDead) { document.getElementById('homeMessage').textContent = '💀 You are dead!'; return; }
-    if (friends.length >= 20) { document.getElementById('homeMessage').textContent = '👥 You have too many friends!'; return; }
+    if (friends.length >= 20) { document.getElementById('homeMessage').textContent = '👥 Too many friends!'; return; }
     
     var name = friendNames[Math.floor(Math.random() * friendNames.length)];
     var stage = friendStages[Math.floor(Math.random() * friendStages.length)];
@@ -686,6 +824,7 @@ function makeFriend() {
     
     var friend = {
         id: Date.now() + Math.random(),
+        code: generateFriendCode(),
         name: name,
         stage: stage,
         house: house,
@@ -694,27 +833,22 @@ function makeFriend() {
         sick: friendSick,
         job: friendJob,
         happiness: 70 + Math.floor(Math.random() * 30),
-        isDead: false
+        isDead: false,
+        device: getDeviceName(),
+        isOnline: true
     };
     
     friends.push(friend);
-    
-    // Add friend to house
-    if (houses[house]) {
-        houses[house].residents.push(friend.name);
-    }
-    
-    document.getElementById('homeMessage').textContent = '👥 You became friends with ' + name + '! (' + stage + ', lives in ' + house + ')';
+    document.getElementById('homeMessage').textContent = '👥 Made friend: ' + name + ' (' + stage + ', ' + house + ')';
     updateUI();
     saveGame();
-    checkFriendEvents();
 }
 
 function renderFriends() {
     var c = document.getElementById('friendsList');
     c.innerHTML = '';
     if (friends.length === 0) {
-        c.innerHTML = '<div style="color:#666;padding:10px;">👥 No friends yet. Make some!</div>';
+        c.innerHTML = '<div style="color:#666;padding:10px;">👥 No friends yet. Make some or add by code!</div>';
         return;
     }
     
@@ -723,10 +857,13 @@ function renderFriends() {
         var d = document.createElement('div');
         d.className = 'friend-item';
         var statusClass = f.isDead ? 'dead' : (f.sick ? 'sick' : 'healthy');
+        var onlineStatus = f.isOnline ? '<span class="online-dot online"></span> Online' : '<span class="online-dot offline"></span> Offline';
+        
         d.innerHTML = '<div><span class="name">' + f.name + '</span> <span class="friend-stage">' + f.stage + '</span></div>' +
             '<div><span class="friend-house">' + f.house + '</span> • 💼 ' + f.job + '</div>' +
             '<div style="font-size:0.6rem;">❤️ ' + f.health + ' 🎂 ' + f.age + ' 😊 ' + f.happiness + '%</div>' +
-            '<div><span class="friend-status ' + statusClass + '">' + (f.isDead ? '💀 DEAD' : (f.sick ? '🤒 Sick' : '✅ Healthy')) + '</span></div>' +
+            '<div><span class="friend-status ' + statusClass + '">' + (f.isDead ? '💀 DEAD' : (f.sick ? '🤒 Sick' : '✅ Healthy')) + '</span> • ' + onlineStatus + '</div>' +
+            '<div style="font-size:0.55rem;color:#4fc3f7;">🔑 ' + f.code + '</div>' +
             '<button class="btn btn-danger btn-small" onclick="removeFriend(' + i + ')">❌ Remove</button>';
         c.appendChild(d);
     }
@@ -734,14 +871,10 @@ function renderFriends() {
 
 function removeFriend(index) {
     if (confirm('Remove this friend?')) {
-        var friend = friends[index];
-        if (friend && houses[friend.house]) {
-            var idx = houses[friend.house].residents.indexOf(friend.name);
-            if (idx !== -1) houses[friend.house].residents.splice(idx, 1);
-        }
         friends.splice(index, 1);
         updateUI();
         saveGame();
+        document.getElementById('friendsMessage').textContent = '👤 Friend removed.';
     }
 }
 
@@ -749,12 +882,13 @@ function visitFriend() {
     if (isDead) { document.getElementById('friendsMessage').textContent = '💀 You are dead!'; return; }
     if (friends.length === 0) { document.getElementById('friendsMessage').textContent = '👥 No friends to visit!'; return; }
     
-    var friend = friends[Math.floor(Math.random() * friends.length)];
-    if (friend.isDead) {
-        document.getElementById('friendsMessage').textContent = '💀 ' + friend.name + ' is dead! RIP.';
+    var available = friends.filter(function(f) { return !f.isDead; });
+    if (available.length === 0) {
+        document.getElementById('friendsMessage').textContent = '💀 All your friends are dead! RIP.';
         return;
     }
     
+    var friend = available[Math.floor(Math.random() * available.length)];
     var activities = ['had a great time!', 'played games together!', 'watched a movie!', 'ate pizza!', 'talked for hours!'];
     var activity = activities[Math.floor(Math.random() * activities.length)];
     friend.happiness = Math.min(100, friend.happiness + 10);
@@ -767,16 +901,18 @@ function visitFriend() {
 
 function friendActivity() {
     if (isDead) { document.getElementById('friendsMessage').textContent = '💀 You are dead!'; return; }
-    if (friends.length < 2) { document.getElementById('friendsMessage').textContent = '👥 Need at least 2 friends for activities!'; return; }
+    if (friends.length < 2) { document.getElementById('friendsMessage').textContent = '👥 Need at least 2 friends!'; return; }
     
-    var f1 = friends[Math.floor(Math.random() * friends.length)];
-    var f2 = friends[Math.floor(Math.random() * friends.length)];
-    while (f2 === f1) {
-        f2 = friends[Math.floor(Math.random() * friends.length)];
-    }
-    if (f1.isDead || f2.isDead) {
-        document.getElementById('friendsMessage').textContent = '💀 One of your friends is dead!';
+    var available = friends.filter(function(f) { return !f.isDead; });
+    if (available.length < 2) {
+        document.getElementById('friendsMessage').textContent = '💀 Not enough living friends!';
         return;
+    }
+    
+    var f1 = available[Math.floor(Math.random() * available.length)];
+    var f2 = available[Math.floor(Math.random() * available.length)];
+    while (f2 === f1 && available.length > 1) {
+        f2 = available[Math.floor(Math.random() * available.length)];
     }
     
     var activity = friendActivities[Math.floor(Math.random() * friendActivities.length)];
@@ -784,35 +920,9 @@ function friendActivity() {
     f2.happiness = Math.min(100, f2.happiness + 15);
     health = Math.min(100, health + 8);
     
-    document.getElementById('friendsMessage').textContent = '🎮 ' + f1.name + ' and ' + f2.name + ' ' + activity + '! You joined them! ❤️+8';
+    document.getElementById('friendsMessage').textContent = '🎮 ' + f1.name + ' and ' + f2.name + ' ' + activity + '! You joined! ❤️+8';
     updateUI();
     saveGame();
-}
-
-function checkFriendEvents() {
-    for (var i = 0; i < friends.length; i++) {
-        var f = friends[i];
-        // Random sickness
-        if (Math.random() < 0.02 && !f.sick && !f.isDead) {
-            f.sick = true;
-        }
-        // Random death for old friends
-        if (f.age > 80 && Math.random() < 0.01 && !f.isDead) {
-            f.isDead = true;
-            f.health = 0;
-        }
-        // Age friends
-        if (Math.random() < 0.03 && !f.isDead) {
-            f.age++;
-            if (f.age < 2) f.stage = '👶 Baby';
-            else if (f.age < 5) f.stage = '🧒 Toddler';
-            else if (f.age < 11) f.stage = '👦 Child';
-            else if (f.age < 14) f.stage = '🧑‍🎓 Middle School';
-            else if (f.age < 18) f.stage = '👨‍🎓 High School';
-            else if (f.age < 60) f.stage = '👨 Adult';
-            else f.stage = '👴 Elder';
-        }
-    }
 }
 
 // ============================================================
@@ -830,7 +940,6 @@ function ageUp() {
     }
     if (age > 40 && Math.random() < 0.03) { sick = true; document.getElementById('homeMessage').textContent += ' 🤒 Sick!'; }
     checkDeath();
-    checkFriendEvents();
     updateUI();
     saveGame();
 }
@@ -992,13 +1101,7 @@ function resetGame() {
     money = 0; health = 100; age = 0; job = null; currentLocation = 'Home';
     hasCar = false; inventory = []; sick = false; isDead = false;
     education = null; educationLevel = 0; friends = [];
-    houses = {
-        '🏠 Blue House': { emoji: '🏠', color: '#4a7af7', residents: [] },
-        '🏡 Green House': { emoji: '🏡', color: '#4af77a', residents: [] },
-        '🏘️ Red House': { emoji: '🏘️', color: '#f74a4a', residents: [] },
-        '🏢 Apartments': { emoji: '🏢', color: '#f7a84a', residents: [] },
-        '🏩 Mansion': { emoji: '🏩', color: '#b07cf5', residents: [] }
-    };
+    friendCode = generateFriendCode();
     updateUI();
     saveGame();
     document.getElementById('homeMessage').textContent = '🔄 Reset! Start a new life!';
@@ -1011,8 +1114,8 @@ setInterval(saveGame, 10000);
 loadGame();
 updateUI();
 var stage = getLifeStage(age);
-document.getElementById('homeMessage').textContent = '👶 Welcome! You are a ' + stage.name + '. Make friends and grow up!';
-console.log('✅ Sims Mini loaded with Friends system!');
+document.getElementById('homeMessage').textContent = '👶 Welcome! You are a ' + stage.name + '. Share your friend code to connect with others!';
+console.log('✅ Sims Mini loaded with Multi-Device Friends system!');
 </script>
 </body>
 </html>

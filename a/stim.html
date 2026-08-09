@@ -1066,6 +1066,75 @@ function addSoundToggle() {
         saveGame();
     }
 
+    // ============================================================
+    // AUTO-SAVE SYSTEM WITH VISUAL FEEDBACK
+    // ============================================================
+    let autoSaveInterval = null;
+    let saveCounter = 0;
+
+    function startAutoSave() {
+        if (autoSaveInterval) clearInterval(autoSaveInterval);
+        
+        autoSaveInterval = setInterval(() => {
+            saveCounter++;
+            saveGame();
+            
+            // Update save indicator with animation
+            const indicator = document.getElementById('saveIndicator');
+            if (indicator) {
+                indicator.style.color = '#7cf5b0';
+                indicator.textContent = '💾 Auto-saved ✓';
+                setTimeout(() => {
+                    indicator.style.color = '#666';
+                    const timeEl = document.getElementById('saveTime');
+                    if (timeEl) {
+                        const now = new Date();
+                        timeEl.textContent = now.toLocaleTimeString();
+                    }
+                    indicator.textContent = '💾 Auto-saved';
+                }, 1500);
+            }
+            
+            console.log('🔄 Auto-save #' + saveCounter);
+        }, 5000); // Save every 5 seconds
+    }
+
+    // Also save when page is about to close
+    window.addEventListener('beforeunload', function() {
+        saveGame();
+        console.log('💾 Saved before closing');
+    });
+
+    // Save when user leaves the page
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            saveGame();
+            console.log('💾 Saved on visibility change');
+        }
+    });
+
+    // Add a save counter display
+    function addSaveCounter() {
+        const indicator = document.getElementById('saveIndicator');
+        if (indicator) {
+            const counterSpan = document.createElement('span');
+            counterSpan.id = 'saveCounterDisplay';
+            counterSpan.style.cssText = 'margin-left: 6px; color: #4a6a8a; font-size: 9px;';
+            counterSpan.textContent = '⏱️ saving...';
+            indicator.appendChild(counterSpan);
+            
+            // Update counter on save
+            const originalSave = saveGame;
+            saveGame = function() {
+                originalSave();
+                const counterEl = document.getElementById('saveCounterDisplay');
+                if (counterEl) {
+                    counterEl.textContent = '⏱️ ' + new Date().toLocaleTimeString();
+                }
+            };
+        }
+    }
+
 function init() {
     console.log('🧠 Stimulation Overload - Loading...');
     loadGame();
@@ -1082,5 +1151,6 @@ init();
 </script>
 </body>
 </html>
+
 
 

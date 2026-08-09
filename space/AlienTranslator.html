@@ -663,9 +663,59 @@ document.getElementById('humanInput').addEventListener('keydown', (e) => {
             startAutoSave(5000);
         }
     }
+    // ============================================================
+    // SAVE SYSTEM FOR ALIEN TRANSLATOR
+    // ============================================================
+    function saveGame() {
+        try {
+            const data = {
+                count: typeof count !== 'undefined' ? count : 0,
+                savedAt: Date.now()
+            };
+            localStorage.setItem('alienTranslatorSave', JSON.stringify(data));
+            console.log('💾 Alien Translator saved!');
+            
+            // Show feedback
+            let indicator = document.getElementById('saveIndicator');
+            if (indicator) {
+                indicator.textContent = '💾 Saved! ✓';
+                indicator.style.color = '#7cf5b0';
+                setTimeout(() => {
+                    indicator.style.color = '#666';
+                    const now = new Date();
+                    indicator.textContent = '💾 Auto-saved at ' + now.toLocaleTimeString();
+                }, 1500);
+            }
+            return true;
+        } catch(e) { console.log('Save error:', e); return false; }
+    }
+    
+    function loadGame() {
+        try {
+            const saved = localStorage.getItem('alienTranslatorSave');
+            if (saved) {
+                const data = JSON.parse(saved);
+                count = data.count || 0;
+                document.getElementById('count').textContent = count;
+                console.log('✅ Alien Translator loaded! Count:', count);
+                return true;
+            }
+        } catch(e) { console.log('Load error:', e); }
+        return false;
+    }
+    
+    // Auto-save every 5 seconds
+    setInterval(saveGame, 5000);
+    
+    // Save on page close
+    window.addEventListener('beforeunload', saveGame);
+    
+    // Load on start
+    loadGame();
 </script>
 </body>
 </html>
+
 
 
 

@@ -1135,6 +1135,189 @@ function addSoundToggle() {
         }
     }
 
+    // ============================================================
+    // WORKING SAVE SYSTEM - ACTUALLY SAVES DATA!
+    // ============================================================
+    
+    function saveGame() {
+        try {
+            console.log('💾 Saving game...');
+            
+            // Get ALL game data
+            const data = {
+                points: typeof points !== 'undefined' ? points : 0,
+                clickMultiplier: typeof clickMultiplier !== 'undefined' ? clickMultiplier : 1,
+                critLevel: typeof critLevel !== 'undefined' ? critLevel : 0,
+                multPrice: typeof multPrice !== 'undefined' ? multPrice : 25,
+                critPrice: typeof critPrice !== 'undefined' ? critPrice : 50,
+                totalClicks: typeof totalClicks !== 'undefined' ? totalClicks : 0,
+                frenzyActive: typeof frenzyActive !== 'undefined' ? frenzyActive : false,
+                frenzyTimer: typeof frenzyTimer !== 'undefined' ? frenzyTimer : 0,
+                passiveIncome: typeof passiveIncome !== 'undefined' ? passiveIncome : 0,
+                autoCritLevel: typeof autoCritLevel !== 'undefined' ? autoCritLevel : 0,
+                grindMultiplier: typeof grindMultiplier !== 'undefined' ? grindMultiplier : 1,
+                grindCount: typeof grindCount !== 'undefined' ? grindCount : 0,
+                goldenLevel: typeof goldenLevel !== 'undefined' ? goldenLevel : 0,
+                goldenPrice: typeof goldenPrice !== 'undefined' ? goldenPrice : 500,
+                achievementBonus: typeof achievementBonus !== 'undefined' ? achievementBonus : 0,
+                simileLevel: typeof simileLevel !== 'undefined' ? simileLevel : 0,
+                similePrice: typeof similePrice !== 'undefined' ? similePrice : 200,
+                megaLevel: typeof megaLevel !== 'undefined' ? megaLevel : 0,
+                megaPrice: typeof megaPrice !== 'undefined' ? megaPrice : 1000,
+                stockUnlocked: typeof stockUnlocked !== 'undefined' ? stockUnlocked : false,
+                prestigeUnlocked: typeof prestigeUnlocked !== 'undefined' ? prestigeUnlocked : false,
+                prestigeLevel: typeof prestigeLevel !== 'undefined' ? prestigeLevel : 0,
+                prestigeBonus: typeof prestigeBonus !== 'undefined' ? prestigeBonus : 1,
+                prestigeBase: typeof prestigeBase !== 'undefined' ? prestigeBase : 100000,
+                minigameUnlocked: typeof minigameUnlocked !== 'undefined' ? minigameUnlocked : false,
+                minigamePrice: typeof minigamePrice !== 'undefined' ? minigamePrice : 1000,
+                stockPrices: typeof stockPrices !== 'undefined' ? stockPrices : [100, 150, 200, 250, 300, 180, 220, 280],
+                stockShares: typeof stockShares !== 'undefined' ? stockShares : [0, 0, 0, 0, 0, 0, 0, 0],
+                dailyClaimed: typeof dailyClaimed !== 'undefined' ? dailyClaimed : false,
+                dailyTimer: typeof dailyTimer !== 'undefined' ? dailyTimer : 0,
+                x2Powerup: typeof x2Powerup !== 'undefined' ? x2Powerup : false,
+                x2Timer: typeof x2Timer !== 'undefined' ? x2Timer : 0,
+                autoPowerup: typeof autoPowerup !== 'undefined' ? autoPowerup : false,
+                autoTimer: typeof autoTimer !== 'undefined' ? autoTimer : 0,
+                slimePets: typeof slimePets !== 'undefined' ? slimePets : { slime: false, wax: false },
+                slimeHappiness: typeof slimeHappiness !== 'undefined' ? slimeHappiness : { slime: 50, wax: 50 },
+                slimePetCount: typeof slimePetCount !== 'undefined' ? slimePetCount : { slime: 0, wax: 0 },
+                savedAt: Date.now()
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('stimOverloadSave', JSON.stringify(data));
+            
+            // Update save indicator
+            const timeEl = document.getElementById('saveTime');
+            if (timeEl) {
+                const now = new Date();
+                timeEl.textContent = now.toLocaleTimeString();
+            }
+            
+            // Flash the save indicator
+            const indicator = document.getElementById('saveIndicator');
+            if (indicator) {
+                indicator.style.color = '#7cf5b0';
+                indicator.textContent = '💾 Saved! ✓';
+                setTimeout(() => {
+                    indicator.style.color = '#666';
+                    const now = new Date();
+                    indicator.textContent = '💾 Auto-saved at ' + now.toLocaleTimeString();
+                }, 1500);
+            }
+            
+            console.log('✅ Game saved successfully!');
+            return true;
+        } catch (e) {
+            console.log('❌ Save error:', e);
+            return false;
+        }
+    }
+
+    function loadGame() {
+        try {
+            const saved = localStorage.getItem('stimOverloadSave');
+            if (saved) {
+                const data = JSON.parse(saved);
+                console.log('📂 Loading save from:', new Date(data.savedAt).toLocaleString());
+                
+                // Only load if less than 30 days old
+                if (data.savedAt && (Date.now() - data.savedAt) > 30 * 24 * 60 * 60 * 1000) {
+                    console.log('⚠️ Save is too old (30+ days)');
+                    return false;
+                }
+                
+                // Load ALL variables
+                points = data.points || 0;
+                clickMultiplier = data.clickMultiplier || 1;
+                critLevel = data.critLevel || 0;
+                multPrice = data.multPrice || 25;
+                critPrice = data.critPrice || 50;
+                totalClicks = data.totalClicks || 0;
+                frenzyActive = data.frenzyActive || false;
+                frenzyTimer = data.frenzyTimer || 0;
+                passiveIncome = data.passiveIncome || 0;
+                autoCritLevel = data.autoCritLevel || 0;
+                grindMultiplier = data.grindMultiplier || 1;
+                grindCount = data.grindCount || 0;
+                goldenLevel = data.goldenLevel || 0;
+                goldenPrice = data.goldenPrice || 500;
+                achievementBonus = data.achievementBonus || 0;
+                simileLevel = data.simileLevel || 0;
+                similePrice = data.similePrice || 200;
+                megaLevel = data.megaLevel || 0;
+                megaPrice = data.megaPrice || 1000;
+                stockUnlocked = data.stockUnlocked || false;
+                prestigeUnlocked = data.prestigeUnlocked || false;
+                prestigeLevel = data.prestigeLevel || 0;
+                prestigeBonus = data.prestigeBonus || 1;
+                prestigeBase = data.prestigeBase || 100000;
+                minigameUnlocked = data.minigameUnlocked || false;
+                minigamePrice = data.minigamePrice || 1000;
+                stockPrices = data.stockPrices || [100, 150, 200, 250, 300, 180, 220, 280];
+                stockShares = data.stockShares || [0, 0, 0, 0, 0, 0, 0, 0];
+                dailyClaimed = data.dailyClaimed || false;
+                dailyTimer = data.dailyTimer || 0;
+                x2Powerup = data.x2Powerup || false;
+                x2Timer = data.x2Timer || 0;
+                autoPowerup = data.autoPowerup || false;
+                autoTimer = data.autoTimer || 0;
+                slimePets = data.slimePets || { slime: false, wax: false };
+                slimeHappiness = data.slimeHappiness || { slime: 50, wax: 50 };
+                slimePetCount = data.slimePetCount || { slime: 0, wax: 0 };
+                
+                console.log('✅ Game loaded! Points:', points);
+                return true;
+            }
+        } catch (e) {
+            console.log('❌ Load error:', e);
+        }
+        console.log('ℹ️ No save found, starting fresh');
+        return false;
+    }
+
+    function resetSave() {
+        if (confirm('⚠️ Delete ALL saved progress? This cannot be undone!')) {
+            localStorage.removeItem('stimOverloadSave');
+            localStorage.removeItem('dailyRewardData');
+            alert('💾 Save deleted! Refreshing...');
+            location.reload();
+        }
+    }
+
+    // Auto-save every 5 seconds
+    function startAutoSave() {
+        if (window._saveInterval) clearInterval(window._saveInterval);
+        window._saveInterval = setInterval(() => {
+            saveGame();
+        }, 5000);
+        console.log('💾 Auto-save started (every 5s)');
+    }
+
+    // Manual save with Ctrl+S
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            saveGame();
+            alert('💾 Game saved manually!');
+        }
+    });
+
+    // Save on page close
+    window.addEventListener('beforeunload', function() {
+        saveGame();
+    });
+
+    // Save on tab switch
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            saveGame();
+        }
+    });
+
+    console.log('💾 Save system loaded!');
+
 function init() {
     console.log('🧠 Stimulation Overload - Loading...');
     loadGame();
@@ -1355,6 +1538,7 @@ init();
 </script>
 </body>
 </html>
+
 
 
 

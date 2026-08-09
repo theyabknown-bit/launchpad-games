@@ -79,6 +79,13 @@
     <button class="btn" onclick="resetGame()">🔄 New Mission</button>
 </div>
 <script>
+    // Game-specific save function - override this in your game
+    function saveGame() {
+        // For games with their own save system, this will be overridden
+        // For games without, it does nothing
+        console.log('💾 Save called but no game-specific save implemented');
+        return true;
+    }
     // ============================================================
     // FIXED SOUND SYSTEM - WORKS ON FIRST CLICK
     // ============================================================
@@ -522,9 +529,214 @@ renderGrid();
             setTimeout(checkAchievements, 500);
         }
     };
+    // ============================================================
+    // UNIVERSAL SAVE SYSTEM - Auto & Manual Save
+    // ============================================================
+    
+    // Save system variables
+    let saveEnabled = true;
+    let saveInterval = null;
+    let lastSaveTime = 'Never';
+    
+    // ============================================================
+    // SAVE FUNCTIONS
+    // ============================================================
+    function saveGameData(gameId, data) {
+        try {
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '{}');
+            saves[gameId] = {
+                data: data,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('gameSaves', JSON.stringify(saves));
+            showSaveFeedback('✅ Saved!');
+            return true;
+        } catch(e) {
+            console.log('Save error:', e);
+            return false;
+        }
+    }
+    
+    function loadGameData(gameId) {
+        try {
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '{}');
+            if (saves[gameId]) {
+                return saves[gameId].data;
+            }
+        } catch(e) {
+            console.log('Load error:', e);
+        }
+        return null;
+    }
+    
+    function showSaveFeedback(message) {
+        let indicator = document.getElementById('saveIndicator');
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'saveIndicator';
+            indicator.style.cssText = `
+                text-align: center;
+                font-size: 11px;
+                color: #666;
+                padding: 6px 0;
+                margin-top: 8px;
+                border-top: 1px solid rgba(255,255,255,0.05);
+                transition: color 0.3s;
+                font-family: 'Segoe UI', sans-serif;
+            `;
+            const container = document.querySelector('.container') || document.querySelector('#app') || document.body;
+            container.appendChild(indicator);
+        }
+        
+        indicator.textContent = '💾 ' + message;
+        indicator.style.color = '#7cf5b0';
+        setTimeout(() => {
+            indicator.style.color = '#666';
+            const now = new Date();
+            indicator.textContent = '💾 Auto-saved at ' + now.toLocaleTimeString();
+        }, 2000);
+    }
+    
+    function manualSave() {
+        if (typeof saveGame === 'function') {
+            saveGame();
+            showSaveFeedback('✅ Manually saved!');
+            return true;
+        }
+        return false;
+    }
+    
+    // ============================================================
+    // AUTO-SAVE
+    // ============================================================
+    function startAutoSave(interval = 5000) {
+        if (saveInterval) clearInterval(saveInterval);
+        
+        saveInterval = setInterval(() => {
+            if (typeof saveGame === 'function') {
+                saveGame();
+            }
+        }, interval);
+        
+        console.log('💾 Auto-save started (every ' + (interval/1000) + 's)');
+    }
+    
+    // ============================================================
+    // KEYBOARD SHORTCUT - Ctrl+S
+    // ============================================================
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            if (typeof manualSave === 'function') {
+                manualSave();
+            }
+        }
+    });
+    
+    // ============================================================
+    // SAVE ON PAGE CLOSE
+    // ============================================================
+    window.addEventListener('beforeunload', function() {
+        if (typeof saveGame === 'function') {
+            saveGame();
+        }
+    });
+    
+    // ============================================================
+    // SAVE INDICATOR STYLES
+    // ============================================================
+    const saveStyles = document.createElement('style');
+    saveStyles.textContent = `
+        #saveIndicator {
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+            padding: 6px 0;
+            margin-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            transition: color 0.3s;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        #saveIndicator.saving {
+            color: #7cf5b0 !important;
+        }
+        .save-btn {
+            background: rgba(79,195,247,0.08);
+            border: 1px solid rgba(79,195,247,0.12);
+            color: #4fc3f7;
+            padding: 4px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Segoe UI', sans-serif;
+            transition: 0.2s;
+            margin: 2px;
+        }
+        .save-btn:hover {
+            background: rgba(79,195,247,0.15);
+        }
+    `;
+    document.head.appendChild(saveStyles);
+    
+    // ============================================================
+    // ADD MANUAL SAVE BUTTON
+    // ============================================================
+    function addSaveButton() {
+        const container = document.querySelector('.container') || document.querySelector('#app');
+        if (!container) return;
+        
+        // Check if button already exists
+        if (document.getElementById('manualSaveBtn')) return;
+        
+        const btn = document.createElement('button');
+        btn.id = 'manualSaveBtn';
+        btn.className = 'save-btn';
+        btn.textContent = '💾 Manual Save';
+        btn.onclick = function() {
+            if (typeof manualSave === 'function') {
+                manualSave();
+            }
+        };
+        
+        // Find footer or add at bottom
+        const footer = container.querySelector('.footer');
+        if (footer) {
+            const btnContainer = document.createElement('div');
+            btnContainer.style.cssText = 'margin-top: 6px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;';
+            btnContainer.appendChild(btn);
+            footer.appendChild(btnContainer);
+        } else {
+            container.appendChild(btn);
+        }
+    }
+    
+    // ============================================================
+    // INIT
+    // ============================================================
+    console.log('💾 Save system loaded!');
+    console.log('⌨️  Press Ctrl+S to save manually');
+    console.log('💾 Auto-save every 5 seconds');
+    
+    // Add save button when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(addSaveButton, 500);
+        if (typeof startAutoSave === 'function') {
+            startAutoSave(5000);
+        }
+    });
+    
+    // Also run immediately if DOM already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(addSaveButton, 500);
+        if (typeof startAutoSave === 'function') {
+            startAutoSave(5000);
+        }
+    }
 </script>
 </body>
 </html>
+
 
 
 

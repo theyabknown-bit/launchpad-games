@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👤 Sims Mini</title>
+    <title>👤 Sims Mini - Hard Jobs</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0b1a26; color: #d0e8f0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -33,12 +33,51 @@
         .shop-item .price { color: #ffd93d; font-weight: 700; }
         .job-card { background: #1a3344; border-radius: 12px; padding: 12px; margin: 6px 0; border: 1px solid #2a4a5e; text-align: left; }
         .job-card .name { font-weight: 700; color: #f0f8ff; }
+        .job-card .diff { font-size: 0.7rem; padding: 2px 10px; border-radius: 20px; display: inline-block; margin: 4px 0; }
+        .job-card .diff.easy { background: #1a4a3a; color: #7cf5b0; }
+        .job-card .diff.medium { background: #3a3a1a; color: #ffd93d; }
+        .job-card .diff.hard { background: #3a1a1a; color: #ff6b6b; }
+        .job-card .diff.expert { background: #2a1a3a; color: #b07cf5; }
         .location-btn { background: #1a3344; border: 2px solid #2a4a5e; border-radius: 12px; padding: 12px; margin: 4px; display: inline-block; cursor: pointer; min-width: 70px; }
         .location-btn:hover { border-color: #4fc3f7; }
         .location-btn .emoji { font-size: 2rem; display: block; }
         .location-btn .name { font-size: 0.7rem; color: #d0e8f0; }
         .back-link { display: inline-block; margin-top: 15px; color: #4fc3f7; text-decoration: none; }
         .back-link:hover { text-decoration: underline; }
+        .click-challenge {
+            background: #1a3344;
+            border: 2px solid #ffd93d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        .click-challenge .big-btn {
+            font-size: 3rem;
+            padding: 30px 40px;
+            background: #4fc3f7;
+            color: #0b1a26;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            width: 100%;
+        }
+        .click-challenge .big-btn:hover { transform: scale(1.02); }
+        .click-challenge .big-btn:active { transform: scale(0.95); }
+        .click-challenge .timer { font-size: 2rem; color: #ffd93d; margin: 10px 0; }
+        .click-challenge .clicks { font-size: 1.5rem; color: #7cf5b0; }
+        .virus-warning {
+            background: #3a1a1a;
+            border: 2px solid #ff6b6b;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #ff6b6b;
+        }
+        .virus-warning .big {
+            font-size: 2rem;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -92,29 +131,648 @@
     <div id="saveIndicator" style="font-size:0.7rem;color:#4a6a8a;margin-top:6px;">💾 Auto-saved</div>
     <a href="../base.html" class="back-link">← Back to Hub</a>
 </div>
+
+<!-- Click Challenge Modal -->
+<div id="clickModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#0b1a26;padding:30px;border-radius:20px;max-width:400px;width:90%;text-align:center;border:2px solid #4fc3f7;">
+        <h2 id="clickTitle" style="color:#4fc3f7;">Click Challenge!</h2>
+        <div class="click-challenge">
+            <div class="timer" id="clickTimer">⏱️ 5</div>
+            <div class="clicks" id="clickCount">👆 0 / 10</div>
+            <button class="big-btn" id="clickBtn" onclick="handleClick()">👆 CLICK ME!</button>
+        </div>
+        <div id="clickResult" style="font-size:1.2rem;margin-top:10px;"></div>
+    </div>
+</div>
+
 <script>
-var money=0,health=100,job=null,currentLocation='Home',hasCar=false,inventory=[],sick=false;
-var JOBS=[{id:'cashier',name:'🛒 Cashier',pay:50},{id:'cook',name:'🍳 Cook',pay:75},{id:'driver',name:'🚕 Driver',pay:100},{id:'teacher',name:'📚 Teacher',pay:120},{id:'doctor',name:'🏥 Doctor',pay:180},{id:'engineer',name:'🔧 Engineer',pay:200},{id:'pilot',name:'✈️ Pilot',pay:300},{id:'ceo',name:'💼 CEO',pay:500}];
-var SHOP_ITEMS=[{id:'car',name:'🚗 Car',price:500},{id:'house',name:'🏠 House',price:1000},{id:'furniture',name:'🪑 Furniture',price:150},{id:'tv',name:'📺 TV',price:200},{id:'computer',name:'💻 Computer',price:300},{id:'pets',name:'🐕 Pet',price:250}];
-var LOCATIONS={home:'Home',city:'City',beach:'Beach',mountain:'Mountain',park:'Park'};
-function saveGame(){try{localStorage.setItem('simsMiniSave',JSON.stringify({money,health,job,currentLocation,hasCar,inventory,sick}));document.getElementById('saveIndicator').textContent='💾 Saved!';setTimeout(function(){document.getElementById('saveIndicator').textContent='💾 Auto-saved';},2000);}catch(e){}}
-function loadGame(){try{var s=localStorage.getItem('simsMiniSave');if(s){var d=JSON.parse(s);money=d.money||0;health=d.health||100;job=d.job||null;currentLocation=d.currentLocation||'Home';hasCar=d.hasCar||false;inventory=d.inventory||[];sick=d.sick||false;updateUI();return true;}}catch(e){}return false;}
-function updateUI(){document.getElementById('money').textContent=money;document.getElementById('health').textContent=Math.floor(health);document.getElementById('jobDisplay').textContent=job?job.name:'None';document.getElementById('locationDisplay').textContent=currentLocation;renderShop();renderJobs();renderInventory();var m=document.getElementById('carMessage');m.textContent=hasCar?'🚗 Where do you want to go?':'🚗 You need a car! Buy one in the shop for ✦500';}
-function showPanel(p){document.querySelectorAll('.panel').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('panel-'+p);if(el)el.classList.add('active');document.querySelectorAll('.tab').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab').forEach(function(el){if(el.textContent.includes(p)||(p==='home'&&el.textContent.includes('Home'))||(p==='shop'&&el.textContent.includes('Shop'))||(p==='jobs'&&el.textContent.includes('Jobs'))||(p==='car'&&el.textContent.includes('Car'))||(p==='inventory'&&el.textContent.includes('Inventory'))){el.classList.add('active');}});}
-function renderShop(){var c=document.getElementById('shopItems');c.innerHTML='';for(var i=0;i<SHOP_ITEMS.length;i++){var item=SHOP_ITEMS[i];var owned=inventory.indexOf(item.id)!==-1||(item.id==='car'&&hasCar);var d=document.createElement('div');d.className='shop-item';d.innerHTML='<div><span class="name">'+item.name+'</span> <span class="price">✦'+item.price+'</span></div><button class="btn '+(owned?'btn-success':'btn-primary')+'" onclick="buyItem(\''+item.id+'\')" '+(owned?'disabled':'')+'>'+(owned?'✅ Owned':'Buy')+'</button>';c.appendChild(d);}}
-function buyItem(id){var item=null;for(var i=0;i<SHOP_ITEMS.length;i++){if(SHOP_ITEMS[i].id===id){item=SHOP_ITEMS[i];break;}}if(!item)return;if(id==='car'&&hasCar){document.getElementById('shopMessage').textContent='🚗 You already have a car!';return;}if(inventory.indexOf(id)!==-1){document.getElementById('shopMessage').textContent='✅ You already own this!';return;}if(money<item.price){document.getElementById('shopMessage').textContent='❌ Not enough money! Need ✦'+item.price;return;}money-=item.price;if(id==='car'){hasCar=true;}else{inventory.push(id);}document.getElementById('shopMessage').textContent='✅ Purchased '+item.name+'!';updateUI();saveGame();}
-function renderJobs(){var c=document.getElementById('jobsList');c.innerHTML='';for(var i=0;i<JOBS.length;i++){var j=JOBS[i];var isCurrent=job&&job.id===j.id;var d=document.createElement('div');d.className='job-card';d.innerHTML='<div class="name">'+j.name+'</div><div>💰 Pays ✦'+j.pay+'/day</div><button class="btn '+(isCurrent?'btn-success':'btn-primary')+'" onclick="applyJob(\''+j.id+'\')" '+(isCurrent?'disabled':'')+'>'+(isCurrent?'✅ Current':'Apply')+'</button>';c.appendChild(d);}}
-function applyJob(id){if(job&&job.id===id){document.getElementById('jobsMessage').textContent='✅ You already have this job!';return;}var jobData=null;for(var i=0;i<JOBS.length;i++){if(JOBS[i].id===id){jobData=JOBS[i];break;}}if(!jobData)return;var a=prompt('📝 Interview Question:\n\nWhat is 5 + 3?');if(a&&a.trim()==='8'){job=jobData;document.getElementById('jobsMessage').textContent='🎉 You got the job! '+jobData.name+' (✦'+jobData.pay+'/day)';updateUI();saveGame();}else{document.getElementById('jobsMessage').textContent='❌ Interview failed! Try again.';}}
-function work(){if(!job){document.getElementById('homeMessage').textContent='❌ You need a job first!';return;}if(sick){document.getElementById('homeMessage').textContent='🤒 You are sick! Go to the doctor.';return;}if(health<20){document.getElementById('homeMessage').textContent='😰 Too tired! Rest first.';return;}health=Math.max(0,health-5);var earned=job.pay+Math.floor(Math.random()*20);money+=earned;document.getElementById('homeMessage').textContent='💼 Worked! Earned ✦'+earned+' (❤️ -5)';if(Math.random()<0.05&&!sick){sick=true;document.getElementById('homeMessage').textContent='🤒 You got sick! Go to the doctor.';}updateUI();saveGame();}
-function rest(){health=Math.min(100,health+15);document.getElementById('homeMessage').textContent='😴 Rested! +15 health';updateUI();saveGame();}
-function goDoctor(){if(!sick&&health>=80){document.getElementById('homeMessage').textContent='💚 You are healthy!';return;}if(money<50){document.getElementById('homeMessage').textContent='❌ Doctor costs ✦50!';return;}money-=50;sick=false;health=Math.min(100,health+30);document.getElementById('homeMessage').textContent='🏥 Visited doctor! +30 health, -✦50';updateUI();saveGame();}
-function driveTo(loc){if(!hasCar){document.getElementById('carMessage').textContent='🚗 You need a car!';return;}var name=LOCATIONS[loc];if(!name)return;currentLocation=name;document.getElementById('carMessage').textContent='🚗 Drove to '+name+'!';updateUI();saveGame();}
-function renderInventory(){var c=document.getElementById('inventoryItems');c.innerHTML='';if(inventory.length===0&&!hasCar){c.innerHTML='<div style="color:#666;padding:10px;">📭 No items yet.</div>';return;}if(hasCar){var d=document.createElement('div');d.className='shop-item';d.innerHTML='<div><span class="name">🚗 Car</span></div><button class="btn btn-danger" onclick="sellItem(\'car\')">Sell ✦300</button>';c.appendChild(d);}for(var i=0;i<inventory.length;i++){var id=inventory[i];var item=null;for(var j=0;j<SHOP_ITEMS.length;j++){if(SHOP_ITEMS[j].id===id){item=SHOP_ITEMS[j];break;}}if(!item)continue;var price=Math.floor(item.price*0.6);var d2=document.createElement('div');d2.className='shop-item';d2.innerHTML='<div><span class="name">'+item.name+'</span></div><button class="btn btn-danger" onclick="sellItem(\''+id+'\')">Sell ✦'+price+'</button>';c.appendChild(d2);}}
-function sellItem(id){if(id==='car'){if(!hasCar)return;money+=300;hasCar=false;document.getElementById('inventoryMessage').textContent='💰 Sold car for ✦300!';}else{var index=inventory.indexOf(id);if(index===-1)return;var item=null;for(var i=0;i<SHOP_ITEMS.length;i++){if(SHOP_ITEMS[i].id===id){item=SHOP_ITEMS[i];break;}}var price=Math.floor(item.price*0.6);money+=price;inventory.splice(index,1);document.getElementById('inventoryMessage').textContent='💰 Sold '+item.name+' for ✦'+price+'!';}updateUI();saveGame();}
-function sellAllItems(){if(inventory.length===0&&!hasCar){document.getElementById('inventoryMessage').textContent='📭 Nothing to sell!';return;}var total=0,count=0;if(hasCar){total+=300;hasCar=false;count++;}for(var i=0;i<inventory.length;i++){var id=inventory[i];var item=null;for(var j=0;j<SHOP_ITEMS.length;j++){if(SHOP_ITEMS[j].id===id){item=SHOP_ITEMS[j];break;}}if(item){total+=Math.floor(item.price*0.6);count++;}}inventory=[];money+=total;document.getElementById('inventoryMessage').textContent='💰 Sold '+count+' items for ✦'+total+'!';updateUI();saveGame();}
-function resetGame(){if(!confirm('⚠️ Reset all progress?'))return;money=0;health=100;job=null;currentLocation='Home';hasCar=false;inventory=[];sick=false;updateUI();saveGame();document.getElementById('homeMessage').textContent='🔄 Game reset!';}
-setInterval(saveGame,10000);
-loadGame();updateUI();document.getElementById('homeMessage').textContent='🏠 Welcome to Sims Mini!';
+// ============================================================
+// GAME STATE
+// ============================================================
+var money = 0;
+var health = 100;
+var job = null;
+var currentLocation = 'Home';
+var hasCar = false;
+var inventory = [];
+var sick = false;
+
+// ============================================================
+// JOBS WITH DIFFICULTY AND DESCRIPTIONS
+// ============================================================
+var JOBS = [
+    { id: 'cashier', name: '🛒 Cashier', pay: 50, difficulty: 'easy', diffClass: 'easy', description: 'Scan items fast!' },
+    { id: 'driver', name: '🚕 Driver', pay: 80, difficulty: 'easy', diffClass: 'easy', description: 'Drive people around town' },
+    { id: 'nurse', name: '💉 Nurse', pay: 100, difficulty: 'medium', diffClass: 'medium', description: 'Simple medical aid' },
+    { id: 'teacher', name: '📚 Teacher', pay: 120, difficulty: 'medium', diffClass: 'medium', description: 'Teach the next generation' },
+    { id: 'doctor', name: '🏥 Doctor', pay: 180, difficulty: 'hard', diffClass: 'hard', description: 'Heal the sick' },
+    { id: 'engineer', name: '🔧 Engineer', pay: 220, difficulty: 'hard', diffClass: 'hard', description: 'Build amazing things' },
+    { id: 'pilot', name: '✈️ Pilot', pay: 300, difficulty: 'expert', diffClass: 'expert', description: 'Fly planes!' },
+    { id: 'ceo', name: '💼 CEO', pay: 500, difficulty: 'expert', diffClass: 'expert', description: 'Run a company' }
+];
+
+var SHOP_ITEMS = [
+    { id: 'car', name: '🚗 Car', price: 500 },
+    { id: 'house', name: '🏠 House', price: 1000 },
+    { id: 'furniture', name: '🪑 Furniture', price: 150 },
+    { id: 'tv', name: '📺 TV', price: 200 },
+    { id: 'computer', name: '💻 Computer', price: 300 },
+    { id: 'pets', name: '🐕 Pet', price: 250 }
+];
+
+var LOCATIONS = {
+    home: 'Home',
+    city: 'City',
+    beach: 'Beach',
+    mountain: 'Mountain',
+    park: 'Park'
+};
+
+// ============================================================
+// CLICK CHALLENGE VARIABLES
+// ============================================================
+var clickCount = 0;
+var clickTarget = 10;
+var clickTime = 5;
+var clickTimer = null;
+var clickResolve = null;
+var clickJobId = null;
+
+// ============================================================
+// SAVE/LOAD
+// ============================================================
+function saveGame() {
+    try {
+        localStorage.setItem('simsMiniSave', JSON.stringify({
+            money: money,
+            health: health,
+            job: job,
+            currentLocation: currentLocation,
+            hasCar: hasCar,
+            inventory: inventory,
+            sick: sick
+        }));
+        document.getElementById('saveIndicator').textContent = '💾 Saved!';
+        setTimeout(function() {
+            document.getElementById('saveIndicator').textContent = '💾 Auto-saved';
+        }, 2000);
+    } catch(e) {}
+}
+
+function loadGame() {
+    try {
+        var s = localStorage.getItem('simsMiniSave');
+        if (s) {
+            var d = JSON.parse(s);
+            money = d.money || 0;
+            health = d.health || 100;
+            job = d.job || null;
+            currentLocation = d.currentLocation || 'Home';
+            hasCar = d.hasCar || false;
+            inventory = d.inventory || [];
+            sick = d.sick || false;
+            updateUI();
+            return true;
+        }
+    } catch(e) {}
+    return false;
+}
+
+// ============================================================
+// UI UPDATE
+// ============================================================
+function updateUI() {
+    document.getElementById('money').textContent = money;
+    document.getElementById('health').textContent = Math.floor(health);
+    document.getElementById('jobDisplay').textContent = job ? job.name : 'None';
+    document.getElementById('locationDisplay').textContent = currentLocation;
+    renderShop();
+    renderJobs();
+    renderInventory();
+    var m = document.getElementById('carMessage');
+    m.textContent = hasCar ? '🚗 Where do you want to go?' : '🚗 You need a car! Buy one in the shop for ✦500';
+}
+
+// ============================================================
+// TAB SYSTEM
+// ============================================================
+function showPanel(p) {
+    document.querySelectorAll('.panel').forEach(function(el) { el.classList.remove('active'); });
+    var el = document.getElementById('panel-' + p);
+    if (el) el.classList.add('active');
+    document.querySelectorAll('.tab').forEach(function(el) { el.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(el) {
+        if (el.textContent.includes(p) ||
+            (p === 'home' && el.textContent.includes('Home')) ||
+            (p === 'shop' && el.textContent.includes('Shop')) ||
+            (p === 'jobs' && el.textContent.includes('Jobs')) ||
+            (p === 'car' && el.textContent.includes('Car')) ||
+            (p === 'inventory' && el.textContent.includes('Inventory'))) {
+            el.classList.add('active');
+        }
+    });
+}
+
+// ============================================================
+// SHOP
+// ============================================================
+function renderShop() {
+    var c = document.getElementById('shopItems');
+    c.innerHTML = '';
+    for (var i = 0; i < SHOP_ITEMS.length; i++) {
+        var item = SHOP_ITEMS[i];
+        var owned = inventory.indexOf(item.id) !== -1 || (item.id === 'car' && hasCar);
+        var d = document.createElement('div');
+        d.className = 'shop-item';
+        d.innerHTML = '<div><span class="name">' + item.name + '</span> <span class="price">✦' + item.price + '</span></div><button class="btn ' + (owned ? 'btn-success' : 'btn-primary') + '" onclick="buyItem(\'' + item.id + '\')" ' + (owned ? 'disabled' : '') + '>' + (owned ? '✅ Owned' : 'Buy') + '</button>';
+        c.appendChild(d);
+    }
+}
+
+function buyItem(id) {
+    var item = null;
+    for (var i = 0; i < SHOP_ITEMS.length; i++) {
+        if (SHOP_ITEMS[i].id === id) { item = SHOP_ITEMS[i]; break; }
+    }
+    if (!item) return;
+    if (id === 'car' && hasCar) { document.getElementById('shopMessage').textContent = '🚗 You already have a car!'; return; }
+    if (inventory.indexOf(id) !== -1) { document.getElementById('shopMessage').textContent = '✅ You already own this!'; return; }
+    if (money < item.price) { document.getElementById('shopMessage').textContent = '❌ Not enough money! Need ✦' + item.price; return; }
+    money -= item.price;
+    if (id === 'car') { hasCar = true; } else { inventory.push(id); }
+    document.getElementById('shopMessage').textContent = '✅ Purchased ' + item.name + '!';
+    updateUI();
+    saveGame();
+}
+
+// ============================================================
+// JOBS
+// ============================================================
+function renderJobs() {
+    var c = document.getElementById('jobsList');
+    c.innerHTML = '';
+    for (var i = 0; i < JOBS.length; i++) {
+        var j = JOBS[i];
+        var isCurrent = job && job.id === j.id;
+        var d = document.createElement('div');
+        d.className = 'job-card';
+        d.innerHTML = '<div class="name">' + j.name + '</div>' +
+            '<span class="diff ' + j.diffClass + '">' + j.difficulty.toUpperCase() + '</span>' +
+            '<div style="font-size:0.8rem;color:#8899aa;margin:4px 0;">' + j.description + '</div>' +
+            '<div>💰 Pays ✦' + j.pay + '/day</div>' +
+            '<button class="btn ' + (isCurrent ? 'btn-success' : 'btn-primary') + '" onclick="applyJob(\'' + j.id + '\')" ' + (isCurrent ? 'disabled' : '') + '>' +
+            (isCurrent ? '✅ Current' : 'Apply') + '</button>';
+        c.appendChild(d);
+    }
+}
+
+// ============================================================
+// JOB APPLICATION WITH DIFFERENT CHALLENGES
+// ============================================================
+function applyJob(id) {
+    if (job && job.id === id) {
+        document.getElementById('jobsMessage').textContent = '✅ You already have this job!';
+        return;
+    }
+    var jobData = null;
+    for (var i = 0; i < JOBS.length; i++) {
+        if (JOBS[i].id === id) { jobData = JOBS[i]; break; }
+    }
+    if (!jobData) return;
+
+    clickJobId = id;
+    var passed = false;
+
+    switch (id) {
+        case 'cashier':
+            passed = startClickChallenge(10, 5, '🛒 Cashier Test', 'Click 10 times in 5 seconds!');
+            break;
+        case 'driver':
+            passed = startClickChallenge(10, 5, '🚕 Driver Test', 'Click 10 times in 5 seconds!');
+            break;
+        case 'nurse':
+            passed = nurseInterview();
+            break;
+        case 'teacher':
+            passed = teacherInterview();
+            break;
+        case 'doctor':
+            passed = doctorInterview();
+            break;
+        case 'engineer':
+            passed = engineerInterview();
+            break;
+        case 'pilot':
+            passed = pilotInterview();
+            break;
+        case 'ceo':
+            passed = ceoInterview();
+            break;
+        default:
+            passed = false;
+    }
+
+    if (passed) {
+        job = jobData;
+        document.getElementById('jobsMessage').textContent = '🎉 You got the job! ' + jobData.name + ' (✦' + jobData.pay + '/day)';
+        updateUI();
+        saveGame();
+    } else {
+        // Don't reset the message for click challenges - they handle their own messages
+        if (id !== 'cashier' && id !== 'driver') {
+            document.getElementById('jobsMessage').textContent = '❌ Interview failed! Try again later.';
+        }
+    }
+}
+
+// ============================================================
+// CLICK CHALLENGE SYSTEM
+// ============================================================
+function startClickChallenge(target, seconds, title, description) {
+    return new Promise(function(resolve) {
+        clickCount = 0;
+        clickTarget = target;
+        clickTime = seconds;
+        clickResolve = resolve;
+
+        var modal = document.getElementById('clickModal');
+        var titleEl = document.getElementById('clickTitle');
+        var timerEl = document.getElementById('clickTimer');
+        var countEl = document.getElementById('clickCount');
+        var resultEl = document.getElementById('clickResult');
+        var btn = document.getElementById('clickBtn');
+
+        modal.style.display = 'flex';
+        titleEl.textContent = title;
+        timerEl.textContent = '⏱️ ' + clickTime;
+        countEl.textContent = '👆 0 / ' + clickTarget;
+        resultEl.textContent = '';
+        btn.disabled = false;
+        btn.textContent = '👆 CLICK ME!';
+
+        // Start timer
+        if (clickTimer) clearInterval(clickTimer);
+        clickTimer = setInterval(function() {
+            clickTime--;
+            timerEl.textContent = '⏱️ ' + clickTime;
+            if (clickTime <= 0) {
+                clearInterval(clickTimer);
+                btn.disabled = true;
+                if (clickCount >= clickTarget) {
+                    resultEl.textContent = '✅ PASSED! You clicked ' + clickCount + ' times!';
+                    resultEl.style.color = '#7cf5b0';
+                    setTimeout(function() {
+                        modal.style.display = 'none';
+                        if (clickResolve) clickResolve(true);
+                    }, 1000);
+                } else {
+                    resultEl.textContent = '❌ FAILED! You needed ' + clickTarget + ' clicks, got ' + clickCount;
+                    resultEl.style.color = '#ff6b6b';
+                    setTimeout(function() {
+                        modal.style.display = 'none';
+                        if (clickResolve) {
+                            document.getElementById('jobsMessage').textContent = '❌ Interview failed! Try again later.';
+                            clickResolve(false);
+                        }
+                    }, 1500);
+                }
+            }
+        }, 1000);
+
+        // Click handler
+        window.handleClick = function() {
+            if (btn.disabled) return;
+            clickCount++;
+            countEl.textContent = '👆 ' + clickCount + ' / ' + clickTarget;
+            if (clickCount >= clickTarget) {
+                clearInterval(clickTimer);
+                btn.disabled = true;
+                resultEl.textContent = '✅ PASSED! You clicked ' + clickCount + ' times!';
+                resultEl.style.color = '#7cf5b0';
+                setTimeout(function() {
+                    modal.style.display = 'none';
+                    if (clickResolve) clickResolve(true);
+                }, 1000);
+            }
+        };
+    });
+}
+
+// ============================================================
+// INTERVIEW FUNCTIONS
+// ============================================================
+
+// NURSE - Simple medical aid
+function nurseInterview() {
+    var questions = [
+        { q: 'What does CPR stand for?', a: 'cardiopulmonary resuscitation' },
+        { q: 'What is the normal human body temperature in °F?', a: '98.6' },
+        { q: 'What do you check first on a patient?', a: 'airway' },
+        { q: 'What does "stat" mean in medical terms?', a: 'immediately' },
+        { q: 'What is the first step in first aid?', a: 'check' }
+    ];
+    return askQuestions(questions, 2);
+}
+
+// TEACHER - Simple math
+function teacherInterview() {
+    var questions = [
+        { q: 'What is 15 × 3?', a: '45' },
+        { q: 'What is 144 ÷ 12?', a: '12' },
+        { q: 'What is 7 × 8?', a: '56' },
+        { q: 'What is 100 - 37?', a: '63' },
+        { q: 'What is 6 × 9?', a: '54' }
+    ];
+    return askQuestions(questions, 3);
+}
+
+// DOCTOR - Medical knowledge
+function doctorInterview() {
+    var questions = [
+        { q: 'What is the largest organ in the human body?', a: 'skin' },
+        { q: 'How many chambers does the human heart have?', a: '4' },
+        { q: 'What is the medical term for high blood pressure?', a: 'hypertension' },
+        { q: 'What type of blood is the universal donor?', a: 'o negative' },
+        { q: 'What part of the body produces insulin?', a: 'pancreas' }
+    ];
+    return askQuestions(questions, 3);
+}
+
+// ENGINEER - Math and logic
+function engineerInterview() {
+    var questions = [
+        { q: 'What is 256 ÷ 8?', a: '32' },
+        { q: 'What is the square root of 144?', a: '12' },
+        { q: 'If a train travels 60 miles per hour, how far in 2.5 hours?', a: '150' },
+        { q: 'What is 15% of 200?', a: '30' },
+        { q: 'What is 2⁵?', a: '32' },
+        { q: 'What is the area of a circle with radius 5? (use 3.14)', a: '78.5' }
+    ];
+    return askQuestions(questions, 3);
+}
+
+// PILOT - Click + math challenge
+function pilotInterview() {
+    // First do a click challenge
+    var result = startClickChallenge(12, 5, '✈️ Pilot Test - Part 1', 'Click 12 times in 5 seconds!');
+    // Then math questions
+    var mathQuestions = [
+        { q: 'What is 24 × 7?', a: '168' },
+        { q: 'What is 1000 ÷ 25?', a: '40' },
+        { q: 'If a plane flies at 500 mph for 3 hours, how far?', a: '1500' }
+    ];
+    return askQuestions(mathQuestions, 2);
+}
+
+// CEO - Click + math + business knowledge + virus protection
+function ceoInterview() {
+    // First do a click challenge
+    var result = startClickChallenge(15, 5, '💼 CEO Test - Part 1', 'Click 15 times in 5 seconds!');
+    // Then business questions
+    var questions = [
+        { q: 'What is 35 × 14?', a: '490' },
+        { q: 'What is 15% of 500?', a: '75' },
+        { q: 'What does ROI stand for?', a: 'return on investment' },
+        { q: 'What is the formula for profit?', a: 'revenue minus costs' },
+        { q: 'What is 8 × 12 + 4?', a: '100' },
+        // Virus protection question - if wrong, show scavyscammy message
+        { q: '☣️ VIRUS PROTECTION TEST: What is the best way to protect against computer viruses? (Type the answer)', 
+          a: 'antivirus software' }
+    ];
+    return askQuestionsWithVirus(questions, 3);
+}
+
+// ============================================================
+// HELPER: Ask questions with pass threshold
+// ============================================================
+function askQuestions(questions, needed) {
+    var correct = 0;
+    var shuffled = questions.slice().sort(function() { return 0.5 - Math.random(); });
+    var asked = shuffled.slice(0, needed + 2);
+    
+    for (var i = 0; i < asked.length; i++) {
+        var answer = prompt('📝 Interview Question ' + (i + 1) + ' of ' + asked.length + ':\n\n' + asked[i].q);
+        if (answer && answer.toLowerCase().trim() === asked[i].a.toLowerCase()) {
+            correct++;
+        }
+    }
+    return correct >= needed;
+}
+
+// ============================================================
+// HELPER: Ask questions with virus protection check
+// ============================================================
+function askQuestionsWithVirus(questions, needed) {
+    var correct = 0;
+    var shuffled = questions.slice().sort(function() { return 0.5 - Math.random(); });
+    var asked = shuffled.slice(0, needed + 2);
+    
+    for (var i = 0; i < asked.length; i++) {
+        var answer = prompt('📝 Interview Question ' + (i + 1) + ' of ' + asked.length + ':\n\n' + asked[i].q);
+        if (answer && answer.toLowerCase().trim() === asked[i].a.toLowerCase()) {
+            correct++;
+        }
+    }
+    
+    // Check if virus question was answered correctly
+    var virusCorrect = false;
+    for (var i = 0; i < asked.length; i++) {
+        if (asked[i].q.includes('VIRUS PROTECTION')) {
+            // Check if user got it right
+            var virusAnswer = prompt('☣️ VIRUS PROTECTION FINAL TEST:\n\nWhat is the best way to protect against computer viruses?\n\n⚠️ This is critical for CEO position!');
+            if (virusAnswer && virusAnswer.toLowerCase().trim() === 'antivirus software') {
+                virusCorrect = true;
+            } else {
+                // Show scavyscammy message
+                document.getElementById('jobsMessage').textContent = '❌ You need to try some ScavyScammy protection! (Anti-virus software is the correct answer)';
+                alert('☣️ VIRUS DETECTED! You need to try some ScavyScammy protection!');
+                return false;
+            }
+            break;
+        }
+    }
+    
+    return correct >= needed && virusCorrect;
+}
+
+// ============================================================
+// WORK FUNCTION
+// ============================================================
+function work() {
+    if (!job) {
+        document.getElementById('homeMessage').textContent = '❌ You need a job first!';
+        return;
+    }
+    if (sick) {
+        document.getElementById('homeMessage').textContent = '🤒 You are sick! Go to the doctor.';
+        return;
+    }
+    if (health < 20) {
+        document.getElementById('homeMessage').textContent = '😰 Too tired! Rest first.';
+        return;
+    }
+    health = Math.max(0, health - 5);
+    var earned = job.pay + Math.floor(Math.random() * 20);
+    money += earned;
+    document.getElementById('homeMessage').textContent = '💼 Worked at ' + job.name + '! Earned ✦' + earned + ' (❤️ -5)';
+    if (Math.random() < 0.05 && !sick) {
+        sick = true;
+        document.getElementById('homeMessage').textContent = '🤒 You got sick! Go to the doctor.';
+    }
+    updateUI();
+    saveGame();
+}
+
+// ============================================================
+// REST
+// ============================================================
+function rest() {
+    health = Math.min(100, health + 15);
+    document.getElementById('homeMessage').textContent = '😴 Rested! +15 health';
+    updateUI();
+    saveGame();
+}
+
+// ============================================================
+// DOCTOR
+// ============================================================
+function goDoctor() {
+    if (!sick && health >= 80) {
+        document.getElementById('homeMessage').textContent = '💚 You are healthy!';
+        return;
+    }
+    if (money < 50) {
+        document.getElementById('homeMessage').textContent = '❌ Doctor costs ✦50!';
+        return;
+    }
+    money -= 50;
+    sick = false;
+    health = Math.min(100, health + 30);
+    document.getElementById('homeMessage').textContent = '🏥 Visited doctor! +30 health, -✦50';
+    updateUI();
+    saveGame();
+}
+
+// ============================================================
+// DRIVE
+// ============================================================
+function driveTo(loc) {
+    if (!hasCar) {
+        document.getElementById('carMessage').textContent = '🚗 You need a car!';
+        return;
+    }
+    var name = LOCATIONS[loc];
+    if (!name) return;
+    currentLocation = name;
+    document.getElementById('carMessage').textContent = '🚗 Drove to ' + name + '!';
+    updateUI();
+    saveGame();
+}
+
+// ============================================================
+// INVENTORY
+// ============================================================
+function renderInventory() {
+    var c = document.getElementById('inventoryItems');
+    c.innerHTML = '';
+    if (inventory.length === 0 && !hasCar) {
+        c.innerHTML = '<div style="color:#666;padding:10px;">📭 No items yet.</div>';
+        return;
+    }
+    if (hasCar) {
+        var d = document.createElement('div');
+        d.className = 'shop-item';
+        d.innerHTML = '<div><span class="name">🚗 Car</span></div><button class="btn btn-danger" onclick="sellItem(\'car\')">Sell ✦300</button>';
+        c.appendChild(d);
+    }
+    for (var i = 0; i < inventory.length; i++) {
+        var id = inventory[i];
+        var item = null;
+        for (var j = 0; j < SHOP_ITEMS.length; j++) {
+            if (SHOP_ITEMS[j].id === id) { item = SHOP_ITEMS[j]; break; }
+        }
+        if (!item) continue;
+        var price = Math.floor(item.price * 0.6);
+        var d2 = document.createElement('div');
+        d2.className = 'shop-item';
+        d2.innerHTML = '<div><span class="name">' + item.name + '</span></div><button class="btn btn-danger" onclick="sellItem(\'' + id + '\')">Sell ✦' + price + '</button>';
+        c.appendChild(d2);
+    }
+}
+
+function sellItem(id) {
+    if (id === 'car') {
+        if (!hasCar) return;
+        money += 300;
+        hasCar = false;
+        document.getElementById('inventoryMessage').textContent = '💰 Sold car for ✦300!';
+    } else {
+        var index = inventory.indexOf(id);
+        if (index === -1) return;
+        var item = null;
+        for (var i = 0; i < SHOP_ITEMS.length; i++) {
+            if (SHOP_ITEMS[i].id === id) { item = SHOP_ITEMS[i]; break; }
+        }
+        var price = Math.floor(item.price * 0.6);
+        money += price;
+        inventory.splice(index, 1);
+        document.getElementById('inventoryMessage').textContent = '💰 Sold ' + item.name + ' for ✦' + price + '!';
+    }
+    updateUI();
+    saveGame();
+}
+
+function sellAllItems() {
+    if (inventory.length === 0 && !hasCar) {
+        document.getElementById('inventoryMessage').textContent = '📭 Nothing to sell!';
+        return;
+    }
+    var total = 0, count = 0;
+    if (hasCar) { total += 300; hasCar = false; count++; }
+    for (var i = 0; i < inventory.length; i++) {
+        var id = inventory[i];
+        var item = null;
+        for (var j = 0; j < SHOP_ITEMS.length; j++) {
+            if (SHOP_ITEMS[j].id === id) { item = SHOP_ITEMS[j]; break; }
+        }
+        if (item) { total += Math.floor(item.price * 0.6); count++; }
+    }
+    inventory = [];
+    money += total;
+    document.getElementById('inventoryMessage').textContent = '💰 Sold ' + count + ' items for ✦' + total + '!';
+    updateUI();
+    saveGame();
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function resetGame() {
+    if (!confirm('⚠️ Reset all progress?')) return;
+    money = 0;
+    health = 100;
+    job = null;
+    currentLocation = 'Home';
+    hasCar = false;
+    inventory = [];
+    sick = false;
+    updateUI();
+    saveGame();
+    document.getElementById('homeMessage').textContent = '🔄 Game reset!';
+}
+
+// ============================================================
+// AUTO-SAVE
+// ============================================================
+setInterval(saveGame, 10000);
+
+// ============================================================
+// START
+// ============================================================
+loadGame();
+updateUI();
+document.getElementById('homeMessage').textContent = '🏠 Welcome to Sims Mini!';
+console.log('✅ Sims Mini loaded with HARDER jobs!');
 </script>
 </body>
 </html>

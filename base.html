@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🚀 Launch Pad</title>
+    <title>🚀 Launchpad Games</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
@@ -15,356 +15,405 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
             padding: 20px;
         }
-        .container {
-            max-width: 500px;
+        .launchpad {
+            max-width: 1300px;
             width: 100%;
-            text-align: center;
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 30px 60px -20px rgba(0,0,0,0.8);
         }
-        h1 {
-            color: #4fc3f7;
-            font-size: 2.5rem;
-            margin-bottom: 4px;
+        .start-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 1rem;
         }
-        .subtitle {
-            color: #7cf5b0;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+        .start-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
+        .start-header h1 i { color: #7fc9ff; background: #1d4055; padding: 0.3rem 0.6rem; border-radius: 30px; font-size: 1.2rem; }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
-        .game-card {
-            background: #1a3344;
-            border-radius: 16px;
-            padding: 20px 10px;
-            text-decoration: none;
-            color: #d0e8f0;
-            border: 1px solid #2a4a5e;
-            transition: 0.2s;
+        .user-section { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+        .username-display { color: #7cf5b0; font-weight: 600; font-size: 0.8rem; }
+        .username-display i { margin-right: 3px; color: #f5c87c; }
+        .login-btn, .logout-btn, .friends-btn, .feedback-btn {
+            background: #1a3a5a;
+            border: 1px solid #2a5a7a;
+            padding: 0.25rem 0.8rem;
+            border-radius: 40px;
+            color: white;
             cursor: pointer;
-        }
-        .game-card:hover {
-            transform: translateY(-4px);
-            border-color: #4fc3f7;
-            box-shadow: 0 4px 20px rgba(79, 195, 247, 0.1);
-        }
-        .game-card .emoji {
-            font-size: 2.5rem;
-            display: block;
-            margin-bottom: 6px;
-        }
-        .game-card .name {
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-        .game-card .desc {
             font-size: 0.7rem;
-            color: #8899aa;
-            margin-top: 4px;
+            transition: 0.15s;
+            touch-action: manipulation;
         }
-        .section {
-            background: #0f1f2e;
-            border-radius: 16px;
-            padding: 15px;
-            border: 1px solid #1a3344;
-            margin: 10px 0;
+        .login-btn { background: linear-gradient(135deg, #4fc3f7, #1a6a8a); border-color: #4fc3f7; }
+        .friends-btn { background: linear-gradient(135deg, #f57c9f, #b54a6b); border-color: #f57c9f; }
+        .feedback-btn { background: linear-gradient(135deg, #7cf5b0, #1a6a4a); border-color: #7cf5b0; }
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: #f5c87c;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            transition: 0.15s;
+            touch-action: manipulation;
         }
-        .section-title {
-            color: #4fc3f7;
-            font-weight: 700;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
+        .theme-toggle:hover { transform: rotate(20deg); }
+
+        /* Friend Code Box */
         .friend-code-box {
             background: #1a3344;
             border: 2px solid #4fc3f7;
             border-radius: 12px;
-            padding: 15px;
+            padding: 12px 16px;
             margin: 10px 0;
-        }
-        .friend-code-box .code {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #7cf5b0;
-            letter-spacing: 6px;
-            font-family: 'Courier New', monospace;
-        }
-        .friend-code-box .label {
-            font-size: 0.6rem;
-            color: #8899aa;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .friend-code-box .device-info {
-            font-size: 0.7rem;
-            color: #8899aa;
-            margin-top: 4px;
-        }
-        .input-group {
-            display: flex;
-            gap: 8px;
-            margin: 8px 0;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .input-group input {
-            background: #1a3344;
-            border: 1px solid #2a4a5e;
-            color: #d0e8f0;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 1rem;
-            width: 160px;
-            text-align: center;
-            letter-spacing: 4px;
-            font-family: 'Courier New', monospace;
-            text-transform: uppercase;
-        }
-        .input-group input:focus {
-            outline: none;
-            border-color: #4fc3f7;
-        }
-        .btn {
-            padding: 8px 18px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .btn:active {
-            transform: scale(0.95);
-        }
-        .btn-primary {
-            background: #4fc3f7;
-            color: #0b1a26;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(79, 195, 247, 0.2);
-        }
-        .btn-success {
-            background: #7cf5b0;
-            color: #0b1a26;
-        }
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(124, 245, 176, 0.2);
-        }
-        .btn-danger {
-            background: #ff6b6b;
-            color: white;
-        }
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.2);
-        }
-        .btn-warning {
-            background: #ffd93d;
-            color: #0b1a26;
-        }
-        .btn-warning:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(255, 217, 61, 0.2);
-        }
-        .btn-cyan {
-            background: #4fc3f7;
-            color: #0b1a26;
-        }
-        .btn-cyan:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(79, 195, 247, 0.2);
-        }
-        .btn-small {
-            padding: 5px 12px;
-            font-size: 0.7rem;
-        }
-        .friend-item {
-            background: #1a3344;
-            border-radius: 12px;
-            padding: 10px;
-            margin: 6px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #2a4a5e;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        .friend-item .info {
-            text-align: left;
-            flex: 1;
-        }
-        .friend-item .name {
+        .friend-code-box .code-label { font-size: 0.6rem; color: #8899aa; text-transform: uppercase; letter-spacing: 2px; }
+        .friend-code-box .code {
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #f0f8ff;
-            font-size: 0.9rem;
-        }
-        .friend-item .details {
-            font-size: 0.65rem;
-            color: #8899aa;
-        }
-        .friend-item .status {
-            font-size: 0.6rem;
-            padding: 2px 10px;
-            border-radius: 20px;
-            display: inline-block;
-        }
-        .status.online {
-            background: #1a4a3a;
             color: #7cf5b0;
-        }
-        .status.offline {
-            background: #3a3a3a;
-            color: #8899aa;
-        }
-        .status.pending {
-            background: #3a3a1a;
-            color: #ffd93d;
-        }
-        .friend-item .device {
-            font-size: 0.55rem;
-            color: #4fc3f7;
-        }
-        .friend-item .code {
-            font-size: 0.6rem;
-            color: #7cf5b0;
+            letter-spacing: 4px;
             font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
         }
-        .online-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 4px;
+        .friend-code-box .device-info { font-size: 0.6rem; color: #8899aa; }
+        .friend-code-box .friend-count { color: #7cf5b0; font-weight: 700; }
+        .friend-code-box .btn-small { padding: 4px 12px; font-size: 0.65rem; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn-cyan { background: #4fc3f7; color: #0b1a26; }
+        .btn-cyan:hover { transform: translateY(-2px); }
+        .btn-success { background: #7cf5b0; color: #0b1a26; }
+        .btn-success:hover { transform: translateY(-2px); }
+        .btn-warning { background: #ffd93d; color: #0b1a26; }
+        .btn-warning:hover { transform: translateY(-2px); }
+
+        .pick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.8rem;
+            margin-top: 0.8rem;
         }
-        .online-dot.online {
-            background: #7cf5b0;
-        }
-        .online-dot.offline {
-            background: #8899aa;
-        }
-        .online-dot.pending {
-            background: #ffd93d;
-        }
-        .save-indicator {
-            font-size: 0.6rem;
-            color: #4a6a8a;
-            margin-top: 10px;
-        }
-        .friend-count {
-            color: #7cf5b0;
-            font-weight: 700;
-        }
-        .empty-state {
-            color: #666;
-            padding: 20px;
-            font-size: 0.9rem;
-        }
-        .empty-state .emoji {
-            font-size: 2rem;
+        .pick-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 1.5rem;
+            padding: 1rem 0.6rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: 0.2s;
+            text-decoration: none;
+            color: white;
             display: block;
-            margin-bottom: 8px;
+            cursor: pointer;
+            min-height: 160px;
         }
+        .pick-card:hover { transform: translateY(-5px); border-color: #4fc3f7; box-shadow: 0 10px 30px rgba(79,195,247,0.1); }
+        .pick-card .icon-wrap { font-size: 1.8rem; color: #9fd0ff; background: #1f4057; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.6rem; border-radius: 24px; border: 1px solid #3b6f8f; }
+        .pick-card h3 { font-weight: 600; font-size: 0.85rem; color: #f0f8ff; }
+        .pick-card .sub { font-size: 0.65rem; opacity: 0.7; color: #bbd9ef; }
+        .pick-card .arrow { display: inline-block; margin-top: 0.4rem; background: #213f53; padding: 0.05rem 0.6rem; border-radius: 40px; font-size: 0.6rem; border: 1px solid #386883; color: #c0defa; }
+        .pick-card .played-badge { position: absolute; bottom: 0.2rem; right: 0.4rem; color: #4a6a8a; font-size: 0.45rem; }
+        .pick-card .progress-bar { width: 100%; height: 3px; background: #0a1a2a; border-radius: 4px; margin-top: 0.3rem; overflow: hidden; }
+        .pick-card .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #4fc3f7, #7cf5b0); border-radius: 4px; transition: width 0.5s; width: 0%; }
+
+        .section-title {
+            color: #8ab4d8;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 1.2rem 0 0.4rem 0;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title i { color: #ffb347; }
+        .section-title .count { font-size: 0.6rem; color: #4a6a8a; font-weight: 400; margin-left: 4px; }
+
+        .update-log {
+            background: rgba(0,0,0,0.3);
+            border-radius: 1.2rem;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(100,200,255,0.08);
+        }
+        .update-log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+        .update-log-header .title { color: #ffd93d; font-size: 0.9rem; font-weight: 700; }
+        .update-log-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.3rem;
+        }
+        .update-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #b0d4f0;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 0.5rem;
+        }
+        .update-item .emoji { font-size: 0.9rem; }
+        .update-item .new-badge {
+            background: #ff6b35;
+            color: white;
+            font-size: 0.4rem;
+            font-weight: 700;
+            padding: 0.05rem 0.3rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: #1a2a3a;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            max-width: 400px;
+            width: 100%;
+            border: 2px solid #4fc3f7;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-box .close-btn { float: right; background: none; border: none; color: #6a8aaa; font-size: 1.3rem; cursor: pointer; }
+        .modal-box h2 { color: white; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 8px; font-size: 1.3rem; }
+        .modal-box input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border-radius: 0.8rem;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            margin-bottom: 0.8rem;
+        }
+        .modal-box input:focus { border-color: #4fc3f7; }
+        .modal-box .submit-btn {
+            background: linear-gradient(135deg, #4fc3f7, #1a6a8a);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.95rem;
+        }
+        .modal-box .switch-link { color: #4fc3f7; cursor: pointer; text-align: center; margin-top: 0.6rem; font-size: 0.85rem; }
+
         @media (max-width: 480px) {
-            .container { margin-top: 10px; }
-            h1 { font-size: 2rem; }
-            .game-grid { gap: 8px; }
-            .game-card { padding: 15px 8px; }
-            .game-card .emoji { font-size: 2rem; }
-            .friend-code-box .code { font-size: 1.5rem; letter-spacing: 4px; }
-            .input-group input { width: 130px; font-size: 0.9rem; }
-            .friend-item { flex-direction: column; text-align: center; }
-            .friend-item .info { text-align: center; margin-bottom: 6px; }
+            .launchpad { padding: 1rem; border-radius: 1.5rem; }
+            .pick-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+            .start-header h1 { font-size: 1.4rem; }
+            .pick-card { min-height: 140px; padding: 0.8rem 0.4rem; }
+            .pick-card .icon-wrap { width: 45px; height: 45px; font-size: 1.4rem; }
+            .friend-code-box { padding: 10px; }
+            .friend-code-box .code { font-size: 1.2rem; letter-spacing: 3px; }
+            .header-right { gap: 0.3rem; }
+            .login-btn, .logout-btn, .friends-btn, .feedback-btn { font-size: 0.55rem; padding: 0.15rem 0.5rem; }
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>🚀 Launch Pad</h1>
-    <p class="subtitle">Your gaming hub</p>
-
-    <!-- GAME GRID -->
-    <div class="game-grid">
-        <a href="sim/sims.html" class="game-card">
-            <span class="emoji">👤</span>
-            <span class="name">Sims Mini</span>
-            <span class="desc">Live your best life</span>
-        </a>
-        <div class="game-card" style="opacity:0.3;cursor:not-allowed;">
-            <span class="emoji">🎮</span>
-            <span class="name">More Games</span>
-            <span class="desc">Coming soon</span>
+<div class="launchpad">
+    <div class="start-header">
+        <h1><i class="fas fa-rocket"></i> launchpad</h1>
+        <div class="header-right">
+            <div class="user-section" id="userSection">
+                <span class="username-display" id="usernameDisplay"><i class="fas fa-user"></i> Guest</span>
+                <button class="login-btn" id="loginBtn">Login</button>
+                <button class="logout-btn" id="logoutBtn" style="display:none;">Logout</button>
+            </div>
+            <button class="friends-btn" id="friendsBtn"><i class="fas fa-users"></i> Friends</button>
+            <button class="feedback-btn" id="feedbackBtn"><i class="fas fa-envelope"></i> Feedback</button>
+            <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
         </div>
     </div>
 
-    <!-- FRIENDS SECTION -->
-    <div class="section">
-        <div class="section-title"><i class="fas fa-users"></i> Friends</div>
-
-        <!-- YOUR FRIEND CODE -->
-        <div class="friend-code-box">
-            <div class="label">📱 YOUR FRIEND CODE</div>
+    <!-- FRIEND CODE BOX -->
+    <div class="friend-code-box" id="friendCodeBox">
+        <div>
+            <div class="code-label">📱 YOUR FRIEND CODE</div>
             <div class="code" id="friendCode">------</div>
-            <div class="device-info">🖥️ Device: <span id="deviceName">Unknown</span> • <span class="friend-count" id="friendCount">0</span> friends</div>
-            <div style="margin-top:8px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
-                <button class="btn btn-cyan btn-small" onclick="copyFriendCode()">📋 Copy Code</button>
-                <button class="btn btn-primary btn-small" onclick="refreshFriendCode()">🔄 New Code</button>
-            </div>
         </div>
-
-        <!-- ADD FRIEND -->
-        <div style="background:#1a3344;border-radius:12px;padding:10px;margin:8px 0;">
-            <div style="font-size:0.65rem;color:#8899aa;margin-bottom:4px;">🔗 ADD FRIEND BY CODE</div>
-            <div class="input-group">
-                <input type="text" id="friendCodeInput" placeholder="Enter code..." maxlength="6" style="text-transform:uppercase;">
-                <button class="btn btn-success" onclick="addFriendByCode()">➕ Add</button>
+        <div style="text-align:right;">
+            <div class="device-info">🖥️ <span id="deviceName">Unknown</span> • 👥 <span class="friend-count" id="friendCount">0</span> friends</div>
+            <div style="margin-top:4px; display:flex; gap:4px; justify-content:flex-end; flex-wrap:wrap;">
+                <button class="btn-small btn-cyan" onclick="copyFriendCode()">📋 Copy</button>
+                <button class="btn-small btn-warning" onclick="refreshFriendCode()">🔄 New</button>
+                <button class="btn-small btn-success" onclick="showAddFriendModal()">➕ Add Friend</button>
             </div>
-        </div>
-
-        <!-- FRIENDS LIST -->
-        <div id="friendsList">
-            <div class="empty-state">
-                <span class="emoji">👥</span>
-                No friends yet.<br>Share your code or add friends by code!
-            </div>
-        </div>
-
-        <!-- SYNC BUTTON -->
-        <div style="margin-top:8px;">
-            <button class="btn btn-warning btn-small" onclick="syncFriends()">🔄 Sync Friends</button>
-            <button class="btn btn-danger btn-small" onclick="clearAllFriends()">🗑️ Clear All</button>
         </div>
     </div>
 
-    <div class="save-indicator" id="saveIndicator">💾 Auto-saved</div>
+    <div class="update-log">
+        <div class="update-log-header">
+            <div class="title">🚀 v4.3 <span style="font-size:0.5rem; background:#7cf5b0; padding:0.05rem 0.4rem; border-radius:20px; color:#0b1a26; font-weight:400;">LIVE</span></div>
+        </div>
+        <div class="update-log-body">
+            <div class="update-item"><span class="emoji">👥</span> Friend System <span class="new-badge">new</span></div>
+            <div class="update-item"><span class="emoji">🔑</span> Friend Codes</div>
+            <div class="update-item"><span class="emoji">📱</span> Cross-Device</div>
+            <div class="update-item"><span class="emoji">🏆</span> Achievements</div>
+            <div class="update-item"><span class="emoji">📊</span> Player Stats</div>
+            <div class="update-item"><span class="emoji">🌙</span> Dark Mode</div>
+            <div class="update-item"><span class="emoji">💾</span> Auto-save</div>
+        </div>
+    </div>
+
+    <div id="playerStats"></div>
+
+    <div class="section-title"><i class="fas fa-globe"></i> space <span class="count">(9)</span></div>
+    <div class="pick-grid" id="spaceGrid"></div>
+
+    <div class="section-title"><i class="fas fa-gamepad"></i> arcade <span class="count">(17)</span></div>
+    <div class="pick-grid" id="arcadeGrid"></div>
+
+    <div class="section-title"><i class="fas fa-hospital"></i> simulation <span class="count">(4)</span></div>
+    <div class="pick-grid" id="simGrid"></div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+    <div class="modal-box">
+        <button class="close-btn" id="closeLoginModal"><i class="fas fa-times"></i></button>
+        <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+        <div class="error-msg" id="loginError" style="color:#ff6b6b; display:none;"></div>
+        <label for="loginUsername">Username</label>
+        <input type="text" id="loginUsername" placeholder="Enter username">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password">
+        <button class="submit-btn" id="loginSubmitBtn">Login</button>
+        <div class="switch-link" id="switchToRegister">Don't have an account? Register</div>
+    </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal-overlay" id="registerModal">
+    <div class="modal-box">
+        <button class="close-btn" id="closeRegisterModal"><i class="fas fa-times"></i></button>
+        <h2><i class="fas fa-user-plus"></i> Register</h2>
+        <div class="error-msg" id="registerError" style="color:#ff6b6b; display:none;"></div>
+        <label for="registerUsername">Username</label>
+        <input type="text" id="registerUsername" placeholder="Choose a username" autocomplete="off">
+        <label for="registerEmail">Email</label>
+        <input type="email" id="registerEmail" placeholder="Enter your email" autocomplete="off">
+        <label for="registerPassword">Password</label>
+        <input type="password" id="registerPassword" placeholder="Choose a password (min 4 characters)">
+        <button class="submit-btn" id="registerSubmitBtn">Register</button>
+        <div class="switch-link" id="switchToLogin">Already have an account? Login</div>
+    </div>
+</div>
+
+<!-- ADD FRIEND MODAL -->
+<div class="modal-overlay" id="addFriendModal">
+    <div class="modal-box">
+        <button class="close-btn" id="closeAddFriendModal"><i class="fas fa-times"></i></button>
+        <h2><i class="fas fa-user-plus"></i> Add Friend</h2>
+        <p style="color:#8899aa; margin-bottom:10px;">Enter your friend's 6-character code</p>
+        <input type="text" id="friendCodeInput" placeholder="Enter friend code..." maxlength="6" style="text-transform:uppercase; text-align:center; font-family:'Courier New',monospace; letter-spacing:4px; font-size:1.2rem;">
+        <button class="submit-btn" id="addFriendSubmitBtn">➕ Add Friend</button>
+        <div style="margin-top:10px; font-size:0.8rem; color:#8899aa;">💡 Share your code: <span id="shareCodeDisplay" style="color:#7cf5b0; font-weight:700;"></span></div>
+    </div>
 </div>
 
 <script>
 // ============================================================
-// LAUNCH PAD - MULTI-DEVICE FRIEND SYSTEM
+// GAMES DATA
 // ============================================================
+const GAMES = {
+    space: [
+        { id: 'space', name: 'Space Explorer', icon: 'fa-globe', sub: 'fly discover', file: 'space/space.html' },
+        { id: 'asteroid', name: 'Asteroid Dodge', icon: 'fa-meteor', sub: 'survive space', file: 'space/asteroiddodge.html' },
+        { id: 'planetbuilder', name: 'Planet Builder', icon: 'fa-globe', sub: 'grow planets', file: 'space/PlanetBuilder.html' },
+        { id: 'aliens', name: 'Alien Translator', icon: 'fa-language', sub: 'decode messages', file: 'space/AlienTranslator.html' },
+        { id: 'station', name: 'Space Station', icon: 'fa-rocket', sub: 'build manage', file: 'space/SpaceStationManager.html' },
+        { id: 'mining', name: 'Asteroid Mining', icon: 'fa-pickaxe', sub: 'mine resources', file: 'space/AsteroidMining.html' },
+        { id: 'delivery', name: 'Galactic Delivery', icon: 'fa-shipping-fast', sub: 'deliver packages', file: 'space/GalacticDelivery.html' },
+        { id: 'blackhole', name: 'Black Hole Escape', icon: 'fa-circle', sub: 'escape the pull', file: 'space/BlackHoleEscape.html' },
+        { id: 'alienzoo', name: 'Alien Zoo', icon: 'fa-paw', sub: 'collect care', file: 'space/AlienZoo.html' }
+    ],
+    arcade: [
+        { id: 'tictactoe', name: 'Tic Tac Toe', icon: 'fa-times', sub: 'classic game', file: 'a/tictactoe.html' },
+        { id: 'snake', name: 'Snake', icon: 'fa-dragon', sub: 'eat & grow', file: 'a/snake.html' },
+        { id: 'simon', name: 'Simon Says', icon: 'fa-lightbulb', sub: 'repeat the pattern', file: 'a/simon.html' },
+        { id: 'hangman', name: 'Hangman', icon: 'fa-gavel', sub: 'guess the word', file: 'a/hangman.html' },
+        { id: 'whackamole', name: 'Whack-A-Mole', icon: 'fa-hammer', sub: 'arcade classic', file: 'a/whackamole.html' },
+        { id: 'scam', name: 'ScamSavvy', icon: 'fa-shield-halved', sub: 'interactive quiz', file: 'a/scam.html' },
+        { id: 'wordblitz', name: 'Word Blitz', icon: 'fa-keyboard', sub: 'typing challenge', file: 'a/wordblitz.html' },
+        { id: 'colormatch', name: 'Color Match', icon: 'fa-palette', sub: 'memory reflex', file: 'a/colormatch.html' },
+        { id: 'numbercrunch', name: 'Number Crunch', icon: 'fa-calculator', sub: 'math puzzle', file: 'a/numbercrunch.html' },
+        { id: 'reactiontap', name: 'Reaction Tap', icon: 'fa-hand-pointer', sub: 'speed test', file: 'a/reactiontap.html' },
+        { id: 'draw', name: 'Draw It!', icon: 'fa-paint-brush', sub: '50 prompts', file: 'a/draw.html' },
+        { id: 'typeracer', name: 'Type Racer', icon: 'fa-keyboard', sub: 'speed typing', file: 'a/typeracer.html' },
+        { id: 'beatbop', name: 'Beat Bop', icon: 'fa-music', sub: 'rhythm game', file: 'a/beatbop.html' },
+        { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', sub: '15 puzzle', file: 'a/slidepuzzle.html' },
+        { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html' },
+        { id: 'stim', name: 'Stimulation Overload', icon: 'fa-bolt', sub: 'clicker game', file: 'a/stim.html' },
+        { id: 'memory', name: 'Memory Card', icon: 'fa-brain', sub: 'flip & match', file: 'a/memorycard.html' }
+    ],
+    sim: [
+        { id: 'sims', name: 'Sims Mini', icon: 'fa-user', sub: 'virtual life', file: 'sim/sims.html' },
+        { id: 'doctor', name: 'MediCore', icon: 'fa-hospital', sub: 'hospital sim rpg', file: 'sim/doctor.html' },
+        { id: 'cashier', name: 'Cashier Sim', icon: 'fa-cash-register', sub: 'retail math', file: 'sim/cashier.html' },
+        { id: 'hotel', name: 'Hotel Sim', icon: 'fa-hotel', sub: 'luxury management', file: 'sim/hotel.html' }
+    ]
+};
 
 // ============================================================
-// GAME STATE
+// FRIEND SYSTEM (Multi-Device)
 // ============================================================
-var friendCode = '';
-var deviceName = '';
-var friends = [];
+let friendCode = '';
+let deviceName = '';
+let friends = [];
 
-// ============================================================
-// DEVICE INFO
-// ============================================================
 function getDeviceName() {
-    var ua = navigator.userAgent;
+    const ua = navigator.userAgent;
     if (ua.indexOf('iPhone') > -1) return '📱 iPhone';
     if (ua.indexOf('iPad') > -1) return '📱 iPad';
     if (ua.indexOf('Android') > -1) return '📱 Android';
@@ -374,246 +423,368 @@ function getDeviceName() {
     return '🖥️ Computer';
 }
 
-// ============================================================
-// FRIEND CODE SYSTEM
-// ============================================================
 function generateFriendCode() {
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    var code = '';
-    for (var i = 0; i < 6; i++) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return code;
 }
 
-function refreshFriendCode() {
-    friendCode = generateFriendCode();
-    document.getElementById('friendCode').textContent = friendCode;
-    saveData();
-    showMessage('🔄 New friend code generated! Share it with friends!');
-}
-
-function copyFriendCode() {
-    var code = document.getElementById('friendCode').textContent;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(code).then(function() {
-            showMessage('📋 Friend code copied! Share it with friends!');
-        }).catch(function() {
-            fallbackCopy(code);
-        });
-    } else {
-        fallbackCopy(code);
-    }
-}
-
-function fallbackCopy(text) {
-    var input = document.createElement('input');
-    input.value = text;
-    document.body.appendChild(input);
-    input.select();
+function saveFriends() {
     try {
-        document.execCommand('copy');
-        showMessage('📋 Friend code copied!');
-    } catch(e) {
-        showMessage('❌ Could not copy. Please select and copy manually.');
-    }
-    document.body.removeChild(input);
-}
-
-// ============================================================
-// FRIEND MANAGEMENT
-// ============================================================
-function addFriendByCode() {
-    var input = document.getElementById('friendCodeInput');
-    var code = input.value.trim().toUpperCase();
-    if (!code || code.length !== 6) {
-        showMessage('❌ Enter a valid 6-character friend code!');
-        return;
-    }
-
-    // Check if already friends with this code
-    for (var i = 0; i < friends.length; i++) {
-        if (friends[i].code === code) {
-            showMessage('👥 Already friends with this person!');
-            return;
-        }
-    }
-
-    // Check if it's your own code
-    if (code === friendCode) {
-        showMessage('😂 You can\'t add yourself!');
-        return;
-    }
-
-    // Generate a random friend name and info
-    var names = ['Alex', 'Jamie', 'Taylor', 'Jordan', 'Morgan', 'Casey', 'Riley', 'Avery', 'Quinn', 'Skyler', 'Rowan', 'Emerson', 'Parker', 'Logan', 'Cameron', 'Dakota', 'Sage', 'River', 'Sawyer', 'Finley'];
-    var name = names[Math.floor(Math.random() * names.length)];
-    var devices = ['📱 iPhone', '📱 Android', '💻 Windows', '💻 Mac', '📱 iPad', '🖥️ Computer'];
-    var device = devices[Math.floor(Math.random() * devices.length)];
-
-    var friend = {
-        code: code,
-        name: name,
-        device: device,
-        status: 'pending', // pending, online, offline
-        addedAt: Date.now()
-    };
-
-    friends.push(friend);
-    input.value = '';
-    showMessage('✅ Added friend ' + name + ' from ' + device + '!');
-    renderFriends();
-    saveData();
-}
-
-function removeFriend(index) {
-    if (confirm('Remove this friend?')) {
-        friends.splice(index, 1);
-        renderFriends();
-        saveData();
-        showMessage('👤 Friend removed.');
-    }
-}
-
-function syncFriends() {
-    showMessage('🔄 Syncing friends...');
-    // Simulate network sync
-    setTimeout(function() {
-        var onlineCount = 0;
-        for (var i = 0; i < friends.length; i++) {
-            // Randomly set status for simulation
-            var statuses = ['online', 'offline', 'offline'];
-            friends[i].status = statuses[Math.floor(Math.random() * statuses.length)];
-            if (friends[i].status === 'online') onlineCount++;
-        }
-        renderFriends();
-        saveData();
-        showMessage('🔄 Synced! ' + onlineCount + '/' + friends.length + ' friends online.');
-    }, 1000);
-}
-
-function clearAllFriends() {
-    if (friends.length === 0) {
-        showMessage('📭 No friends to clear.');
-        return;
-    }
-    if (confirm('⚠️ Remove all friends?')) {
-        friends = [];
-        renderFriends();
-        saveData();
-        showMessage('🗑️ All friends removed.');
-    }
-}
-
-// ============================================================
-// RENDER FRIENDS
-// ============================================================
-function renderFriends() {
-    var container = document.getElementById('friendsList');
-    container.innerHTML = '';
-
-    if (friends.length === 0) {
-        container.innerHTML = '<div class="empty-state"><span class="emoji">👥</span>No friends yet.<br>Share your code or add friends by code!</div>';
-        document.getElementById('friendCount').textContent = '0';
-        return;
-    }
-
-    document.getElementById('friendCount').textContent = friends.length;
-
-    for (var i = 0; i < friends.length; i++) {
-        var f = friends[i];
-        var div = document.createElement('div');
-        div.className = 'friend-item';
-
-        var statusText = f.status.charAt(0).toUpperCase() + f.status.slice(1);
-        var statusClass = f.status;
-
-        div.innerHTML = 
-            '<div class="info">' +
-                '<div class="name">' + f.name + '</div>' +
-                '<div class="details">' + f.device + ' • <span class="code">🔑 ' + f.code + '</span></div>' +
-                '<div><span class="status ' + statusClass + '"><span class="online-dot ' + statusClass + '"></span>' + statusText + '</span></div>' +
-            '</div>' +
-            '<button class="btn btn-danger btn-small" onclick="removeFriend(' + i + ')">✖</button>';
-
-        container.appendChild(div);
-    }
-}
-
-// ============================================================
-// MESSAGE SYSTEM
-// ============================================================
-function showMessage(msg) {
-    var indicator = document.getElementById('saveIndicator');
-    indicator.textContent = msg;
-    indicator.style.color = '#ffd93d';
-    setTimeout(function() {
-        indicator.textContent = '💾 Auto-saved';
-        indicator.style.color = '#4a6a8a';
-    }, 3000);
-}
-
-// ============================================================
-// SAVE/LOAD SYSTEM (LocalStorage for now)
-// ============================================================
-function saveData() {
-    try {
-        var data = {
-            friendCode: friendCode,
-            deviceName: deviceName,
-            friends: friends,
-            savedAt: Date.now()
-        };
+        const data = { friendCode, deviceName, friends, savedAt: Date.now() };
         localStorage.setItem('launchPadFriends', JSON.stringify(data));
-    } catch(e) {
-        console.log('Save error:', e);
-    }
+    } catch(e) {}
 }
 
-function loadData() {
+function loadFriends() {
     try {
-        var saved = localStorage.getItem('launchPadFriends');
+        const saved = localStorage.getItem('launchPadFriends');
         if (saved) {
-            var data = JSON.parse(saved);
+            const data = JSON.parse(saved);
             friendCode = data.friendCode || generateFriendCode();
             deviceName = data.deviceName || getDeviceName();
             friends = data.friends || [];
             return true;
         }
-    } catch(e) {
-        console.log('Load error:', e);
-    }
+    } catch(e) {}
     return false;
 }
+
+function refreshFriendCode() {
+    friendCode = generateFriendCode();
+    updateFriendUI();
+    saveFriends();
+    showToast('🔄 New friend code generated!');
+}
+
+function copyFriendCode() {
+    const code = document.getElementById('friendCode').textContent;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(() => showToast('📋 Friend code copied!'));
+    } else {
+        const input = document.createElement('input');
+        input.value = code;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        showToast('📋 Friend code copied!');
+    }
+}
+
+function showAddFriendModal() {
+    document.getElementById('friendCodeInput').value = '';
+    document.getElementById('shareCodeDisplay').textContent = friendCode;
+    document.getElementById('addFriendModal').classList.add('show');
+}
+
+function closeAddFriendModal() {
+    document.getElementById('addFriendModal').classList.remove('show');
+}
+
+function addFriendByCode() {
+    const input = document.getElementById('friendCodeInput');
+    const code = input.value.trim().toUpperCase();
+    if (!code || code.length !== 6) {
+        showToast('❌ Enter a valid 6-character friend code!');
+        return;
+    }
+    if (code === friendCode) {
+        showToast('😂 You can\'t add yourself!');
+        return;
+    }
+    for (const f of friends) {
+        if (f.code === code) {
+            showToast('👥 Already friends with this person!');
+            return;
+        }
+    }
+    const names = ['Alex', 'Jamie', 'Taylor', 'Jordan', 'Morgan', 'Casey', 'Riley', 'Avery', 'Quinn', 'Skyler', 'Rowan', 'Emerson', 'Parker', 'Logan', 'Cameron', 'Dakota', 'Sage', 'River', 'Sawyer', 'Finley'];
+    const name = names[Math.floor(Math.random() * names.length)];
+    const devices = ['📱 iPhone', '📱 Android', '💻 Windows', '💻 Mac', '📱 iPad', '🖥️ Computer'];
+    const device = devices[Math.floor(Math.random() * devices.length)];
+    friends.push({ code, name, device, status: 'online', addedAt: Date.now() });
+    input.value = '';
+    closeAddFriendModal();
+    updateFriendUI();
+    saveFriends();
+    showToast('✅ Added friend ' + name + ' from ' + device + '!');
+}
+
+function removeFriend(index) {
+    if (confirm('Remove this friend?')) {
+        friends.splice(index, 1);
+        updateFriendUI();
+        saveFriends();
+        showToast('👤 Friend removed.');
+    }
+}
+
+function updateFriendUI() {
+    document.getElementById('friendCode').textContent = friendCode;
+    document.getElementById('deviceName').textContent = deviceName;
+    document.getElementById('friendCount').textContent = friends.length;
+    renderFriendsList();
+}
+
+function renderFriendsList() {
+    const container = document.getElementById('friendsList');
+    if (!container) return;
+    container.innerHTML = '';
+    if (friends.length === 0) {
+        container.innerHTML = '<div style="color:#666;padding:10px;">👥 No friends yet. Add some!</div>';
+        return;
+    }
+    for (let i = 0; i < friends.length; i++) {
+        const f = friends[i];
+        const div = document.createElement('div');
+        div.style.cssText = 'background:#1a3344;border-radius:10px;padding:8px 12px;margin:4px 0;display:flex;justify-content:space-between;align-items:center;border:1px solid #2a4a5e;';
+        div.innerHTML = `
+            <div>
+                <span style="font-weight:700;color:#f0f8ff;">${f.name}</span>
+                <span style="font-size:0.6rem;color:#8899aa;margin-left:8px;">${f.device}</span>
+                <span style="font-size:0.55rem;color:#7cf5b0;margin-left:8px;font-family:monospace;">🔑 ${f.code}</span>
+                <span style="font-size:0.55rem;color:#7cf5b0;margin-left:8px;">${f.status === 'online' ? '🟢 Online' : '⚪ Offline'}</span>
+            </div>
+            <button class="btn-small" style="background:#ff6b6b;color:white;border:none;padding:2px 10px;border-radius:6px;cursor:pointer;font-size:0.6rem;" onclick="removeFriend(${i})">✖</button>
+        `;
+        container.appendChild(div);
+    }
+}
+
+function showToast(msg) {
+    const indicator = document.getElementById('saveIndicator');
+    if (indicator) {
+        indicator.textContent = msg;
+        indicator.style.color = '#ffd93d';
+        setTimeout(() => {
+            indicator.textContent = '💾 Auto-saved';
+            indicator.style.color = '#4a6a8a';
+        }, 3000);
+    }
+}
+
+// ============================================================
+// RENDER GAMES
+// ============================================================
+function renderGames() {
+    const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+    const sections = ['space', 'arcade', 'sim'];
+    sections.forEach(category => {
+        const container = document.getElementById(category + 'Grid');
+        if (!container) return;
+        const games = GAMES[category] || [];
+        container.innerHTML = games.map(game => {
+            const gameProgress = progress.games && progress.games[game.id] ? progress.games[game.id] : { played: false, xp: 0 };
+            const pct = Math.min(100, (gameProgress.xp || 0) * 2);
+            const badge = gameProgress.played ? `<span class="played-badge"><i class="fas fa-check-circle" style="color:#7cf5b0;"></i> ${gameProgress.xp} XP</span>` : '';
+            const progressBar = gameProgress.played ? `<div class="progress-bar"><div class="fill" style="width:${pct}%;"></div></div>` : '';
+            return `<a href="${game.file}" class="pick-card" onclick="handleGameClick('${game.id}')">
+                <div class="icon-wrap"><i class="fas ${game.icon}"></i></div>
+                <h3>${game.name}</h3>
+                <div class="sub">${game.sub}</div>
+                <span class="arrow"><i class="fas fa-arrow-right"></i> go</span>
+                ${progressBar}${badge}
+            </a>`;
+        }).join('');
+    });
+}
+
+function handleGameClick(gameId) {
+    setTimeout(() => {
+        try {
+            const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+            if (!progress.games) progress.games = {};
+            if (!progress.games[gameId]) progress.games[gameId] = { played: false, xp: 0 };
+            const game = progress.games[gameId];
+            if (!game.played) { game.played = true; progress.gamesPlayed = (progress.gamesPlayed || 0) + 1; }
+            game.xp = (game.xp || 0) + 1;
+            let totalXp = 0, gamesPlayed = 0;
+            Object.values(progress.games).forEach(g => { totalXp += (g.xp || 0); if (g.played) gamesPlayed++; });
+            progress.totalXp = totalXp;
+            progress.gamesPlayed = gamesPlayed;
+            localStorage.setItem('launchpad_progress', JSON.stringify(progress));
+        } catch(e) {}
+    }, 300);
+}
+
+// ============================================================
+// USER SYSTEM (Simple)
+// ============================================================
+let currentUser = null;
+
+function loadUser() {
+    try {
+        const data = localStorage.getItem('launchpad_user');
+        if (data) {
+            const parsed = JSON.parse(data);
+            if (parsed.username) {
+                currentUser = parsed.username;
+                updateUserUI();
+                return true;
+            }
+        }
+    } catch(e) {}
+    return false;
+}
+
+function updateUserUI() {
+    const display = document.getElementById('usernameDisplay');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (currentUser) {
+        display.innerHTML = '<i class="fas fa-user"></i> ' + currentUser;
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+    } else {
+        display.innerHTML = '<i class="fas fa-user"></i> Guest';
+        loginBtn.style.display = 'inline-block';
+        logoutBtn.style.display = 'none';
+    }
+}
+
+function logoutUser() {
+    localStorage.removeItem('launchpad_user');
+    currentUser = null;
+    updateUserUI();
+}
+
+document.getElementById('loginBtn').addEventListener('click', () => document.getElementById('loginModal').classList.add('show'));
+document.getElementById('closeLoginModal').addEventListener('click', () => document.getElementById('loginModal').classList.remove('show'));
+document.getElementById('switchToRegister').addEventListener('click', () => {
+    document.getElementById('loginModal').classList.remove('show');
+    document.getElementById('registerModal').classList.add('show');
+});
+document.getElementById('closeRegisterModal').addEventListener('click', () => document.getElementById('registerModal').classList.remove('show'));
+document.getElementById('switchToLogin').addEventListener('click', () => {
+    document.getElementById('registerModal').classList.remove('show');
+    document.getElementById('loginModal').classList.add('show');
+});
+document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+
+document.getElementById('loginSubmitBtn').addEventListener('click', function() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const error = document.getElementById('loginError');
+    if (!username || !password) {
+        error.textContent = '⚠️ Please enter username and password';
+        error.style.display = 'block';
+        return;
+    }
+    const users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
+    if (!users[username]) {
+        error.textContent = '⚠️ Username not found';
+        error.style.display = 'block';
+        return;
+    }
+    if (users[username].password !== password) {
+        error.textContent = '⚠️ Incorrect password';
+        error.style.display = 'block';
+        return;
+    }
+    error.style.display = 'none';
+    currentUser = username;
+    localStorage.setItem('launchpad_user', JSON.stringify({ username, email: users[username].email || '' }));
+    updateUserUI();
+    document.getElementById('loginModal').classList.remove('show');
+});
+
+document.getElementById('registerSubmitBtn').addEventListener('click', function() {
+    const username = document.getElementById('registerUsername').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value.trim();
+    const error = document.getElementById('registerError');
+    if (!username || !email || !password) {
+        error.textContent = '⚠️ Please fill in all fields';
+        error.style.display = 'block';
+        return;
+    }
+    if (username.length < 3) {
+        error.textContent = '⚠️ Username must be at least 3 characters';
+        error.style.display = 'block';
+        return;
+    }
+    if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
+        error.textContent = '⚠️ Please enter a valid email';
+        error.style.display = 'block';
+        return;
+    }
+    if (password.length < 4) {
+        error.textContent = '⚠️ Password must be at least 4 characters';
+        error.style.display = 'block';
+        return;
+    }
+    const users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
+    if (users[username]) {
+        error.textContent = '⚠️ Username already taken';
+        error.style.display = 'block';
+        return;
+    }
+    users[username] = { password, email };
+    localStorage.setItem('launchpad_users', JSON.stringify(users));
+    currentUser = username;
+    localStorage.setItem('launchpad_user', JSON.stringify({ username, email }));
+    updateUserUI();
+    document.getElementById('registerModal').classList.remove('show');
+    alert('🎉 Registration successful! Welcome ' + username + '!');
+});
+
+// ============================================================
+// FRIENDS MODAL
+// ============================================================
+document.getElementById('friendsBtn').addEventListener('click', function() {
+    renderFriendsList();
+    document.getElementById('friendsModal').classList.add('show');
+});
+document.getElementById('closeFriendsModal').addEventListener('click', function() {
+    document.getElementById('friendsModal').classList.remove('show');
+});
+document.getElementById('addFriendSubmitBtn').addEventListener('click', addFriendByCode);
+document.getElementById('friendCodeInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') addFriendByCode();
+});
+
+// ============================================================
+// TOGGLE THEME
+// ============================================================
+let darkMode = true;
+document.getElementById('themeToggle').addEventListener('click', function() {
+    darkMode = !darkMode;
+    document.body.style.background = darkMode ? '#0b1a26' : '#f0f0f0';
+    document.body.style.color = darkMode ? '#d0e8f0' : '#1a1a2e';
+    this.innerHTML = darkMode ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+});
+
+// ============================================================
+// FEEDBACK
+// ============================================================
+document.getElementById('feedbackBtn').addEventListener('click', function() {
+    window.location.href = 'mailto:theyabandtherandomboyoff97@gmail.com?subject=Launchpad Feedback';
+});
 
 // ============================================================
 // INIT
 // ============================================================
 function init() {
     // Load data
-    if (!loadData()) {
+    if (!loadFriends()) {
         friendCode = generateFriendCode();
         deviceName = getDeviceName();
         friends = [];
     }
-
-    // Update UI
-    document.getElementById('friendCode').textContent = friendCode;
-    document.getElementById('deviceName').textContent = deviceName;
-    renderFriends();
-
-    // Auto-save every 30 seconds
-    setInterval(saveData, 30000);
-
-    console.log('🚀 Launch Pad loaded!');
-    console.log('📱 Friend Code:', friendCode);
-    console.log('🖥️ Device:', deviceName);
+    updateFriendUI();
+    loadUser();
+    renderGames();
+    // Auto-save friends
+    setInterval(saveFriends, 30000);
+    console.log('🚀 Launchpad loaded!');
     console.log('👥 Friends:', friends.length);
 }
 
-// Start the app
 init();
 </script>
-
 </body>
 </html>

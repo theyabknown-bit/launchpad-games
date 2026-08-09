@@ -975,6 +975,84 @@ function addSoundToggle() {
 // ============================================================
 // INIT
 // ============================================================
+    // ============================================================
+    // DAILY REWARD - FIXED: Works even when you leave!
+    // ============================================================
+    function checkDailyReward() {
+        try {
+            const saved = localStorage.getItem('dailyRewardData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                const now = Date.now();
+                const timeSinceClaim = (now - data.claimTime) / 1000; // seconds
+                
+                // 24 hours = 86400 seconds
+                if (timeSinceClaim >= 86400) {
+                    // Reward is ready!
+                    dailyClaimed = false;
+                    dailyTimer = 0;
+                    document.getElementById('dailyBtn').disabled = false;
+                    document.getElementById('dailyBtn').textContent = 'Claim ✦1,000';
+                    document.getElementById('dailyTimerDisplay').textContent = '✨ Ready to claim!';
+                } else {
+                    // Still waiting
+                    dailyClaimed = true;
+                    dailyTimer = Math.floor(86400 - timeSinceClaim);
+                    document.getElementById('dailyBtn').disabled = true;
+                    document.getElementById('dailyBtn').textContent = '⏳ Wait';
+                    document.getElementById('dailyTimerDisplay').textContent = '⏳ ' + formatTime(dailyTimer);
+                }
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    function claimDaily() {
+        if (dailyClaimed) return;
+        
+        // Check again in case it was claimed
+        const saved = localStorage.getItem('dailyRewardData');
+        if (saved) {
+            const data = JSON.parse(saved);
+            const now = Date.now();
+            const timeSinceClaim = (now - data.claimTime) / 1000;
+            if (timeSinceClaim < 86400) {
+                // Still on cooldown
+                dailyClaimed = true;
+                dailyTimer = Math.floor(86400 - timeSinceClaim);
+                updateUI();
+                return;
+            }
+        }
+        
+        // Claim the reward
+        points += 1000;
+        dailyClaimed = true;
+        
+        // Save the claim time
+        const claimData = {
+            claimTime: Date.now(),
+            claimed: true
+        };
+        localStorage.setItem('dailyRewardData', JSON.stringify(claimData));
+        
+        playDaily();
+        for (let i = 0; i < 15; i++) {
+            setTimeout(() => {
+                spawnParticle(
+                    Math.random() * window.innerWidth,
+                    Math.random() * window.innerHeight,
+                    ['🎁', '✨', '⭐', '💎', '🎉'][Math.floor(Math.random() * 5)],
+                    '#ffd700'
+                );
+            }, i * 80);
+        }
+        
+        updateUI();
+        saveGame();
+    }
+
 function init() {
     console.log('🧠 Stimulation Overload - Loading...');
     loadGame();
@@ -991,3 +1069,4 @@ init();
 </script>
 </body>
 </html>
+

@@ -733,9 +733,82 @@ renderGrid();
             startAutoSave(5000);
         }
     }
+// ============================================================
+// AUTO-REFRESH ON PAGE LOAD (Ctrl+Shift+R effect)
+// ============================================================
+
+// Check if this is the first time loading
+function checkAndRefresh() {
+    const pageId = window.location.pathname.split('/').pop();
+    const key = 'refresh_' + pageId;
+    
+    // Check if we already refreshed this session
+    if (sessionStorage.getItem(key) === 'true') {
+        console.log('🔄 Already refreshed this session');
+        return;
+    }
+    
+    // Mark as refreshed
+    sessionStorage.setItem(key, 'true');
+    
+    // Show loading message
+    const container = document.querySelector('.container') || document.querySelector('#app') || document.body;
+    const msg = document.createElement('div');
+    msg.id = 'refreshMessage';
+    msg.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.85);
+        color: #7cf5b0;
+        padding: 20px 40px;
+        border-radius: 16px;
+        font-size: 18px;
+        font-weight: 700;
+        z-index: 99999;
+        font-family: 'Segoe UI', sans-serif;
+        text-align: center;
+        border: 2px solid #4fc3f7;
+        box-shadow: 0 0 60px rgba(79,195,247,0.2);
+    `;
+    msg.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 10px;">🔄</div>
+        <div>Refreshing game...</div>
+        <div style="font-size: 12px; color: #666; margin-top: 8px;">Loading latest version</div>
+    `;
+    document.body.appendChild(msg);
+    
+    // Perform a hard refresh (Ctrl+Shift+R equivalent)
+    setTimeout(() => {
+        // Clear all caches
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (let name of names) {
+                    caches.delete(name);
+                }
+            });
+        }
+        
+        // Force reload with cache-buster
+        const url = window.location.href.split('?')[0] + '?t=' + Date.now();
+        window.location.replace(url);
+    }, 1000);
+}
+
+// Run on page load
+if (document.readyState === 'complete') {
+    checkAndRefresh();
+} else {
+    document.addEventListener('DOMContentLoaded', checkAndRefresh);
+}
+
+// Also force refresh if user manually clicks
+console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
 </body>
 </html>
+
 
 
 

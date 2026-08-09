@@ -719,6 +719,69 @@
             color: #888;
         }
 
+        /* Sound toggle */
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            margin: 4px 0;
+            color: #aaa;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .settings-toggle {
+            width: 44px;
+            height: 24px;
+            background: #333;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+        .settings-toggle.active {
+            background: #ffd700;
+        }
+        .settings-toggle .knob {
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: 0.2s;
+        }
+        .settings-toggle.active .knob {
+            left: 23px;
+        }
+
+        .minigame-btn {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            margin: 5px 0 10px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: 0.2s;
+            width: 100%;
+        }
+        .minigame-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+        }
+        .minigame-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         @media (max-width: 480px) {
             #app {
                 padding: 14px 12px 12px;
@@ -807,6 +870,9 @@
             </button>
         </div>
 
+        <!-- Minigame Button -->
+        <button class="minigame-btn" id="minigameBtn" onclick="startQuickTap()" disabled>🔒 Quick Tap Challenge (Unlock in shop)</button>
+
         <!-- Wheel -->
         <div class="wheel-section">
             <button class="wheel-btn" id="wheelBtn" onclick="spinWheel()">🎰 Spin the Wheel (✦500)</button>
@@ -818,15 +884,6 @@
             <div class="shop-header">
                 <h2>📈 Upgrades</h2>
                 <span class="grind-meter" id="grindMeter">🔥 Grind: 0</span>
-            </div>
-
-            <div class="upgrade">
-                <div class="info">
-                    <span class="name">🤖 Auto-Tapper <span class="badge">idle</span></span>
-                    <span class="desc">+1 per second</span>
-                    <span class="owned">Owned: <span id="autoCount">0</span></span>
-                </div>
-                <button id="buyAutoBtn" onclick="buyAuto()">Buy</button>
             </div>
 
             <div class="upgrade">
@@ -892,15 +949,6 @@
                 <button id="buyStockBtn" onclick="buyStock()">Unlock (✦2,500)</button>
             </div>
 
-            <div class="upgrade special">
-                <div class="info">
-                    <span class="name">🤖 Robot Army <span class="badge">idle</span></span>
-                    <span class="desc">Each robot clicks for +2/sec!</span>
-                    <span class="owned">Robots: <span id="robotCount">0</span></span>
-                </div>
-                <button id="buyRobotBtn" onclick="buyRobot()">Buy</button>
-            </div>
-
             <div class="upgrade premium">
                 <div class="info">
                     <span class="name">⭐ Golden Tap <span class="badge">premium</span></span>
@@ -963,6 +1011,16 @@
                 </div>
                 <button id="buyPrestigeBtn" onclick="buyPrestige()">Unlock (✦5,000)</button>
             </div>
+
+            <!-- UNLOCK MINIGAME UPGRADE -->
+            <div class="upgrade special">
+                <div class="info">
+                    <span class="name">🎯 Quick Tap Challenge <span class="badge">unlock</span></span>
+                    <span class="desc">Unlock the Quick Tap minigame!</span>
+                    <span class="owned" id="minigameStatus">🔒 Locked</span>
+                </div>
+                <button id="buyMinigameBtn" onclick="buyMinigame()">Unlock (✦1,000)</button>
+            </div>
         </div>
 
         <!-- Stock Market -->
@@ -990,7 +1048,7 @@
 
     <script>
     // ============================================================
-    // FIXED SOUND SYSTEM - WORKS ON FIRST CLICK
+    // SOUND SYSTEM - ALL FEATURES WORKING
     // ============================================================
     let soundEnabled = true;
     let audioCtx = null;
@@ -1008,7 +1066,7 @@
         } catch(e) { console.log('Audio error:', e); }
     }
 
-    // Unlock audio on any click
+    // Unlock audio on any user interaction
     document.addEventListener('click', unlockAudio, { once: false });
     document.addEventListener('touchstart', unlockAudio, { once: false });
     document.addEventListener('keydown', unlockAudio, { once: false });
@@ -1023,7 +1081,7 @@
         return audioCtx;
     }
 
-    function playTone(frequency, duration = 150, type = 'sine') {
+    function playTone(frequency, duration = 150, type = 'sine', volume = 0.12) {
         if (!soundEnabled) return;
         try {
             const ctx = getAudioCtx();
@@ -1032,7 +1090,7 @@
             const gain = ctx.createGain();
             osc.type = type;
             osc.frequency.value = frequency;
-            gain.gain.setValueAtTime(0.12, ctx.currentTime);
+            gain.gain.setValueAtTime(volume, ctx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
             osc.connect(gain);
             gain.connect(ctx.destination);
@@ -1041,855 +1099,863 @@
         } catch(e) { console.log('Play error:', e); }
     }
 
-    function playClick() { playTone(600, 80); }
+    // Sound effects for different game actions
+    function playClick() { playTone(600, 80, 'sine', 0.10); }
+    function playClickCrit() { 
+        playTone(800, 100, 'square', 0.07);
+        setTimeout(() => playTone(1000, 80, 'sine', 0.08), 80);
+    }
+    function playClickSimile() { 
+        playTone(523, 120, 'sine', 0.10);
+        setTimeout(() => playTone(659, 120, 'sine', 0.10), 120);
+        setTimeout(() => playTone(784, 150, 'sine', 0.10), 240);
+    }
     function playWin() { 
-        playTone(523, 150); 
-        setTimeout(() => playTone(659, 150), 150); 
-        setTimeout(() => playTone(784, 200), 300); 
+        playTone(523, 150, 'sine', 0.12); 
+        setTimeout(() => playTone(659, 150, 'sine', 0.12), 150); 
+        setTimeout(() => playTone(784, 200, 'sine', 0.12), 300); 
     }
     function playLose() { 
-        playTone(300, 200); 
-        setTimeout(() => playTone(200, 300), 200); 
+        playTone(300, 200, 'sawtooth', 0.06); 
+        setTimeout(() => playTone(200, 300, 'sawtooth', 0.06), 200); 
     }
-    function playCorrect() { playTone(800, 100); }
-    function playWrong() { playTone(250, 200); }
+    function playPowerup() { 
+        playTone(440, 100, 'sine', 0.10);
+        setTimeout(() => playTone(554, 100, 'sine', 0.10), 100);
+        setTimeout(() => playTone(659, 150, 'sine', 0.12), 200);
+    }
     function playLevelUp() { 
-        playTone(440, 100); 
-        setTimeout(() => playTone(523, 100), 100); 
-        setTimeout(() => playTone(659, 150), 200); 
+        playTone(440, 100, 'sine', 0.10); 
+        setTimeout(() => playTone(523, 100, 'sine', 0.10), 100); 
+        setTimeout(() => playTone(659, 150, 'sine', 0.12), 200); 
     }
-        // ============================================================
-        // STIMULATION OVERLOAD - FULL VERSION WITH SAVE SYSTEM
-        // ============================================================
+    function playBuy() { 
+        playTone(500, 100, 'sine', 0.08);
+        setTimeout(() => playTone(600, 100, 'sine', 0.08), 100);
+    }
+    function playDaily() {
+        playTone(523, 120, 'sine', 0.10);
+        setTimeout(() => playTone(659, 120, 'sine', 0.10), 120);
+        setTimeout(() => playTone(784, 120, 'sine', 0.10), 240);
+        setTimeout(() => playTone(1047, 180, 'sine', 0.12), 360);
+    }
+    function playWheelSpin() {
+        for (let i = 0; i < 6; i++) {
+            setTimeout(() => playTone(200 + i * 60, 60, 'sine', 0.06), i * 80);
+        }
+    }
+    function playPrestige() {
+        playTone(200, 200, 'sawtooth', 0.06);
+        setTimeout(() => playTone(150, 200, 'sawtooth', 0.06), 200);
+        setTimeout(() => playTone(100, 300, 'sawtooth', 0.06), 400);
+    }
 
-        // ============================================================
-        // GAME STATE
-        // ============================================================
-        let points = 0;
-        let autoClickers = 0;
-        let clickMultiplier = 1;
-        let critLevel = 0;
-        let autoPrice = 15;
-        let multPrice = 25;
-        let critPrice = 50;
-        let totalClicks = 0;
+    // ============================================================
+    // STIMULATION OVERLOAD - FULL VERSION WITH SAVE SYSTEM
+    // ============================================================
 
-        let frenzyActive = false;
-        let frenzyTimer = 0;
-        let passiveIncome = 0;
-        let autoCritLevel = 0;
-        let grindMultiplier = 1;
-        let grindCount = 0;
+    // ============================================================
+    // GAME STATE
+    // ============================================================
+    let points = 0;
+    let clickMultiplier = 1;
+    let critLevel = 0;
+    let multPrice = 25;
+    let critPrice = 50;
+    let totalClicks = 0;
 
-        let robotCount = 0;
-        let robotPrice = 100;
-        let goldenLevel = 0;
-        let goldenPrice = 500;
-        let achievementBonus = 0;
-        let simileLevel = 0;
-        let similePrice = 200;
-        let megaLevel = 0;
-        let megaPrice = 1000;
+    let frenzyActive = false;
+    let frenzyTimer = 0;
+    let passiveIncome = 0;
+    let autoCritLevel = 0;
+    let grindMultiplier = 1;
+    let grindCount = 0;
 
-        let stockUnlocked = false;
-        let slimeOwned = false;
-        let waxOwned = false;
-        let prestigeUnlocked = false;
-        let prestigeLevel = 0;
-        let prestigeBonus = 1;
+    let goldenLevel = 0;
+    let goldenPrice = 500;
+    let achievementBonus = 0;
+    let simileLevel = 0;
+    let similePrice = 200;
+    let megaLevel = 0;
+    let megaPrice = 1000;
 
-        let stockPrices = [100, 150, 200, 250, 300];
-        let stockNames = ['🚀 Tech', '🌿 Green', '💰 Gold', '⚡ Energy', '🎮 Gaming'];
-        let stockShares = [0, 0, 0, 0, 0];
+    let stockUnlocked = false;
+    let slimeOwned = false;
+    let waxOwned = false;
+    let prestigeUnlocked = false;
+    let prestigeLevel = 0;
+    let prestigeBonus = 1;
+    
+    // Minigame unlock
+    let minigameUnlocked = false;
+    let minigamePrice = 1000;
 
-        let dailyClaimed = false;
-        let dailyTimer = 0;
-        const DAILY_COOLDOWN = 86400;
+    let stockPrices = [100, 150, 200, 250, 300];
+    let stockNames = ['🚀 Tech', '🌿 Green', '💰 Gold', '⚡ Energy', '🎮 Gaming'];
+    let stockShares = [0, 0, 0, 0, 0];
 
-        let x2Powerup = false;
-        let x2Timer = 0;
-        let autoPowerup = false;
-        let autoTimer = 0;
-        let wheelCooldown = 0;
+    let dailyClaimed = false;
+    let dailyTimer = 0;
+    const DAILY_COOLDOWN = 86400;
 
-        // ============================================================
-        // PARTICLES
-        // ============================================================
-        function spawnParticle(x, y, text, color = '#ffd700') {
-            const container = document.getElementById('particleContainer');
-            if (!container) return;
-            const el = document.createElement('div');
-            el.className = 'particle';
-            el.textContent = text;
-            el.style.left = (x - 20) + 'px';
-            el.style.top = (y - 20) + 'px';
-            el.style.color = color;
-            container.appendChild(el);
-            setTimeout(() => el.remove(), 1000);
+    let x2Powerup = false;
+    let x2Timer = 0;
+    let autoPowerup = false;
+    let autoTimer = 0;
+    let wheelCooldown = 0;
+
+    // ============================================================
+    // PARTICLES
+    // ============================================================
+    function spawnParticle(x, y, text, color = '#ffd700') {
+        const container = document.getElementById('particleContainer');
+        if (!container) return;
+        const el = document.createElement('div');
+        el.className = 'particle';
+        el.textContent = text;
+        el.style.left = (x - 20) + 'px';
+        el.style.top = (y - 20) + 'px';
+        el.style.color = color;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+    }
+
+    function spawnClickParticles(btn) {
+        const rect = btn.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const texts = ['+1', '🔥', '⚡', '💥', '✨', '⭐', '💎'];
+        const colors = ['#ffd700', '#ff6b6b', '#34c759', '#ff9ff3', '#54a0ff', '#ff9f43', '#a29bfe'];
+        for (let i = 0; i < 4; i++) {
+            const offsetX = (Math.random() - 0.5) * 80;
+            const offsetY = (Math.random() - 0.5) * 80 - 20;
+            const txt = texts[Math.floor(Math.random() * texts.length)];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            setTimeout(() => spawnParticle(cx + offsetX, cy + offsetY, txt, color), i * 40);
+        }
+    }
+
+    // ============================================================
+    // UPDATE UI
+    // ============================================================
+    function updateUI() {
+        document.getElementById('pointsDisplay').textContent = Math.floor(points).toLocaleString();
+        document.getElementById('totalClicksDisplay').textContent = totalClicks;
+
+        // Calculate rate - only passive income sources (no auto-clickers or robots)
+        let rate = passiveIncome + achievementBonus;
+        if (slimeOwned) rate += 0.5;
+        if (waxOwned) rate += 2;
+        if (autoPowerup) rate *= 2;
+        rate *= grindMultiplier * prestigeBonus;
+        document.getElementById('rateDisplay').textContent = Math.floor(rate);
+
+        const level = Math.floor(totalClicks / 100) + 1;
+        document.getElementById('levelNum').textContent = level;
+        const progress = (totalClicks % 100) / 100 * 100;
+        document.getElementById('levelFill').style.width = progress + '%';
+
+        let clickPower = clickMultiplier;
+        if (frenzyActive) clickPower *= 2;
+        if (x2Powerup) clickPower *= 2;
+        clickPower *= prestigeBonus;
+        if (goldenLevel > 0) clickPower *= (1 + goldenLevel * 0.5);
+        if (megaLevel > 0) clickPower *= (1 + megaLevel * 1);
+        document.getElementById('clickPowerDisplay').textContent = '+' + Math.floor(clickPower);
+
+        document.getElementById('multLevel').textContent = clickMultiplier;
+        document.getElementById('critLevel').textContent = critLevel;
+
+        const frenzyBtn = document.getElementById('buyFrenzyBtn');
+        if (frenzyActive) {
+            frenzyBtn.textContent = '⏳ ' + Math.ceil(frenzyTimer) + 's';
+            frenzyBtn.disabled = true;
+            document.getElementById('clickBtn').classList.add('frenzy');
+            document.getElementById('frenzyStatus').textContent = '⚡ Active!';
+        } else {
+            frenzyBtn.textContent = 'Activate (✦100)';
+            frenzyBtn.disabled = points < 100;
+            document.getElementById('clickBtn').classList.remove('frenzy');
+            document.getElementById('frenzyStatus').textContent = 'Ready';
         }
 
-        function spawnClickParticles(btn) {
-            const rect = btn.getBoundingClientRect();
-            const cx = rect.left + rect.width / 2;
-            const cy = rect.top + rect.height / 2;
-            const texts = ['+1', '🔥', '⚡', '💥', '✨', '⭐', '💎'];
-            const colors = ['#ffd700', '#ff6b6b', '#34c759', '#ff9ff3', '#54a0ff', '#ff9f43', '#a29bfe'];
-            for (let i = 0; i < 4; i++) {
-                const offsetX = (Math.random() - 0.5) * 80;
-                const offsetY = (Math.random() - 0.5) * 80 - 20;
-                const txt = texts[Math.floor(Math.random() * texts.length)];
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                setTimeout(() => spawnParticle(cx + offsetX, cy + offsetY, txt, color), i * 40);
+        const x2 = document.getElementById('powerupX2');
+        if (x2Powerup) {
+            x2.classList.add('active');
+            document.getElementById('x2Timer').textContent = Math.ceil(x2Timer) + 's';
+        } else {
+            x2.classList.remove('active');
+            document.getElementById('x2Timer').textContent = '';
+        }
+
+        const auto = document.getElementById('powerupAuto');
+        if (autoPowerup) {
+            auto.classList.add('active');
+            document.getElementById('autoTimer').textContent = Math.ceil(autoTimer) + 's';
+        } else {
+            auto.classList.remove('active');
+            document.getElementById('autoTimer').textContent = '';
+        }
+
+        updateDailyUI();
+
+        const buttons = {
+            'buyMultBtn': multPrice,
+            'buyCritBtn': critPrice,
+            'buyGoldenBtn': goldenPrice,
+            'buySimileBtn': similePrice,
+            'buyMegaBtn': megaPrice,
+            'buyPassiveBtn': 100 + passiveIncome * 50,
+            'buyAutoCritBtn': 150 + autoCritLevel * 100,
+            'buyGrindMultBtn': 200 + Math.floor(grindMultiplier * 50),
+            'buyStockBtn': 2500,
+            'buySlimeBtn': 500,
+            'buyWaxBtn': 5000,
+            'buyPrestigeBtn': 5000,
+            'buyMinigameBtn': minigamePrice
+        };
+
+        for (const [id, price] of Object.entries(buttons)) {
+            const btn = document.getElementById(id);
+            if (!btn) continue;
+
+            if (id === 'buySlimeBtn' && slimeOwned) {
+                btn.textContent = '✅ Owned';
+                btn.disabled = true;
+                document.getElementById('slimeStatus').textContent = '✅ Owned';
+                continue;
+            }
+            if (id === 'buyWaxBtn' && waxOwned) {
+                btn.textContent = '✅ Owned';
+                btn.disabled = true;
+                document.getElementById('waxStatus').textContent = '✅ Owned';
+                continue;
+            }
+            if (id === 'buyStockBtn' && stockUnlocked) {
+                btn.textContent = '✅ Unlocked';
+                btn.disabled = true;
+                document.getElementById('stockStatus').textContent = '✅ Unlocked';
+                continue;
+            }
+            if (id === 'buyPrestigeBtn' && prestigeUnlocked) {
+                btn.textContent = '✅ Unlocked';
+                btn.disabled = true;
+                document.getElementById('prestigeStatus').textContent = '✅ Unlocked';
+                continue;
+            }
+            if (id === 'buyMinigameBtn' && minigameUnlocked) {
+                btn.textContent = '✅ Unlocked';
+                btn.disabled = true;
+                document.getElementById('minigameStatus').textContent = '✅ Unlocked';
+                // Enable the minigame button
+                document.getElementById('minigameBtn').disabled = false;
+                document.getElementById('minigameBtn').textContent = '🎯 Quick Tap Challenge';
+                continue;
+            }
+
+            btn.textContent = 'Buy (✦' + price + ')';
+            btn.disabled = points < price;
+        }
+
+        document.getElementById('passiveBonus').textContent = passiveIncome;
+        document.getElementById('autoCritLevel').textContent = autoCritLevel;
+        document.getElementById('goldenLevel').textContent = goldenLevel;
+        document.getElementById('achievementBonus').textContent = achievementBonus;
+        document.getElementById('simileLevel').textContent = simileLevel;
+        document.getElementById('megaLevel').textContent = megaLevel;
+        document.getElementById('grindMultDisplay').textContent = grindMultiplier.toFixed(2);
+        document.getElementById('grindMeter').textContent = '🔥 Grind: ' + grindCount;
+
+        const wheelBtn = document.getElementById('wheelBtn');
+        if (wheelBtn) {
+            wheelBtn.textContent = '🎰 Spin the Wheel (✦500)';
+            wheelBtn.disabled = points < 500;
+        }
+
+        if (stockUnlocked) {
+            document.getElementById('stockSection').classList.add('visible');
+            updateStockUI();
+        }
+
+        const streakDisplay = document.getElementById('streakDisplay');
+        if (totalClicks > 0 && totalClicks % 10 === 0) {
+            streakDisplay.textContent = '🔥 Streak x' + Math.floor(totalClicks / 10) + '!';
+            streakDisplay.style.color = '#ffd700';
+        } else {
+            streakDisplay.textContent = '🔥 Click to build your streak!';
+            streakDisplay.style.color = '#ff6b6b';
+        }
+    }
+
+    // ============================================================
+    // DAILY REWARD UI
+    // ============================================================
+    function updateDailyUI() {
+        const timerDisplay = document.getElementById('dailyTimerDisplay');
+        const dailyBtn = document.getElementById('dailyBtn');
+
+        if (dailyClaimed) {
+            const timeLeft = Math.max(0, dailyTimer);
+            timerDisplay.textContent = '⏳ ' + formatTime(timeLeft);
+            dailyBtn.disabled = true;
+            dailyBtn.textContent = '⏳ Wait';
+        } else {
+            timerDisplay.textContent = '✨ Ready to claim!';
+            dailyBtn.disabled = false;
+            dailyBtn.textContent = 'Claim ✦1,000';
+        }
+    }
+
+    function formatTime(seconds) {
+        if (seconds <= 0) return 'Ready!';
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+        if (hours > 0) return `${hours}h ${minutes}m`;
+        if (minutes > 0) return `${minutes}m ${secs}s`;
+        return `${secs}s`;
+    }
+
+    // ============================================================
+    // STOCK MARKET
+    // ============================================================
+    function updateStockUI() {
+        const chart = document.getElementById('stockChart');
+        chart.innerHTML = '';
+        stockPrices.forEach((price) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bar-wrapper';
+            const bar = document.createElement('div');
+            bar.className = 'bar ' + (Math.random() > 0.5 ? 'up' : 'down');
+            const height = 15 + (price / 300) * 50;
+            bar.style.height = Math.min(height, 60) + 'px';
+            wrapper.appendChild(bar);
+            chart.appendChild(wrapper);
+        });
+
+        const assets = document.getElementById('stockAssets');
+        assets.innerHTML = '';
+        stockNames.forEach((name, i) => {
+            const div = document.createElement('div');
+            div.className = 'stock-asset';
+            const change = (Math.random() - 0.5) * 10;
+            const changeClass = change >= 0 ? 'up' : 'down';
+            div.innerHTML = `
+                <span class="asset-name">${name}</span>
+                <span class="asset-price">✦${Math.floor(stockPrices[i])}</span>
+                <span class="asset-change ${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(1)}%</span>
+                <span class="asset-shares">${stockShares[i]}</span>
+                <div class="asset-buttons">
+                    <button class="buy-btn" onclick="buyStock(${i})">Buy</button>
+                    <button class="sell-btn" onclick="sellStock(${i})" ${stockShares[i] <= 0 ? 'disabled' : ''}>Sell</button>
+                </div>
+            `;
+            assets.appendChild(div);
+        });
+    }
+
+    function buyStock(index) {
+        const price = stockPrices[index];
+        if (points < price) return;
+        points -= Math.floor(price);
+        stockShares[index]++;
+        stockPrices[index] = Math.max(50, price + (Math.random() - 0.5) * 15);
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function sellStock(index) {
+        if (stockShares[index] <= 0) return;
+        const price = stockPrices[index];
+        points += Math.floor(price * 0.9);
+        stockShares[index]--;
+        stockPrices[index] = Math.max(50, price + (Math.random() - 0.5) * 15);
+        playClick();
+        updateUI();
+        saveGame();
+    }
+
+    // ============================================================
+    // BUY FUNCTIONS
+    // ============================================================
+    function buyMultiplier() {
+        if (points < multPrice) return;
+        points -= multPrice;
+        clickMultiplier += 1;
+        multPrice = Math.floor(multPrice * 1.22) + 3;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyCrit() {
+        if (points < critPrice) return;
+        points -= critPrice;
+        critLevel += 1;
+        critPrice = Math.floor(critPrice * 1.30) + 5;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyGolden() {
+        if (points < goldenPrice) return;
+        points -= goldenPrice;
+        goldenLevel += 1;
+        goldenPrice = Math.floor(goldenPrice * 1.4) + 100;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buySimile() {
+        if (points < similePrice) return;
+        points -= similePrice;
+        simileLevel += 1;
+        similePrice = Math.floor(similePrice * 1.35) + 50;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyMega() {
+        if (points < megaPrice) return;
+        points -= megaPrice;
+        megaLevel += 1;
+        megaPrice = Math.floor(megaPrice * 1.5) + 200;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyPassive() {
+        const price = 100 + passiveIncome * 50;
+        if (points < price) return;
+        points -= price;
+        passiveIncome += 1;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyAutoCrit() {
+        const price = 150 + autoCritLevel * 100;
+        if (points < price) return;
+        points -= price;
+        autoCritLevel += 1;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyGrindMult() {
+        const price = 200 + Math.floor(grindMultiplier * 50);
+        if (points < price) return;
+        points -= price;
+        grindMultiplier += 0.1;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyStock() {
+        if (points < 2500 || stockUnlocked) return;
+        points -= 2500;
+        stockUnlocked = true;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buySlime() {
+        if (points < 500 || slimeOwned) return;
+        points -= 500;
+        slimeOwned = true;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyWax() {
+        if (points < 5000 || waxOwned) return;
+        points -= 5000;
+        waxOwned = true;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyPrestige() {
+        if (points < 5000 || prestigeUnlocked) return;
+        points -= 5000;
+        prestigeUnlocked = true;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyMinigame() {
+        if (points < minigamePrice || minigameUnlocked) return;
+        points -= minigamePrice;
+        minigameUnlocked = true;
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function buyAchievement() {
+        playBuy();
+        updateUI();
+        saveGame();
+    }
+
+    function activateFrenzy() {
+        if (frenzyActive || points < 100) return;
+        points -= 100;
+        frenzyActive = true;
+        frenzyTimer = 10;
+        playPowerup();
+        updateUI();
+        saveGame();
+    }
+
+    // ============================================================
+    // DAILY REWARD
+    // ============================================================
+    function claimDaily() {
+        if (dailyClaimed) return;
+        points += 1000;
+        dailyClaimed = true;
+        dailyTimer = DAILY_COOLDOWN;
+        playDaily();
+
+        for (let i = 0; i < 15; i++) {
+            setTimeout(() => {
+                spawnParticle(
+                    Math.random() * window.innerWidth,
+                    Math.random() * window.innerHeight,
+                    ['🎁', '✨', '⭐', '💎', '🎉'][Math.floor(Math.random() * 5)],
+                    '#ffd700'
+                );
+            }, i * 80);
+        }
+
+        updateUI();
+        saveGame();
+    }
+
+    function doPrestige() {
+        if (!prestigeUnlocked || points < 10000) return;
+        if (!confirm('Prestige will reset your progress but give a permanent 2x bonus! Continue?')) return;
+        prestigeLevel += 1;
+        prestigeBonus *= 2;
+        points = 0;
+        clickMultiplier = 1;
+        critLevel = 0;
+        multPrice = 25;
+        critPrice = 50;
+        totalClicks = 0;
+        goldenLevel = 0;
+        goldenPrice = 500;
+        simileLevel = 0;
+        similePrice = 200;
+        megaLevel = 0;
+        megaPrice = 1000;
+        passiveIncome = 0;
+        autoCritLevel = 0;
+        grindMultiplier = 1;
+        grindCount = 0;
+        stockShares = [0, 0, 0, 0, 0];
+        stockPrices = [100, 150, 200, 250, 300];
+        // Keep minigame unlocked if it was
+        playPrestige();
+        updateUI();
+        saveGame();
+        alert('✨ Prestige complete! You now have a permanent ' + prestigeBonus + 'x bonus!');
+    }
+
+    // ============================================================
+    // WHEEL - No cooldown, just pay each time
+    // ============================================================
+    function spinWheel() {
+        if (points < 500) return;
+
+        points -= 500;
+        playWheelSpin();
+
+        const prizes = [
+            { text: '💀 Lose 200', amount: -200 },
+            { text: '💰 Win 100', amount: 100 },
+            { text: '💰 Win 250', amount: 250 },
+            { text: '💰 Win 500', amount: 500 },
+            { text: '💰 Win 1000', amount: 1000 },
+            { text: '💰 Win 2000', amount: 2000 },
+            { text: '💰 Win 5000', amount: 5000 },
+            { text: '⭐ 2x Multiplier!', amount: 'multiplier' },
+            { text: '⚡ Powerup!', amount: 'powerup' }
+        ];
+
+        const prize = prizes[Math.floor(Math.random() * prizes.length)];
+        const resultDiv = document.getElementById('wheelResult');
+
+        if (prize.amount === 'multiplier') {
+            clickMultiplier *= 2;
+            resultDiv.textContent = '⭐ 2x Multiplier!';
+            playWin();
+            // Reset after 30 seconds
+            setTimeout(() => {
+                clickMultiplier = Math.ceil(clickMultiplier / 2);
+                updateUI();
+            }, 30000);
+        } else if (prize.amount === 'powerup') {
+            points += 500;
+            resultDiv.textContent = '⚡ Powerup! +500 points!';
+            playPowerup();
+        } else {
+            points = Math.max(0, points + prize.amount);
+            if (prize.amount < 0) {
+                resultDiv.textContent = prize.text + '!';
+                resultDiv.style.color = '#ff6b6b';
+                playLose();
+            } else {
+                resultDiv.textContent = '🎉 ' + prize.text + '!';
+                resultDiv.style.color = '#ffd700';
+                playWin();
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        spawnParticle(
+                            Math.random() * window.innerWidth,
+                            Math.random() * window.innerHeight,
+                            ['🎉', '⭐', '💎', '✨', '🎊'][Math.floor(Math.random() * 5)],
+                            '#ffd700'
+                        );
+                    }, i * 100);
+                }
             }
         }
 
-        // ============================================================
-        // UPDATE UI
-        // ============================================================
-        function updateUI() {
-            document.getElementById('pointsDisplay').textContent = Math.floor(points).toLocaleString();
-            document.getElementById('totalClicksDisplay').textContent = totalClicks;
+        updateUI();
+        saveGame();
+    }
 
-            let rate = autoClickers + robotCount * 2 + passiveIncome + achievementBonus;
+    // ============================================================
+    // CLICK HANDLER
+    // ============================================================
+    function handleClick() {
+        let amount = clickMultiplier;
+        if (frenzyActive) amount *= 2;
+        if (x2Powerup) amount *= 2;
+        amount *= prestigeBonus;
+        if (goldenLevel > 0) amount *= (1 + goldenLevel * 0.5);
+        if (megaLevel > 0) amount *= (1 + megaLevel * 1);
+
+        const isCrit = Math.random() < (critLevel * 0.10);
+        if (isCrit) {
+            amount *= 5;
+            playClickCrit();
+        }
+
+        const isSimile = Math.random() < (simileLevel * 0.10);
+        if (isSimile) {
+            amount *= 10;
+            playClickSimile();
+        }
+
+        if (!isCrit && !isSimile) {
+            playClick();
+        }
+
+        points += Math.floor(amount);
+        totalClicks += 1;
+        grindCount += 1;
+
+        if (autoCritLevel > 0 && totalClicks % 5 === 0) {
+            points += Math.floor(amount * 5);
+            spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ AUTO CRIT!', '#34c759');
+            playClickCrit();
+        }
+
+        const btn = document.getElementById('clickBtn');
+        spawnClickParticles(btn);
+
+        if (isCrit) {
+            const rect = btn.getBoundingClientRect();
+            spawnParticle(rect.left + rect.width / 2 - 20, rect.top - 20, '💥 CRIT!', '#ff6b6b');
+        }
+
+        if (isSimile) {
+            const rect = btn.getBoundingClientRect();
+            spawnParticle(rect.left + rect.width / 2 - 20, rect.top - 40, '😄 10x!', '#ffd93d');
+        }
+
+        btn.style.transform = 'scale(0.85)';
+        btn.style.boxShadow = '0 4px 0 #b8860b';
+        setTimeout(() => {
+            btn.style.transform = '';
+            btn.style.boxShadow = '';
+        }, 100);
+
+        updateUI();
+        saveGame();
+    }
+
+    // ============================================================
+    // POWERUP CLICK HANDLERS
+    // ============================================================
+    function setupPowerups() {
+        document.getElementById('powerupX2').addEventListener('click', function() {
+            if (x2Powerup || points < 50) return;
+            points -= 50;
+            x2Powerup = true;
+            x2Timer = 30;
+            playPowerup();
+            updateUI();
+            saveGame();
+            spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ 2x ACTIVE!', '#ffd700');
+        });
+
+        document.getElementById('powerupAuto').addEventListener('click', function() {
+            if (autoPowerup || points < 75) return;
+            points -= 75;
+            autoPowerup = true;
+            autoTimer = 20;
+            playPowerup();
+            updateUI();
+            saveGame();
+            spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '🤖 AUTO ACTIVE!', '#34c759');
+        });
+    }
+
+    // ============================================================
+    // SAVE SYSTEM - COMPLETE
+    // ============================================================
+    function saveGame() {
+        try {
+            const data = {
+                points, clickMultiplier, critLevel,
+                multPrice, critPrice, totalClicks,
+                frenzyActive, frenzyTimer, passiveIncome, autoCritLevel,
+                grindMultiplier, grindCount,
+                goldenLevel, goldenPrice, achievementBonus,
+                simileLevel, similePrice, megaLevel, megaPrice,
+                stockUnlocked, slimeOwned, waxOwned,
+                prestigeUnlocked, prestigeLevel, prestigeBonus,
+                minigameUnlocked, minigamePrice,
+                stockPrices, stockShares,
+                dailyClaimed, dailyTimer,
+                x2Powerup, x2Timer, autoPowerup, autoTimer,
+                savedAt: Date.now()
+            };
+            localStorage.setItem('stimOverloadSave', JSON.stringify(data));
+            updateSaveTime('just now');
+        } catch (e) { console.log('Save error:', e); }
+    }
+
+    function loadGame() {
+        try {
+            const saved = localStorage.getItem('stimOverloadSave');
+            if (saved) {
+                const data = JSON.parse(saved);
+                if (data.savedAt && (Date.now() - data.savedAt) > 30 * 24 * 60 * 60 * 1000) {
+                    console.log('Save too old');
+                    return false;
+                }
+                Object.assign(window, data);
+                console.log('✅ Game loaded!');
+                updateSaveTime('loaded');
+                return true;
+            }
+        } catch (e) { console.log('Load error:', e); }
+        return false;
+    }
+
+    function resetSave() {
+        if (confirm('⚠️ Delete ALL saved progress? This cannot be undone!')) {
+            localStorage.removeItem('stimOverloadSave');
+            location.reload();
+        }
+    }
+
+    function updateSaveTime(text) {
+        const el = document.getElementById('saveTime');
+        if (el) el.textContent = text;
+    }
+
+    // ============================================================
+    // GAME LOOP
+    // ============================================================
+    function setupGameLoop() {
+        setInterval(() => {
+            // Calculate rate - only passive income sources (no auto-clickers or robots)
+            let rate = passiveIncome + achievementBonus;
             if (slimeOwned) rate += 0.5;
             if (waxOwned) rate += 2;
             if (autoPowerup) rate *= 2;
             rate *= grindMultiplier * prestigeBonus;
-            document.getElementById('rateDisplay').textContent = Math.floor(rate);
 
-            const level = Math.floor(totalClicks / 100) + 1;
-            document.getElementById('levelNum').textContent = level;
-            const progress = (totalClicks % 100) / 100 * 100;
-            document.getElementById('levelFill').style.width = progress + '%';
+            if (rate > 0) {
+                points += Math.floor(rate);
+            }
 
-            let clickPower = clickMultiplier;
-            if (frenzyActive) clickPower *= 2;
-            if (x2Powerup) clickPower *= 2;
-            clickPower *= prestigeBonus;
-            if (goldenLevel > 0) clickPower *= (1 + goldenLevel * 0.5);
-            if (megaLevel > 0) clickPower *= (1 + megaLevel * 1);
-            document.getElementById('clickPowerDisplay').textContent = '+' + Math.floor(clickPower);
-
-            document.getElementById('autoCount').textContent = autoClickers;
-            document.getElementById('multLevel').textContent = clickMultiplier;
-            document.getElementById('critLevel').textContent = critLevel;
-
-            const frenzyBtn = document.getElementById('buyFrenzyBtn');
             if (frenzyActive) {
-                frenzyBtn.textContent = '⏳ ' + Math.ceil(frenzyTimer) + 's';
-                frenzyBtn.disabled = true;
-                document.getElementById('clickBtn').classList.add('frenzy');
-                document.getElementById('frenzyStatus').textContent = '⚡ Active!';
-            } else {
-                frenzyBtn.textContent = 'Activate (✦100)';
-                frenzyBtn.disabled = points < 100;
-                document.getElementById('clickBtn').classList.remove('frenzy');
-                document.getElementById('frenzyStatus').textContent = 'Ready';
+                frenzyTimer -= 1;
+                if (frenzyTimer <= 0) frenzyActive = false;
             }
 
-            const x2 = document.getElementById('powerupX2');
             if (x2Powerup) {
-                x2.classList.add('active');
-                document.getElementById('x2Timer').textContent = Math.ceil(x2Timer) + 's';
-            } else {
-                x2.classList.remove('active');
-                document.getElementById('x2Timer').textContent = '';
+                x2Timer -= 1;
+                if (x2Timer <= 0) x2Powerup = false;
             }
 
-            const auto = document.getElementById('powerupAuto');
             if (autoPowerup) {
-                auto.classList.add('active');
-                document.getElementById('autoTimer').textContent = Math.ceil(autoTimer) + 's';
-            } else {
-                auto.classList.remove('active');
-                document.getElementById('autoTimer').textContent = '';
+                autoTimer -= 1;
+                if (autoTimer <= 0) autoPowerup = false;
             }
-
-            updateDailyUI();
-
-            const buttons = {
-                'buyAutoBtn': autoPrice,
-                'buyMultBtn': multPrice,
-                'buyCritBtn': critPrice,
-                'buyRobotBtn': robotPrice,
-                'buyGoldenBtn': goldenPrice,
-                'buySimileBtn': similePrice,
-                'buyMegaBtn': megaPrice,
-                'buyPassiveBtn': 100 + passiveIncome * 50,
-                'buyAutoCritBtn': 150 + autoCritLevel * 100,
-                'buyGrindMultBtn': 200 + Math.floor(grindMultiplier * 50),
-                'buyStockBtn': 2500,
-                'buySlimeBtn': 500,
-                'buyWaxBtn': 5000,
-                'buyPrestigeBtn': 5000
-            };
-
-            for (const [id, price] of Object.entries(buttons)) {
-                const btn = document.getElementById(id);
-                if (!btn) continue;
-
-                if (id === 'buySlimeBtn' && slimeOwned) {
-                    btn.textContent = '✅ Owned';
-                    btn.disabled = true;
-                    document.getElementById('slimeStatus').textContent = '✅ Owned';
-                    continue;
-                }
-                if (id === 'buyWaxBtn' && waxOwned) {
-                    btn.textContent = '✅ Owned';
-                    btn.disabled = true;
-                    document.getElementById('waxStatus').textContent = '✅ Owned';
-                    continue;
-                }
-                if (id === 'buyStockBtn' && stockUnlocked) {
-                    btn.textContent = '✅ Unlocked';
-                    btn.disabled = true;
-                    document.getElementById('stockStatus').textContent = '✅ Unlocked';
-                    continue;
-                }
-                if (id === 'buyPrestigeBtn' && prestigeUnlocked) {
-                    btn.textContent = '✅ Unlocked';
-                    btn.disabled = true;
-                    document.getElementById('prestigeStatus').textContent = '✅ Unlocked';
-                    continue;
-                }
-
-                btn.textContent = 'Buy (✦' + price + ')';
-                btn.disabled = points < price;
-            }
-
-            document.getElementById('passiveBonus').textContent = passiveIncome;
-            document.getElementById('autoCritLevel').textContent = autoCritLevel;
-            document.getElementById('robotCount').textContent = robotCount;
-            document.getElementById('goldenLevel').textContent = goldenLevel;
-            document.getElementById('achievementBonus').textContent = achievementBonus;
-            document.getElementById('simileLevel').textContent = simileLevel;
-            document.getElementById('megaLevel').textContent = megaLevel;
-            document.getElementById('grindMultDisplay').textContent = grindMultiplier.toFixed(2);
-            document.getElementById('grindMeter').textContent = '🔥 Grind: ' + grindCount;
-
-            const wheelBtn = document.getElementById('wheelBtn');
-            if (wheelBtn) {
-                if (wheelCooldown > 0) {
-                    wheelBtn.textContent = '⏳ ' + Math.ceil(wheelCooldown) + 's';
-                    wheelBtn.disabled = true;
-                } else {
-                    wheelBtn.textContent = '🎰 Spin the Wheel (✦500)';
-                    wheelBtn.disabled = points < 500;
-                }
-            }
-
-            document.getElementById('prestigeLevel').textContent = prestigeLevel;
-            document.getElementById('prestigeBonus').textContent = prestigeBonus.toFixed(2);
-
-            if (stockUnlocked) {
-                document.getElementById('stockSection').classList.add('visible');
-                updateStockUI();
-            }
-
-            const streakDisplay = document.getElementById('streakDisplay');
-            if (totalClicks > 0 && totalClicks % 10 === 0) {
-                streakDisplay.textContent = '🔥 Streak x' + Math.floor(totalClicks / 10) + '!';
-                streakDisplay.style.color = '#ffd700';
-            } else {
-                streakDisplay.textContent = '🔥 Click to build your streak!';
-                streakDisplay.style.color = '#ff6b6b';
-            }
-        }
-
-        // ============================================================
-        // DAILY REWARD UI
-        // ============================================================
-        function updateDailyUI() {
-            const timerDisplay = document.getElementById('dailyTimerDisplay');
-            const dailyBtn = document.getElementById('dailyBtn');
 
             if (dailyClaimed) {
-                const timeLeft = Math.max(0, dailyTimer);
-                timerDisplay.textContent = '⏳ ' + formatTime(timeLeft);
-                dailyBtn.disabled = true;
-                dailyBtn.textContent = '⏳ Wait';
-            } else {
-                timerDisplay.textContent = '✨ Ready to claim!';
-                dailyBtn.disabled = false;
-                dailyBtn.textContent = 'Claim ✦1,000';
-            }
-        }
-
-        function formatTime(seconds) {
-            if (seconds <= 0) return 'Ready!';
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = Math.floor(seconds % 60);
-            if (hours > 0) return `${hours}h ${minutes}m`;
-            if (minutes > 0) return `${minutes}m ${secs}s`;
-            return `${secs}s`;
-        }
-
-        // ============================================================
-        // STOCK MARKET
-        // ============================================================
-        function updateStockUI() {
-            const chart = document.getElementById('stockChart');
-            chart.innerHTML = '';
-            stockPrices.forEach((price) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'bar-wrapper';
-                const bar = document.createElement('div');
-                bar.className = 'bar ' + (Math.random() > 0.5 ? 'up' : 'down');
-                const height = 15 + (price / 300) * 50;
-                bar.style.height = Math.min(height, 60) + 'px';
-                wrapper.appendChild(bar);
-                chart.appendChild(wrapper);
-            });
-
-            const assets = document.getElementById('stockAssets');
-            assets.innerHTML = '';
-            stockNames.forEach((name, i) => {
-                const div = document.createElement('div');
-                div.className = 'stock-asset';
-                const change = (Math.random() - 0.5) * 10;
-                const changeClass = change >= 0 ? 'up' : 'down';
-                div.innerHTML = `
-                    <span class="asset-name">${name}</span>
-                    <span class="asset-price">✦${Math.floor(stockPrices[i])}</span>
-                    <span class="asset-change ${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(1)}%</span>
-                    <span class="asset-shares">${stockShares[i]}</span>
-                    <div class="asset-buttons">
-                        <button class="buy-btn" onclick="buyStock(${i})">Buy</button>
-                        <button class="sell-btn" onclick="sellStock(${i})" ${stockShares[i] <= 0 ? 'disabled' : ''}>Sell</button>
-                    </div>
-                `;
-                assets.appendChild(div);
-            });
-        }
-
-        function buyStock(index) {
-            const price = stockPrices[index];
-            if (points < price) return;
-            points -= Math.floor(price);
-            stockShares[index]++;
-            stockPrices[index] = Math.max(50, price + (Math.random() - 0.5) * 15);
-            updateUI();
-            saveGame();
-        }
-
-        function sellStock(index) {
-            if (stockShares[index] <= 0) return;
-            const price = stockPrices[index];
-            points += Math.floor(price * 0.9);
-            stockShares[index]--;
-            stockPrices[index] = Math.max(50, price + (Math.random() - 0.5) * 15);
-            updateUI();
-            saveGame();
-        }
-
-        // ============================================================
-        // BUY FUNCTIONS
-        // ============================================================
-        function buyAuto() {
-            if (points < autoPrice) return;
-            points -= autoPrice;
-            autoClickers += 1;
-            autoPrice = Math.floor(autoPrice * 1.18) + 2;
-            updateUI();
-            saveGame();
-        }
-
-        function buyMultiplier() {
-            if (points < multPrice) return;
-            points -= multPrice;
-            clickMultiplier += 1;
-            multPrice = Math.floor(multPrice * 1.22) + 3;
-            updateUI();
-            saveGame();
-        }
-
-        function buyCrit() {
-            if (points < critPrice) return;
-            points -= critPrice;
-            critLevel += 1;
-            critPrice = Math.floor(critPrice * 1.30) + 5;
-            updateUI();
-            saveGame();
-        }
-
-        function buyRobot() {
-            if (points < robotPrice) return;
-            points -= robotPrice;
-            robotCount += 1;
-            robotPrice = Math.floor(robotPrice * 1.25) + 20;
-            updateUI();
-            saveGame();
-        }
-
-        function buyGolden() {
-            if (points < goldenPrice) return;
-            points -= goldenPrice;
-            goldenLevel += 1;
-            goldenPrice = Math.floor(goldenPrice * 1.4) + 100;
-            updateUI();
-            saveGame();
-        }
-
-        function buySimile() {
-            if (points < similePrice) return;
-            points -= similePrice;
-            simileLevel += 1;
-            similePrice = Math.floor(similePrice * 1.35) + 50;
-            updateUI();
-            saveGame();
-        }
-
-        function buyMega() {
-            if (points < megaPrice) return;
-            points -= megaPrice;
-            megaLevel += 1;
-            megaPrice = Math.floor(megaPrice * 1.5) + 200;
-            updateUI();
-            saveGame();
-        }
-
-        function buyPassive() {
-            const price = 100 + passiveIncome * 50;
-            if (points < price) return;
-            points -= price;
-            passiveIncome += 1;
-            updateUI();
-            saveGame();
-        }
-
-        function buyAutoCrit() {
-            const price = 150 + autoCritLevel * 100;
-            if (points < price) return;
-            points -= price;
-            autoCritLevel += 1;
-            updateUI();
-            saveGame();
-        }
-
-        function buyGrindMult() {
-            const price = 200 + Math.floor(grindMultiplier * 50);
-            if (points < price) return;
-            points -= price;
-            grindMultiplier += 0.1;
-            updateUI();
-            saveGame();
-        }
-
-        function buyStock() {
-            if (points < 2500 || stockUnlocked) return;
-            points -= 2500;
-            stockUnlocked = true;
-            updateUI();
-            saveGame();
-        }
-
-        function buySlime() {
-            if (points < 500 || slimeOwned) return;
-            points -= 500;
-            slimeOwned = true;
-            updateUI();
-            saveGame();
-        }
-
-        function buyWax() {
-            if (points < 5000 || waxOwned) return;
-            points -= 5000;
-            waxOwned = true;
-            updateUI();
-            saveGame();
-        }
-
-        function buyPrestige() {
-            if (points < 5000 || prestigeUnlocked) return;
-            points -= 5000;
-            prestigeUnlocked = true;
-            updateUI();
-            saveGame();
-        }
-
-        function buyAchievement() {
-            updateUI();
-            saveGame();
-        }
-
-        function activateFrenzy() {
-            if (frenzyActive || points < 100) return;
-            points -= 100;
-            frenzyActive = true;
-            frenzyTimer = 10;
-            updateUI();
-            saveGame();
-        }
-
-        // ============================================================
-        // DAILY REWARD
-        // ============================================================
-        function claimDaily() {
-            if (dailyClaimed) return;
-            points += 1000;
-            dailyClaimed = true;
-            dailyTimer = DAILY_COOLDOWN;
-
-            for (let i = 0; i < 15; i++) {
-                setTimeout(() => {
-                    spawnParticle(
-                        Math.random() * window.innerWidth,
-                        Math.random() * window.innerHeight,
-                        ['🎁', '✨', '⭐', '💎', '🎉'][Math.floor(Math.random() * 5)],
-                        '#ffd700'
-                    );
-                }, i * 80);
-            }
-
-            updateUI();
-            saveGame();
-        }
-
-        function doPrestige() {
-            if (!prestigeUnlocked || points < 10000) return;
-            if (!confirm('Prestige will reset your progress but give a permanent 2x bonus! Continue?')) return;
-            prestigeLevel += 1;
-            prestigeBonus *= 2;
-            points = 0;
-            autoClickers = 0;
-            clickMultiplier = 1;
-            critLevel = 0;
-            autoPrice = 15;
-            multPrice = 25;
-            critPrice = 50;
-            totalClicks = 0;
-            robotCount = 0;
-            robotPrice = 100;
-            goldenLevel = 0;
-            goldenPrice = 500;
-            simileLevel = 0;
-            similePrice = 200;
-            megaLevel = 0;
-            megaPrice = 1000;
-            passiveIncome = 0;
-            autoCritLevel = 0;
-            grindMultiplier = 1;
-            grindCount = 0;
-            stockShares = [0, 0, 0, 0, 0];
-            stockPrices = [100, 150, 200, 250, 300];
-            updateUI();
-            saveGame();
-            alert('✨ Prestige complete! You now have a permanent ' + prestigeBonus + 'x bonus!');
-        }
-
-        // ============================================================
-        // WHEEL
-        // ============================================================
-        function spinWheel() {
-            if (points < 500 || wheelCooldown > 0) return;
-
-            points -= 500;
-            wheelCooldown = 30;
-
-            const prizes = [
-                { text: '💀 Lose 200', amount: -200 },
-                { text: '💰 Win 100', amount: 100 },
-                { text: '💰 Win 250', amount: 250 },
-                { text: '💰 Win 500', amount: 500 },
-                { text: '💰 Win 1000', amount: 1000 },
-                { text: '💰 Win 2000', amount: 2000 },
-                { text: '💰 Win 5000', amount: 5000 },
-                { text: '⭐ 2x Multiplier!', amount: 'multiplier' },
-                { text: '⚡ Powerup!', amount: 'powerup' }
-            ];
-
-            const prize = prizes[Math.floor(Math.random() * prizes.length)];
-            const resultDiv = document.getElementById('wheelResult');
-
-            if (prize.amount === 'multiplier') {
-                clickMultiplier *= 2;
-                resultDiv.textContent = '⭐ 2x Multiplier!';
-                setTimeout(() => {
-                    clickMultiplier = Math.ceil(clickMultiplier / 2);
-                    updateUI();
-                }, 30000);
-            } else if (prize.amount === 'powerup') {
-                points += 500;
-                resultDiv.textContent = '⚡ Powerup! +500 points!';
-            } else {
-                points = Math.max(0, points + prize.amount);
-                if (prize.amount < 0) {
-                    resultDiv.textContent = prize.text + '!';
-                    resultDiv.style.color = '#ff6b6b';
-                } else {
-                    resultDiv.textContent = '🎉 ' + prize.text + '!';
-                    resultDiv.style.color = '#ffd700';
-                    for (let i = 0; i < 8; i++) {
-                        setTimeout(() => {
-                            spawnParticle(
-                                Math.random() * window.innerWidth,
-                                Math.random() * window.innerHeight,
-                                ['🎉', '⭐', '💎', '✨', '🎊'][Math.floor(Math.random() * 5)],
-                                '#ffd700'
-                            );
-                        }, i * 100);
-                    }
+                dailyTimer -= 1;
+                if (dailyTimer <= 0) {
+                    dailyClaimed = false;
+                    dailyTimer = 0;
                 }
             }
 
-            updateUI();
-            saveGame();
-        }
-
-        // ============================================================
-        // CLICK HANDLER
-        // ============================================================
-        function handleClick() {
-            let amount = clickMultiplier;
-            if (frenzyActive) amount *= 2;
-            if (x2Powerup) amount *= 2;
-            amount *= prestigeBonus;
-            if (goldenLevel > 0) amount *= (1 + goldenLevel * 0.5);
-            if (megaLevel > 0) amount *= (1 + megaLevel * 1);
-
-            const isCrit = Math.random() < (critLevel * 0.10);
-            if (isCrit) amount *= 5;
-
-            const isSimile = Math.random() < (simileLevel * 0.10);
-            if (isSimile) amount *= 10;
-
-            points += Math.floor(amount);
-            totalClicks += 1;
-            grindCount += 1;
-
-            if (autoCritLevel > 0 && totalClicks % 5 === 0) {
-                points += Math.floor(amount * 5);
-                spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ AUTO CRIT!', '#34c759');
+            if (stockUnlocked) {
+                stockPrices = stockPrices.map(p => Math.max(50, p + (Math.random() - 0.5) * 10));
             }
 
-            const btn = document.getElementById('clickBtn');
-            spawnClickParticles(btn);
-
-            if (isCrit) {
-                const rect = btn.getBoundingClientRect();
-                spawnParticle(rect.left + rect.width / 2 - 20, rect.top - 20, '💥 CRIT!', '#ff6b6b');
-            }
-
-            if (isSimile) {
-                const rect = btn.getBoundingClientRect();
-                spawnParticle(rect.left + rect.width / 2 - 20, rect.top - 40, '😄 10x!', '#ffd93d');
-            }
-
-            btn.style.transform = 'scale(0.85)';
-            btn.style.boxShadow = '0 4px 0 #b8860b';
-            setTimeout(() => {
-                btn.style.transform = '';
-                btn.style.boxShadow = '';
-            }, 100);
+            achievementBonus = Math.floor(totalClicks / 1000);
 
             updateUI();
             saveGame();
-        }
+        }, 1000);
+    }
 
-        // ============================================================
-        // POWERUP CLICK HANDLERS
-        // ============================================================
-        function setupPowerups() {
-            document.getElementById('powerupX2').addEventListener('click', function() {
-                if (x2Powerup || points < 50) return;
-                points -= 50;
-                x2Powerup = true;
-                x2Timer = 30;
-                updateUI();
-                saveGame();
-                spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ 2x ACTIVE!', '#ffd700');
-            });
-
-            document.getElementById('powerupAuto').addEventListener('click', function() {
-                if (autoPowerup || points < 75) return;
-                points -= 75;
-                autoPowerup = true;
-                autoTimer = 20;
-                updateUI();
-                saveGame();
-                spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '🤖 AUTO ACTIVE!', '#34c759');
-            });
-        }
-
-        // ============================================================
-        // SAVE SYSTEM - COMPLETE
-        // ============================================================
-        function saveGame() {
-            try {
-                const data = {
-                    points, autoClickers, clickMultiplier, critLevel,
-                    autoPrice, multPrice, critPrice, totalClicks,
-                    frenzyActive, frenzyTimer, passiveIncome, autoCritLevel,
-                    grindMultiplier, grindCount, robotCount, robotPrice,
-                    goldenLevel, goldenPrice, achievementBonus,
-                    simileLevel, similePrice, megaLevel, megaPrice,
-                    stockUnlocked, slimeOwned, waxOwned,
-                    prestigeUnlocked, prestigeLevel, prestigeBonus,
-                    stockPrices, stockShares,
-                    dailyClaimed, dailyTimer,
-                    x2Powerup, x2Timer, autoPowerup, autoTimer,
-                    wheelCooldown,
-                    savedAt: Date.now()
-                };
-                localStorage.setItem('stimOverloadSave', JSON.stringify(data));
-                updateSaveTime('just now');
-            } catch (e) { console.log('Save error:', e); }
-        }
-
-        function loadGame() {
-            try {
-                const saved = localStorage.getItem('stimOverloadSave');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    if (data.savedAt && (Date.now() - data.savedAt) > 30 * 24 * 60 * 60 * 1000) {
-                        console.log('Save too old');
-                        return false;
-                    }
-                    Object.assign(window, data);
-                    console.log('✅ Game loaded!');
-                    updateSaveTime('loaded');
-                    return true;
-                }
-            } catch (e) { console.log('Load error:', e); }
-            return false;
-        }
-
-        function resetSave() {
-            if (confirm('⚠️ Delete ALL saved progress? This cannot be undone!')) {
-                localStorage.removeItem('stimOverloadSave');
-                location.reload();
-            }
-        }
-
-        function updateSaveTime(text) {
-            const el = document.getElementById('saveTime');
-            if (el) el.textContent = text;
-        }
-
-        // ============================================================
-        // GAME LOOP
-        // ============================================================
-        function setupGameLoop() {
-            setInterval(() => {
-                let rate = autoClickers + robotCount * 2 + passiveIncome + achievementBonus;
-                if (slimeOwned) rate += 0.5;
-                if (waxOwned) rate += 2;
-                if (autoPowerup) rate *= 2;
-                rate *= grindMultiplier * prestigeBonus;
-
-                if (rate > 0) {
-                    points += Math.floor(rate);
-                }
-
-                if (frenzyActive) {
-                    frenzyTimer -= 1;
-                    if (frenzyTimer <= 0) frenzyActive = false;
-                }
-
-                if (x2Powerup) {
-                    x2Timer -= 1;
-                    if (x2Timer <= 0) x2Powerup = false;
-                }
-
-                if (autoPowerup) {
-                    autoTimer -= 1;
-                    if (autoTimer <= 0) autoPowerup = false;
-                }
-
-                if (dailyClaimed) {
-                    dailyTimer -= 1;
-                    if (dailyTimer <= 0) {
-                        dailyClaimed = false;
-                        dailyTimer = 0;
-                    }
-                }
-
-                if (wheelCooldown > 0) wheelCooldown -= 1;
-
-                if (stockUnlocked) {
-                    stockPrices = stockPrices.map(p => Math.max(50, p + (Math.random() - 0.5) * 10));
-                }
-
-                achievementBonus = Math.floor(totalClicks / 1000);
-
-                updateUI();
-                saveGame();
-            }, 1000);
-        }
-
-        // ============================================================
-        // INIT
-        // ============================================================
-        function init() {
-            console.log('🧠 Stimulation Overload - Loading...');
-
-            loadGame();
-            updateUI();
-            setupPowerups();
-            setupGameLoop();
-
-            // Add reset button to footer
-            const footer = document.querySelector('.footer');
-            if (footer) {
-                const resetDiv = document.createElement('div');
-                resetDiv.style.cssText = 'margin-top:6px;';
-                resetDiv.innerHTML = `
-                    <button onclick="resetSave()" style="
-                        background: rgba(255,59,48,0.08);
-                        border: 1px solid rgba(255,59,48,0.12);
-                        color: #ff3b30;
-                        padding: 3px 14px;
-                        border-radius: 30px;
-                        font-size: 10px;
-                        cursor: pointer;
-                        font-family: 'Segoe UI', sans-serif;
-                        transition: 0.2s;
-                    " onmouseover="this.style.background='rgba(255,59,48,0.15)'" onmouseout="this.style.background='rgba(255,59,48,0.08)'">
-                        🗑️ Delete Save
-                    </button>
-                `;
-                footer.appendChild(resetDiv);
-            }
-
-            console.log('✅ All features loaded!');
-            console.log('📧 Email: theyabandtherandomboyoff97@gmail.com');
-            console.log('💾 Press Ctrl+S to save manually');
-        }
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                saveGame();
-                updateSaveTime('just now 💾');
-                alert('💾 Game saved!');
-            }
-            // Prestige shortcut
-            if (e.key === 'p' && e.shiftKey) {
-                if (prestigeUnlocked && points >= 10000) doPrestige();
-            }
-        });
-
-        // Save on page close
-        window.addEventListener('beforeunload', saveGame);
-
-        // Start
-        init();
-        
-    
-
-    // Add sound toggle to settings
+    // ============================================================
+    // SOUND TOGGLE
+    // ============================================================
     function addSoundToggle() {
-        const settings = document.getElementById('settingsPanel');
-        if (!settings) return;
+        const app = document.getElementById('app');
+        if (!app) return;
+        
+        const container = document.createElement('div');
+        container.style.cssText = 'margin: 4px 0 8px;';
+        
         const item = document.createElement('div');
         item.className = 'settings-item';
         item.innerHTML = `
             <span class="label">🔊 Sound Effects</span>
             <div class="settings-toggle active" id="soundToggle"><div class="knob"></div></div>
         `;
-        settings.appendChild(item);
+        container.appendChild(item);
+        
+        // Insert after stats
+        const stats = document.querySelector('.stats');
+        if (stats) {
+            stats.parentNode.insertBefore(container, stats.nextSibling);
+        }
+        
         document.getElementById('soundToggle').addEventListener('click', function() {
             this.classList.toggle('active');
             soundEnabled = this.classList.contains('active');
@@ -1897,8 +1963,14 @@
         });
     }
 
-    // Minigame: Quick Tap Challenge
+    // ============================================================
+    // QUICK TAP MINIGAME (only works if unlocked)
+    // ============================================================
     function startQuickTap() {
+        if (!minigameUnlocked) {
+            alert('🔒 You need to unlock the Quick Tap Challenge in the shop first!');
+            return;
+        }
         if (document.getElementById('minigameOverlay')) return;
         const overlay = document.createElement('div');
         overlay.id = 'minigameOverlay';
@@ -1964,89 +2036,50 @@
                 const reward = taps * 50;
                 result.textContent = '🏆 You tapped ' + taps + ' times! +' + reward + ' points!';
                 playWin();
-                // Add points if game supports it
-                if (typeof points !== 'undefined') {
-                    points += reward;
-                    if (typeof updateUI === 'function') updateUI();
-                    if (typeof saveGame === 'function') saveGame();
-                }
+                points += reward;
+                updateUI();
+                saveGame();
                 setTimeout(() => {
                     overlay.querySelector('button:last-child').click();
                 }, 3000);
             }
         }, 1000);
 
-        // Add CSS animation
         const style = document.createElement('style');
         style.textContent = '@keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }';
         document.head.appendChild(style);
     }
 
-    // Add minigame button to games
-    function addMinigameButton() {
-        const container = document.querySelector('.container') || document.querySelector('#app');
-        if (!container) return;
-        const btn = document.createElement('button');
-        btn.className = 'btn';
-        btn.style.cssText = `
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            color: white; border: none; padding: 10px 20px;
-            border-radius: 30px; font-weight: 700; font-size: 13px;
-            cursor: pointer; margin: 5px;
-            font-family: 'Segoe UI', sans-serif;
-            transition: 0.2s;
-        `;
-        btn.textContent = '🎯 Quick Tap Challenge';
-        btn.onmouseover = function() { this.style.transform = 'scale(1.05)'; };
-        btn.onmouseout = function() { this.style.transform = ''; };
-        btn.onclick = startQuickTap;
-        container.appendChild(btn);
-    }
-
-    // Initialize sound and minigame
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add sound toggle if settings exist
-        setTimeout(addSoundToggle, 100);
-        // Add minigame button
-        setTimeout(addMinigameButton, 200);
-    });
     // ============================================================
-    // ACHIEVEMENT POPUP SYSTEM - WORKS EVERYWHERE
+    // ACHIEVEMENT SYSTEM
     // ============================================================
-    
-    // Check achievements and show popup
     function checkAchievements() {
         try {
             const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{"games":{},"totalXp":0,"gamesPlayed":0}');
             const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
             let newAchievements = [];
 
-            // First game
             if (progress.gamesPlayed >= 1 && !unlocked.includes('first_game')) {
                 newAchievements.push('first_game');
                 showAchievementPopup('🎮', 'First Game!', 'Played your first game!');
             }
 
-            // Game master (10 games)
             if (progress.gamesPlayed >= 10 && !unlocked.includes('game_master')) {
                 newAchievements.push('game_master');
                 showAchievementPopup('👑', 'Game Master!', 'Played 10 games!');
             }
 
-            // XP collector
             if (progress.totalXp >= 100 && !unlocked.includes('xp_collector')) {
                 newAchievements.push('xp_collector');
                 showAchievementPopup('⭐', 'XP Collector!', 'Earned 100 XP!');
             }
 
-            // Level up
             const level = Math.floor((progress.totalXp || 0) / 100) + 1;
             if (level >= 5 && !unlocked.includes('level_up')) {
                 newAchievements.push('level_up');
                 showAchievementPopup('🏅', 'Level Up!', 'Reached Level 5!');
             }
 
-            // Save new achievements
             if (newAchievements.length > 0) {
                 const all = [...unlocked, ...newAchievements];
                 localStorage.setItem('launchpad_achievements', JSON.stringify(all));
@@ -2057,10 +2090,28 @@
         } catch(e) { return []; }
     }
 
-    // Show achievement popup
     function showAchievementPopup(emoji, title, desc) {
-        try { playAchievement(); } catch(e) {}
-        // Check if popup already exists
+        try {
+            const ctx = getAudioCtx();
+            [523, 659, 784, 1047].forEach((freq, i) => {
+                setTimeout(() => {
+                    if (!soundEnabled) return;
+                    try {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start();
+                        osc.stop(ctx.currentTime + 0.2);
+                    } catch(e) {}
+                }, i * 120);
+            });
+        } catch(e) {}
+
         let popup = document.getElementById('achievementPopupGlobal');
         if (!popup) {
             popup = document.createElement('div');
@@ -2084,7 +2135,6 @@
             `;
             document.body.appendChild(popup);
             
-            // Add animation styles
             const style = document.createElement('style');
             style.textContent = `
                 @keyframes slideInRight {
@@ -2095,15 +2145,10 @@
                     from { transform: translateX(0); opacity: 1; }
                     to { transform: translateX(100%); opacity: 0; }
                 }
-                @keyframes pulseGold {
-                    0%, 100% { box-shadow: 0 0 20px rgba(124, 245, 176, 0.1); }
-                    50% { box-shadow: 0 0 40px rgba(124, 245, 176, 0.3); }
-                }
             `;
             document.head.appendChild(style);
         }
 
-        // Fill popup content
         popup.innerHTML = `
             <div style="display:flex;align-items:center;gap:14px;">
                 <div style="font-size:2.8rem;line-height:1;">${emoji}</div>
@@ -2127,11 +2172,9 @@
             </div>
         `;
 
-        // Show popup
         popup.style.display = 'block';
         popup.style.animation = 'slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
 
-        // Auto-hide after 6 seconds
         clearTimeout(popup._timeout);
         popup._timeout = setTimeout(() => {
             popup.style.animation = 'slideOutRight 0.4s ease-in';
@@ -2140,28 +2183,8 @@
                 popup.style.animation = '';
             }, 400);
         }, 6000);
-
-        // Play sound
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            [523, 659, 784, 1047].forEach((freq, i) => {
-                setTimeout(() => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.2);
-                }, i * 120);
-            });
-        } catch(e) {}
     }
 
-    // Update achievement count in stats
     function updateAchievementCount() {
         try {
             const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
@@ -2170,15 +2193,65 @@
         } catch(e) {}
     }
 
-    // Check achievements every 10 seconds
-    setInterval(checkAchievements, 10000);
+    // ============================================================
+    // INIT
+    // ============================================================
+    function init() {
+        console.log('🧠 Stimulation Overload - Loading...');
 
-    // Also check on page load
-    document.addEventListener('DOMContentLoaded', function() {
+        loadGame();
+        updateUI();
+        setupPowerups();
+        setupGameLoop();
+        addSoundToggle();
+
+        // Add reset button
+        const footer = document.querySelector('.footer');
+        if (footer) {
+            const resetDiv = document.createElement('div');
+            resetDiv.style.cssText = 'margin-top:6px;';
+            resetDiv.innerHTML = `
+                <button onclick="resetSave()" style="
+                    background: rgba(255,59,48,0.08);
+                    border: 1px solid rgba(255,59,48,0.12);
+                    color: #ff3b30;
+                    padding: 3px 14px;
+                    border-radius: 30px;
+                    font-size: 10px;
+                    cursor: pointer;
+                    font-family: 'Segoe UI', sans-serif;
+                    transition: 0.2s;
+                " onmouseover="this.style.background='rgba(255,59,48,0.15)'" onmouseout="this.style.background='rgba(255,59,48,0.08)'">
+                    🗑️ Delete Save
+                </button>
+            `;
+            footer.appendChild(resetDiv);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveGame();
+                updateSaveTime('just now 💾');
+                alert('💾 Game saved!');
+            }
+            if (e.key === 'p' && e.shiftKey) {
+                if (prestigeUnlocked && points >= 10000) doPrestige();
+            }
+        });
+
+        window.addEventListener('beforeunload', saveGame);
+
+        // Check achievements periodically
         setTimeout(checkAchievements, 1000);
-    });
+        setInterval(checkAchievements, 10000);
 
-    // Check when progress updates
+        console.log('✅ All features loaded with sound!');
+        console.log('📧 Email: theyabandtherandomboyoff97@gmail.com');
+    }
+
+    // Patch localStorage.setItem to trigger achievement check
     const origSetItem = localStorage.setItem;
     localStorage.setItem = function(key, value) {
         origSetItem.apply(this, arguments);
@@ -2186,9 +2259,9 @@
             setTimeout(checkAchievements, 500);
         }
     };
-</script>
+
+    // Start
+    init();
+    </script>
 </body>
 </html>
-
-
-

@@ -5,7 +5,7 @@ const ACHIEVEMENTS = {
     xp_collector: { id: 'xp_collector', name: 'XP Collector', desc: 'Earn 100 XP', icon: '⭐', unlocked: false },
     level_up: { id: 'level_up', name: 'Level Up!', desc: 'Reach level 5', icon: '⬆️', unlocked: false },
     social_butterfly: { id: 'social_butterfly', name: 'Social Butterfly', desc: 'Add 5 friends', icon: '🦋', unlocked: false },
-    top_rank: { id: 'top_rank', name: 'Top Rank', desc: 'Reach top 10 on leaderboard', icon: '🏆', unlocked: false }
+    top_rank: { id: 'top_rank', name: 'Top Rank', desc: 'Reach top 10 on ', icon: '🏆', unlocked: false }
 };
 
 function checkAchievements() {

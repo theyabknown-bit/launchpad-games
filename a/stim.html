@@ -5,2505 +5,1006 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Stimulation Overload</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: #0a0a12;
-            color: #f0f0f0;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 12px;
-        }
-
-        #app {
-            max-width: 420px;
-            width: 100%;
-            background: rgba(18, 16, 30, 0.95);
-            border-radius: 32px;
-            padding: 20px 18px 18px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            max-height: 98vh;
-            overflow-y: auto;
-        }
-
-        #app::-webkit-scrollbar {
-            width: 3px;
-        }
-        #app::-webkit-scrollbar-thumb {
-            background: rgba(255, 215, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .back-btn {
-            position: fixed;
-            top: 16px;
-            left: 16px;
-            background: rgba(255, 215, 0, 0.08);
-            color: #ffd700;
-            padding: 10px 18px;
-            border: 1px solid rgba(255, 215, 0, 0.15);
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 13px;
-            z-index: 1000;
-            transition: 0.2s;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .back-btn:hover {
-            background: rgba(255, 215, 0, 0.15);
-        }
-
-        .stats {
-            text-align: center;
-            padding: 4px 0 10px;
-        }
-
-        .stats .points {
-            font-size: 46px;
-            font-weight: 900;
-            color: #f0f0f0;
-            line-height: 1.1;
-        }
-
-        .stats .points .currency {
-            color: #ffd700;
-            font-size: 28px;
-        }
-
-        .stats .sub {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 4px;
-            font-size: 12px;
-            color: #666;
-            flex-wrap: wrap;
-        }
-
-        .stats .sub span {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 3px 14px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .stats .sub .rate-val {
-            color: #66dd88;
-            font-weight: 700;
-        }
-
-        .level-display {
-            text-align: center;
-            padding: 2px 0 6px;
-            font-size: 13px;
-            color: #8888aa;
-        }
-
-        .level-display .level-num {
-            color: #ffd700;
-            font-weight: 700;
-            font-size: 17px;
-        }
-
-        .level-display .level-bar {
-            width: 100%;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            margin-top: 4px;
-            overflow: hidden;
-        }
-
-        .level-display .level-bar .level-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ffd700, #f5a623);
-            border-radius: 10px;
-            transition: width 0.4s;
-            width: 0%;
-        }
-
-        .streak-display {
-            text-align: center;
-            font-size: 12px;
-            color: #ff6b6b;
-            padding: 2px 0 4px;
-            min-height: 22px;
-            font-weight: 600;
-        }
-
-        .clicker-area {
-            display: flex;
-            justify-content: center;
-            margin: 8px 0 14px;
-            position: relative;
-        }
-
-        #clickBtn {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            border: none;
-            background: linear-gradient(145deg, #ffd700, #f5a623);
-            color: #1a1a2e;
-            font-size: 15px;
-            font-weight: 800;
-            box-shadow: 0 10px 0 #b8860b, 0 20px 60px rgba(255, 215, 0, 0.15);
-            cursor: pointer;
-            transition: all 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            touch-action: manipulation;
-            font-family: 'Segoe UI', sans-serif;
-            position: relative;
-        }
-
-        #clickBtn:active {
-            transform: scale(0.87) translateY(6px);
-            box-shadow: 0 4px 0 #b8860b;
-        }
-
-        #clickBtn .emoji {
-            font-size: 34px;
-            line-height: 1;
-            margin-bottom: 2px;
-        }
-
-        #clickBtn .label {
-            font-size: 13px;
-            opacity: 0.85;
-            font-weight: 600;
-        }
-
-        #clickBtn .power {
-            font-size: 11px;
-            opacity: 0.7;
-            background: rgba(0, 0, 0, 0.08);
-            padding: 2px 14px;
-            border-radius: 30px;
-            margin-top: 2px;
-        }
-
-        #clickBtn.frenzy {
-            background: linear-gradient(145deg, #ff6b6b, #c0392b);
-            box-shadow: 0 10px 0 #78281f, 0 20px 60px rgba(192, 57, 43, 0.25);
-            animation: frenzyPulse 0.25s ease-in-out infinite alternate;
-        }
-
-        @keyframes frenzyPulse {
-            0% {
-                transform: scale(1);
-            }
-            100% {
-                transform: scale(1.04);
-            }
-        }
-
-        .powerup-container {
-            display: flex;
-            gap: 6px;
-            margin: 4px 0 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .powerup {
-            background: rgba(255, 215, 0, 0.04);
-            border: 1px solid rgba(255, 215, 0, 0.06);
-            border-radius: 30px;
-            padding: 4px 12px;
-            font-size: 11px;
-            color: #8888aa;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .powerup:hover:not(.active) {
-            border-color: rgba(255, 215, 0, 0.15);
-            background: rgba(255, 215, 0, 0.06);
-        }
-
-        .powerup.active {
-            border-color: #ffd700;
-            color: #ffd700;
-            background: rgba(255, 215, 0, 0.08);
-            animation: pulse 1s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
-        .powerup .timer {
-            color: #ff6b6b;
-            font-weight: 700;
-        }
-
-        .daily-reward {
-            background: rgba(255, 215, 0, 0.04);
-            border: 1px solid rgba(255, 215, 0, 0.06);
-            border-radius: 16px;
-            padding: 10px 14px;
-            margin: 4px 0 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .daily-reward .daily-text {
-            font-size: 13px;
-            color: #8888aa;
-        }
-
-        .daily-reward .daily-text span {
-            color: #ffd700;
-            font-weight: 700;
-        }
-
-        .daily-reward .daily-text .timer-display {
-            color: #ff6b6b;
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .daily-reward .daily-btn {
-            background: linear-gradient(135deg, #ffd700, #f5a623);
-            border: none;
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 12px;
-            color: #1a1a2e;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .daily-reward .daily-btn:active {
-            transform: scale(0.95);
-        }
-
-        .daily-reward .daily-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .wheel-section {
-            background: rgba(255, 215, 0, 0.04);
-            border-radius: 18px;
-            padding: 12px;
-            margin: 6px 0 10px;
-            border: 1px solid rgba(255, 215, 0, 0.04);
-            text-align: center;
-        }
-
-        .wheel-section .wheel-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-            background: linear-gradient(135deg, #ffd700, #f5a623);
-            color: #1a1a2e;
-            width: 100%;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .wheel-section .wheel-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.15);
-        }
-
-        .wheel-section .wheel-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .wheel-section .wheel-result {
-            margin-top: 6px;
-            font-size: 14px;
-            color: #ffd700;
-            min-height: 24px;
-            font-weight: 600;
-        }
-
-        .shop {
-            margin-top: 6px;
-        }
-
-        .shop-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .shop-header h2 {
-            font-size: 15px;
-            font-weight: 700;
-            color: #ddd;
-        }
-
-        .shop-header .grind-meter {
-            font-size: 11px;
-            color: #ff6b6b;
-            background: rgba(255, 107, 107, 0.06);
-            padding: 3px 12px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 107, 107, 0.04);
-            font-weight: 600;
-        }
-
-        .upgrade {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            padding: 10px 14px;
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            transition: 0.2s;
-        }
-
-        .upgrade:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .upgrade .info {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .upgrade .info .name {
-            font-weight: 700;
-            font-size: 13px;
-            color: #f0f0f0;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
-        .upgrade .info .name .badge {
-            font-size: 8px;
-            background: rgba(255, 215, 0, 0.08);
-            padding: 1px 8px;
-            border-radius: 30px;
-            color: #ffd700;
-            border: 1px solid rgba(255, 215, 0, 0.04);
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .upgrade .info .desc {
-            font-size: 11px;
-            color: #666;
-        }
-
-        .upgrade .info .owned {
-            font-size: 11px;
-            color: #ffd700;
-            font-weight: 600;
-        }
-
-        .upgrade button {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: #f0f0f0;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-            min-width: 65px;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .upgrade button:active {
-            transform: scale(0.94);
-        }
-
-        .upgrade button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .upgrade button:not(:disabled):hover {
-            background: rgba(255, 215, 0, 0.08);
-            border-color: rgba(255, 215, 0, 0.15);
-            color: #ffd700;
-        }
-
-        .upgrade.special {
-            border-color: rgba(255, 215, 0, 0.06);
-            background: rgba(255, 215, 0, 0.02);
-        }
-
-        .upgrade.premium {
-            border-color: rgba(108, 92, 231, 0.06);
-            background: rgba(108, 92, 231, 0.02);
-        }
-
-        .upgrade.premium .info .name {
-            color: #a29bfe;
-        }
-
-        .upgrade.ultimate {
-            border-color: rgba(255, 107, 107, 0.06);
-            background: rgba(255, 107, 107, 0.02);
-        }
-
-        .upgrade.ultimate .info .name {
-            color: #ff6b6b;
-        }
-
-        .stock-section {
-            background: rgba(255, 215, 0, 0.04);
-            border-radius: 18px;
-            padding: 12px 14px;
-            margin: 6px 0 10px;
-            border: 1px solid rgba(255, 215, 0, 0.06);
-            display: none;
-        }
-
-        .stock-section.visible {
-            display: block;
-        }
-
-        .stock-section .stock-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .stock-section .stock-header .stock-title {
-            font-weight: 700;
-            font-size: 13px;
-            color: #ddd;
-        }
-
-        .stock-section .stock-header .stock-price {
-            font-weight: 700;
-            font-size: 15px;
-            color: #ffd700;
-        }
-
-        .stock-chart {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            height: 60px;
-            margin: 6px 0;
-            padding: 6px 2px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .stock-chart .bar-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100%;
-            justify-content: flex-end;
-            margin: 0 1px;
-        }
-
-        .stock-chart .bar {
-            width: 100%;
-            border-radius: 3px 3px 0 0;
-            min-height: 2px;
-            transition: height 0.5s ease;
-        }
-
-        .stock-chart .bar.up {
-            background: linear-gradient(180deg, #34c759, #28a745);
-        }
-
-        .stock-chart .bar.down {
-            background: linear-gradient(180deg, #ff3b30, #dc3545);
-        }
-
-        .stock-asset {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            flex-wrap: wrap;
-            gap: 4px;
-        }
-
-        .stock-asset:last-child {
-            border-bottom: none;
-        }
-
-        .stock-asset .asset-name {
-            font-weight: 700;
-            font-size: 13px;
-            color: #ddd;
-            min-width: 40px;
-        }
-
-        .stock-asset .asset-price {
-            font-weight: 700;
-            font-size: 13px;
-            color: #ffd700;
-        }
-
-        .stock-asset .asset-change {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 1px 8px;
-            border-radius: 30px;
-        }
-
-        .stock-asset .asset-change.up {
-            color: #34c759;
-            background: rgba(52, 199, 89, 0.08);
-        }
-
-        .stock-asset .asset-change.down {
-            color: #ff3b30;
-            background: rgba(255, 59, 48, 0.08);
-        }
-
-        .stock-asset .asset-shares {
-            font-size: 11px;
-            color: #888;
-            font-weight: 600;
-        }
-
-        .stock-asset .asset-buttons {
-            display: flex;
-            gap: 4px;
-        }
-
-        .stock-asset .asset-buttons button {
-            padding: 3px 10px;
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .stock-asset .asset-buttons .buy-btn {
-            background: linear-gradient(135deg, #34c759, #2d8b4e);
-            color: #fff;
-        }
-
-        .stock-asset .asset-buttons .sell-btn {
-            background: rgba(255, 59, 48, 0.08);
-            color: #ff3b30;
-            border: 1px solid rgba(255, 59, 48, 0.08);
-        }
-
-        .stock-asset .asset-buttons button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .footer {
-            margin-top: 10px;
-            text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
-            padding-top: 10px;
-        }
-
-        .footer .flavor {
-            font-size: 11px;
-            color: #444;
-        }
-
-        .footer .email-link {
-            display: inline-block;
-            margin-top: 4px;
-            color: #ffd700;
-            font-size: 12px;
-            font-weight: 600;
-            text-decoration: none;
-            background: rgba(255, 215, 0, 0.04);
-            padding: 4px 16px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 215, 0, 0.06);
-            transition: 0.2s;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .footer .email-link:hover {
-            background: rgba(255, 215, 0, 0.08);
-        }
-
-        .particle-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 999;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            font-size: 20px;
-            font-weight: 700;
-            animation: floatUp 1s ease-out forwards;
-            pointer-events: none;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-        }
-
-        @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(0.5) rotate(0deg);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-120px) scale(1.2) rotate(15deg);
-            }
-        }
-
-        /* Save Indicator */
-        #saveIndicator {
-            text-align: center;
-            font-size: 10px;
-            color: #666;
-            padding: 6px 0;
-            margin-top: 6px;
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
-            cursor: default;
-        }
-        #saveIndicator .save-icon {
-            color: #4fc3f7;
-        }
-        #saveIndicator .save-time {
-            color: #888;
-        }
-
-        /* Sound toggle */
-        .settings-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.04);
-            margin: 4px 0;
-            color: #aaa;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        .settings-toggle {
-            width: 44px;
-            height: 24px;
-            background: #333;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: 0.2s;
-            position: relative;
-        }
-        .settings-toggle.active {
-            background: #ffd700;
-        }
-        .settings-toggle .knob {
-            width: 18px;
-            height: 18px;
-            background: #fff;
-            border-radius: 50%;
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            transition: 0.2s;
-        }
-        .settings-toggle.active .knob {
-            left: 23px;
-        }
-
-        .minigame-btn {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            margin: 5px 0 10px;
-            font-family: 'Segoe UI', sans-serif;
-            transition: 0.2s;
-            width: 100%;
-        }
-        .minigame-btn:hover:not(:disabled) {
-            transform: scale(1.02);
-        }
-        .minigame-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        @media (max-width: 480px) {
-            #app {
-                padding: 14px 12px 12px;
-                border-radius: 24px;
-            }
-            #clickBtn {
-                width: 130px;
-                height: 130px;
-            }
-            #clickBtn .emoji {
-                font-size: 28px;
-            }
-            .stats .points {
-                font-size: 36px;
-            }
-            .back-btn {
-                font-size: 11px;
-                padding: 8px 12px;
-                top: 10px;
-                left: 10px;
-            }
-            .upgrade {
-                padding: 8px 10px;
-            }
-            .upgrade button {
-                padding: 5px 10px;
-                font-size: 11px;
-                min-width: 55px;
-            }
-            .stock-chart {
-                height: 50px;
-            }
-            .daily-reward {
-                flex-direction: column;
-                gap: 8px;
-                text-align: center;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #0a0a12; color: #f0f0f0; font-family: 'Segoe UI', system-ui, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 12px; }
+        #app { max-width: 420px; width: 100%; background: rgba(18,16,30,0.95); border-radius: 32px; padding: 20px 18px 18px; border: 1px solid rgba(255,255,255,0.04); box-shadow: 0 20px 60px rgba(0,0,0,0.5); max-height: 98vh; overflow-y: auto; }
+        #app::-webkit-scrollbar { width: 3px; }
+        #app::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 10px; }
+        .back-btn { position: fixed; top: 16px; left: 16px; background: rgba(255,215,0,0.08); color: #ffd700; padding: 10px 18px; border: 1px solid rgba(255,215,0,0.15); border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 13px; z-index: 1000; transition: 0.2s; font-family: 'Segoe UI', sans-serif; }
+        .back-btn:hover { background: rgba(255,215,0,0.15); }
+        .stats { text-align: center; padding: 4px 0 10px; }
+        .stats .points { font-size: 46px; font-weight: 900; color: #f0f0f0; line-height: 1.1; }
+        .stats .points .currency { color: #ffd700; font-size: 28px; }
+        .stats .sub { display: flex; justify-content: center; gap: 12px; margin-top: 4px; font-size: 12px; color: #666; flex-wrap: wrap; }
+        .stats .sub span { background: rgba(255,255,255,0.03); padding: 3px 14px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.03); }
+        .stats .sub .rate-val { color: #66dd88; font-weight: 700; }
+        .level-display { text-align: center; padding: 2px 0 6px; font-size: 13px; color: #8888aa; }
+        .level-display .level-num { color: #ffd700; font-weight: 700; font-size: 17px; }
+        .level-display .level-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 4px; overflow: hidden; }
+        .level-display .level-bar .level-fill { height: 100%; background: linear-gradient(90deg, #ffd700, #f5a623); border-radius: 10px; transition: width 0.4s; width: 0%; }
+        .streak-display { text-align: center; font-size: 12px; color: #ff6b6b; padding: 2px 0 4px; min-height: 22px; font-weight: 600; }
+        .clicker-area { display: flex; justify-content: center; margin: 8px 0 14px; position: relative; }
+        #clickBtn { width: 160px; height: 160px; border-radius: 50%; border: none; background: linear-gradient(145deg, #ffd700, #f5a623); color: #1a1a2e; font-size: 15px; font-weight: 800; box-shadow: 0 10px 0 #b8860b, 0 20px 60px rgba(255,215,0,0.15); cursor: pointer; transition: all 0.08s cubic-bezier(0.34,1.56,0.64,1); display: flex; flex-direction: column; align-items: center; justify-content: center; touch-action: manipulation; font-family: 'Segoe UI', sans-serif; position: relative; }
+        #clickBtn:active { transform: scale(0.87) translateY(6px); box-shadow: 0 4px 0 #b8860b; }
+        #clickBtn .emoji { font-size: 34px; line-height: 1; margin-bottom: 2px; }
+        #clickBtn .label { font-size: 13px; opacity: 0.85; font-weight: 600; }
+        #clickBtn .power { font-size: 11px; opacity: 0.7; background: rgba(0,0,0,0.08); padding: 2px 14px; border-radius: 30px; margin-top: 2px; }
+        #clickBtn.frenzy { background: linear-gradient(145deg, #ff6b6b, #c0392b); box-shadow: 0 10px 0 #78281f, 0 20px 60px rgba(192,57,43,0.25); animation: frenzyPulse 0.25s ease-in-out infinite alternate; }
+        @keyframes frenzyPulse { 0% { transform: scale(1); } 100% { transform: scale(1.04); } }
+        .powerup-container { display: flex; gap: 6px; margin: 4px 0 10px; flex-wrap: wrap; justify-content: center; }
+        .powerup { background: rgba(255,215,0,0.04); border: 1px solid rgba(255,215,0,0.06); border-radius: 30px; padding: 4px 12px; font-size: 11px; color: #8888aa; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: 0.2s; }
+        .powerup:hover:not(.active) { border-color: rgba(255,215,0,0.15); background: rgba(255,215,0,0.06); }
+        .powerup.active { border-color: #ffd700; color: #ffd700; background: rgba(255,215,0,0.08); animation: pulse 1s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .powerup .timer { color: #ff6b6b; font-weight: 700; }
+        .daily-reward { background: rgba(255,215,0,0.04); border: 1px solid rgba(255,215,0,0.06); border-radius: 16px; padding: 10px 14px; margin: 4px 0 10px; display: flex; justify-content: space-between; align-items: center; }
+        .daily-reward .daily-text { font-size: 13px; color: #8888aa; }
+        .daily-reward .daily-text span { color: #ffd700; font-weight: 700; }
+        .daily-reward .daily-text .timer-display { color: #ff6b6b; font-weight: 600; font-size: 12px; }
+        .daily-reward .daily-btn { background: linear-gradient(135deg, #ffd700, #f5a623); border: none; padding: 6px 16px; border-radius: 30px; font-weight: 700; font-size: 12px; color: #1a1a2e; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif; }
+        .daily-reward .daily-btn:active { transform: scale(0.95); }
+        .daily-reward .daily-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .wheel-section { background: rgba(255,215,0,0.04); border-radius: 18px; padding: 12px; margin: 6px 0 10px; border: 1px solid rgba(255,215,0,0.04); text-align: center; }
+        .wheel-section .wheel-btn { padding: 10px 20px; border: none; border-radius: 30px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; background: linear-gradient(135deg, #ffd700, #f5a623); color: #1a1a2e; width: 100%; font-family: 'Segoe UI', sans-serif; }
+        .wheel-section .wheel-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,215,0,0.15); }
+        .wheel-section .wheel-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .wheel-section .wheel-result { margin-top: 6px; font-size: 14px; color: #ffd700; min-height: 24px; font-weight: 600; }
+        .shop { margin-top: 6px; }
+        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .shop-header h2 { font-size: 15px; font-weight: 700; color: #ddd; }
+        .shop-header .grind-meter { font-size: 11px; color: #ff6b6b; background: rgba(255,107,107,0.06); padding: 3px 12px; border-radius: 30px; border: 1px solid rgba(255,107,107,0.04); font-weight: 600; }
+        .upgrade { background: rgba(255,255,255,0.03); border-radius: 16px; padding: 10px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.04); transition: 0.2s; }
+        .upgrade:hover { background: rgba(255,255,255,0.05); }
+        .upgrade .info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+        .upgrade .info .name { font-weight: 700; font-size: 13px; color: #f0f0f0; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+        .upgrade .info .name .badge { font-size: 8px; background: rgba(255,215,0,0.08); padding: 1px 8px; border-radius: 30px; color: #ffd700; border: 1px solid rgba(255,215,0,0.04); font-weight: 600; text-transform: uppercase; }
+        .upgrade .info .desc { font-size: 11px; color: #666; }
+        .upgrade .info .owned { font-size: 11px; color: #ffd700; font-weight: 600; }
+        .upgrade button { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); color: #f0f0f0; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; min-width: 65px; font-family: 'Segoe UI', sans-serif; }
+        .upgrade button:active { transform: scale(0.94); }
+        .upgrade button:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+        .upgrade button:not(:disabled):hover { background: rgba(255,215,0,0.08); border-color: rgba(255,215,0,0.15); color: #ffd700; }
+        .upgrade.special { border-color: rgba(255,215,0,0.06); background: rgba(255,215,0,0.02); }
+        .upgrade.premium { border-color: rgba(108,92,231,0.06); background: rgba(108,92,231,0.02); }
+        .upgrade.premium .info .name { color: #a29bfe; }
+        .upgrade.ultimate { border-color: rgba(255,107,107,0.06); background: rgba(255,107,107,0.02); }
+        .upgrade.ultimate .info .name { color: #ff6b6b; }
+        .slime-section { display: none; background: rgba(52,199,89,0.04); border-radius: 18px; padding: 12px 14px; margin: 6px 0 8px; border: 1px solid rgba(52,199,89,0.06); text-align: center; }
+        .slime-section.visible { display: block; }
+        .slime-section .slime-container { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .slime-pet { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; transition: all 0.2s; position: relative; background: rgba(52,199,89,0.08); border: 2px solid rgba(52,199,89,0.15); }
+        .slime-pet:hover { transform: scale(1.05); }
+        .slime-pet:active { transform: scale(0.9); }
+        .slime-pet .slime-level { position: absolute; bottom: -8px; right: -8px; background: #1a1a2e; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: 700; color: #ffd700; border: 1px solid rgba(255,215,0,0.1); }
+        .slime-pet .slime-name { position: absolute; top: -20px; font-size: 10px; color: #8888aa; font-weight: 600; white-space: nowrap; }
+        .slime-pet.wax { border-color: #ffd700; background: rgba(255,215,0,0.08); box-shadow: 0 0 30px rgba(255,215,0,0.1); }
+        .slime-pet.wax::after { content: '✨'; position: absolute; top: -10px; right: -10px; font-size: 16px; animation: sparkle 1.5s ease-in-out infinite; }
+        @keyframes sparkle { 0%,100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.3) rotate(20deg); } }
+        .slime-pet.bought { border-color: #66dd88; background: rgba(52,199,89,0.12); }
+        .slime-menu { display: none; gap: 6px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+        .slime-menu.visible { display: flex; }
+        .slime-menu button { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: #f0f0f0; padding: 4px 12px; border-radius: 30px; font-weight: 600; font-size: 11px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif; }
+        .slime-menu button:hover { background: rgba(255,255,255,0.08); border-color: #66dd88; }
+        .slime-stats { display: flex; justify-content: center; gap: 12px; margin-top: 8px; font-size: 12px; color: #8888aa; }
+        .slime-stats span { background: rgba(255,255,255,0.03); padding: 3px 12px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.03); }
+        .slime-stats .slime-happy { color: #66dd88; }
+        .slime-stats .slime-hungry { color: #ffd700; }
+        .footer { margin-top: 10px; text-align: center; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 10px; }
+        .footer .flavor { font-size: 11px; color: #444; }
+        .footer .email-link { display: inline-block; margin-top: 4px; color: #ffd700; font-size: 12px; font-weight: 600; text-decoration: none; background: rgba(255,215,0,0.04); padding: 4px 16px; border-radius: 30px; border: 1px solid rgba(255,215,0,0.06); transition: 0.2s; font-family: 'Segoe UI', sans-serif; }
+        .footer .email-link:hover { background: rgba(255,215,0,0.08); }
+        .particle-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+        .particle { position: absolute; font-size: 20px; font-weight: 700; animation: floatUp 1s ease-out forwards; pointer-events: none; text-shadow: 0 0 20px rgba(255,215,0,0.2); }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); } 100% { opacity: 0; transform: translateY(-120px) scale(1.2) rotate(15deg); } }
+        #saveIndicator { text-align: center; font-size: 10px; color: #666; padding: 6px 0; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.03); cursor: default; }
+        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); margin: 4px 0; color: #aaa; font-size: 13px; font-weight: 500; }
+        .settings-toggle { width: 44px; height: 24px; background: #333; border-radius: 30px; cursor: pointer; transition: 0.2s; position: relative; }
+        .settings-toggle.active { background: #ffd700; }
+        .settings-toggle .knob { width: 18px; height: 18px; background: #fff; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.2s; }
+        .settings-toggle.active .knob { left: 23px; }
+        .minigame-btn { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 13px; cursor: pointer; margin: 5px 0 10px; font-family: 'Segoe UI', sans-serif; transition: 0.2s; width: 100%; }
+        .minigame-btn:hover:not(:disabled) { transform: scale(1.02); }
+        .minigame-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .stock-section { background: rgba(255,215,0,0.04); border-radius: 18px; padding: 12px 14px; margin: 6px 0 10px; border: 1px solid rgba(255,215,0,0.06); display: none; }
+        .stock-section.visible { display: block; }
+        .stock-section .stock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .stock-section .stock-header .stock-title { font-weight: 700; font-size: 13px; color: #ddd; }
+        .stock-section .stock-header .stock-price { font-weight: 700; font-size: 15px; color: #ffd700; }
+        .stock-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 60px; margin: 6px 0; padding: 6px 2px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); }
+        .stock-chart .bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; margin: 0 1px; }
+        .stock-chart .bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 2px; transition: height 0.5s ease; }
+        .stock-chart .bar.up { background: linear-gradient(180deg, #34c759, #28a745); }
+        .stock-chart .bar.down { background: linear-gradient(180deg, #ff3b30, #dc3545); }
+        .stock-asset { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); flex-wrap: wrap; gap: 4px; }
+        .stock-asset:last-child { border-bottom: none; }
+        .stock-asset .asset-name { font-weight: 700; font-size: 13px; color: #ddd; min-width: 40px; }
+        .stock-asset .asset-price { font-weight: 700; font-size: 13px; color: #ffd700; }
+        .stock-asset .asset-change { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 30px; }
+        .stock-asset .asset-change.up { color: #34c759; background: rgba(52,199,89,0.08); }
+        .stock-asset .asset-change.down { color: #ff3b30; background: rgba(255,59,48,0.08); }
+        .stock-asset .asset-shares { font-size: 11px; color: #888; font-weight: 600; }
+        .stock-asset .asset-buttons { display: flex; gap: 4px; }
+        .stock-asset .asset-buttons button { padding: 3px 10px; border: none; border-radius: 30px; font-weight: 700; font-size: 10px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif; }
+        .stock-asset .asset-buttons .buy-btn { background: linear-gradient(135deg, #34c759, #2d8b4e); color: #fff; }
+        .stock-asset .asset-buttons .sell-btn { background: rgba(255,59,48,0.08); color: #ff3b30; border: 1px solid rgba(255,59,48,0.08); }
+        .stock-asset .asset-buttons button:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+        @media (max-width:480px) { #app { padding: 14px 12px 12px; border-radius:24px; } #clickBtn { width:130px; height:130px; } #clickBtn .emoji { font-size:28px; } .stats .points { font-size:36px; } .back-btn { font-size:11px; padding:8px 12px; top:10px; left:10px; } .upgrade { padding:8px 10px; } .upgrade button { padding:5px 10px; font-size:11px; min-width:55px; } .stock-chart { height:50px; } .daily-reward { flex-direction:column; gap:8px; text-align:center; } }
     </style>
 </head>
 <body>
-
     <a href="../base.html" class="back-btn">← Back</a>
-
     <div id="app">
-        <!-- Stats -->
         <div class="stats">
             <div class="points"><span class="currency">✦</span><span id="pointsDisplay">0</span></div>
-            <div class="sub">
-                <span>⚡ <span class="rate-val" id="rateDisplay">0</span>/s</span>
-                <span>🎯 <span id="totalClicksDisplay">0</span></span>
-            </div>
+            <div class="sub"><span>⚡ <span class="rate-val" id="rateDisplay">0</span>/s</span><span>🎯 <span id="totalClicksDisplay">0</span></span></div>
         </div>
-
-        <!-- Level -->
-        <div class="level-display">
-            Level <span class="level-num" id="levelNum">1</span>
-            <div class="level-bar"><div class="level-fill" id="levelFill"></div></div>
-        </div>
-
-        <!-- Streak -->
+        <div class="level-display">Level <span class="level-num" id="levelNum">1</span><div class="level-bar"><div class="level-fill" id="levelFill"></div></div></div>
         <div class="streak-display" id="streakDisplay">🔥 Click to build your streak!</div>
-
-        <!-- Powerups -->
         <div class="powerup-container">
             <div class="powerup" id="powerupX2">⚡ 2x <span class="timer" id="x2Timer"></span></div>
             <div class="powerup" id="powerupAuto">🤖 Auto <span class="timer" id="autoTimer"></span></div>
         </div>
-
-        <!-- Daily Reward -->
         <div class="daily-reward">
-            <div class="daily-text">
-                🎁 <span>Daily Reward</span>
-                <br>
-                <small id="dailyTimerDisplay">Claim once per day</small>
-            </div>
+            <div class="daily-text">🎁 <span>Daily Reward</span><br><small id="dailyTimerDisplay">Claim once per day</small></div>
             <button class="daily-btn" id="dailyBtn" onclick="claimDaily()">Claim ✦1,000</button>
         </div>
-
-        <!-- Clicker -->
-        <div class="clicker-area">
-            <button id="clickBtn" onclick="handleClick()">
-                <span class="emoji">⚡</span>
-                <span class="label">TAP</span>
-                <span class="power" id="clickPowerDisplay">+1</span>
-            </button>
-        </div>
-
-        <!-- Minigame Button -->
+        <div class="clicker-area"><button id="clickBtn" onclick="handleClick()"><span class="emoji">⚡</span><span class="label">TAP</span><span class="power" id="clickPowerDisplay">+1</span></button></div>
         <button class="minigame-btn" id="minigameBtn" onclick="startQuickTap()" disabled>🔒 Quick Tap Challenge (Unlock in shop)</button>
-
-        <!-- Wheel -->
-        <div class="wheel-section">
-            <button class="wheel-btn" id="wheelBtn" onclick="spinWheel()">🎰 Spin the Wheel (✦500)</button>
-            <div class="wheel-result" id="wheelResult">🎯 Win up to 5,000 points!</div>
-        </div>
-
-        <!-- Shop -->
+        <div class="wheel-section"><button class="wheel-btn" id="wheelBtn" onclick="spinWheel()">🎰 Spin the Wheel (✦500)</button><div class="wheel-result" id="wheelResult">🎯 Win up to 5,000 points!</div></div>
+        
         <div class="shop">
-            <div class="shop-header">
-                <h2>📈 Upgrades</h2>
-                <span class="grind-meter" id="grindMeter">🔥 Grind: 0</span>
+            <div class="shop-header"><h2>📈 Upgrades</h2><span class="grind-meter" id="grindMeter">🔥 Grind: 0</span></div>
+            <div class="upgrade"><div class="info"><span class="name">💎 Boost <span class="badge">click</span></span><span class="desc">+1 per tap</span><span class="owned">Level: <span id="multLevel">1</span></span></div><button id="buyMultBtn" onclick="buyMultiplier()">Buy</button></div>
+            <div class="upgrade"><div class="info"><span class="name">🎰 Lucky Strike <span class="badge">crit</span></span><span class="desc">10% chance for 5x!</span><span class="owned">Level: <span id="critLevel">0</span></span></div><button id="buyCritBtn" onclick="buyCrit()">Buy</button></div>
+            <div class="upgrade"><div class="info"><span class="name">⚡ Click Frenzy <span class="badge">active</span></span><span class="desc">2x taps for 10s</span><span class="owned" id="frenzyStatus">Ready</span></div><button id="buyFrenzyBtn" onclick="activateFrenzy()">Activate</button></div>
+            <div class="upgrade"><div class="info"><span class="name">🏦 Passive Income <span class="badge">idle</span></span><span class="desc">+1/sec per 100 taps</span><span class="owned">Bonus: +<span id="passiveBonus">0</span>/s</span></div><button id="buyPassiveBtn" onclick="buyPassive()">Buy</button></div>
+            <div class="upgrade"><div class="info"><span class="name">🤖 Auto-Crit <span class="badge">auto</span></span><span class="desc">Auto-crit every 5s</span><span class="owned">Level: <span id="autoCritLevel">0</span></span></div><button id="buyAutoCritBtn" onclick="buyAutoCrit()">Buy</button></div>
+            <div class="upgrade"><div class="info"><span class="name">📈 Grind Multiplier <span class="badge">passive</span></span><span class="desc">+1% all earnings per grind</span><span class="owned">Multiplier: <span id="grindMultDisplay">1.00</span>x</span></div><button id="buyGrindMultBtn" onclick="buyGrindMult()">Buy</button></div>
+            <div class="upgrade special"><div class="info"><span class="name">📊 Stock Market <span class="badge">unlock</span></span><span class="desc">Unlock the Stock Market!</span><span class="owned" id="stockStatus">🔒 Locked</span></div><button id="buyStockBtn" onclick="buyStock()">Unlock (✦2,500)</button></div>
+            <div class="upgrade premium"><div class="info"><span class="name">⭐ Golden Tap <span class="badge">premium</span></span><span class="desc">Permanent 3x tap power!</span><span class="owned">Level: <span id="goldenLevel">0</span></span></div><button id="buyGoldenBtn" onclick="buyGolden()">Buy</button></div>
+            <div class="upgrade premium"><div class="info"><span class="name">🏆 Achievement Bonus <span class="badge">milestone</span></span><span class="desc">Bonus for every 1000 taps</span><span class="owned">Bonus: +<span id="achievementBonus">0</span>/s</span></div><button id="buyAchievementBtn" onclick="buyAchievement()">Claim</button></div>
+            <div class="upgrade special"><div class="info"><span class="name">😄 Simile Cracking <span class="badge">crit</span></span><span class="desc">10% chance for 10x on taps!</span><span class="owned">Level: <span id="simileLevel">0</span></span></div><button id="buySimileBtn" onclick="buySimile()">Buy</button></div>
+            <div class="upgrade ultimate"><div class="info"><span class="name">💥 Mega Tap <span class="badge">ultimate</span></span><span class="desc">Permanent 5x tap power!</span><span class="owned">Level: <span id="megaLevel">0</span></span></div><button id="buyMegaBtn" onclick="buyMega()">Buy</button></div>
+            <div class="upgrade special"><div class="info"><span class="name">🟢 Slime Pet <span class="badge">pet</span></span><span class="desc">Cute slime that gives +0.5/sec!</span><span class="owned" id="slimeStatus">🔒 Not owned</span></div><button id="buySlimeBtn" onclick="buySlime()">Buy (✦500)</button></div>
+            <div class="upgrade premium"><div class="info"><span class="name">💎 Wax Slime <span class="badge">rare</span></span><span class="desc">Rare slime! +2/sec and shiny! ✨</span><span class="owned" id="waxStatus">🔒 Locked</span></div><button id="buyWaxBtn" onclick="buyWax()">Unlock (✦5,000)</button></div>
+            <div class="upgrade premium"><div class="info"><span class="name">🔄 Prestige <span class="badge">premium</span></span><span class="desc">Reset for permanent 2x bonus!</span><span class="owned" id="prestigeStatus">🔒 Locked</span></div><button id="buyPrestigeBtn" onclick="buyPrestige()">Unlock (✦5,000)</button></div>
+            <div class="upgrade special"><div class="info"><span class="name">🎯 Quick Tap Challenge <span class="badge">unlock</span></span><span class="desc">Unlock the Quick Tap minigame!</span><span class="owned" id="minigameStatus">🔒 Locked</span></div><button id="buyMinigameBtn" onclick="buyMinigame()">Unlock (✦1,000)</button></div>
+        </div>
+        
+        <!-- Slime Section -->
+        <div class="slime-section" id="slimeSection">
+            <div style="font-weight:700; font-size:14px; color:#66dd88; margin-bottom:8px;">🐌 Slime Pets</div>
+            <div class="slime-container">
+                <div class="slime-pet" id="normalSlime"><span class="slime-name">🟢 Normal</span><span class="slime-emoji" id="normalEmoji">🟢</span><span class="slime-level" id="normalLevel">Lv.1</span></div>
+                <div class="slime-pet wax" id="waxSlime"><span class="slime-name">💎 Wax</span><span class="slime-emoji" id="waxEmoji">🔮</span><span class="slime-level" id="waxLevel">🔒</span></div>
             </div>
-
-            <div class="upgrade">
-                <div class="info">
-                    <span class="name">💎 Boost <span class="badge">click</span></span>
-                    <span class="desc">+1 per tap</span>
-                    <span class="owned">Level: <span id="multLevel">1</span></span>
-                </div>
-                <button id="buyMultBtn" onclick="buyMultiplier()">Buy</button>
+            <div class="slime-menu" id="slimeMenu">
+                <button id="slimeFeed">🍖 Feed</button>
+                <button id="slimePet">🤗 Pet</button>
+                <button id="slimeTreat">🍭 Treat</button>
+                <button id="slimePlay">🎮 Play</button>
             </div>
-
-            <div class="upgrade">
-                <div class="info">
-                    <span class="name">🎰 Lucky Strike <span class="badge">crit</span></span>
-                    <span class="desc">10% chance for 5x!</span>
-                    <span class="owned">Level: <span id="critLevel">0</span></span>
-                </div>
-                <button id="buyCritBtn" onclick="buyCrit()">Buy</button>
-            </div>
-
-            <div class="upgrade">
-                <div class="info">
-                    <span class="name">⚡ Click Frenzy <span class="badge">active</span></span>
-                    <span class="desc">2x taps for 10s</span>
-                    <span class="owned" id="frenzyStatus">Ready</span>
-                </div>
-                <button id="buyFrenzyBtn" onclick="activateFrenzy()">Activate</button>
-            </div>
-
-            <div class="upgrade">
-                <div class="info">
-                    <span class="name">🏦 Passive Income <span class="badge">idle</span></span>
-                    <span class="desc">+1/sec per 100 taps</span>
-                    <span class="owned">Bonus: +<span id="passiveBonus">0</span>/s</span>
-                </div>
-                <button id="buyPassiveBtn" onclick="buyPassive()">Buy</button>
-            </div>
-
-            <div class="upgrade">
-                <div class="info">
-                    <span class="name">🤖 Auto-Crit <span class="badge">auto</span></span>
-                    <span class="desc">Auto-crit every 5s</span>
-                    <span class="owned">Level: <span id="autoCritLevel">0</span></span>
-                </div>
-                <button id="buyAutoCritBtn" onclick="buyAutoCrit()">Buy</button>
-            </div>
-
-            <div class="upgrade">
-                <div class="info">
-                    <span class="name">📈 Grind Multiplier <span class="badge">passive</span></span>
-                    <span class="desc">+1% all earnings per grind</span>
-                    <span class="owned">Multiplier: <span id="grindMultDisplay">1.00</span>x</span>
-                </div>
-                <button id="buyGrindMultBtn" onclick="buyGrindMult()">Buy</button>
-            </div>
-
-            <div class="upgrade special">
-                <div class="info">
-                    <span class="name">📊 Stock Market <span class="badge">unlock</span></span>
-                    <span class="desc">Unlock the Stock Market!</span>
-                    <span class="owned" id="stockStatus">🔒 Locked</span>
-                </div>
-                <button id="buyStockBtn" onclick="buyStock()">Unlock (✦2,500)</button>
-            </div>
-
-            <div class="upgrade premium">
-                <div class="info">
-                    <span class="name">⭐ Golden Tap <span class="badge">premium</span></span>
-                    <span class="desc">Permanent 3x tap power!</span>
-                    <span class="owned">Level: <span id="goldenLevel">0</span></span>
-                </div>
-                <button id="buyGoldenBtn" onclick="buyGolden()">Buy</button>
-            </div>
-
-            <div class="upgrade premium">
-                <div class="info">
-                    <span class="name">🏆 Achievement Bonus <span class="badge">milestone</span></span>
-                    <span class="desc">Bonus for every 1000 taps</span>
-                    <span class="owned">Bonus: +<span id="achievementBonus">0</span>/s</span>
-                </div>
-                <button id="buyAchievementBtn" onclick="buyAchievement()">Claim</button>
-            </div>
-
-            <div class="upgrade special">
-                <div class="info">
-                    <span class="name">😄 Simile Cracking <span class="badge">crit</span></span>
-                    <span class="desc">10% chance for 10x on taps!</span>
-                    <span class="owned">Level: <span id="simileLevel">0</span></span>
-                </div>
-                <button id="buySimileBtn" onclick="buySimile()">Buy</button>
-            </div>
-
-            <div class="upgrade ultimate">
-                <div class="info">
-                    <span class="name">💥 Mega Tap <span class="badge">ultimate</span></span>
-                    <span class="desc">Permanent 5x tap power!</span>
-                    <span class="owned">Level: <span id="megaLevel">0</span></span>
-                </div>
-                <button id="buyMegaBtn" onclick="buyMega()">Buy</button>
-            </div>
-
-            <div class="upgrade special">
-                <div class="info">
-                    <span class="name">🟢 Slime Pet <span class="badge">pet</span></span>
-                    <span class="desc">Cute slime that gives +0.5/sec!</span>
-                    <span class="owned" id="slimeStatus">🔒 Not owned</span>
-                </div>
-                <button id="buySlimeBtn" onclick="buySlime()">Buy (✦500)</button>
-            </div>
-
-            <div class="upgrade premium">
-                <div class="info">
-                    <span class="name">💎 Wax Slime <span class="badge">rare</span></span>
-                    <span class="desc">Rare slime! +2/sec and shiny! ✨</span>
-                    <span class="owned" id="waxStatus">🔒 Locked</span>
-                </div>
-                <button id="buyWaxBtn" onclick="buyWax()">Unlock (✦5,000)</button>
-            </div>
-
-            <div class="upgrade premium">
-                <div class="info">
-                    <span class="name">🔄 Prestige <span class="badge">premium</span></span>
-                    <span class="desc">Reset for permanent 2x bonus!</span>
-                    <span class="owned" id="prestigeStatus">🔒 Locked</span>
-                </div>
-                <button id="buyPrestigeBtn" onclick="buyPrestige()">Unlock (✦5,000)</button>
-            </div>
-
-            <!-- UNLOCK MINIGAME UPGRADE -->
-            <div class="upgrade special">
-                <div class="info">
-                    <span class="name">🎯 Quick Tap Challenge <span class="badge">unlock</span></span>
-                    <span class="desc">Unlock the Quick Tap minigame!</span>
-                    <span class="owned" id="minigameStatus">🔒 Locked</span>
-                </div>
-                <button id="buyMinigameBtn" onclick="buyMinigame()">Unlock (✦1,000)</button>
+            <div class="slime-stats">
+                <span>❤️ <span class="slime-happy" id="slimeHappiness">100%</span></span>
+                <span>🍖 <span class="slime-hungry" id="slimeHunger">100%</span></span>
+                <span>⭐ <span id="slimeXP">0</span> XP</span>
             </div>
         </div>
 
-        <!-- Stock Market -->
         <div class="stock-section" id="stockSection">
-            <div class="stock-header">
-                <span class="stock-title">📈 Stock Market</span>
-                <span class="stock-price">✦<span id="stockPrice">100</span></span>
-            </div>
+            <div class="stock-header"><span class="stock-title">📈 Stock Market</span><span class="stock-price">✦<span id="stockPrice">100</span></span></div>
             <div class="stock-chart" id="stockChart"></div>
             <div id="stockAssets"></div>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
             <div class="flavor">✨ Your brain is a dopamine factory ✨</div>
             <a href="#" class="email-link">✉️ theyabandtherandomboyoff97@gmail.com</a>
         </div>
-
-        <!-- Save Indicator -->
-        <div id="saveIndicator">💾 <span class="save-icon">Auto-saved</span> <span class="save-time" id="saveTime">just now</span></div>
+        <div id="saveIndicator">💾 Auto-saved <span id="saveTime">just now</span></div>
     </div>
-
-    <!-- Particles -->
     <div class="particle-container" id="particleContainer"></div>
 
-    <script>
-    // ============================================================
-    // SOUND SYSTEM - ALL FEATURES WORKING
-    // ============================================================
-    let soundEnabled = true;
-    let audioCtx = null;
-    let audioUnlocked = false;
+<script>
+// ============================================================
+// SOUND SYSTEM - COMPLETE
+// ============================================================
+let soundEnabled = true;
+let audioCtx = null;
+let audioUnlocked = false;
 
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            audioUnlocked = true;
-            console.log('🔊 Audio unlocked!');
-        } catch(e) { console.log('Audio error:', e); }
+function unlockAudio() {
+    if (audioUnlocked) return;
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        audioUnlocked = true;
+        console.log('🔊 Audio unlocked!');
+    } catch(e) { console.log('Audio error:', e); }
+}
+document.addEventListener('click', unlockAudio);
+document.addEventListener('touchstart', unlockAudio);
+document.addEventListener('keydown', unlockAudio);
+
+function getAudioCtx() {
+    if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+}
+
+function playTone(freq, dur = 150, vol = 0.12, type = 'sine') {
+    if (!soundEnabled) return;
+    try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(vol, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur / 1000);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur / 1000);
+    } catch(e) { console.log('Play error:', e); }
+}
+
+function playClick() { playTone(600, 80, 0.10); }
+function playCrit() { playTone(800, 100, 0.08, 'square'); setTimeout(() => playTone(1000, 80, 0.08), 80); }
+function playSimile() { playTone(523, 120, 0.10); setTimeout(() => playTone(659, 120, 0.10), 120); setTimeout(() => playTone(784, 150, 0.10), 240); }
+function playWin() { playTone(523, 150); setTimeout(() => playTone(659, 150), 150); setTimeout(() => playTone(784, 200), 300); }
+function playLose() { playTone(300, 200, 0.08, 'sawtooth'); setTimeout(() => playTone(200, 300, 0.08, 'sawtooth'), 200); }
+function playPowerup() { playTone(440, 100); setTimeout(() => playTone(554, 100), 100); setTimeout(() => playTone(659, 150), 200); }
+function playLevelUp() { playTone(440, 100); setTimeout(() => playTone(523, 100), 100); setTimeout(() => playTone(659, 150), 200); }
+function playBuy() { playTone(500, 100, 0.08); setTimeout(() => playTone(600, 100, 0.08), 100); }
+function playDaily() { playTone(523, 120); setTimeout(() => playTone(659, 120), 120); setTimeout(() => playTone(784, 120), 240); setTimeout(() => playTone(1047, 180), 360); }
+function playWheel() { for (let i = 0; i < 6; i++) { setTimeout(() => playTone(200 + i * 60, 60, 0.06), i * 80); } }
+function playPrestige() { playTone(200, 200, 0.08, 'sawtooth'); setTimeout(() => playTone(150, 200, 0.08, 'sawtooth'), 200); setTimeout(() => playTone(100, 300, 0.08, 'sawtooth'), 400); }
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let points = 0;
+let clickMultiplier = 1;
+let critLevel = 0;
+let multPrice = 25;
+let critPrice = 50;
+let totalClicks = 0;
+
+let frenzyActive = false;
+let frenzyTimer = 0;
+let passiveIncome = 0;
+let autoCritLevel = 0;
+let grindMultiplier = 1;
+let grindCount = 0;
+
+let goldenLevel = 0;
+let goldenPrice = 500;
+let achievementBonus = 0;
+let simileLevel = 0;
+let similePrice = 200;
+let megaLevel = 0;
+let megaPrice = 1000;
+
+let stockUnlocked = false;
+let slimeOwned = false;
+let waxOwned = false;
+let prestigeUnlocked = false;
+let prestigeLevel = 0;
+let prestigeBonus = 1;
+let minigameUnlocked = false;
+let minigamePrice = 1000;
+
+let stockPrices = [100, 150, 200, 250, 300];
+let stockNames = ['🚀 Tech', '🌿 Green', '💰 Gold', '⚡ Energy', '🎮 Gaming'];
+let stockShares = [0, 0, 0, 0, 0];
+
+let dailyClaimed = false;
+let dailyTimer = 0;
+const DAILY_COOLDOWN = 86400;
+
+let x2Powerup = false;
+let x2Timer = 0;
+let autoPowerup = false;
+let autoTimer = 0;
+
+// Slime stats
+let normalSlimeLevel = 1;
+let normalSlimeXP = 0;
+let normalSlimeHunger = 100;
+let normalSlimeHappiness = 100;
+let waxSlimeLevel = 1;
+let waxSlimeXP = 0;
+let waxSlimeHunger = 100;
+let waxSlimeHappiness = 100;
+
+// ============================================================
+// PARTICLES
+// ============================================================
+function spawnParticle(x, y, text, color = '#ffd700') {
+    const container = document.getElementById('particleContainer');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = text;
+    el.style.left = (x - 20) + 'px';
+    el.style.top = (y - 20) + 'px';
+    el.style.color = color;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+}
+
+function spawnClickParticles(btn) {
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const texts = ['+1', '🔥', '⚡', '💥', '✨', '⭐', '💎'];
+    const colors = ['#ffd700', '#ff6b6b', '#34c759', '#ff9ff3', '#54a0ff', '#ff9f43', '#a29bfe'];
+    for (let i = 0; i < 4; i++) {
+        const offsetX = (Math.random() - 0.5) * 80;
+        const offsetY = (Math.random() - 0.5) * 80 - 20;
+        const txt = texts[Math.floor(Math.random() * texts.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        setTimeout(() => spawnParticle(cx + offsetX, cy + offsetY, txt, color), i * 40);
+    }
+}
+
+// ============================================================
+// UI UPDATE
+// ============================================================
+function updateUI() {
+    document.getElementById('pointsDisplay').textContent = Math.floor(points).toLocaleString();
+    document.getElementById('totalClicksDisplay').textContent = totalClicks;
+
+    let rate = passiveIncome + achievementBonus;
+    if (slimeOwned) rate += 0.5;
+    if (waxOwned) rate += 2;
+    if (autoPowerup) rate *= 2;
+    rate *= grindMultiplier * prestigeBonus;
+    document.getElementById('rateDisplay').textContent = Math.floor(rate);
+
+    const level = Math.floor(totalClicks / 100) + 1;
+    document.getElementById('levelNum').textContent = level;
+    const progress = (totalClicks % 100) / 100 * 100;
+    document.getElementById('levelFill').style.width = progress + '%';
+
+    let clickPower = clickMultiplier;
+    if (frenzyActive) clickPower *= 2;
+    if (x2Powerup) clickPower *= 2;
+    clickPower *= prestigeBonus;
+    if (goldenLevel > 0) clickPower *= (1 + goldenLevel * 0.5);
+    if (megaLevel > 0) clickPower *= (1 + megaLevel * 1);
+    document.getElementById('clickPowerDisplay').textContent = '+' + Math.floor(clickPower);
+
+    document.getElementById('multLevel').textContent = clickMultiplier;
+    document.getElementById('critLevel').textContent = critLevel;
+
+    const frenzyBtn = document.getElementById('buyFrenzyBtn');
+    if (frenzyActive) {
+        frenzyBtn.textContent = '⏳ ' + Math.ceil(frenzyTimer) + 's';
+        frenzyBtn.disabled = true;
+        document.getElementById('clickBtn').classList.add('frenzy');
+        document.getElementById('frenzyStatus').textContent = '⚡ Active!';
+    } else {
+        frenzyBtn.textContent = 'Activate (✦100)';
+        frenzyBtn.disabled = points < 100;
+        document.getElementById('clickBtn').classList.remove('frenzy');
+        document.getElementById('frenzyStatus').textContent = 'Ready';
     }
 
-    // Unlock audio on any user interaction
-    document.addEventListener('click', unlockAudio, { once: false });
-    document.addEventListener('touchstart', unlockAudio, { once: false });
-    document.addEventListener('keydown', unlockAudio, { once: false });
+    const x2 = document.getElementById('powerupX2');
+    if (x2Powerup) { x2.classList.add('active'); document.getElementById('x2Timer').textContent = Math.ceil(x2Timer) + 's'; } 
+    else { x2.classList.remove('active'); document.getElementById('x2Timer').textContent = ''; }
 
-    function getAudioCtx() {
-        if (!audioCtx) {
-            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        return audioCtx;
+    const auto = document.getElementById('powerupAuto');
+    if (autoPowerup) { auto.classList.add('active'); document.getElementById('autoTimer').textContent = Math.ceil(autoTimer) + 's'; } 
+    else { auto.classList.remove('active'); document.getElementById('autoTimer').textContent = ''; }
+
+    updateDailyUI();
+
+    const buttons = {
+        'buyMultBtn': multPrice, 'buyCritBtn': critPrice, 'buyGoldenBtn': goldenPrice,
+        'buySimileBtn': similePrice, 'buyMegaBtn': megaPrice, 'buyPassiveBtn': 100 + passiveIncome * 50,
+        'buyAutoCritBtn': 150 + autoCritLevel * 100, 'buyGrindMultBtn': 200 + Math.floor(grindMultiplier * 50),
+        'buyStockBtn': 2500, 'buySlimeBtn': 500, 'buyWaxBtn': 5000, 'buyPrestigeBtn': 5000, 'buyMinigameBtn': minigamePrice
+    };
+    for (const [id, price] of Object.entries(buttons)) {
+        const btn = document.getElementById(id);
+        if (!btn) continue;
+        if (id === 'buySlimeBtn' && slimeOwned) { btn.textContent = '✅ Owned'; btn.disabled = true; document.getElementById('slimeStatus').textContent = '✅ Owned'; continue; }
+        if (id === 'buyWaxBtn' && waxOwned) { btn.textContent = '✅ Owned'; btn.disabled = true; document.getElementById('waxStatus').textContent = '✅ Owned'; continue; }
+        if (id === 'buyStockBtn' && stockUnlocked) { btn.textContent = '✅ Unlocked'; btn.disabled = true; document.getElementById('stockStatus').textContent = '✅ Unlocked'; continue; }
+        if (id === 'buyPrestigeBtn' && prestigeUnlocked) { btn.textContent = '✅ Unlocked'; btn.disabled = true; document.getElementById('prestigeStatus').textContent = '✅ Unlocked'; continue; }
+        if (id === 'buyMinigameBtn' && minigameUnlocked) { btn.textContent = '✅ Unlocked'; btn.disabled = true; document.getElementById('minigameStatus').textContent = '✅ Unlocked'; document.getElementById('minigameBtn').disabled = false; document.getElementById('minigameBtn').textContent = '🎯 Quick Tap Challenge'; continue; }
+        btn.textContent = 'Buy (✦' + price + ')';
+        btn.disabled = points < price;
     }
 
-    function playTone(frequency, duration = 150, type = 'sine', volume = 0.12) {
-        if (!soundEnabled) return;
-        try {
-            const ctx = getAudioCtx();
-            if (!ctx) return;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = type;
-            osc.frequency.value = frequency;
-            gain.gain.setValueAtTime(volume, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + duration / 1000);
-        } catch(e) { console.log('Play error:', e); }
+    document.getElementById('passiveBonus').textContent = passiveIncome;
+    document.getElementById('autoCritLevel').textContent = autoCritLevel;
+    document.getElementById('goldenLevel').textContent = goldenLevel;
+    document.getElementById('achievementBonus').textContent = achievementBonus;
+    document.getElementById('simileLevel').textContent = simileLevel;
+    document.getElementById('megaLevel').textContent = megaLevel;
+    document.getElementById('grindMultDisplay').textContent = grindMultiplier.toFixed(2);
+    document.getElementById('grindMeter').textContent = '🔥 Grind: ' + grindCount;
+
+    const wheelBtn = document.getElementById('wheelBtn');
+    if (wheelBtn) { wheelBtn.textContent = '🎰 Spin the Wheel (✦500)'; wheelBtn.disabled = points < 500; }
+
+    if (stockUnlocked) { document.getElementById('stockSection').classList.add('visible'); updateStockUI(); }
+
+    const streakDisplay = document.getElementById('streakDisplay');
+    if (totalClicks > 0 && totalClicks % 10 === 0) { streakDisplay.textContent = '🔥 Streak x' + Math.floor(totalClicks / 10) + '!'; streakDisplay.style.color = '#ffd700'; } 
+    else { streakDisplay.textContent = '🔥 Click to build your streak!'; streakDisplay.style.color = '#ff6b6b'; }
+}
+
+function updateDailyUI() {
+    const timerDisplay = document.getElementById('dailyTimerDisplay');
+    const dailyBtn = document.getElementById('dailyBtn');
+    if (dailyClaimed) {
+        const timeLeft = Math.max(0, dailyTimer);
+        timerDisplay.textContent = '⏳ ' + formatTime(timeLeft);
+        dailyBtn.disabled = true;
+        dailyBtn.textContent = '⏳ Wait';
+    } else {
+        timerDisplay.textContent = '✨ Ready to claim!';
+        dailyBtn.disabled = false;
+        dailyBtn.textContent = 'Claim ✦1,000';
     }
+}
 
-    // Sound effects for different game actions
-    function playClick() { playTone(600, 80, 'sine', 0.10); }
-    function playClickCrit() { 
-        playTone(800, 100, 'square', 0.07);
-        setTimeout(() => playTone(1000, 80, 'sine', 0.08), 80);
+function formatTime(seconds) {
+    if (seconds <= 0) return 'Ready!';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    if (hours > 0) return hours + 'h ' + minutes + 'm';
+    if (minutes > 0) return minutes + 'm ' + secs + 's';
+    return secs + 's';
+}
+
+// ============================================================
+// SLIME FUNCTIONS
+// ============================================================
+function updateSlimeUI() {
+    const section = document.getElementById('slimeSection');
+    if (!section) return;
+    if (slimeOwned) {
+        section.style.display = 'block';
+        document.getElementById('normalLevel').textContent = 'Lv.' + normalSlimeLevel;
+        document.getElementById('normalEmoji').textContent = normalSlimeHappiness > 70 ? '😊' : normalSlimeHappiness > 40 ? '😐' : '😢';
+        document.getElementById('slimeHappiness').textContent = Math.floor(normalSlimeHappiness) + '%';
+        document.getElementById('slimeHunger').textContent = Math.floor(normalSlimeHunger) + '%';
+        document.getElementById('slimeXP').textContent = normalSlimeXP;
+        document.getElementById('slimeMenu').style.display = 'flex';
+        document.getElementById('normalSlime').style.borderColor = normalSlimeHappiness > 70 ? '#66dd88' : 'rgba(52,199,89,0.15)';
+    } else {
+        section.style.display = 'none';
     }
-    function playClickSimile() { 
-        playTone(523, 120, 'sine', 0.10);
-        setTimeout(() => playTone(659, 120, 'sine', 0.10), 120);
-        setTimeout(() => playTone(784, 150, 'sine', 0.10), 240);
+    if (waxOwned) {
+        document.getElementById('waxLevel').textContent = 'Lv.' + waxSlimeLevel;
+        document.getElementById('waxSlime').style.borderColor = '#ffd700';
+    } else {
+        document.getElementById('waxLevel').textContent = '🔒';
     }
-    function playWin() { 
-        playTone(523, 150, 'sine', 0.12); 
-        setTimeout(() => playTone(659, 150, 'sine', 0.12), 150); 
-        setTimeout(() => playTone(784, 200, 'sine', 0.12), 300); 
-    }
-    function playLose() { 
-        playTone(300, 200, 'sawtooth', 0.06); 
-        setTimeout(() => playTone(200, 300, 'sawtooth', 0.06), 200); 
-    }
-    function playPowerup() { 
-        playTone(440, 100, 'sine', 0.10);
-        setTimeout(() => playTone(554, 100, 'sine', 0.10), 100);
-        setTimeout(() => playTone(659, 150, 'sine', 0.12), 200);
-    }
-    function playLevelUp() { 
-        playTone(440, 100, 'sine', 0.10); 
-        setTimeout(() => playTone(523, 100, 'sine', 0.10), 100); 
-        setTimeout(() => playTone(659, 150, 'sine', 0.12), 200); 
-    }
-    function playBuy() { 
-        playTone(500, 100, 'sine', 0.08);
-        setTimeout(() => playTone(600, 100, 'sine', 0.08), 100);
-    }
-    function playDaily() {
-        playTone(523, 120, 'sine', 0.10);
-        setTimeout(() => playTone(659, 120, 'sine', 0.10), 120);
-        setTimeout(() => playTone(784, 120, 'sine', 0.10), 240);
-        setTimeout(() => playTone(1047, 180, 'sine', 0.12), 360);
-    }
-    function playWheelSpin() {
-        for (let i = 0; i < 6; i++) {
-            setTimeout(() => playTone(200 + i * 60, 60, 'sine', 0.06), i * 80);
-        }
-    }
-    function playPrestige() {
-        playTone(200, 200, 'sawtooth', 0.06);
-        setTimeout(() => playTone(150, 200, 'sawtooth', 0.06), 200);
-        setTimeout(() => playTone(100, 300, 'sawtooth', 0.06), 400);
-    }
+}
 
-    // ============================================================
-    // STIMULATION OVERLOAD - FULL VERSION WITH SAVE SYSTEM
-    // ============================================================
+function slimeFeed() {
+    if (!slimeOwned) return;
+    if (normalSlimeHunger >= 90) { document.getElementById('message').textContent = '🍖 Slime is full!'; return; }
+    normalSlimeHunger = Math.min(100, normalSlimeHunger + 20);
+    normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 5);
+    playClick();
+    document.getElementById('message').textContent = '🍖 Slime fed!';
+    updateSlimeUI(); saveGame();
+}
 
-    // ============================================================
-    // GAME STATE
-    // ============================================================
-    let points = 0;
-    let clickMultiplier = 1;
-    let critLevel = 0;
-    let multPrice = 25;
-    let critPrice = 50;
-    let totalClicks = 0;
-
-    let frenzyActive = false;
-    let frenzyTimer = 0;
-    let passiveIncome = 0;
-    let autoCritLevel = 0;
-    let grindMultiplier = 1;
-    let grindCount = 0;
-
-    let goldenLevel = 0;
-    let goldenPrice = 500;
-    let achievementBonus = 0;
-    let simileLevel = 0;
-    let similePrice = 200;
-    let megaLevel = 0;
-    let megaPrice = 1000;
-
-    let stockUnlocked = false;
-    let slimeOwned = false;
-    let waxOwned = false;
-    let prestigeUnlocked = false;
-    let prestigeLevel = 0;
-    let prestigeBonus = 1;
-    
-    // Minigame unlock
-    let minigameUnlocked = false;
-    let minigamePrice = 1000;
-
-    let stockPrices = [100, 150, 200, 250, 300];
-    let stockNames = ['🚀 Tech', '🌿 Green', '💰 Gold', '⚡ Energy', '🎮 Gaming'];
-    let stockShares = [0, 0, 0, 0, 0];
-
-    let dailyClaimed = false;
-    let dailyTimer = 0;
-    const DAILY_COOLDOWN = 86400;
-
-    let x2Powerup = false;
-    let x2Timer = 0;
-    let autoPowerup = false;
-    let autoTimer = 0;
-    let wheelCooldown = 0;
-    // ============================================================
-    // SLIME PET FUNCTIONS
-    // ============================================================
-    let normalSlimeLevel = 1;
-    let normalSlimeXP = 0;
-    let normalSlimeHunger = 100;
-    let normalSlimeHappiness = 100;
-    let waxSlimeLevel = 1;
-    let waxSlimeXP = 0;
-    let waxSlimeHunger = 100;
-    let waxSlimeHappiness = 100;
-
-    function updateSlimeUI() {
-        const section = document.getElementById('slimeSection');
-        if (!section) return;
-
-        if (slimeOwned) {
-            section.style.display = 'block';
-            document.getElementById('normalLevel').textContent = 'Lv.' + normalSlimeLevel;
-            document.getElementById('normalEmoji').textContent = normalSlimeHappiness > 70 ? '😊' : normalSlimeHappiness > 40 ? '😐' : '😢';
-            document.getElementById('slimeHappiness').textContent = Math.floor(normalSlimeHappiness) + '%';
-            document.getElementById('slimeHunger').textContent = Math.floor(normalSlimeHunger) + '%';
-            document.getElementById('slimeXP').textContent = normalSlimeXP;
-            document.getElementById('slimeMenu').style.display = 'flex';
-
-            const normalEl = document.getElementById('normalSlime');
-            if (normalSlimeHappiness > 70) {
-                normalEl.style.borderColor = '#66dd88';
-                normalEl.style.boxShadow = '0 0 30px rgba(52,199,89,0.2)';
-            } else {
-                normalEl.style.borderColor = 'rgba(52,199,89,0.15)';
-                normalEl.style.boxShadow = 'none';
-            }
-        } else {
-            section.style.display = 'none';
-        }
-
-        // Wax slime
-        if (waxOwned) {
-            document.getElementById('waxLevel').textContent = 'Lv.' + waxSlimeLevel;
-            document.getElementById('waxEmoji').textContent = waxSlimeHappiness > 70 ? '✨' : '🔮';
-            document.getElementById('waxSlime').style.borderColor = '#ffd700';
-            document.getElementById('waxSlime').style.boxShadow = '0 0 30px rgba(255,215,0,0.2)';
-        } else {
-            document.getElementById('waxLevel').textContent = '🔒';
-            document.getElementById('waxEmoji').textContent = '🔮';
-            document.getElementById('waxSlime').style.borderColor = 'rgba(52,199,89,0.15)';
-            document.getElementById('waxSlime').style.boxShadow = 'none';
-        }
-    }
-
-    function slimeFeed() {
-        if (!slimeOwned) return;
-        if (normalSlimeHunger >= 90) {
-            document.getElementById('message').textContent = '🍖 Slime is full!';
-            return;
-        }
-        normalSlimeHunger = Math.min(100, normalSlimeHunger + 20);
-        normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 5);
+function slimePet() {
+    if (!slimeOwned) return;
+    normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 10);
+    normalSlimeXP += 5;
+    const xpNeeded = normalSlimeLevel * 20;
+    if (normalSlimeXP >= xpNeeded) {
+        normalSlimeXP = 0; normalSlimeLevel += 1; normalSlimeHappiness = 100;
+        playLevelUp();
+        document.getElementById('message').textContent = '⬆️ Slime Level ' + normalSlimeLevel + '!';
+    } else {
         playClick();
-        document.getElementById('message').textContent = '🍖 Slime fed!';
-        updateSlimeUI();
-        saveGame();
+        document.getElementById('message').textContent = '🤗 Slime petted!';
     }
+    updateSlimeUI(); saveGame();
+}
 
-    function slimePet() {
-        if (!slimeOwned) return;
-        normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 10);
-        normalSlimeXP += 5;
-        const xpNeeded = normalSlimeLevel * 20;
-        if (normalSlimeXP >= xpNeeded) {
-            normalSlimeXP = 0;
-            normalSlimeLevel += 1;
-            normalSlimeHappiness = 100;
-            playLevelUp();
-            document.getElementById('message').textContent = '⬆️ Slime Level ' + normalSlimeLevel + '!';
-        } else {
-            playClick();
-            document.getElementById('message').textContent = '🤗 Slime petted!';
-        }
-        updateSlimeUI();
-        saveGame();
+function slimeTreat() {
+    if (!slimeOwned) return;
+    normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 25);
+    normalSlimeHunger = Math.min(100, normalSlimeHunger + 15);
+    normalSlimeXP += 10;
+    playWin();
+    document.getElementById('message').textContent = '🍭 Slime loves the treat!';
+    updateSlimeUI(); saveGame();
+}
+
+function slimePlay() {
+    if (!slimeOwned) return;
+    normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 15);
+    normalSlimeXP += 8;
+    playClick();
+    document.getElementById('message').textContent = '🎮 Slime had fun!';
+    updateSlimeUI(); saveGame();
+}
+
+// ============================================================
+// STOCK MARKET
+// ============================================================
+function updateStockUI() {
+    const chart = document.getElementById('stockChart');
+    chart.innerHTML = '';
+    stockPrices.forEach((price) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'bar-wrapper';
+        const bar = document.createElement('div');
+        bar.className = 'bar ' + (Math.random() > 0.5 ? 'up' : 'down');
+        const height = 15 + (price / 300) * 50;
+        bar.style.height = Math.min(height, 60) + 'px';
+        wrapper.appendChild(bar);
+        chart.appendChild(wrapper);
+    });
+    const assets = document.getElementById('stockAssets');
+    assets.innerHTML = '';
+    stockNames.forEach((name, i) => {
+        const div = document.createElement('div');
+        div.className = 'stock-asset';
+        const change = (Math.random() - 0.5) * 10;
+        const changeClass = change >= 0 ? 'up' : 'down';
+        div.innerHTML = `
+            <span class="asset-name">${name}</span>
+            <span class="asset-price">✦${Math.floor(stockPrices[i])}</span>
+            <span class="asset-change ${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(1)}%</span>
+            <span class="asset-shares">${stockShares[i]}</span>
+            <div class="asset-buttons">
+                <button class="buy-btn" onclick="buyStock(${i})">Buy</button>
+                <button class="sell-btn" onclick="sellStock(${i})" ${stockShares[i] <= 0 ? 'disabled' : ''}>Sell</button>
+            </div>
+        `;
+        assets.appendChild(div);
+    });
+}
+
+function buyStock(index) {
+    const price = stockPrices[index];
+    if (points < price) return;
+    points -= Math.floor(price);
+    stockShares[index]++;
+    stockPrices[index] = Math.max(50, price + (Math.random() - 0.5) * 15);
+    playBuy();
+    updateUI(); saveGame();
+}
+
+function sellStock(index) {
+    if (stockShares[index] <= 0) return;
+    const price = stockPrices[index];
+    points += Math.floor(price * 0.9);
+    stockShares[index]--;
+    stockPrices[index] = Math.max(50, price + (Math.random() - 0.5) * 15);
+    playClick();
+    updateUI(); saveGame();
+}
+
+// ============================================================
+// BUY FUNCTIONS
+// ============================================================
+function buyMultiplier() {
+    if (points < multPrice) return;
+    points -= multPrice; clickMultiplier += 1;
+    multPrice = Math.floor(multPrice * 1.22) + 3;
+    playBuy(); updateUI(); saveGame();
+}
+function buyCrit() {
+    if (points < critPrice) return;
+    points -= critPrice; critLevel += 1;
+    critPrice = Math.floor(critPrice * 1.30) + 5;
+    playBuy(); updateUI(); saveGame();
+}
+function buyGolden() {
+    if (points < goldenPrice) return;
+    points -= goldenPrice; goldenLevel += 1;
+    goldenPrice = Math.floor(goldenPrice * 1.4) + 100;
+    playBuy(); updateUI(); saveGame();
+}
+function buySimile() {
+    if (points < similePrice) return;
+    points -= similePrice; simileLevel += 1;
+    similePrice = Math.floor(similePrice * 1.35) + 50;
+    playBuy(); updateUI(); saveGame();
+}
+function buyMega() {
+    if (points < megaPrice) return;
+    points -= megaPrice; megaLevel += 1;
+    megaPrice = Math.floor(megaPrice * 1.5) + 200;
+    playBuy(); updateUI(); saveGame();
+}
+function buyPassive() {
+    const price = 100 + passiveIncome * 50;
+    if (points < price) return;
+    points -= price; passiveIncome += 1;
+    playBuy(); updateUI(); saveGame();
+}
+function buyAutoCrit() {
+    const price = 150 + autoCritLevel * 100;
+    if (points < price) return;
+    points -= price; autoCritLevel += 1;
+    playBuy(); updateUI(); saveGame();
+}
+function buyGrindMult() {
+    const price = 200 + Math.floor(grindMultiplier * 50);
+    if (points < price) return;
+    points -= price; grindMultiplier += 0.1;
+    playBuy(); updateUI(); saveGame();
+}
+function buyStock() {
+    if (points < 2500 || stockUnlocked) return;
+    points -= 2500; stockUnlocked = true;
+    playBuy(); updateUI(); saveGame();
+}
+function buySlime() {
+    if (points < 500 || slimeOwned) return;
+    points -= 500; slimeOwned = true;
+    playBuy(); updateUI(); saveGame();
+}
+function buyWax() {
+    if (points < 5000 || waxOwned) return;
+    points -= 5000; waxOwned = true;
+    playBuy(); updateUI(); saveGame();
+}
+function buyPrestige() {
+    if (points < 5000 || prestigeUnlocked) return;
+    points -= 5000; prestigeUnlocked = true;
+    playBuy(); updateUI(); saveGame();
+}
+function buyMinigame() {
+    if (points < minigamePrice || minigameUnlocked) return;
+    points -= minigamePrice; minigameUnlocked = true;
+    playBuy(); updateUI(); saveGame();
+}
+function buyAchievement() {
+    playBuy(); updateUI(); saveGame();
+}
+function activateFrenzy() {
+    if (frenzyActive || points < 100) return;
+    points -= 100; frenzyActive = true; frenzyTimer = 10;
+    playPowerup(); updateUI(); saveGame();
+}
+
+function claimDaily() {
+    if (dailyClaimed) return;
+    points += 1000; dailyClaimed = true; dailyTimer = DAILY_COOLDOWN;
+    playDaily();
+    for (let i = 0; i < 15; i++) {
+        setTimeout(() => spawnParticle(Math.random() * window.innerWidth, Math.random() * window.innerHeight, ['🎁','✨','⭐','💎','🎉'][Math.floor(Math.random()*5)], '#ffd700'), i * 80);
     }
+    updateUI(); saveGame();
+}
 
-    function slimeTreat() {
-        if (!slimeOwned) return;
-        normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 25);
-        normalSlimeHunger = Math.min(100, normalSlimeHunger + 15);
-        normalSlimeXP += 10;
+function doPrestige() {
+    if (!prestigeUnlocked || points < 10000) return;
+    if (!confirm('Prestige will reset your progress but give a permanent 2x bonus! Continue?')) return;
+    prestigeLevel += 1; prestigeBonus *= 2;
+    points = 0; clickMultiplier = 1; critLevel = 0;
+    multPrice = 25; critPrice = 50; totalClicks = 0;
+    goldenLevel = 0; goldenPrice = 500; simileLevel = 0;
+    similePrice = 200; megaLevel = 0; megaPrice = 1000;
+    passiveIncome = 0; autoCritLevel = 0; grindMultiplier = 1; grindCount = 0;
+    stockShares = [0,0,0,0,0]; stockPrices = [100,150,200,250,300];
+    playPrestige();
+    updateUI(); saveGame();
+    alert('✨ Prestige complete! Permanent ' + prestigeBonus + 'x bonus!');
+}
+
+function spinWheel() {
+    if (points < 500) return;
+    points -= 500;
+    playWheel();
+    const prizes = [
+        { text: '💀 Lose 200', amount: -200 }, { text: '💰 Win 100', amount: 100 },
+        { text: '💰 Win 250', amount: 250 }, { text: '💰 Win 500', amount: 500 },
+        { text: '💰 Win 1000', amount: 1000 }, { text: '💰 Win 2000', amount: 2000 },
+        { text: '💰 Win 5000', amount: 5000 }, { text: '⭐ 2x Multiplier!', amount: 'multiplier' },
+        { text: '⚡ Powerup!', amount: 'powerup' }
+    ];
+    const prize = prizes[Math.floor(Math.random() * prizes.length)];
+    const resultDiv = document.getElementById('wheelResult');
+    if (prize.amount === 'multiplier') {
+        clickMultiplier *= 2;
+        resultDiv.textContent = '⭐ 2x Multiplier!';
         playWin();
-        document.getElementById('message').textContent = '🍭 Slime loves the treat!';
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function slimePlay() {
-        if (!slimeOwned) return;
-        normalSlimeHappiness = Math.min(100, normalSlimeHappiness + 15);
-        normalSlimeXP += 8;
-        playClick();
-        document.getElementById('message').textContent = '🎮 Slime had fun!';
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function setupSlime() {
-        // Click on normal slime
-        document.getElementById('normalSlime').addEventListener('click', function() {
-            if (!slimeOwned) {
-                document.getElementById('message').textContent = '🔒 Buy a slime first!';
-                return;
-            }
-            // Random action
-            const actions = [slimeFeed, slimePet, slimeTreat, slimePlay];
-            actions[Math.floor(Math.random() * actions.length)]();
-            this.style.transform = 'scale(0.85)';
-            setTimeout(() => this.style.transform = '', 200);
-        });
-
-        // Click on wax slime
-        document.getElementById('waxSlime').addEventListener('click', function() {
-            if (!waxOwned) {
-                document.getElementById('message').textContent = '💎 Unlock Wax Slime first! (✦5,000)';
-                return;
-            }
-            waxSlimeHappiness = Math.min(100, waxSlimeHappiness + 10);
-            waxSlimeXP += 5;
+        setTimeout(() => { clickMultiplier = Math.ceil(clickMultiplier / 2); updateUI(); }, 30000);
+    } else if (prize.amount === 'powerup') {
+        points += 500;
+        resultDiv.textContent = '⚡ Powerup! +500 points!';
+        playPowerup();
+    } else {
+        points = Math.max(0, points + prize.amount);
+        if (prize.amount < 0) {
+            resultDiv.textContent = prize.text + '!';
+            resultDiv.style.color = '#ff6b6b';
+            playLose();
+        } else {
+            resultDiv.textContent = '🎉 ' + prize.text + '!';
+            resultDiv.style.color = '#ffd700';
             playWin();
-            document.getElementById('message').textContent = '💎 Wax slime sparkles! ✨';
-            // Spawn sparkles
-            for (let i = 0; i < 6; i++) {
-                setTimeout(() => {
-                    spawnParticle(
-                        Math.random() * window.innerWidth,
-                        Math.random() * window.innerHeight,
-                        ['✨', '⭐', '💎', '🌟'][Math.floor(Math.random() * 4)],
-                        '#ffd700'
-                    );
-                }, i * 100);
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => spawnParticle(Math.random() * window.innerWidth, Math.random() * window.innerHeight, ['🎉','⭐','💎','✨','🎊'][Math.floor(Math.random()*5)], '#ffd700'), i * 100);
             }
-            updateSlimeUI();
-            saveGame();
-            this.style.transform = 'scale(0.85)';
-            setTimeout(() => this.style.transform = '', 200);
-        });
+        }
+    }
+    updateUI(); saveGame();
+}
 
-        // Menu buttons
-        document.getElementById('slimeFeed').addEventListener('click', slimeFeed);
-        document.getElementById('slimePet').addEventListener('click', slimePet);
-        document.getElementById('slimeTreat').addEventListener('click', slimeTreat);
-        document.getElementById('slimePlay').addEventListener('click', slimePlay);
+function handleClick() {
+    let amount = clickMultiplier;
+    if (frenzyActive) amount *= 2;
+    if (x2Powerup) amount *= 2;
+    amount *= prestigeBonus;
+    if (goldenLevel > 0) amount *= (1 + goldenLevel * 0.5);
+    if (megaLevel > 0) amount *= (1 + megaLevel * 1);
+
+    const isCrit = Math.random() < (critLevel * 0.10);
+    if (isCrit) { amount *= 5; playCrit(); }
+    const isSimile = Math.random() < (simileLevel * 0.10);
+    if (isSimile) { amount *= 10; playSimile(); }
+    if (!isCrit && !isSimile) { playClick(); }
+
+    points += Math.floor(amount);
+    totalClicks += 1;
+    grindCount += 1;
+
+    if (autoCritLevel > 0 && totalClicks % 5 === 0) {
+        points += Math.floor(amount * 5);
+        spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ AUTO CRIT!', '#34c759');
+        playCrit();
     }
 
-    // Add slime stats to save/load
-    function addSlimeToSave() {
+    const btn = document.getElementById('clickBtn');
+    spawnClickParticles(btn);
+    if (isCrit) { const rect = btn.getBoundingClientRect(); spawnParticle(rect.left + rect.width/2 - 20, rect.top - 20, '💥 CRIT!', '#ff6b6b'); }
+    if (isSimile) { const rect = btn.getBoundingClientRect(); spawnParticle(rect.left + rect.width/2 - 20, rect.top - 40, '😄 10x!', '#ffd93d'); }
+    btn.style.transform = 'scale(0.85)';
+    btn.style.boxShadow = '0 4px 0 #b8860b';
+    setTimeout(() => { btn.style.transform = ''; btn.style.boxShadow = ''; }, 100);
+
+    updateUI();
+    saveGame();
+}
+
+// ============================================================
+// POWERUP SETUP
+// ============================================================
+function setupPowerups() {
+    document.getElementById('powerupX2').addEventListener('click', function() {
+        if (x2Powerup || points < 50) return;
+        points -= 50; x2Powerup = true; x2Timer = 30;
+        playPowerup(); updateUI(); saveGame();
+        spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ 2x ACTIVE!', '#ffd700');
+    });
+    document.getElementById('powerupAuto').addEventListener('click', function() {
+        if (autoPowerup || points < 75) return;
+        points -= 75; autoPowerup = true; autoTimer = 20;
+        playPowerup(); updateUI(); saveGame();
+        spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '🤖 AUTO ACTIVE!', '#34c759');
+    });
+}
+
+function setupSlime() {
+    document.getElementById('normalSlime').addEventListener('click', function() {
+        if (!slimeOwned) { document.getElementById('message').textContent = '🔒 Buy a slime first!'; return; }
+        const actions = [slimeFeed, slimePet, slimeTreat, slimePlay];
+        actions[Math.floor(Math.random() * actions.length)]();
+        this.style.transform = 'scale(0.85)';
+        setTimeout(() => this.style.transform = '', 200);
+    });
+    document.getElementById('waxSlime').addEventListener('click', function() {
+        if (!waxOwned) { document.getElementById('message').textContent = '💎 Unlock Wax Slime first! (✦5,000)'; return; }
+        waxSlimeHappiness = Math.min(100, waxSlimeHappiness + 10);
+        waxSlimeXP += 5;
+        playWin();
+        document.getElementById('message').textContent = '💎 Wax slime sparkles! ✨';
+        for (let i = 0; i < 6; i++) {
+            setTimeout(() => spawnParticle(Math.random() * window.innerWidth, Math.random() * window.innerHeight, ['✨','⭐','💎','🌟'][Math.floor(Math.random()*4)], '#ffd700'), i * 100);
+        }
+        updateSlimeUI(); saveGame();
+        this.style.transform = 'scale(0.85)';
+        setTimeout(() => this.style.transform = '', 200);
+    });
+    document.getElementById('slimeFeed').addEventListener('click', slimeFeed);
+    document.getElementById('slimePet').addEventListener('click', slimePet);
+    document.getElementById('slimeTreat').addEventListener('click', slimeTreat);
+    document.getElementById('slimePlay').addEventListener('click', slimePlay);
+}
+
+function startQuickTap() {
+    if (!minigameUnlocked) { alert('🔒 Unlock in shop first!'); return; }
+    if (document.getElementById('minigameOverlay')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'minigameOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;display:flex;justify-content:center;align-items:center;flex-direction:column;padding:20px;animation:fadeIn 0.3s ease;';
+    overlay.innerHTML = `
+        <div style="background:#1a1a2e;border-radius:24px;padding:30px;max-width:400px;width:100%;text-align:center;border:2px solid rgba(255,215,0,0.1);">
+            <h2 style="color:#ffd700;margin-bottom:10px;">🎯 Quick Tap Challenge</h2>
+            <p style="color:#888;margin-bottom:15px;">Tap as fast as you can!</p>
+            <div style="font-size:72px;margin:15px 0;" id="tapCounter">0</div>
+            <div style="font-size:24px;color:#ff6b6b;margin-bottom:10px;" id="tapTimer">3s</div>
+            <div style="display:flex;gap:10px;justify-content:center;">
+                <button id="tapBtn" style="background:linear-gradient(135deg,#ffd700,#f5a623);border:none;padding:15px 40px;border-radius:30px;font-weight:700;font-size:18px;color:#1a1a2e;cursor:pointer;font-family:'Segoe UI',sans-serif;">👆 TAP!</button>
+                <button onclick="this.closest('#minigameOverlay').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:15px 20px;border-radius:30px;color:#888;cursor:pointer;font-size:14px;font-family:'Segoe UI',sans-serif;">✕ Close</button>
+            </div>
+            <div id="tapResult" style="margin-top:10px;color:#7cf5b0;font-weight:700;"></div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    let taps = 0, timeLeft = 3, active = true;
+    const tapBtn = document.getElementById('tapBtn'), counter = document.getElementById('tapCounter'), timer = document.getElementById('tapTimer'), result = document.getElementById('tapResult');
+    tapBtn.addEventListener('click', function() {
+        if (!active) return;
+        taps++; counter.textContent = taps; playClick();
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => this.style.transform = '', 100);
+    });
+    const interval = setInterval(() => {
+        timeLeft--;
+        timer.textContent = timeLeft + 's';
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            active = false;
+            tapBtn.disabled = true;
+            tapBtn.style.opacity = '0.5';
+            const reward = taps * 50;
+            result.textContent = '🏆 You tapped ' + taps + ' times! +' + reward + ' points!';
+            playWin();
+            points += reward;
+            updateUI(); saveGame();
+            setTimeout(() => { overlay.querySelector('button:last-child').click(); }, 3000);
+        }
+    }, 1000);
+    const style = document.createElement('style');
+    style.textContent = '@keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }';
+    document.head.appendChild(style);
+}
+
+// ============================================================
+// SAVE SYSTEM - COMPLETE
+// ============================================================
+function saveGame() {
+    try {
         const data = {
-            normalSlimeLevel: normalSlimeLevel,
-            normalSlimeXP: normalSlimeXP,
-            normalSlimeHunger: normalSlimeHunger,
-            normalSlimeHappiness: normalSlimeHappiness,
-            waxSlimeLevel: waxSlimeLevel,
-            waxSlimeXP: waxSlimeXP,
-            waxSlimeHunger: waxSlimeHunger,
-            waxSlimeHappiness: waxSlimeHappiness
+            points, clickMultiplier, critLevel, multPrice, critPrice, totalClicks,
+            frenzyActive, frenzyTimer, passiveIncome, autoCritLevel,
+            grindMultiplier, grindCount, goldenLevel, goldenPrice, achievementBonus,
+            simileLevel, similePrice, megaLevel, megaPrice,
+            stockUnlocked, slimeOwned, waxOwned,
+            prestigeUnlocked, prestigeLevel, prestigeBonus,
+            minigameUnlocked, minigamePrice,
+            stockPrices, stockShares,
+            dailyClaimed, dailyTimer,
+            x2Powerup, x2Timer, autoPowerup, autoTimer,
+            normalSlimeLevel, normalSlimeXP, normalSlimeHunger, normalSlimeHappiness,
+            waxSlimeLevel, waxSlimeXP, waxSlimeHunger, waxSlimeHappiness,
+            savedAt: Date.now()
         };
-        return data;
-    }
+        localStorage.setItem('stimOverloadSave', JSON.stringify(data));
+        const timeEl = document.getElementById('saveTime');
+        if (timeEl) { const now = new Date(); timeEl.textContent = now.toLocaleTimeString(); }
+    } catch (e) { console.log('Save error:', e); }
+}
 
-    function loadSlimeData(data) {
-        if (data) {
-            normalSlimeLevel = data.normalSlimeLevel || 1;
-            normalSlimeXP = data.normalSlimeXP || 0;
-            normalSlimeHunger = data.normalSlimeHunger || 100;
-            normalSlimeHappiness = data.normalSlimeHappiness || 100;
-            waxSlimeLevel = data.waxSlimeLevel || 1;
-            waxSlimeXP = data.waxSlimeXP || 0;
-            waxSlimeHunger = data.waxSlimeHunger || 100;
-            waxSlimeHappiness = data.waxSlimeHappiness || 100;
+function loadGame() {
+    try {
+        const saved = localStorage.getItem('stimOverloadSave');
+        if (saved) {
+            const data = JSON.parse(saved);
+            if (data.savedAt && (Date.now() - data.savedAt) > 30 * 24 * 60 * 60 * 1000) {
+                console.log('Save too old');
+                return false;
+            }
+            Object.assign(window, data);
+            console.log('✅ Game loaded!');
+            return true;
         }
+    } catch (e) { console.log('Load error:', e); }
+    return false;
+}
+
+function resetSave() {
+    if (confirm('⚠️ Delete ALL saved progress?')) {
+        localStorage.removeItem('stimOverloadSave');
+        location.reload();
     }
+}
 
-    // ============================================================
-    // PARTICLES
-    // ============================================================
-    function spawnParticle(x, y, text, color = '#ffd700') {
-        const container = document.getElementById('particleContainer');
-        if (!container) return;
-        const el = document.createElement('div');
-        el.className = 'particle';
-        el.textContent = text;
-        el.style.left = (x - 20) + 'px';
-        el.style.top = (y - 20) + 'px';
-        el.style.color = color;
-        container.appendChild(el);
-        setTimeout(() => el.remove(), 1000);
-    }
+function updateSaveTime(text) {
+    const el = document.getElementById('saveTime');
+    if (el) el.textContent = text;
+}
 
-    function spawnClickParticles(btn) {
-        const rect = btn.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        const texts = ['+1', '🔥', '⚡', '💥', '✨', '⭐', '💎'];
-        const colors = ['#ffd700', '#ff6b6b', '#34c759', '#ff9ff3', '#54a0ff', '#ff9f43', '#a29bfe'];
-        for (let i = 0; i < 4; i++) {
-            const offsetX = (Math.random() - 0.5) * 80;
-            const offsetY = (Math.random() - 0.5) * 80 - 20;
-            const txt = texts[Math.floor(Math.random() * texts.length)];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            setTimeout(() => spawnParticle(cx + offsetX, cy + offsetY, txt, color), i * 40);
-        }
-    }
-
-    // ============================================================
-    // UPDATE UI
-    // ============================================================
-    function updateUI() {
-        document.getElementById('pointsDisplay').textContent = Math.floor(points).toLocaleString();
-        document.getElementById('totalClicksDisplay').textContent = totalClicks;
-
-        // Calculate rate - only passive income sources (no auto-clickers or robots)
+// ============================================================
+// GAME LOOP
+// ============================================================
+function setupGameLoop() {
+    setInterval(() => {
         let rate = passiveIncome + achievementBonus;
         if (slimeOwned) rate += 0.5;
         if (waxOwned) rate += 2;
         if (autoPowerup) rate *= 2;
         rate *= grindMultiplier * prestigeBonus;
-        document.getElementById('rateDisplay').textContent = Math.floor(rate);
-
-        const level = Math.floor(totalClicks / 100) + 1;
-        document.getElementById('levelNum').textContent = level;
-        const progress = (totalClicks % 100) / 100 * 100;
-        document.getElementById('levelFill').style.width = progress + '%';
-
-        let clickPower = clickMultiplier;
-        if (frenzyActive) clickPower *= 2;
-        if (x2Powerup) clickPower *= 2;
-        clickPower *= prestigeBonus;
-        if (goldenLevel > 0) clickPower *= (1 + goldenLevel * 0.5);
-        if (megaLevel > 0) clickPower *= (1 + megaLevel * 1);
-        document.getElementById('clickPowerDisplay').textContent = '+' + Math.floor(clickPower);
-
-        document.getElementById('multLevel').textContent = clickMultiplier;
-        document.getElementById('critLevel').textContent = critLevel;
-
-        const frenzyBtn = document.getElementById('buyFrenzyBtn');
-        if (frenzyActive) {
-            frenzyBtn.textContent = '⏳ ' + Math.ceil(frenzyTimer) + 's';
-            frenzyBtn.disabled = true;
-            document.getElementById('clickBtn').classList.add('frenzy');
-            document.getElementById('frenzyStatus').textContent = '⚡ Active!';
-        } else {
-            frenzyBtn.textContent = 'Activate (✦100)';
-            frenzyBtn.disabled = points < 100;
-            document.getElementById('clickBtn').classList.remove('frenzy');
-            document.getElementById('frenzyStatus').textContent = 'Ready';
-        }
-
-        const x2 = document.getElementById('powerupX2');
-        if (x2Powerup) {
-            x2.classList.add('active');
-            document.getElementById('x2Timer').textContent = Math.ceil(x2Timer) + 's';
-        } else {
-            x2.classList.remove('active');
-            document.getElementById('x2Timer').textContent = '';
-        }
-
-        const auto = document.getElementById('powerupAuto');
-        if (autoPowerup) {
-            auto.classList.add('active');
-            document.getElementById('autoTimer').textContent = Math.ceil(autoTimer) + 's';
-        } else {
-            auto.classList.remove('active');
-            document.getElementById('autoTimer').textContent = '';
-        }
-
-        updateDailyUI();
-
-        const buttons = {
-            'buyMultBtn': multPrice,
-            'buyCritBtn': critPrice,
-            'buyGoldenBtn': goldenPrice,
-            'buySimileBtn': similePrice,
-            'buyMegaBtn': megaPrice,
-            'buyPassiveBtn': 100 + passiveIncome * 50,
-            'buyAutoCritBtn': 150 + autoCritLevel * 100,
-            'buyGrindMultBtn': 200 + Math.floor(grindMultiplier * 50),
-            'buyStockBtn': 2500,
-            'buySlimeBtn': 500,
-            'buyWaxBtn': 5000,
-            'buyPrestigeBtn': 5000,
-            'buyMinigameBtn': minigamePrice
-        };
-
-        for (const [id, price] of Object.entries(buttons)) {
-            const btn = document.getElementById(id);
-            if (!btn) continue;
-
-            if (id === 'buySlimeBtn' && slimeOwned) {
-                btn.textContent = '✅ Owned';
-                btn.disabled = true;
-                document.getElementById('slimeStatus').textContent = '✅ Owned';
-                continue;
-            }
-            if (id === 'buyWaxBtn' && waxOwned) {
-                btn.textContent = '✅ Owned';
-                btn.disabled = true;
-                document.getElementById('waxStatus').textContent = '✅ Owned';
-                continue;
-            }
-            if (id === 'buyStockBtn' && stockUnlocked) {
-                btn.textContent = '✅ Unlocked';
-                btn.disabled = true;
-                document.getElementById('stockStatus').textContent = '✅ Unlocked';
-                continue;
-            }
-            if (id === 'buyPrestigeBtn' && prestigeUnlocked) {
-                btn.textContent = '✅ Unlocked';
-                btn.disabled = true;
-                document.getElementById('prestigeStatus').textContent = '✅ Unlocked';
-                continue;
-            }
-            if (id === 'buyMinigameBtn' && minigameUnlocked) {
-                btn.textContent = '✅ Unlocked';
-                btn.disabled = true;
-                document.getElementById('minigameStatus').textContent = '✅ Unlocked';
-                // Enable the minigame button
-                document.getElementById('minigameBtn').disabled = false;
-                document.getElementById('minigameBtn').textContent = '🎯 Quick Tap Challenge';
-                continue;
-            }
-
-            btn.textContent = 'Buy (✦' + price + ')';
-            btn.disabled = points < price;
-        }
-
-        document.getElementById('passiveBonus').textContent = passiveIncome;
-        document.getElementById('autoCritLevel').textContent = autoCritLevel;
-        document.getElementById('goldenLevel').textContent = goldenLevel;
-        document.getElementById('achievementBonus').textContent = achievementBonus;
-        document.getElementById('simileLevel').textContent = simileLevel;
-        document.getElementById('megaLevel').textContent = megaLevel;
-        document.getElementById('grindMultDisplay').textContent = grindMultiplier.toFixed(2);
-        document.getElementById('grindMeter').textContent = '🔥 Grind: ' + grindCount;
-
-        const wheelBtn = document.getElementById('wheelBtn');
-        if (wheelBtn) {
-            wheelBtn.textContent = '🎰 Spin the Wheel (✦500)';
-            wheelBtn.disabled = points < 500;
-        }
-
-        if (stockUnlocked) {
-            document.getElementById('stockSection').classList.add('visible');
-            updateStockUI();
-        }
-
-        const streakDisplay = document.getElementById('streakDisplay');
-        if (totalClicks > 0 && totalClicks % 10 === 0) {
-            streakDisplay.textContent = '🔥 Streak x' + Math.floor(totalClicks / 10) + '!';
-            streakDisplay.style.color = '#ffd700';
-        } else {
-            streakDisplay.textContent = '🔥 Click to build your streak!';
-            streakDisplay.style.color = '#ff6b6b';
-        }
-    }
-
-    // ============================================================
-    // DAILY REWARD UI
-    // ============================================================
-    function updateDailyUI() {
-        const timerDisplay = document.getElementById('dailyTimerDisplay');
-        const dailyBtn = document.getElementById('dailyBtn');
-
-        if (dailyClaimed) {
-            const timeLeft = Math.max(0, dailyTimer);
-            timerDisplay.textContent = '⏳ ' + formatTime(timeLeft);
-            dailyBtn.disabled = true;
-            dailyBtn.textContent = '⏳ Wait';
-        } else {
-            timerDisplay.textContent = '✨ Ready to claim!';
-            dailyBtn.disabled = false;
-            dailyBtn.textContent = 'Claim ✦1,000';
-        }
-    }
-
-    function formatTime(seconds) {
-        if (seconds <= 0) return 'Ready!';
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = Math.floor(seconds % 60);
-        if (hours > 0) return `${hours}h ${minutes}m`;
-        if (minutes > 0) return `${minutes}m ${secs}s`;
-        return `${secs}s`;
-    }
-
-    // ============================================================
-    // STOCK MARKET
-    // ============================================================
-    function updateStockUI() {
-        const chart = document.getElementById('stockChart');
-        chart.innerHTML = '';
-        stockPrices.forEach((price) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'bar-wrapper';
-            const bar = document.createElement('div');
-            bar.className = 'bar ' + (Math.random() > 0.5 ? 'up' : 'down');
-            const height = 15 + (price / 300) * 50;
-            bar.style.height = Math.min(height, 60) + 'px';
-            wrapper.appendChild(bar);
-            chart.appendChild(wrapper);
-        });
-
-        const assets = document.getElementById('stockAssets');
-        assets.innerHTML = '';
-        stockNames.forEach((name, i) => {
-            const div = document.createElement('div');
-            div.className = 'stock-asset';
-            const change = (Math.random() - 0.5) * 10;
-            const changeClass = change >= 0 ? 'up' : 'down';
-            div.innerHTML = `
-                <span class="asset-name">${name}</span>
-                <span class="asset-price">✦${Math.floor(stockPrices[i])}</span>
-                <span class="asset-change ${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(1)}%</span>
-                <span class="asset-shares">${stockShares[i]}</span>
-                <div class="asset-buttons">
-                    <button class="buy-btn" onclick="buyStock(${i})">Buy</button>
-                    <button class="sell-btn" onclick="sellStock(${i})" ${stockShares[i] <= 0 ? 'disabled' : ''}>Sell</button>
-                </div>
-            `;
-            assets.appendChild(div);
-        });
-    }
-
-    function buyStock(index) {
-        const price = stockPrices[index];
-        if (points < price) return;
-        points -= Math.floor(price);
-        stockShares[index]++;
-        stockPrices[index] = Math.max(50, price + (Math.random() - 0.5) * 15);
-        playBuy();
+        if (rate > 0) { points += Math.floor(rate); }
+        if (frenzyActive) { frenzyTimer -= 1; if (frenzyTimer <= 0) frenzyActive = false; }
+        if (x2Powerup) { x2Timer -= 1; if (x2Timer <= 0) x2Powerup = false; }
+        if (autoPowerup) { autoTimer -= 1; if (autoTimer <= 0) autoPowerup = false; }
+        if (dailyClaimed) { dailyTimer -= 1; if (dailyTimer <= 0) { dailyClaimed = false; dailyTimer = 0; } }
+        if (stockUnlocked) { stockPrices = stockPrices.map(p => Math.max(50, p + (Math.random() - 0.5) * 10)); }
+        achievementBonus = Math.floor(totalClicks / 1000);
         updateUI();
         updateSlimeUI();
         saveGame();
-    }
-
-    function sellStock(index) {
-        if (stockShares[index] <= 0) return;
-        const price = stockPrices[index];
-        points += Math.floor(price * 0.9);
-        stockShares[index]--;
-        stockPrices[index] = Math.max(50, price + (Math.random() - 0.5) * 15);
-        playClick();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    // ============================================================
-    // BUY FUNCTIONS
-    // ============================================================
-    function buyMultiplier() {
-        if (points < multPrice) return;
-        points -= multPrice;
-        clickMultiplier += 1;
-        multPrice = Math.floor(multPrice * 1.22) + 3;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyCrit() {
-        if (points < critPrice) return;
-        points -= critPrice;
-        critLevel += 1;
-        critPrice = Math.floor(critPrice * 1.30) + 5;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyGolden() {
-        if (points < goldenPrice) return;
-        points -= goldenPrice;
-        goldenLevel += 1;
-        goldenPrice = Math.floor(goldenPrice * 1.4) + 100;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buySimile() {
-        if (points < similePrice) return;
-        points -= similePrice;
-        simileLevel += 1;
-        similePrice = Math.floor(similePrice * 1.35) + 50;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyMega() {
-        if (points < megaPrice) return;
-        points -= megaPrice;
-        megaLevel += 1;
-        megaPrice = Math.floor(megaPrice * 1.5) + 200;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyPassive() {
-        const price = 100 + passiveIncome * 50;
-        if (points < price) return;
-        points -= price;
-        passiveIncome += 1;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyAutoCrit() {
-        const price = 150 + autoCritLevel * 100;
-        if (points < price) return;
-        points -= price;
-        autoCritLevel += 1;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyGrindMult() {
-        const price = 200 + Math.floor(grindMultiplier * 50);
-        if (points < price) return;
-        points -= price;
-        grindMultiplier += 0.1;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyStock() {
-        if (points < 2500 || stockUnlocked) return;
-        points -= 2500;
-        stockUnlocked = true;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buySlime() {
-        if (points < 500 || slimeOwned) return;
-        points -= 500;
-        slimeOwned = true;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyWax() {
-        if (points < 5000 || waxOwned) return;
-        points -= 5000;
-        waxOwned = true;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyPrestige() {
-        if (points < 5000 || prestigeUnlocked) return;
-        points -= 5000;
-        prestigeUnlocked = true;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyMinigame() {
-        if (points < minigamePrice || minigameUnlocked) return;
-        points -= minigamePrice;
-        minigameUnlocked = true;
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function buyAchievement() {
-        playBuy();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function activateFrenzy() {
-        if (frenzyActive || points < 100) return;
-        points -= 100;
-        frenzyActive = true;
-        frenzyTimer = 10;
-        playPowerup();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    // ============================================================
-    // DAILY REWARD
-    // ============================================================
-    function claimDaily() {
-        if (dailyClaimed) return;
-        points += 1000;
-        dailyClaimed = true;
-        dailyTimer = DAILY_COOLDOWN;
-        playDaily();
-
-        for (let i = 0; i < 15; i++) {
-            setTimeout(() => {
-                spawnParticle(
-                    Math.random() * window.innerWidth,
-                    Math.random() * window.innerHeight,
-                    ['🎁', '✨', '⭐', '💎', '🎉'][Math.floor(Math.random() * 5)],
-                    '#ffd700'
-                );
-            }, i * 80);
-        }
-
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    function doPrestige() {
-        if (!prestigeUnlocked || points < 10000) return;
-        if (!confirm('Prestige will reset your progress but give a permanent 2x bonus! Continue?')) return;
-        prestigeLevel += 1;
-        prestigeBonus *= 2;
-        points = 0;
-        clickMultiplier = 1;
-        critLevel = 0;
-        multPrice = 25;
-        critPrice = 50;
-        totalClicks = 0;
-        goldenLevel = 0;
-        goldenPrice = 500;
-        simileLevel = 0;
-        similePrice = 200;
-        megaLevel = 0;
-        megaPrice = 1000;
-        passiveIncome = 0;
-        autoCritLevel = 0;
-        grindMultiplier = 1;
-        grindCount = 0;
-        stockShares = [0, 0, 0, 0, 0];
-        stockPrices = [100, 150, 200, 250, 300];
-        // Keep minigame unlocked if it was
-        playPrestige();
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-        alert('✨ Prestige complete! You now have a permanent ' + prestigeBonus + 'x bonus!');
-    }
-
-    // ============================================================
-    // WHEEL - No cooldown, just pay each time
-    // ============================================================
-    function spinWheel() {
-        if (points < 500) return;
-
-        points -= 500;
-        playWheelSpin();
-
-        const prizes = [
-            { text: '💀 Lose 200', amount: -200 },
-            { text: '💰 Win 100', amount: 100 },
-            { text: '💰 Win 250', amount: 250 },
-            { text: '💰 Win 500', amount: 500 },
-            { text: '💰 Win 1000', amount: 1000 },
-            { text: '💰 Win 2000', amount: 2000 },
-            { text: '💰 Win 5000', amount: 5000 },
-            { text: '⭐ 2x Multiplier!', amount: 'multiplier' },
-            { text: '⚡ Powerup!', amount: 'powerup' }
-        ];
-
-        const prize = prizes[Math.floor(Math.random() * prizes.length)];
-        const resultDiv = document.getElementById('wheelResult');
-
-        if (prize.amount === 'multiplier') {
-            clickMultiplier *= 2;
-            resultDiv.textContent = '⭐ 2x Multiplier!';
-            playWin();
-            // Reset after 30 seconds
-            setTimeout(() => {
-                clickMultiplier = Math.ceil(clickMultiplier / 2);
-                updateUI();
-        updateSlimeUI();
-            }, 30000);
-        } else if (prize.amount === 'powerup') {
-            points += 500;
-            resultDiv.textContent = '⚡ Powerup! +500 points!';
-            playPowerup();
-        } else {
-            points = Math.max(0, points + prize.amount);
-            if (prize.amount < 0) {
-                resultDiv.textContent = prize.text + '!';
-                resultDiv.style.color = '#ff6b6b';
-                playLose();
-            } else {
-                resultDiv.textContent = '🎉 ' + prize.text + '!';
-                resultDiv.style.color = '#ffd700';
-                playWin();
-                for (let i = 0; i < 8; i++) {
-                    setTimeout(() => {
-                        spawnParticle(
-                            Math.random() * window.innerWidth,
-                            Math.random() * window.innerHeight,
-                            ['🎉', '⭐', '💎', '✨', '🎊'][Math.floor(Math.random() * 5)],
-                            '#ffd700'
-                        );
-                    }, i * 100);
-                }
-            }
-        }
-
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    // ============================================================
-    // CLICK HANDLER
-    // ============================================================
-    function handleClick() {
-        let amount = clickMultiplier;
-        if (frenzyActive) amount *= 2;
-        if (x2Powerup) amount *= 2;
-        amount *= prestigeBonus;
-        if (goldenLevel > 0) amount *= (1 + goldenLevel * 0.5);
-        if (megaLevel > 0) amount *= (1 + megaLevel * 1);
-
-        const isCrit = Math.random() < (critLevel * 0.10);
-        if (isCrit) {
-            amount *= 5;
-            playClickCrit();
-        }
-
-        const isSimile = Math.random() < (simileLevel * 0.10);
-        if (isSimile) {
-            amount *= 10;
-            playClickSimile();
-        }
-
-        if (!isCrit && !isSimile) {
-            playClick();
-        }
-
-        points += Math.floor(amount);
-        totalClicks += 1;
-        grindCount += 1;
-
-        if (autoCritLevel > 0 && totalClicks % 5 === 0) {
-            points += Math.floor(amount * 5);
-            spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ AUTO CRIT!', '#34c759');
-            playClickCrit();
-        }
-
-        const btn = document.getElementById('clickBtn');
-        spawnClickParticles(btn);
-
-        if (isCrit) {
-            const rect = btn.getBoundingClientRect();
-            spawnParticle(rect.left + rect.width / 2 - 20, rect.top - 20, '💥 CRIT!', '#ff6b6b');
-        }
-
-        if (isSimile) {
-            const rect = btn.getBoundingClientRect();
-            spawnParticle(rect.left + rect.width / 2 - 20, rect.top - 40, '😄 10x!', '#ffd93d');
-        }
-
-        btn.style.transform = 'scale(0.85)';
-        btn.style.boxShadow = '0 4px 0 #b8860b';
-        setTimeout(() => {
-            btn.style.transform = '';
-            btn.style.boxShadow = '';
-        }, 100);
-
-        updateUI();
-        updateSlimeUI();
-        saveGame();
-    }
-
-    // ============================================================
-    // POWERUP CLICK HANDLERS
-    // ============================================================
-    function setupPowerups() {
-        document.getElementById('powerupX2').addEventListener('click', function() {
-            if (x2Powerup || points < 50) return;
-            points -= 50;
-            x2Powerup = true;
-            x2Timer = 30;
-            playPowerup();
-            updateUI();
-        updateSlimeUI();
-            saveGame();
-            spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '⚡ 2x ACTIVE!', '#ffd700');
-        });
-
-        document.getElementById('powerupAuto').addEventListener('click', function() {
-            if (autoPowerup || points < 75) return;
-            points -= 75;
-            autoPowerup = true;
-            autoTimer = 20;
-            playPowerup();
-            updateUI();
-        updateSlimeUI();
-            saveGame();
-            spawnParticle(window.innerWidth / 2, window.innerHeight / 2, '🤖 AUTO ACTIVE!', '#34c759');
-        });
-    }
-
-    // ============================================================
-    // SAVE SYSTEM - COMPLETE
-    // ============================================================
-    function saveGame() {
-        try {
-            const data = {
-                points, clickMultiplier, critLevel,
-                multPrice, critPrice, totalClicks,
-                frenzyActive, frenzyTimer, passiveIncome, autoCritLevel,
-                grindMultiplier, grindCount,
-                goldenLevel, goldenPrice, achievementBonus,
-                simileLevel, similePrice, megaLevel, megaPrice,
-                stockUnlocked, slimeOwned, waxOwned,
-                prestigeUnlocked, prestigeLevel, prestigeBonus,
-                minigameUnlocked, minigamePrice,
-                stockPrices, stockShares,
-                dailyClaimed, dailyTimer,
-                x2Powerup, x2Timer, autoPowerup, autoTimer,
-                savedAt: Date.now()
-            };
-            localStorage.setItem('stimOverloadSave', JSON.stringify(data));
-            updateSaveTime('just now');
-        } catch (e) { console.log('Save error:', e); }
-    }
-
-    function loadGame() {
-        try {
-            const saved = localStorage.getItem('stimOverloadSave');
-            if (saved) {
-                const data = JSON.parse(saved);
-                if (data.savedAt && (Date.now() - data.savedAt) > 30 * 24 * 60 * 60 * 1000) {
-                    console.log('Save too old');
-                    return false;
-                }
-                Object.assign(window, data);
-                console.log('✅ Game loaded!');
-                updateSaveTime('loaded');
-                return true;
-            }
-        } catch (e) { console.log('Load error:', e); }
-        return false;
-    }
-
-    function resetSave() {
-        if (confirm('⚠️ Delete ALL saved progress? This cannot be undone!')) {
-            localStorage.removeItem('stimOverloadSave');
-            location.reload();
-        }
-    }
-
-    function updateSaveTime(text) {
-        const el = document.getElementById('saveTime');
-        if (el) el.textContent = text;
-    }
-
-    // ============================================================
-    // GAME LOOP
-    // ============================================================
-    function setupGameLoop() {
-        setInterval(() => {
-            // Calculate rate - only passive income sources (no auto-clickers or robots)
-            let rate = passiveIncome + achievementBonus;
-            if (slimeOwned) rate += 0.5;
-            if (waxOwned) rate += 2;
-            if (autoPowerup) rate *= 2;
-            rate *= grindMultiplier * prestigeBonus;
-
-            if (rate > 0) {
-                points += Math.floor(rate);
-            }
-
-            if (frenzyActive) {
-                frenzyTimer -= 1;
-                if (frenzyTimer <= 0) frenzyActive = false;
-            }
-
-            if (x2Powerup) {
-                x2Timer -= 1;
-                if (x2Timer <= 0) x2Powerup = false;
-            }
-
-            if (autoPowerup) {
-                autoTimer -= 1;
-                if (autoTimer <= 0) autoPowerup = false;
-            }
-
-            if (dailyClaimed) {
-                dailyTimer -= 1;
-                if (dailyTimer <= 0) {
-                    dailyClaimed = false;
-                    dailyTimer = 0;
-                }
-            }
-
-            if (stockUnlocked) {
-                stockPrices = stockPrices.map(p => Math.max(50, p + (Math.random() - 0.5) * 10));
-            }
-
-            achievementBonus = Math.floor(totalClicks / 1000);
-
-            updateUI();
-        updateSlimeUI();
-            saveGame();
-        }, 1000);
-    }
-
-    // ============================================================
-    // SOUND TOGGLE
-    // ============================================================
-    function addSoundToggle() {
-        const app = document.getElementById('app');
-        if (!app) return;
-        
-        const container = document.createElement('div');
-        container.style.cssText = 'margin: 4px 0 8px;';
-        
-        const item = document.createElement('div');
-        item.className = 'settings-item';
-        item.innerHTML = `
-            <span class="label">🔊 Sound Effects</span>
-            <div class="settings-toggle active" id="soundToggle"><div class="knob"></div></div>
-        `;
-        container.appendChild(item);
-        
-        // Insert after stats
-        const stats = document.querySelector('.stats');
-        if (stats) {
-            stats.parentNode.insertBefore(container, stats.nextSibling);
-        }
-        
-        document.getElementById('soundToggle').addEventListener('click', function() {
-            this.classList.toggle('active');
-            soundEnabled = this.classList.contains('active');
-            if (soundEnabled) playClick();
-        });
-    }
-
-    // ============================================================
-    // QUICK TAP MINIGAME (only works if unlocked)
-    // ============================================================
-    function startQuickTap() {
-        if (!minigameUnlocked) {
-            alert('🔒 You need to unlock the Quick Tap Challenge in the shop first!');
-            return;
-        }
-        if (document.getElementById('minigameOverlay')) return;
-        const overlay = document.createElement('div');
-        overlay.id = 'minigameOverlay';
-        overlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-            flex-direction: column; padding: 20px;
-            animation: fadeIn 0.3s ease;
-        `;
-        overlay.innerHTML = `
-            <div style="background: #1a1a2e; border-radius: 24px; padding: 30px; max-width: 400px; width: 100%; text-align: center; border: 2px solid rgba(255,215,0,0.1);">
-                <h2 style="color: #ffd700; margin-bottom: 10px;">🎯 Quick Tap Challenge</h2>
-                <p style="color: #888; margin-bottom: 15px;">Tap as fast as you can!</p>
-                <div style="font-size: 72px; margin: 15px 0;" id="tapCounter">0</div>
-                <div style="font-size: 24px; color: #ff6b6b; margin-bottom: 10px;" id="tapTimer">3s</div>
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <button id="tapBtn" style="
-                        background: linear-gradient(135deg, #ffd700, #f5a623);
-                        border: none; padding: 15px 40px; border-radius: 30px;
-                        font-weight: 700; font-size: 18px; color: #1a1a2e;
-                        cursor: pointer; font-family: 'Segoe UI', sans-serif;
-                    ">👆 TAP!</button>
-                    <button onclick="this.closest('#minigameOverlay').remove()" style="
-                        background: rgba(255,255,255,0.05);
-                        border: 1px solid rgba(255,255,255,0.1);
-                        padding: 15px 20px; border-radius: 30px;
-                        color: #888; cursor: pointer; font-size: 14px;
-                        font-family: 'Segoe UI', sans-serif;
-                    ">✕ Close</button>
-                </div>
-                <div id="tapResult" style="margin-top: 10px; color: #7cf5b0; font-weight: 700;"></div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-
-        let taps = 0;
-        let timeLeft = 3;
-        let active = true;
-
-        const tapBtn = document.getElementById('tapBtn');
-        const counter = document.getElementById('tapCounter');
-        const timer = document.getElementById('tapTimer');
-        const result = document.getElementById('tapResult');
-
-        tapBtn.addEventListener('click', function() {
-            if (!active) return;
-            taps++;
-            counter.textContent = taps;
-            playClick();
-            this.style.transform = 'scale(0.9)';
-            setTimeout(() => this.style.transform = '', 100);
-        });
-
-        const interval = setInterval(() => {
-            timeLeft--;
-            timer.textContent = timeLeft + 's';
-            if (timeLeft <= 0) {
-                clearInterval(interval);
-                active = false;
-                tapBtn.disabled = true;
-                tapBtn.style.opacity = '0.5';
-                const reward = taps * 50;
-                result.textContent = '🏆 You tapped ' + taps + ' times! +' + reward + ' points!';
-                playWin();
-                points += reward;
-                updateUI();
-        updateSlimeUI();
-                saveGame();
-                setTimeout(() => {
-                    overlay.querySelector('button:last-child').click();
-                }, 3000);
-            }
-        }, 1000);
-
-        const style = document.createElement('style');
-        style.textContent = '@keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }';
-        document.head.appendChild(style);
-    }
-
-    // ============================================================
-    // ACHIEVEMENT SYSTEM
-    // ============================================================
-    function checkAchievements() {
-        try {
-            const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{"games":{},"totalXp":0,"gamesPlayed":0}');
-            const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
-            let newAchievements = [];
-
-            if (progress.gamesPlayed >= 1 && !unlocked.includes('first_game')) {
-                newAchievements.push('first_game');
-                showAchievementPopup('🎮', 'First Game!', 'Played your first game!');
-            }
-
-            if (progress.gamesPlayed >= 10 && !unlocked.includes('game_master')) {
-                newAchievements.push('game_master');
-                showAchievementPopup('👑', 'Game Master!', 'Played 10 games!');
-            }
-
-            if (progress.totalXp >= 100 && !unlocked.includes('xp_collector')) {
-                newAchievements.push('xp_collector');
-                showAchievementPopup('⭐', 'XP Collector!', 'Earned 100 XP!');
-            }
-
-            const level = Math.floor((progress.totalXp || 0) / 100) + 1;
-            if (level >= 5 && !unlocked.includes('level_up')) {
-                newAchievements.push('level_up');
-                showAchievementPopup('🏅', 'Level Up!', 'Reached Level 5!');
-            }
-
-            if (newAchievements.length > 0) {
-                const all = [...unlocked, ...newAchievements];
-                localStorage.setItem('launchpad_achievements', JSON.stringify(all));
-                updateAchievementCount();
-            }
-
-            return newAchievements;
-        } catch(e) { return []; }
-    }
-
-    function showAchievementPopup(emoji, title, desc) {
-        try {
-            const ctx = getAudioCtx();
-            [523, 659, 784, 1047].forEach((freq, i) => {
-                setTimeout(() => {
-                    if (!soundEnabled) return;
-                    try {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'sine';
-                        osc.frequency.value = freq;
-                        gain.gain.setValueAtTime(0.08, ctx.currentTime);
-                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start();
-                        osc.stop(ctx.currentTime + 0.2);
-                    } catch(e) {}
-                }, i * 120);
-            });
-        } catch(e) {}
-
-        let popup = document.getElementById('achievementPopupGlobal');
-        if (!popup) {
-            popup = document.createElement('div');
-            popup.id = 'achievementPopupGlobal';
-            popup.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: rgba(18, 16, 30, 0.96);
-                backdrop-filter: blur(20px);
-                border: 2px solid #7cf5b0;
-                border-radius: 16px;
-                padding: 16px 24px;
-                max-width: 350px;
-                z-index: 99999;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-                display: none;
-                animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                color: #d0e8f0;
-                font-family: 'Segoe UI', Roboto, sans-serif;
-            `;
-            document.body.appendChild(popup);
-            
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        popup.innerHTML = `
-            <div style="display:flex;align-items:center;gap:14px;">
-                <div style="font-size:2.8rem;line-height:1;">${emoji}</div>
-                <div>
-                    <div style="color:#7cf5b0;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;">🏆 Achievement Unlocked!</div>
-                    <div style="color:#f0f8ff;font-weight:700;font-size:1.1rem;">${title}</div>
-                    <div style="color:#8899aa;font-size:0.85rem;">${desc}</div>
-                </div>
-            </div>
-            <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;">
-                <button onclick="document.getElementById('achievementPopupGlobal').style.display='none'" style="
-                    background:rgba(255,255,255,0.05);
-                    border:1px solid rgba(255,255,255,0.1);
-                    color:#8899aa;
-                    padding:4px 14px;
-                    border-radius:20px;
-                    cursor:pointer;
-                    font-size:0.7rem;
-                    font-family:'Segoe UI',sans-serif;
-                ">Dismiss</button>
-            </div>
-        `;
-
-        popup.style.display = 'block';
-        popup.style.animation = 'slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-
-        clearTimeout(popup._timeout);
-        popup._timeout = setTimeout(() => {
-            popup.style.animation = 'slideOutRight 0.4s ease-in';
-            setTimeout(() => {
-                popup.style.display = 'none';
-                popup.style.animation = '';
-            }, 400);
-        }, 6000);
-    }
-
-    function updateAchievementCount() {
-        try {
-            const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
-            const countEl = document.getElementById('achievementCount');
-            if (countEl) countEl.textContent = unlocked.length;
-        } catch(e) {}
-    }
-
-    // ============================================================
-    // INIT
-    // ============================================================
-        function updateSaveTime(text) {
-        const el = document.getElementById('saveTime');
-        if (el) {
-            el.textContent = text;
-            if (text !== 'just now') {
-                const now = new Date();
-                el.textContent = now.toLocaleTimeString();
-            }
-        }
-    }
-
-    function showSaveNotification() {
-        const indicator = document.getElementById('saveIndicator');
-        if (indicator) {
-            indicator.style.color = '#7cf5b0';
-            setTimeout(() => {
-                indicator.style.color = '#666';
-            }, 2000);
-        }
-    }
-
-    // Override save to show notification
-    const originalSave = saveGame;
-    saveGame = function() {
-        originalSave();
-        showSaveNotification();
-        const timeEl = document.getElementById('saveTime');
-        if (timeEl) {
-            const now = new Date();
-            timeEl.textContent = now.toLocaleTimeString();
-        }
-    };
-
+    }, 1000);
+}
+
+// ============================================================
+// ADD SOUND TOGGLE
+// ============================================================
+function addSoundToggle() {
+    const app = document.getElementById('app');
+    if (!app) return;
+    const container = document.createElement('div');
+    container.style.cssText = 'margin: 4px 0 8px;';
+    const item = document.createElement('div');
+    item.className = 'settings-item';
+    item.innerHTML = `<span class="label">🔊 Sound Effects</span><div class="settings-toggle active" id="soundToggle"><div class="knob"></div></div>`;
+    container.appendChild(item);
+    const stats = document.querySelector('.stats');
+    if (stats) { stats.parentNode.insertBefore(container, stats.nextSibling); }
+    document.getElementById('soundToggle').addEventListener('click', function() {
+        this.classList.toggle('active');
+        soundEnabled = this.classList.contains('active');
+        if (soundEnabled) playClick();
+    });
+}
+
+// ============================================================
+// INIT
+// ============================================================
 function init() {
-        console.log('🧠 Stimulation Overload - Loading...');
-
-        loadGame();
-        updateUI();
-        updateSlimeUI();
-        setupPowerups();
+    console.log('🧠 Stimulation Overload - Loading...');
+    loadGame();
+    updateUI();
+    updateSlimeUI();
+    setupPowerups();
     setupSlime();
-        setupGameLoop();
-        addSoundToggle();
+    setupGameLoop();
+    addSoundToggle();
 
-        // Add reset button
-        const footer = document.querySelector('.footer');
-        if (footer) {
-            const resetDiv = document.createElement('div');
-            resetDiv.style.cssText = 'margin-top:6px;';
-            resetDiv.innerHTML = `
-                <button onclick="resetSave()" style="
-                    background: rgba(255,59,48,0.08);
-                    border: 1px solid rgba(255,59,48,0.12);
-                    color: #ff3b30;
-                    padding: 3px 14px;
-                    border-radius: 30px;
-                    font-size: 10px;
-                    cursor: pointer;
-                    font-family: 'Segoe UI', sans-serif;
-                    transition: 0.2s;
-                " onmouseover="this.style.background='rgba(255,59,48,0.15)'" onmouseout="this.style.background='rgba(255,59,48,0.08)'">
-                    🗑️ Delete Save
-                </button>
-            `;
-            footer.appendChild(resetDiv);
-        }
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                saveGame();
-                updateSaveTime('just now 💾');
-                alert('💾 Game saved!');
-            }
-            if (e.key === 'p' && e.shiftKey) {
-                if (prestigeUnlocked && points >= 10000) doPrestige();
-            }
-        });
-
-        window.addEventListener('beforeunload', saveGame);
-
-        // Check achievements periodically
-        setTimeout(checkAchievements, 1000);
-        setInterval(checkAchievements, 10000);
-
-        console.log('✅ All features loaded with sound!');
-        console.log('📧 Email: theyabandtherandomboyoff97@gmail.com');
+    const footer = document.querySelector('.footer');
+    if (footer) {
+        const resetDiv = document.createElement('div');
+        resetDiv.style.cssText = 'margin-top:6px;';
+        resetDiv.innerHTML = `<button onclick="resetSave()" style="background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.12);color:#ff3b30;padding:3px 14px;border-radius:30px;font-size:10px;cursor:pointer;font-family:'Segoe UI',sans-serif;transition:0.2s;" onmouseover="this.style.background='rgba(255,59,48,0.15)'" onmouseout="this.style.background='rgba(255,59,48,0.08)'">🗑️ Delete Save</button>`;
+        footer.appendChild(resetDiv);
     }
 
-    // Patch localStorage.setItem to trigger achievement check
-    const origSetItem = localStorage.setItem;
-    localStorage.setItem = function(key, value) {
-        origSetItem.apply(this, arguments);
-        if (key === 'launchpad_progress') {
-            setTimeout(checkAchievements, 500);
-        }
-    };
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveGame(); alert('💾 Game saved!'); }
+        if (e.key === 'p' && e.shiftKey) { if (prestigeUnlocked && points >= 10000) doPrestige(); }
+    });
+    window.addEventListener('beforeunload', saveGame);
 
-    // Start
-    init();
-    </script>
+    console.log('✅ All features loaded with sound & save!');
+    console.log('📧 Email: theyabandtherandomboyoff97@gmail.com');
+}
+
+// Start
+init();
+</script>
 </body>
 </html>
-

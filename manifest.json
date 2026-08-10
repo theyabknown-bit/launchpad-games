@@ -7,9 +7,6 @@
   "orientation": "portrait",
   "background_color": "#0b1a26",
   "theme_color": "#4fc3f7",
-  "scope": "/launchpad-games/",
-  "lang": "en",
-  "dir": "ltr",
   "categories": ["games", "entertainment", "arcade"],
   "icons": [
     {

@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🚀 Launchpad Games</title>
@@ -806,5 +807,18 @@ function init() {
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
+<script>
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/launchpad-games/sw.js')
+        .then(function(reg) {
+            console.log('✅ Service Worker registered!');
+        })
+        .catch(function(err) {
+            console.log('❌ Service Worker registration failed:', err);
+        });
+}
+</script>
 </body>
 </html>
+

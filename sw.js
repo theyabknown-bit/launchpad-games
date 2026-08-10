@@ -2,7 +2,9 @@
 const urlsToCache = [
     '/launchpad-games/base.html',
     '/launchpad-games/index.html',
-    '/launchpad-games/manifest.json'
+    '/launchpad-games/manifest.json',
+    '/launchpad-games/icon192.svg',
+    '/launchpad-games/icon512.svg'
 ];
 
 self.addEventListener('install', function(event) {
@@ -42,17 +44,7 @@ self.addEventListener('fetch', function(event) {
                 if (response) {
                     return response;
                 }
-                return fetch(event.request).then(function(response) {
-                    if (!response || response.status !== 200) {
-                        return response;
-                    }
-                    var responseToCache = response.clone();
-                    caches.open(CACHE_NAME)
-                        .then(function(cache) {
-                            cache.put(event.request, responseToCache);
-                        });
-                    return response;
-                });
+                return fetch(event.request);
             })
     );
 });

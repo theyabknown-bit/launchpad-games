@@ -1,22 +1,25 @@
 ﻿{
   "name": "Launchpad Games",
   "short_name": "Launchpad",
-  "description": "🚀 30+ free online games! Space, Arcade & Simulation games. Play with friends and earn achievements!",
+  "description": "🚀 Play 30+ free online games! Space, Arcade & Simulation games. Play with friends and earn achievements!",
   "start_url": "/launchpad-games/base.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0b1a26",
   "theme_color": "#4fc3f7",
+  "scope": "/launchpad-games/",
+  "lang": "en",
+  "dir": "ltr",
   "categories": ["games", "entertainment", "arcade"],
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230b1a26'/><text x='256' y='340' font-size='280' text-anchor='middle' fill='%234fc3f7'>🚀</text></svg>",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230b1a26'/%3E%3Ctext x='256' y='350' font-size='240' text-anchor='middle' fill='%234fc3f7'%3E🚀%3C/text%3E%3C/svg%3E",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230b1a26'/><text x='256' y='340' font-size='280' text-anchor='middle' fill='%234fc3f7'>🚀</text></svg>",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230b1a26'/%3E%3Ctext x='256' y='350' font-size='240' text-anchor='middle' fill='%234fc3f7'%3E🚀%3C/text%3E%3C/svg%3E",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"

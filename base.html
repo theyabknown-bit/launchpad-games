@@ -1,7 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🚀 Launchpad Games</title>
@@ -55,7 +54,7 @@
         .user-section { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
         .username-display { color: #7cf5b0; font-weight: 600; font-size: 0.8rem; }
         .username-display i { margin-right: 3px; color: #f5c87c; }
-        .login-btn, .logout-btn, .friends-btn, .feedback-btn {
+        .login-btn, .logout-btn, .friends-btn, .feedback-btn, .stats-btn {
             background: #1a3a5a;
             border: 1px solid #2a5a7a;
             padding: 0.25rem 0.8rem;
@@ -69,6 +68,7 @@
         .login-btn { background: linear-gradient(135deg, #4fc3f7, #1a6a8a); border-color: #4fc3f7; }
         .friends-btn { background: linear-gradient(135deg, #f57c9f, #b54a6b); border-color: #f57c9f; }
         .feedback-btn { background: linear-gradient(135deg, #7cf5b0, #1a6a4a); border-color: #7cf5b0; }
+        .stats-btn { background: linear-gradient(135deg, #ffb347, #b5731a); border-color: #ffb347; }
         .theme-toggle {
             background: none;
             border: none;
@@ -130,12 +130,16 @@
             display: block;
             cursor: pointer;
             min-height: 160px;
+            position: relative;
         }
         .pick-card:hover { transform: translateY(-5px); border-color: #4fc3f7; box-shadow: 0 10px 30px rgba(79,195,247,0.1); }
         .pick-card .icon-wrap { font-size: 1.8rem; color: #9fd0ff; background: #1f4057; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.6rem; border-radius: 24px; border: 1px solid #3b6f8f; }
         .pick-card h3 { font-weight: 600; font-size: 0.85rem; color: #f0f8ff; }
         .pick-card .sub { font-size: 0.65rem; opacity: 0.7; color: #bbd9ef; }
         .pick-card .arrow { display: inline-block; margin-top: 0.4rem; background: #213f53; padding: 0.05rem 0.6rem; border-radius: 40px; font-size: 0.6rem; border: 1px solid #386883; color: #c0defa; }
+        .pick-card .played-badge { position: absolute; bottom: 0.2rem; right: 0.4rem; color: #4a6a8a; font-size: 0.45rem; }
+        .pick-card .progress-bar { width: 100%; height: 3px; background: #0a1a2a; border-radius: 4px; margin-top: 0.3rem; overflow: hidden; }
+        .pick-card .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #4fc3f7, #7cf5b0); border-radius: 4px; transition: width 0.5s; width: 0%; }
 
         .section-title {
             color: #8ab4d8;
@@ -202,7 +206,7 @@
             background: #1a2a3a;
             border-radius: 1.5rem;
             padding: 1.5rem;
-            max-width: 400px;
+            max-width: 500px;
             width: 100%;
             border: 2px solid #4fc3f7;
             max-height: 90vh;
@@ -236,10 +240,10 @@
         .modal-box .switch-link { color: #4fc3f7; cursor: pointer; text-align: center; margin-top: 0.6rem; font-size: 0.85rem; }
         .modal-box .error-msg { color: #ff6b6b; display: none; margin-bottom: 0.5rem; }
 
-        .friends-modal-box {
+        .friends-modal-box, .stats-modal-box {
             max-width: 500px;
         }
-        .friends-modal-box .friend-item {
+        .friends-modal-box .friend-item, .stats-item {
             background: #1a3344;
             border-radius: 10px;
             padding: 8px 12px;
@@ -253,9 +257,9 @@
         .friends-modal-box .friend-item .name { font-weight: 700; color: #f0f8ff; }
         .friends-modal-box .friend-item .details { font-size: 0.6rem; color: #8899aa; }
         .friends-modal-box .friend-item .remove-btn { background: #ff6b6b; color: white; border: none; padding: 2px 12px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; }
-        .friends-modal-box .friend-item .online-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
-        .friends-modal-box .friend-item .online-dot.online { background: #7cf5b0; }
-        .friends-modal-box .friend-item .online-dot.offline { background: #8899aa; }
+        .online-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+        .online-dot.online { background: #7cf5b0; }
+        .online-dot.offline { background: #8899aa; }
 
         .add-friend-row {
             display: flex;
@@ -279,6 +283,22 @@
         }
         .add-friend-row input:focus { outline: none; border-color: #4fc3f7; }
 
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .stats-card {
+            background: #1a3344;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #2a4a5e;
+        }
+        .stats-card .number { font-size: 1.8rem; font-weight: 700; color: #7cf5b0; }
+        .stats-card .label { font-size: 0.6rem; color: #8899aa; text-transform: uppercase; }
+
         @media (max-width: 480px) {
             .launchpad { padding: 1rem; border-radius: 1.5rem; }
             .pick-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
@@ -288,8 +308,9 @@
             .friend-code-box { padding: 10px; }
             .friend-code-box .code { font-size: 1.2rem; letter-spacing: 3px; }
             .header-right { gap: 0.3rem; }
-            .login-btn, .logout-btn, .friends-btn, .feedback-btn { font-size: 0.55rem; padding: 0.15rem 0.5rem; }
+            .login-btn, .logout-btn, .friends-btn, .feedback-btn, .stats-btn { font-size: 0.55rem; padding: 0.15rem 0.5rem; }
             .friends-modal-box .friend-item { flex-wrap: wrap; gap: 4px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -304,6 +325,7 @@
                 <button class="logout-btn" id="logoutBtn" style="display:none;">Logout</button>
             </div>
             <button class="friends-btn" id="friendsBtn"><i class="fas fa-users"></i> Friends</button>
+            <button class="stats-btn" id="statsBtn"><i class="fas fa-chart-bar"></i> Stats</button>
             <button class="feedback-btn" id="feedbackBtn"><i class="fas fa-envelope"></i> Feedback</button>
             <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
         </div>
@@ -316,7 +338,7 @@
             <div class="code" id="friendCode">------</div>
         </div>
         <div style="text-align:right;">
-            <div class="device-info">🖥️ <span id="deviceName">Unknown</span> • 👥 <span class="friend-count" id="friendCount">0</span> friends</div>
+            <div class="device-info">🖥️ <span id="deviceName">Unknown</span> • 👥 <span class="friend-count" id="friendCount">0</span> friends • <span id="onlineStatus" style="color:#7cf5b0;">🟢 Online</span></div>
             <div style="margin-top:4px; display:flex; gap:4px; justify-content:flex-end; flex-wrap:wrap;">
                 <button class="btn-small btn-cyan" onclick="copyFriendCode()">📋 Copy</button>
                 <button class="btn-small btn-warning" onclick="refreshFriendCode()">🔄 New</button>
@@ -326,15 +348,15 @@
 
     <div class="update-log">
         <div class="update-log-header">
-            <div class="title">🚀 v4.3 <span style="font-size:0.5rem; background:#7cf5b0; padding:0.05rem 0.4rem; border-radius:20px; color:#0b1a26; font-weight:400;">LIVE</span></div>
+            <div class="title">🚀 v4.4 <span style="font-size:0.5rem; background:#7cf5b0; padding:0.05rem 0.4rem; border-radius:20px; color:#0b1a26; font-weight:400;">LIVE</span></div>
         </div>
         <div class="update-log-body">
-            <div class="update-item"><span class="emoji">👥</span> Friend System</div>
+            <div class="update-item"><span class="emoji">👥</span> Real Online Status</div>
+            <div class="update-item"><span class="emoji">📊</span> Stats Page</div>
+            <div class="update-item"><span class="emoji">🎣</span> Fishing Sim</div>
             <div class="update-item"><span class="emoji">🔑</span> Friend Codes</div>
             <div class="update-item"><span class="emoji">📱</span> Cross-Device</div>
             <div class="update-item"><span class="emoji">🏆</span> Achievements</div>
-            <div class="update-item"><span class="emoji">🌙</span> Dark Mode</div>
-            <div class="update-item"><span class="emoji">💾</span> Auto-save</div>
         </div>
     </div>
 
@@ -343,7 +365,7 @@
     <div class="section-title"><i class="fas fa-globe"></i> space <span class="count">(9)</span></div>
     <div class="pick-grid" id="spaceGrid"></div>
 
-    <div class="section-title"><i class="fas fa-gamepad"></i> arcade <span class="count">(17)</span></div>
+    <div class="section-title"><i class="fas fa-gamepad"></i> arcade <span class="count">(18)</span></div>
     <div class="pick-grid" id="arcadeGrid"></div>
 
     <div class="section-title"><i class="fas fa-hospital"></i> simulation <span class="count">(4)</span></div>
@@ -402,6 +424,25 @@
     </div>
 </div>
 
+<!-- STATS MODAL -->
+<div class="modal-overlay" id="statsModal">
+    <div class="modal-box stats-modal-box">
+        <button class="close-btn" id="closeStatsModal"><i class="fas fa-times"></i></button>
+        <h2><i class="fas fa-chart-bar"></i> Your Stats</h2>
+        <div class="stats-grid" id="statsGrid">
+            <div class="stats-card"><div class="number" id="statGamesPlayed">0</div><div class="label">Games Played</div></div>
+            <div class="stats-card"><div class="number" id="statTotalXP">0</div><div class="label">Total XP</div></div>
+            <div class="stats-card"><div class="number" id="statFriends">0</div><div class="label">Friends</div></div>
+            <div class="stats-card"><div class="number" id="statGamesList">0</div><div class="label">Unique Games</div></div>
+        </div>
+        <div style="margin-top:10px;">
+            <div style="font-size:0.8rem; color:#8899aa; margin-bottom:4px;">🎮 Games Played:</div>
+            <div id="statsGameList" style="font-size:0.7rem; color:#b0d4f0; max-height:150px; overflow-y:auto;"></div>
+        </div>
+        <button class="submit-btn" style="margin-top:10px;" onclick="resetStats()">🔄 Reset Stats</button>
+    </div>
+</div>
+
 <script>
 // ============================================================
 // GAMES DATA
@@ -435,7 +476,8 @@ const GAMES = {
         { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', sub: '15 puzzle', file: 'a/slidepuzzle.html' },
         { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html' },
         { id: 'stim', name: 'Stimulation Overload', icon: 'fa-bolt', sub: 'clicker game', file: 'a/stim.html' },
-        { id: 'memory', name: 'Memory Card', icon: 'fa-brain', sub: 'flip & match', file: 'a/memorycard.html' }
+        { id: 'memory', name: 'Memory Card', icon: 'fa-brain', sub: 'flip & match', file: 'a/memorycard.html' },
+        { id: 'fishing', name: 'Fishing Sim', icon: 'fa-fish', sub: 'catch & sell fish', file: 'a/fishing.html' } // NEW
     ],
     sim: [
         { id: 'sims', name: 'Sims Mini', icon: 'fa-user', sub: 'virtual life', file: 'sim/sims.html' },
@@ -454,23 +496,53 @@ function renderGames() {
         const container = document.getElementById(category + 'Grid');
         if (!container) return;
         const games = GAMES[category] || [];
-        container.innerHTML = games.map(game => `
-            <a href="${game.file}" class="pick-card">
+        container.innerHTML = games.map(game => {
+            // Check progress
+            let progress = { played: false, xp: 0 };
+            try {
+                const p = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+                if (p.games && p.games[game.id]) progress = p.games[game.id];
+            } catch(e) {}
+            const pct = Math.min(100, (progress.xp || 0) * 2);
+            const badge = progress.played ? `<span class="played-badge"><i class="fas fa-check-circle" style="color:#7cf5b0;"></i> ${progress.xp} XP</span>` : '';
+            const progressBar = progress.played ? `<div class="progress-bar"><div class="fill" style="width:${pct}%;"></div></div>` : '';
+            return `<a href="${game.file}" class="pick-card" onclick="handleGameClick('${game.id}')">
                 <div class="icon-wrap"><i class="fas ${game.icon}"></i></div>
                 <h3>${game.name}</h3>
                 <div class="sub">${game.sub}</div>
                 <span class="arrow"><i class="fas fa-arrow-right"></i> go</span>
-            </a>
-        `).join('');
+                ${progressBar}${badge}
+            </a>`;
+        }).join('');
     });
 }
 
+function handleGameClick(gameId) {
+    setTimeout(() => {
+        try {
+            const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+            if (!progress.games) progress.games = {};
+            if (!progress.games[gameId]) progress.games[gameId] = { played: false, xp: 0 };
+            const game = progress.games[gameId];
+            if (!game.played) { game.played = true; progress.gamesPlayed = (progress.gamesPlayed || 0) + 1; }
+            game.xp = (game.xp || 0) + 1;
+            let totalXp = 0, gamesPlayed = 0;
+            Object.values(progress.games).forEach(g => { totalXp += (g.xp || 0); if (g.played) gamesPlayed++; });
+            progress.totalXp = totalXp;
+            progress.gamesPlayed = gamesPlayed;
+            localStorage.setItem('launchpad_progress', JSON.stringify(progress));
+        } catch(e) {}
+    }, 300);
+}
+
 // ============================================================
-// FRIEND SYSTEM - REAL FRIENDS BY CODE
+// FRIEND SYSTEM WITH REAL ONLINE STATUS (BroadcastChannel)
 // ============================================================
 let friendCode = '';
 let deviceName = '';
 let friends = [];
+let onlineStatus = false;
+let bc = null;
 
 function getDeviceName() {
     const ua = navigator.userAgent;
@@ -494,8 +566,12 @@ function generateFriendCode() {
 
 function saveFriends() {
     try {
-        const data = { friendCode, deviceName, friends, savedAt: Date.now() };
+        const data = { friendCode, deviceName, friends, lastSeen: Date.now(), savedAt: Date.now() };
         localStorage.setItem('launchPadFriends', JSON.stringify(data));
+        // Broadcast online status
+        if (bc) {
+            bc.postMessage({ type: 'status', code: friendCode, status: 'online', timestamp: Date.now() });
+        }
     } catch(e) {}
 }
 
@@ -507,6 +583,15 @@ function loadFriends() {
             friendCode = data.friendCode || generateFriendCode();
             deviceName = data.deviceName || getDeviceName();
             friends = data.friends || [];
+            // Update online status for friends based on lastSeen
+            const now = Date.now();
+            for (let f of friends) {
+                if (f.lastSeen && (now - f.lastSeen < 120000)) { // 2 minutes
+                    f.status = 'online';
+                } else {
+                    f.status = 'offline';
+                }
+            }
             return true;
         }
     } catch(e) {}
@@ -553,11 +638,9 @@ function addFriendByCode() {
         }
     }
     
-    // Ask for friend's name
     const friendName = prompt('👤 Enter your friend\'s name:', 'My Friend');
     if (!friendName) return;
     
-    // Ask what device they're on
     const deviceOptions = ['📱 iPhone', '📱 Android', '💻 Windows', '💻 Mac', '📱 iPad', '🖥️ Computer', 'Other'];
     let device = '🖥️ Computer';
     const deviceChoice = prompt('🖥️ What device is your friend on?\n' + deviceOptions.join(', '), '🖥️ Computer');
@@ -565,11 +648,13 @@ function addFriendByCode() {
         device = deviceChoice;
     }
     
+    // For demo, set lastSeen to now so they appear online initially
     friends.push({ 
         code: code, 
         name: friendName, 
         device: device, 
-        status: 'online', 
+        status: 'online',
+        lastSeen: Date.now(),
         addedAt: Date.now() 
     });
     
@@ -588,13 +673,25 @@ function removeFriend(index) {
 }
 
 function syncFriends() {
-    // Simulate checking online status
-    for (let i = 0; i < friends.length; i++) {
-        friends[i].status = Math.random() > 0.3 ? 'online' : 'offline';
+    // Broadcast a sync request
+    if (bc) {
+        bc.postMessage({ type: 'sync', code: friendCode, timestamp: Date.now() });
     }
-    updateFriendUI();
+    // Update online statuses based on lastSeen
+    const now = Date.now();
+    let onlineCount = 0;
+    for (let f of friends) {
+        if (f.lastSeen && (now - f.lastSeen < 120000)) {
+            f.status = 'online';
+            onlineCount++;
+        } else {
+            f.status = 'offline';
+        }
+    }
+    // Also update our own lastSeen
     saveFriends();
-    alert('🔄 Synced! Check online status.');
+    updateFriendUI();
+    alert('🔄 Synced! ' + onlineCount + '/' + friends.length + ' friends online.');
 }
 
 function clearAllFriends() {
@@ -614,6 +711,13 @@ function updateFriendUI() {
     document.getElementById('friendCode').textContent = friendCode;
     document.getElementById('deviceName').textContent = deviceName;
     document.getElementById('friendCount').textContent = friends.length;
+    // Update online status indicator
+    const onlineStatusEl = document.getElementById('onlineStatus');
+    const now = Date.now();
+    const myLastSeen = JSON.parse(localStorage.getItem('launchPadFriends') || '{}').lastSeen || 0;
+    const isOnline = (now - myLastSeen < 120000);
+    onlineStatusEl.textContent = isOnline ? '🟢 Online' : '🔴 Offline';
+    onlineStatusEl.style.color = isOnline ? '#7cf5b0' : '#ff6b6b';
     renderFriendsList();
 }
 
@@ -638,6 +742,90 @@ function renderFriendsList() {
             <button class="remove-btn" onclick="removeFriend(${i})">✖</button>
         `;
         container.appendChild(div);
+    }
+}
+
+// ============================================================
+// BROADCAST CHANNEL FOR REAL-TIME ONLINE STATUS
+// ============================================================
+function initBroadcastChannel() {
+    try {
+        bc = new BroadcastChannel('launchpad_online');
+        bc.onmessage = function(event) {
+            const data = event.data;
+            if (data.type === 'status' && data.code !== friendCode) {
+                // Update friend status if we have them
+                for (let f of friends) {
+                    if (f.code === data.code) {
+                        f.status = data.status;
+                        f.lastSeen = data.timestamp;
+                        break;
+                    }
+                }
+                updateFriendUI();
+                saveFriends();
+            } else if (data.type === 'sync' && data.code !== friendCode) {
+                // Respond with our status
+                if (bc) {
+                    bc.postMessage({ type: 'status', code: friendCode, status: 'online', timestamp: Date.now() });
+                }
+            }
+        };
+        // Send initial status
+        setTimeout(() => {
+            if (bc) {
+                bc.postMessage({ type: 'status', code: friendCode, status: 'online', timestamp: Date.now() });
+            }
+        }, 500);
+    } catch(e) {
+        console.log('BroadcastChannel not supported, using localStorage polling');
+    }
+}
+
+// ============================================================
+// STATS PAGE
+// ============================================================
+function updateStats() {
+    try {
+        const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+        const gamesPlayed = progress.gamesPlayed || 0;
+        const totalXp = progress.totalXp || 0;
+        const uniqueGames = progress.games ? Object.keys(progress.games).length : 0;
+        document.getElementById('statGamesPlayed').textContent = gamesPlayed;
+        document.getElementById('statTotalXP').textContent = totalXp;
+        document.getElementById('statFriends').textContent = friends.length;
+        document.getElementById('statGamesList').textContent = uniqueGames;
+        
+        // List games
+        const listEl = document.getElementById('statsGameList');
+        listEl.innerHTML = '';
+        if (progress.games) {
+            const gameNames = Object.keys(progress.games).map(id => {
+                // Find game name from GAMES
+                let name = id;
+                for (let cat in GAMES) {
+                    const found = GAMES[cat].find(g => g.id === id);
+                    if (found) { name = found.name; break; }
+                }
+                return { id, name, xp: progress.games[id].xp || 0, played: progress.games[id].played };
+            });
+            gameNames.sort((a,b) => b.xp - a.xp);
+            gameNames.forEach(g => {
+                const div = document.createElement('div');
+                div.style.cssText = 'display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid #1a3344;';
+                div.innerHTML = `<span>${g.name}</span><span>${g.xp} XP ${g.played ? '✅' : ''}</span>`;
+                listEl.appendChild(div);
+            });
+        }
+    } catch(e) {}
+}
+
+function resetStats() {
+    if (confirm('⚠️ Reset all game progress?')) {
+        localStorage.removeItem('launchpad_progress');
+        updateStats();
+        renderGames();
+        alert('🔄 Stats reset!');
     }
 }
 
@@ -776,6 +964,14 @@ document.getElementById('friendCodeInput').addEventListener('keydown', function(
     if (e.key === 'Enter') addFriendByCode();
 });
 
+document.getElementById('statsBtn').addEventListener('click', function() {
+    updateStats();
+    document.getElementById('statsModal').classList.add('show');
+});
+document.getElementById('closeStatsModal').addEventListener('click', function() {
+    document.getElementById('statsModal').classList.remove('show');
+});
+
 document.getElementById('feedbackBtn').addEventListener('click', function() {
     window.location.href = 'mailto:theyabandtherandomboyoff97@gmail.com?subject=Launchpad Feedback';
 });
@@ -788,6 +984,24 @@ document.getElementById('themeToggle').addEventListener('click', function() {
 });
 
 // ============================================================
+// PERIODIC ONLINE STATUS UPDATE
+// ============================================================
+function updateOnlineStatus() {
+    // Update our lastSeen in localStorage
+    try {
+        const data = JSON.parse(localStorage.getItem('launchPadFriends') || '{}');
+        data.lastSeen = Date.now();
+        localStorage.setItem('launchPadFriends', JSON.stringify(data));
+        // Broadcast online
+        if (bc) {
+            bc.postMessage({ type: 'status', code: friendCode, status: 'online', timestamp: Date.now() });
+        }
+        // Update UI
+        updateFriendUI();
+    } catch(e) {}
+}
+
+// ============================================================
 // INIT
 // ============================================================
 function init() {
@@ -796,10 +1010,20 @@ function init() {
         deviceName = getDeviceName();
         friends = [];
     }
+    // Set initial lastSeen
+    try {
+        const data = JSON.parse(localStorage.getItem('launchPadFriends') || '{}');
+        data.lastSeen = Date.now();
+        localStorage.setItem('launchPadFriends', JSON.stringify(data));
+    } catch(e) {}
     updateFriendUI();
     loadUser();
     renderGames();
-    setInterval(saveFriends, 30000);
+    initBroadcastChannel();
+    // Update online status every 30 seconds
+    setInterval(updateOnlineStatus, 30000);
+    // Save friends every minute
+    setInterval(saveFriends, 60000);
     console.log('🚀 Launchpad loaded!');
     console.log('👥 Friends:', friends.length);
     console.log('🔑 Your code:', friendCode);
@@ -807,20 +1031,5 @@ function init() {
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
-<script>
-// Register Service Worker
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/launchpad-games/sw.js')
-        .then(function(reg) {
-            console.log('✅ Service Worker registered!');
-        })
-        .catch(function(err) {
-            console.log('❌ Service Worker registration failed:', err);
-        });
-}
-</script>
 </body>
 </html>
-
-
-

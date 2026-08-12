@@ -1198,6 +1198,80 @@ function updateSimsFriendUI() {
     }).join(' ');
 }
 // Update on load
+
+// ============================================================
+// SIMS MINI – REAL FRIENDS ONLY (by friend code)
+// ============================================================
+function getSimsFriends() {
+    try { return JSON.parse(localStorage.getItem('simsMiniFriends') || '[]'); }
+    catch(e) { return []; }
+}
+function saveSimsFriends(friends) {
+    localStorage.setItem('simsMiniFriends', JSON.stringify(friends));
+    updateSimsFriendUI();
+}
+
+function addRealFriendByCode() {
+    var code = prompt('🔑 Enter your friend\'s 6-character code:');
+    if (!code) return;
+    code = code.trim().toUpperCase();
+    if (code.length !== 6) { alert('❌ Code must be 6 characters.'); return; }
+
+    // Check if already added
+    var friends = getSimsFriends();
+    if (friends.some(f => f.code === code)) { alert('⚠️ Already added this friend.'); return; }
+
+    // Try to find the friend's name from the main Launchpad friend list (if available)
+    var friendName = null;
+    if (window.parent && window.parent.friends) {
+        var parentFriends = window.parent.friends;
+        var found = parentFriends.find(f => f.code === code);
+        if (found) friendName = found.name;
+    }
+
+    // If not found in parent, ask the user for a name (but we don't want fake names, so we'll try to fetch from Firebase)
+    if (!friendName) {
+        // We can attempt to query the main Launchpad's database, but we'll use a simple prompt as fallback.
+        // However, to avoid fake names, we can require that the friend exists in the parent's friends list.
+        alert('❌ Could not find this friend in your main Launchpad friends. Please add them on the main hub first.');
+        return;
+    }
+
+    // Add the friend
+    friends.push({ code: code, name: friendName });
+    saveSimsFriends(friends);
+    alert('✅ Added ' + friendName + ' to your Sims friends!');
+}
+
+function removeSimsFriend(code) {
+    var friends = getSimsFriends();
+    var index = friends.findIndex(f => f.code === code);
+    if (index !== -1) {
+        friends.splice(index, 1);
+        saveSimsFriends(friends);
+    }
+}
+
+function clearSimsFriends() {
+    if (confirm('Remove all Sims friends?')) {
+        saveSimsFriends([]);
+    }
+}
+
+function updateSimsFriendUI() {
+    var friends = getSimsFriends();
+    var container = document.getElementById('simsFriendNames');
+    if (!container) return;
+    if (friends.length === 0) {
+        container.textContent = 'None';
+        return;
+    }
+    container.innerHTML = friends.map(function(f) {
+        return '<span style="display:inline-block; background:#1a3344; padding:2px 8px; margin:2px; border-radius:12px; border:1px solid #4fc3f7;">' + f.name + ' (' + f.code + ') <span style="cursor:pointer;color:#ff6b6b;" onclick="removeSimsFriend(\'' + f.code + '\')">✖</span></span>';
+    }).join(' ');
+}
+
+// Load on page load
 window.addEventListener('DOMContentLoaded', updateSimsFriendUI);
 </script>
 <div id="simsFriends" style="margin:10px;">
@@ -1214,8 +1288,18 @@ window.addEventListener('DOMContentLoaded', updateSimsFriendUI);
         👥 Friends: <span id="simsFriendNames">None</span>
     </div>
 </div>
+<div id="simsRealFriends" style="margin:10px; padding:10px; background:#1a3344; border-radius:8px; border:1px solid #2a4a5e;">
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <button onclick="addRealFriendByCode()" style="background:#4fc3f7; color:#0b1a26; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">➕ Add Friend by Code</button>
+        <button onclick="clearSimsFriends()" style="background:#ff6b6b; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">🗑️ Clear All</button>
+    </div>
+    <div id="simsFriendList" style="margin-top:8px; color:#8899aa; font-size:0.8rem;">
+        👥 Your Sims Friends: <span id="simsFriendNames">None</span>
+    </div>
+</div>
 </body>
 </html>
+
 
 
 

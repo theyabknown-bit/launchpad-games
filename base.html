@@ -320,7 +320,7 @@
         <h1><i class="fas fa-rocket"></i> launchpad</h1>
         <div class="header-right">
             <div class="user-section" id="userSection">
-                <span class="username-display" id="usernameDisplay"><i class="fas fa-user"></i> Guest</span>
+                <span class="username-display" id="usernameDisplay"><i class="fas fa-user"></i> Loading...</span>
                 <button class="login-btn" id="loginBtn">Login</button>
                 <button class="logout-btn" id="logoutBtn" style="display:none;">Logout</button>
             </div>
@@ -338,7 +338,7 @@
             <div class="code" id="friendCode">------</div>
         </div>
         <div style="text-align:right;">
-            <div class="device-info">🖥️ <span id="deviceName">Unknown</span> • 👥 <span class="friend-count" id="friendCount">0</span> friends • <span id="onlineStatus" style="color:#7cf5b0;">🟢 Online</span></div>
+            <div class="device-info">🖥️ <span id="deviceName">Unknown</span> • 👥 <span class="friend-count" id="friendCount">0</span> friends</div>
             <div style="margin-top:4px; display:flex; gap:4px; justify-content:flex-end; flex-wrap:wrap;">
                 <button class="btn-small btn-cyan" onclick="copyFriendCode()">📋 Copy</button>
                 <button class="btn-small btn-warning" onclick="refreshFriendCode()">🔄 New</button>
@@ -348,14 +348,14 @@
 
     <div class="update-log">
         <div class="update-log-header">
-            <div class="title">🚀 v4.4 <span style="font-size:0.5rem; background:#7cf5b0; padding:0.05rem 0.4rem; border-radius:20px; color:#0b1a26; font-weight:400;">LIVE</span></div>
+            <div class="title">🚀 v5.0 <span style="font-size:0.5rem; background:#7cf5b0; padding:0.05rem 0.4rem; border-radius:20px; color:#0b1a26; font-weight:400;">CLOUD</span></div>
         </div>
         <div class="update-log-body">
-            <div class="update-item"><span class="emoji">👥</span> Real Online Status</div>
+            <div class="update-item"><span class="emoji">☁️</span> Firebase Cloud</div>
+            <div class="update-item"><span class="emoji">👥</span> Cross-Device Friends</div>
             <div class="update-item"><span class="emoji">📊</span> Stats Page</div>
             <div class="update-item"><span class="emoji">🎣</span> Fishing Sim</div>
             <div class="update-item"><span class="emoji">🔑</span> Friend Codes</div>
-            <div class="update-item"><span class="emoji">📱</span> Cross-Device</div>
             <div class="update-item"><span class="emoji">🏆</span> Achievements</div>
         </div>
     </div>
@@ -377,7 +377,7 @@
     <div class="modal-box">
         <button class="close-btn" id="closeLoginModal"><i class="fas fa-times"></i></button>
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
-        <div class="error-msg" id="loginError">Invalid username or password</div>
+        <div class="error-msg" id="loginError" style="display:none;"></div>
         <label for="loginUsername">Username</label>
         <input type="text" id="loginUsername" placeholder="Enter username">
         <label for="loginPassword">Password</label>
@@ -392,7 +392,7 @@
     <div class="modal-box">
         <button class="close-btn" id="closeRegisterModal"><i class="fas fa-times"></i></button>
         <h2><i class="fas fa-user-plus"></i> Register</h2>
-        <div class="error-msg" id="registerError">Username or email already exists</div>
+        <div class="error-msg" id="registerError" style="display:none;"></div>
         <label for="registerUsername">Username</label>
         <input type="text" id="registerUsername" placeholder="Choose a username" autocomplete="off">
         <label for="registerEmail">Email</label>
@@ -409,13 +409,13 @@
     <div class="modal-box friends-modal-box">
         <button class="close-btn" id="closeFriendsModal"><i class="fas fa-times"></i></button>
         <h2><i class="fas fa-users"></i> Friends</h2>
-        <p style="color:#8899aa; font-size:0.8rem; margin-bottom:8px;">Enter your friend's code to add them</p>
+        <p style="color:#8899aa; font-size:0.8rem; margin-bottom:8px;">Enter your friend's 6-character code to add them</p>
         <div class="add-friend-row">
             <input type="text" id="friendCodeInput" placeholder="Enter code..." maxlength="6" style="text-transform:uppercase;">
             <button class="btn-small btn-success" onclick="addFriendByCode()" style="padding:8px 16px;">➕ Add</button>
         </div>
         <div id="friendsList" style="margin-top:8px;">
-            <div style="color:#666;padding:10px;">👥 No friends yet. Add by code!</div>
+            <div style="color:#666;padding:10px;">👥 Loading friends...</div>
         </div>
         <div style="margin-top:8px; display:flex; gap:4px; flex-wrap:wrap;">
             <button class="btn-small btn-warning" onclick="syncFriends()">🔄 Sync</button>
@@ -443,7 +443,36 @@
     </div>
 </div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
 <script>
+// ============================================================
+// FIREBASE CONFIG - YOUR SETUP
+// ============================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyBlNDLv-6M3Qt6skPY6e37t8-cCBieck00",
+    authDomain: "mono-launchgamepad.firebaseapp.com",
+    projectId: "mono-launchgamepad",
+    storageBucket: "mono-launchgamepad.firebasestorage.app",
+    messagingSenderId: "577252894102",
+    appId: "1:577252894102:web:f67df25ddaa7096e5029b7",
+    measurementId: "G-9FFFLNB8T1"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// Enable offline persistence so it works even when offline
+db.enablePersistence({ synchronizeTabs: true })
+    .catch(function(err) {
+        console.log('Firebase persistence error:', err);
+    });
+
 // ============================================================
 // GAMES DATA
 // ============================================================
@@ -477,7 +506,7 @@ const GAMES = {
         { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-brain', sub: 'general knowledge', file: 'a/trivia.html' },
         { id: 'stim', name: 'Stimulation Overload', icon: 'fa-bolt', sub: 'clicker game', file: 'a/stim.html' },
         { id: 'memory', name: 'Memory Card', icon: 'fa-brain', sub: 'flip & match', file: 'a/memorycard.html' },
-        { id: 'fishing', name: 'Fishing Sim', icon: 'fa-fish', sub: 'catch & sell fish', file: 'a/fishing.html' } // NEW
+        { id: 'fishing', name: 'Fishing Sim', icon: 'fa-fish', sub: 'catch & sell fish', file: 'a/fishing.html' }
     ],
     sim: [
         { id: 'sims', name: 'Sims Mini', icon: 'fa-user', sub: 'virtual life', file: 'sim/sims.html' },
@@ -497,7 +526,6 @@ function renderGames() {
         if (!container) return;
         const games = GAMES[category] || [];
         container.innerHTML = games.map(game => {
-            // Check progress
             let progress = { played: false, xp: 0 };
             try {
                 const p = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
@@ -536,13 +564,12 @@ function handleGameClick(gameId) {
 }
 
 // ============================================================
-// FRIEND SYSTEM WITH REAL ONLINE STATUS (BroadcastChannel)
+// FRIEND SYSTEM WITH FIREBASE
 // ============================================================
 let friendCode = '';
 let deviceName = '';
 let friends = [];
-let onlineStatus = false;
-let bc = null;
+let currentUser = null;
 
 function getDeviceName() {
     const ua = navigator.userAgent;
@@ -564,44 +591,116 @@ function generateFriendCode() {
     return code;
 }
 
-function saveFriends() {
+// Load from localStorage first, then Firestore
+function loadUserData() {
     try {
-        const data = { friendCode, deviceName, friends, lastSeen: Date.now(), savedAt: Date.now() };
-        localStorage.setItem('launchPadFriends', JSON.stringify(data));
-        // Broadcast online status
-        if (bc) {
-            bc.postMessage({ type: 'status', code: friendCode, status: 'online', timestamp: Date.now() });
-        }
-    } catch(e) {}
-}
-
-function loadFriends() {
-    try {
-        const saved = localStorage.getItem('launchPadFriends');
+        const saved = localStorage.getItem('launchPadUser');
         if (saved) {
             const data = JSON.parse(saved);
             friendCode = data.friendCode || generateFriendCode();
             deviceName = data.deviceName || getDeviceName();
-            friends = data.friends || [];
-            // Update online status for friends based on lastSeen
-            const now = Date.now();
-            for (let f of friends) {
-                if (f.lastSeen && (now - f.lastSeen < 120000)) { // 2 minutes
-                    f.status = 'online';
-                } else {
-                    f.status = 'offline';
-                }
-            }
+            currentUser = data.username || null;
             return true;
         }
     } catch(e) {}
     return false;
 }
 
+function saveUserData() {
+    try {
+        localStorage.setItem('launchPadUser', JSON.stringify({
+            friendCode: friendCode,
+            deviceName: deviceName,
+            username: currentUser
+        }));
+    } catch(e) {}
+}
+
+// Load friends from Firestore
+async function loadFriendsFromFirestore() {
+    if (!currentUser) {
+        // Guest mode - use localStorage
+        try {
+            const saved = localStorage.getItem('launchPadFriends');
+            if (saved) {
+                const data = JSON.parse(saved);
+                friends = data.friends || [];
+                updateFriendUI();
+            }
+        } catch(e) {}
+        return;
+    }
+
+    try {
+        const docRef = db.collection('users').doc(currentUser);
+        const doc = await docRef.get();
+        if (doc.exists) {
+            const data = doc.data();
+            friends = data.friends || [];
+            friendCode = data.friendCode || friendCode;
+        } else {
+            // Create user document
+            await docRef.set({
+                username: currentUser,
+                friendCode: friendCode,
+                deviceName: deviceName,
+                friends: [],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            friends = [];
+        }
+        updateFriendUI();
+    } catch(e) {
+        console.log('Error loading friends:', e);
+        // Fallback to localStorage
+        try {
+            const saved = localStorage.getItem('launchPadFriends');
+            if (saved) {
+                const data = JSON.parse(saved);
+                friends = data.friends || [];
+            }
+        } catch(err) {}
+        updateFriendUI();
+    }
+}
+
+// Save friends to Firestore
+async function saveFriendsToFirestore() {
+    if (!currentUser) {
+        // Guest mode - save to localStorage
+        try {
+            localStorage.setItem('launchPadFriends', JSON.stringify({
+                friends: friends,
+                savedAt: Date.now()
+            }));
+        } catch(e) {}
+        return;
+    }
+
+    try {
+        await db.collection('users').doc(currentUser).set({
+            friends: friends,
+            friendCode: friendCode,
+            deviceName: deviceName,
+            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+    } catch(e) {
+        console.log('Error saving friends:', e);
+        // Fallback to localStorage
+        try {
+            localStorage.setItem('launchPadFriends', JSON.stringify({
+                friends: friends,
+                savedAt: Date.now()
+            }));
+        } catch(err) {}
+    }
+}
+
 function refreshFriendCode() {
     friendCode = generateFriendCode();
     updateFriendUI();
-    saveFriends();
+    saveUserData();
+    saveFriendsToFirestore();
     alert('🔄 New friend code generated: ' + friendCode);
 }
 
@@ -648,7 +747,6 @@ function addFriendByCode() {
         device = deviceChoice;
     }
     
-    // For demo, set lastSeen to now so they appear online initially
     friends.push({ 
         code: code, 
         name: friendName, 
@@ -660,7 +758,8 @@ function addFriendByCode() {
     
     input.value = '';
     updateFriendUI();
-    saveFriends();
+    saveUserData();
+    saveFriendsToFirestore();
     alert('✅ Added friend: ' + friendName + ' (' + device + ')');
 }
 
@@ -668,30 +767,14 @@ function removeFriend(index) {
     if (confirm('Remove ' + friends[index].name + ' from friends?')) {
         friends.splice(index, 1);
         updateFriendUI();
-        saveFriends();
+        saveUserData();
+        saveFriendsToFirestore();
     }
 }
 
 function syncFriends() {
-    // Broadcast a sync request
-    if (bc) {
-        bc.postMessage({ type: 'sync', code: friendCode, timestamp: Date.now() });
-    }
-    // Update online statuses based on lastSeen
-    const now = Date.now();
-    let onlineCount = 0;
-    for (let f of friends) {
-        if (f.lastSeen && (now - f.lastSeen < 120000)) {
-            f.status = 'online';
-            onlineCount++;
-        } else {
-            f.status = 'offline';
-        }
-    }
-    // Also update our own lastSeen
-    saveFriends();
-    updateFriendUI();
-    alert('🔄 Synced! ' + onlineCount + '/' + friends.length + ' friends online.');
+    loadFriendsFromFirestore();
+    alert('🔄 Syncing friends from cloud...');
 }
 
 function clearAllFriends() {
@@ -702,7 +785,8 @@ function clearAllFriends() {
     if (confirm('⚠️ Remove ALL friends?')) {
         friends = [];
         updateFriendUI();
-        saveFriends();
+        saveUserData();
+        saveFriendsToFirestore();
         alert('🗑️ All friends removed.');
     }
 }
@@ -711,13 +795,6 @@ function updateFriendUI() {
     document.getElementById('friendCode').textContent = friendCode;
     document.getElementById('deviceName').textContent = deviceName;
     document.getElementById('friendCount').textContent = friends.length;
-    // Update online status indicator
-    const onlineStatusEl = document.getElementById('onlineStatus');
-    const now = Date.now();
-    const myLastSeen = JSON.parse(localStorage.getItem('launchPadFriends') || '{}').lastSeen || 0;
-    const isOnline = (now - myLastSeen < 120000);
-    onlineStatusEl.textContent = isOnline ? '🟢 Online' : '🔴 Offline';
-    onlineStatusEl.style.color = isOnline ? '#7cf5b0' : '#ff6b6b';
     renderFriendsList();
 }
 
@@ -746,41 +823,163 @@ function renderFriendsList() {
 }
 
 // ============================================================
-// BROADCAST CHANNEL FOR REAL-TIME ONLINE STATUS
+// AUTH SYSTEM WITH FIREBASE
 // ============================================================
-function initBroadcastChannel() {
-    try {
-        bc = new BroadcastChannel('launchpad_online');
-        bc.onmessage = function(event) {
-            const data = event.data;
-            if (data.type === 'status' && data.code !== friendCode) {
-                // Update friend status if we have them
-                for (let f of friends) {
-                    if (f.code === data.code) {
-                        f.status = data.status;
-                        f.lastSeen = data.timestamp;
-                        break;
-                    }
-                }
-                updateFriendUI();
-                saveFriends();
-            } else if (data.type === 'sync' && data.code !== friendCode) {
-                // Respond with our status
-                if (bc) {
-                    bc.postMessage({ type: 'status', code: friendCode, status: 'online', timestamp: Date.now() });
-                }
-            }
-        };
-        // Send initial status
-        setTimeout(() => {
-            if (bc) {
-                bc.postMessage({ type: 'status', code: friendCode, status: 'online', timestamp: Date.now() });
-            }
-        }, 500);
-    } catch(e) {
-        console.log('BroadcastChannel not supported, using localStorage polling');
+function updateUserUI() {
+    const display = document.getElementById('usernameDisplay');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (currentUser) {
+        display.innerHTML = '<i class="fas fa-user"></i> ' + currentUser;
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+    } else {
+        display.innerHTML = '<i class="fas fa-user"></i> Guest';
+        loginBtn.style.display = 'inline-block';
+        logoutBtn.style.display = 'none';
     }
 }
+
+document.getElementById('loginBtn').addEventListener('click', () => document.getElementById('loginModal').classList.add('show'));
+document.getElementById('closeLoginModal').addEventListener('click', () => document.getElementById('loginModal').classList.remove('show'));
+document.getElementById('switchToRegister').addEventListener('click', () => {
+    document.getElementById('loginModal').classList.remove('show');
+    document.getElementById('registerModal').classList.add('show');
+});
+document.getElementById('closeRegisterModal').addEventListener('click', () => document.getElementById('registerModal').classList.remove('show'));
+document.getElementById('switchToLogin').addEventListener('click', () => {
+    document.getElementById('registerModal').classList.remove('show');
+    document.getElementById('loginModal').classList.add('show');
+});
+
+document.getElementById('loginSubmitBtn').addEventListener('click', async function() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const error = document.getElementById('loginError');
+    if (!username || !password) {
+        error.textContent = '⚠️ Please enter username and password';
+        error.style.display = 'block';
+        return;
+    }
+    if (username.length < 3) {
+        error.textContent = '⚠️ Username must be at least 3 characters';
+        error.style.display = 'block';
+        return;
+    }
+    if (password.length < 4) {
+        error.textContent = '⚠️ Password must be at least 4 characters';
+        error.style.display = 'block';
+        return;
+    }
+
+    try {
+        // Check if user exists in Firestore
+        const docRef = db.collection('users').doc(username);
+        const doc = await docRef.get();
+        if (!doc.exists) {
+            error.textContent = '⚠️ Username not found';
+            error.style.display = 'block';
+            return;
+        }
+        const userData = doc.data();
+        if (userData.password !== password) {
+            error.textContent = '⚠️ Incorrect password';
+            error.style.display = 'block';
+            return;
+        }
+        error.style.display = 'none';
+        currentUser = username;
+        friendCode = userData.friendCode || generateFriendCode();
+        deviceName = userData.deviceName || getDeviceName();
+        saveUserData();
+        updateUserUI();
+        document.getElementById('loginModal').classList.remove('show');
+        await loadFriendsFromFirestore();
+        alert('🎉 Welcome back, ' + username + '!');
+    } catch(e) {
+        error.textContent = '⚠️ Error: ' + e.message;
+        error.style.display = 'block';
+    }
+});
+
+document.getElementById('registerSubmitBtn').addEventListener('click', async function() {
+    const username = document.getElementById('registerUsername').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value.trim();
+    const error = document.getElementById('registerError');
+    if (!username || !email || !password) {
+        error.textContent = '⚠️ Please fill in all fields';
+        error.style.display = 'block';
+        return;
+    }
+    if (username.length < 3) {
+        error.textContent = '⚠️ Username must be at least 3 characters';
+        error.style.display = 'block';
+        return;
+    }
+    if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
+        error.textContent = '⚠️ Please enter a valid email';
+        error.style.display = 'block';
+        return;
+    }
+    if (password.length < 4) {
+        error.textContent = '⚠️ Password must be at least 4 characters';
+        error.style.display = 'block';
+        return;
+    }
+
+    try {
+        const docRef = db.collection('users').doc(username);
+        const doc = await docRef.get();
+        if (doc.exists) {
+            error.textContent = '⚠️ Username already taken';
+            error.style.display = 'block';
+            return;
+        }
+        const newFriendCode = generateFriendCode();
+        await docRef.set({
+            username: username,
+            email: email,
+            password: password,
+            friendCode: newFriendCode,
+            deviceName: getDeviceName(),
+            friends: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        currentUser = username;
+        friendCode = newFriendCode;
+        deviceName = getDeviceName();
+        friends = [];
+        saveUserData();
+        updateUserUI();
+        document.getElementById('registerModal').classList.remove('show');
+        updateFriendUI();
+        alert('🎉 Registration successful! Welcome ' + username + '!');
+    } catch(e) {
+        error.textContent = '⚠️ Error: ' + e.message;
+        error.style.display = 'block';
+    }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    currentUser = null;
+    localStorage.removeItem('launchPadUser');
+    updateUserUI();
+    // Load guest friends
+    try {
+        const saved = localStorage.getItem('launchPadFriends');
+        if (saved) {
+            const data = JSON.parse(saved);
+            friends = data.friends || [];
+        } else {
+            friends = [];
+        }
+    } catch(e) {
+        friends = [];
+    }
+    updateFriendUI();
+    alert('👋 Logged out!');
+});
 
 // ============================================================
 // STATS PAGE
@@ -796,12 +995,10 @@ function updateStats() {
         document.getElementById('statFriends').textContent = friends.length;
         document.getElementById('statGamesList').textContent = uniqueGames;
         
-        // List games
         const listEl = document.getElementById('statsGameList');
         listEl.innerHTML = '';
         if (progress.games) {
             const gameNames = Object.keys(progress.games).map(id => {
-                // Find game name from GAMES
                 let name = id;
                 for (let cat in GAMES) {
                     const found = GAMES[cat].find(g => g.id === id);
@@ -830,129 +1027,8 @@ function resetStats() {
 }
 
 // ============================================================
-// USER SYSTEM
-// ============================================================
-let currentUser = null;
-
-function loadUser() {
-    try {
-        const data = localStorage.getItem('launchpad_user');
-        if (data) {
-            const parsed = JSON.parse(data);
-            if (parsed.username) {
-                currentUser = parsed.username;
-                updateUserUI();
-                return true;
-            }
-        }
-    } catch(e) {}
-    return false;
-}
-
-function updateUserUI() {
-    const display = document.getElementById('usernameDisplay');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (currentUser) {
-        display.innerHTML = '<i class="fas fa-user"></i> ' + currentUser;
-        loginBtn.style.display = 'none';
-        logoutBtn.style.display = 'inline-block';
-    } else {
-        display.innerHTML = '<i class="fas fa-user"></i> Guest';
-        loginBtn.style.display = 'inline-block';
-        logoutBtn.style.display = 'none';
-    }
-}
-
-function logoutUser() {
-    localStorage.removeItem('launchpad_user');
-    currentUser = null;
-    updateUserUI();
-}
-
-// ============================================================
 // EVENT LISTENERS
 // ============================================================
-document.getElementById('loginBtn').addEventListener('click', () => document.getElementById('loginModal').classList.add('show'));
-document.getElementById('closeLoginModal').addEventListener('click', () => document.getElementById('loginModal').classList.remove('show'));
-document.getElementById('switchToRegister').addEventListener('click', () => {
-    document.getElementById('loginModal').classList.remove('show');
-    document.getElementById('registerModal').classList.add('show');
-});
-document.getElementById('closeRegisterModal').addEventListener('click', () => document.getElementById('registerModal').classList.remove('show'));
-document.getElementById('switchToLogin').addEventListener('click', () => {
-    document.getElementById('registerModal').classList.remove('show');
-    document.getElementById('loginModal').classList.add('show');
-});
-document.getElementById('logoutBtn').addEventListener('click', logoutUser);
-
-document.getElementById('loginSubmitBtn').addEventListener('click', function() {
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
-    const error = document.getElementById('loginError');
-    if (!username || !password) {
-        error.textContent = '⚠️ Please enter username and password';
-        error.style.display = 'block';
-        return;
-    }
-    const users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
-    if (!users[username]) {
-        error.textContent = '⚠️ Username not found';
-        error.style.display = 'block';
-        return;
-    }
-    if (users[username].password !== password) {
-        error.textContent = '⚠️ Incorrect password';
-        error.style.display = 'block';
-        return;
-    }
-    error.style.display = 'none';
-    currentUser = username;
-    localStorage.setItem('launchpad_user', JSON.stringify({ username, email: users[username].email || '' }));
-    updateUserUI();
-    document.getElementById('loginModal').classList.remove('show');
-});
-
-document.getElementById('registerSubmitBtn').addEventListener('click', function() {
-    const username = document.getElementById('registerUsername').value.trim();
-    const email = document.getElementById('registerEmail').value.trim();
-    const password = document.getElementById('registerPassword').value.trim();
-    const error = document.getElementById('registerError');
-    if (!username || !email || !password) {
-        error.textContent = '⚠️ Please fill in all fields';
-        error.style.display = 'block';
-        return;
-    }
-    if (username.length < 3) {
-        error.textContent = '⚠️ Username must be at least 3 characters';
-        error.style.display = 'block';
-        return;
-    }
-    if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
-        error.textContent = '⚠️ Please enter a valid email';
-        error.style.display = 'block';
-        return;
-    }
-    if (password.length < 4) {
-        error.textContent = '⚠️ Password must be at least 4 characters';
-        error.style.display = 'block';
-        return;
-    }
-    const users = JSON.parse(localStorage.getItem('launchpad_users') || '{}');
-    if (users[username]) {
-        error.textContent = '⚠️ Username already taken';
-        error.style.display = 'block';
-        return;
-    }
-    users[username] = { password, email };
-    localStorage.setItem('launchpad_users', JSON.stringify(users));
-    currentUser = username;
-    localStorage.setItem('launchpad_user', JSON.stringify({ username, email }));
-    updateUserUI();
-    document.getElementById('registerModal').classList.remove('show');
-    alert('🎉 Registration successful! Welcome ' + username + '!');
-});
-
 document.getElementById('friendsBtn').addEventListener('click', function() {
     renderFriendsList();
     document.getElementById('friendsModal').classList.add('show');
@@ -984,51 +1060,37 @@ document.getElementById('themeToggle').addEventListener('click', function() {
 });
 
 // ============================================================
-// PERIODIC ONLINE STATUS UPDATE
+// AUTO-SAVE
 // ============================================================
-function updateOnlineStatus() {
-    // Update our lastSeen in localStorage
-    try {
-        const data = JSON.parse(localStorage.getItem('launchPadFriends') || '{}');
-        data.lastSeen = Date.now();
-        localStorage.setItem('launchPadFriends', JSON.stringify(data));
-        // Broadcast online
-        if (bc) {
-            bc.postMessage({ type: 'status', code: friendCode, status: 'online', timestamp: Date.now() });
-        }
-        // Update UI
-        updateFriendUI();
-    } catch(e) {}
+function autoSave() {
+    saveUserData();
+    saveFriendsToFirestore();
 }
+
+setInterval(autoSave, 30000);
 
 // ============================================================
 // INIT
 // ============================================================
-function init() {
-    if (!loadFriends()) {
-        friendCode = generateFriendCode();
-        deviceName = getDeviceName();
-        friends = [];
-    }
-    // Set initial lastSeen
-    try {
-        const data = JSON.parse(localStorage.getItem('launchPadFriends') || '{}');
-        data.lastSeen = Date.now();
-        localStorage.setItem('launchPadFriends', JSON.stringify(data));
-    } catch(e) {}
+async function init() {
+    // Load user data
+    loadUserData();
+    updateUserUI();
+    
+    // Load friends
+    await loadFriendsFromFirestore();
     updateFriendUI();
-    loadUser();
+    
+    // Render games
     renderGames();
-    initBroadcastChannel();
-    // Update online status every 30 seconds
-    setInterval(updateOnlineStatus, 30000);
-    // Save friends every minute
-    setInterval(saveFriends, 60000);
-    console.log('🚀 Launchpad loaded!');
+    
+    console.log('🚀 Launchpad loaded with Firebase!');
     console.log('👥 Friends:', friends.length);
     console.log('🔑 Your code:', friendCode);
+    console.log('👤 User:', currentUser || 'Guest');
 }
 
+// Run when page loads
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>

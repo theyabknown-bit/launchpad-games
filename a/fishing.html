@@ -159,6 +159,24 @@ function castLine() {
             const emoji = fishTypes[fishIndex];
             const name = fishNames[fishIndex];
             fishCount++;
+// Track achievement progress
+try {
+    const progress = JSON.parse(localStorage.getItem('fishing_progress') || '{}');
+    progress.total = (progress.total || 0) + 1;
+    localStorage.setItem('fishing_progress', JSON.stringify(progress));
+    // Update Launchpad
+    const lp = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+    if (!lp.games) lp.games = {};
+    if (!lp.games['fishing']) lp.games['fishing'] = { played: true, xp: 0 };
+    lp.games['fishing'].played = true;
+    lp.games['fishing'].xp = (lp.games['fishing'].xp || 0) + 1;
+    lp.totalXp = (lp.totalXp || 0) + 1;
+    localStorage.setItem('launchpad_progress', JSON.stringify(lp));
+    // Check achievements in parent window
+    if (window.parent && window.parent.checkGameAchievement) {
+        window.parent.checkGameAchievement('fishing', { total: progress.total });
+    }
+} catch(e) {}
             money += 5; // each fish worth 5
             document.getElementById('fishEmoji').textContent = emoji;
             document.getElementById('statusMsg').textContent = `🎣 Caught a ${name}! ${emoji}`;
@@ -216,3 +234,4 @@ console.log('🎣 Fishing Sim loaded!');
 </script>
 </body>
 </html>
+

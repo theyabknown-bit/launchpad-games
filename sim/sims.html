@@ -1338,7 +1338,81 @@ function updateSimsFriendUI() {
 }
 
 // Update on load
-window.addEventListener('DOMContentLoaded', updateSimsFriendUI);
+
+// ============================================================
+// SIMS MINI – FAKE FRIENDS SYSTEM
+// ============================================================
+const fakeNames = [
+    "Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Avery", "Quinn",
+    "Logan", "Cameron", "Parker", "Harper", "Skyler", "Ellis", "Sage", "Rowan",
+    "Emerson", "Reese", "Finley", "Blake", "Jules", "Kai", "Nova", "Orion",
+    "Felix", "Iris", "Leo", "Mia", "Noah", "Olivia", "Liam", "Emma"
+];
+const jobs = ["Student", "Chef", "Doctor", "Engineer", "Artist", "Teacher", "Athlete", "Musician", "Writer", "Scientist"];
+
+function getFakeFriends() {
+    try { return JSON.parse(localStorage.getItem('simsFakeFriends') || '[]'); }
+    catch(e) { return []; }
+}
+function saveFakeFriends(friends) {
+    localStorage.setItem('simsFakeFriends', JSON.stringify(friends));
+    updateFakeFriendUI();
+}
+
+function meetSomeone() {
+    // Generate a random fake person
+    var name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
+    var job = jobs[Math.floor(Math.random() * jobs.length)];
+    var age = Math.floor(Math.random() * 50) + 18;
+    var friend = { name: name, job: job, age: age };
+
+    // Ask user if they want to be friends
+    var message = "You met " + name + " (" + age + " yrs, " + job + ").\nDo you want to be friends?";
+    if (confirm(message)) {
+        var friends = getFakeFriends();
+        // Avoid duplicates (same name)
+        if (friends.some(f => f.name === name)) {
+            alert("You are already friends with " + name + ".");
+            return;
+        }
+        friends.push(friend);
+        saveFakeFriends(friends);
+        alert("✅ " + name + " is now your friend!");
+    } else {
+        alert("❌ You declined friendship with " + name + ".");
+    }
+}
+
+function removeFakeFriend(name) {
+    var friends = getFakeFriends();
+    var index = friends.findIndex(f => f.name === name);
+    if (index !== -1) {
+        friends.splice(index, 1);
+        saveFakeFriends(friends);
+    }
+}
+
+function clearFakeFriends() {
+    if (confirm('Remove all fake friends?')) {
+        saveFakeFriends([]);
+    }
+}
+
+function updateFakeFriendUI() {
+    var friends = getFakeFriends();
+    var container = document.getElementById('fakeFriendNames');
+    if (!container) return;
+    if (friends.length === 0) {
+        container.textContent = 'None';
+        return;
+    }
+    container.innerHTML = friends.map(function(f) {
+        return '<span style="display:inline-block; background:#1a3344; padding:2px 8px; margin:2px; border-radius:12px; border:1px solid #ffd93d;">' + f.name + ' (' + f.age + ' yrs, ' + f.job + ') <span style="cursor:pointer;color:#ff6b6b;" onclick="removeFakeFriend(\'' + f.name + '\')">✖</span></span>';
+    }).join(' ');
+}
+
+// Load on page load
+window.addEventListener('DOMContentLoaded', updateFakeFriendUI);
 </script>
 
 
@@ -1347,17 +1421,21 @@ window.addEventListener('DOMContentLoaded', updateSimsFriendUI);
 
     
 </div>
-<div id="simsFriendSection" style="margin:10px; padding:10px; background:#1a3344; border-radius:8px; border:1px solid #2a4a5e;">
+
+    
+</div>
+<div id="simsFakeFriends" style="margin:10px; padding:10px; background:#1a3344; border-radius:8px; border:1px solid #2a4a5e;">
     <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-        
-        
+        <button onclick="meetSomeone()" style="background:#ffd93d; color:#0b1a26; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">👤 Meet Someone</button>
+        <button onclick="clearFakeFriends()" style="background:#ff6b6b; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">🗑️ Clear All</button>
     </div>
-    <div id="simsFriendList" style="margin-top:8px; color:#8899aa; font-size:0.8rem;">
-        👥 Your Sims Friends: <span id="simsFriendNames">None</span>
+    <div id="fakeFriendList" style="margin-top:8px; color:#8899aa; font-size:0.8rem;">
+        👥 Your Fake Friends: <span id="fakeFriendNames">None</span>
     </div>
 </div>
 </body>
 </html>
+
 
 
 

@@ -102,7 +102,7 @@
         <button class="tab" onclick="showPanel('shop')">🏪 Shop</button>
         <button class="tab" onclick="showPanel('jobs')">💼 Jobs</button>
         <button class="tab" onclick="showPanel('school')">🎓 School</button>
-        <button class="tab" onclick="showPanel('friends')">👥 Friends</button>
+        
         <button class="tab" onclick="showPanel('car')">🚗 Car</button>
         <button class="tab" onclick="showPanel('inventory')">📦 Inv</button>
     </div>
@@ -113,7 +113,7 @@
             <button class="btn btn-success" onclick="rest()">😴 Rest</button>
             <button class="btn btn-warning" onclick="goDoctor()">🏥 Doctor</button>
             <button class="btn btn-purple" onclick="ageUp()">🎂 Age +1</button>
-            <button class="btn btn-pink" onclick="makeFriend()">👥 Make Friend</button>
+            
             <button class="btn btn-danger" onclick="resetGame()">🔄 Reset</button>
         </div>
         <div style="margin-top:6px;font-size:0.7rem;color:#8899aa;">
@@ -139,23 +139,23 @@
             <div class="label">📱 YOUR FRIEND CODE</div>
             <div class="code" id="friendCode">------</div>
             <div class="device-info">🖥️ Device: <span id="deviceName">Unknown</span></div>
-            <button class="btn btn-cyan btn-small" onclick="copyFriendCode()">📋 Copy Code</button>
-            <button class="btn btn-primary btn-small" onclick="refreshFriendCode()">🔄 New Code</button>
+            
+            
         </div>
         
         <div style="background:#1a3344;border-radius:12px;padding:8px;margin:6px 0;">
             <div class="label" style="font-size:0.6rem;color:#8899aa;">🔗 ADD FRIEND BY CODE</div>
             <div class="input-group">
                 <input type="text" id="friendCodeInput" placeholder="Enter friend code..." maxlength="6">
-                <button class="btn btn-success btn-small" onclick="addFriendByCode()">➕ Add</button>
+                
             </div>
         </div>
         
         <div id="friendsList"></div>
         <div style="margin-top:8px;">
-            <button class="btn btn-cyan btn-small" onclick="visitFriend()">🏠 Visit Friend</button>
-            <button class="btn btn-warning btn-small" onclick="friendActivity()">🎮 Activity</button>
-            <button class="btn btn-primary btn-small" onclick="syncFriends()">🔄 Sync Friends</button>
+            
+            
+            
         </div>
     </div>
     <div class="panel" id="panel-car">
@@ -865,7 +865,7 @@ function renderFriends() {
             '<div style="font-size:0.6rem;">❤️ ' + f.health + ' 🎂 ' + f.age + ' 😊 ' + f.happiness + '%</div>' +
             '<div><span class="friend-status ' + statusClass + '">' + (f.isDead ? '💀 DEAD' : (f.sick ? '🤒 Sick' : '✅ Healthy')) + '</span> • ' + onlineStatus + '</div>' +
             '<div style="font-size:0.55rem;color:#4fc3f7;">🔑 ' + f.code + '</div>' +
-            '<button class="btn btn-danger btn-small" onclick="removeFriend(' + i + ')">❌ Remove</button>';
+            '';
         c.appendChild(d);
     }
 }
@@ -1117,7 +1117,44 @@ updateUI();
 var stage = getLifeStage(age);
 document.getElementById('homeMessage').textContent = '👶 Welcome! You are a ' + stage.name + '. Share your friend code to connect with others!';
 console.log('✅ Sims Mini loaded with Multi-Device Friends system!');
+// Sims Mini – friend integration
+function addSimsFriend() {
+    // Use the Launchpad's friend code system – open the friend modal or send request
+    if (window.parent && window.parent.document.getElementById('friendCodeInput')) {
+        // We're inside an iframe, open the friend modal in the parent
+        window.parent.document.getElementById('friendsBtn').click();
+        document.getElementById('simsFriendStatus').textContent = '📨 Open friend modal to add by code';
+    } else if (window.opener) {
+        // Fallback
+        alert('Please open the friend modal from the main Launchpad page.');
+    } else {
+        // Standalone – use local storage or prompt
+        var code = prompt('Enter friend code:');
+        if (code) {
+            // Simple storage for demo
+            var friends = JSON.parse(localStorage.getItem('simsFriends') || '[]');
+            friends.push(code);
+            localStorage.setItem('simsFriends', JSON.stringify(friends));
+            document.getElementById('simsFriendStatus').textContent = '✅ Friend added: ' + code;
+        }
+    }
+}
+// Also display existing friends
+function displaySimsFriends() {
+    var friends = JSON.parse(localStorage.getItem('simsFriends') || '[]');
+    var container = document.getElementById('simsFriendStatus');
+    if (container && friends.length) {
+        container.textContent = '👥 Friends: ' + friends.join(', ');
+    }
+}
+// Call on load
+window.addEventListener('DOMContentLoaded', displaySimsFriends);
 </script>
+<div id="simsFriends" style="margin:10px;">
+    <button onclick="addSimsFriend()">👥 Add Friend</button>
+    <span id="simsFriendStatus"></span>
+</div>
 </body>
 </html>
+
 

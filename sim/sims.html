@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>👤 Sims Mini – Crime Edition</title>
+    <title>👤 Sims Mini – Ultimate</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -10,7 +10,7 @@
             color: #d0e8f0;
             font-family: 'Segoe UI', sans-serif;
             padding: 20px;
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
         }
         .game-container {
@@ -18,65 +18,65 @@
             border-radius: 1.5rem;
             padding: 1.5rem;
             border: 1px solid #2a4a5e;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         h1 { color: #ffd93d; font-size: 1.8rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 10px; }
         .stats {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 4px 12px;
             background: #0f1f2e;
             border-radius: 1rem;
             padding: 12px;
-            margin: 12px 0;
+            margin: 10px 0;
         }
         .stat-item {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
+            padding: 2px 0;
             border-bottom: 1px solid #1a3344;
         }
-        .stat-item .label { color: #8899aa; }
-        .stat-item .value { font-weight: 700; color: #7cf5b0; }
-        .stat-item .value.danger { color: #ff6b6b; }
-        .stat-item .value.warning { color: #ffd93d; }
+        .stat-item .label { color: #8899aa; font-size: 0.8rem; }
+        .stat-item .value { font-weight: 700; }
+        .value.good { color: #7cf5b0; }
+        .value.bad { color: #ff6b6b; }
+        .value.warning { color: #ffd93d; }
         .actions {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            margin: 12px 0;
+            margin: 10px 0;
         }
         .actions button {
             flex: 1;
             min-width: 70px;
-            padding: 8px 12px;
+            padding: 8px 10px;
             border: none;
             border-radius: 8px;
             font-weight: 700;
             cursor: pointer;
+            font-size: 0.75rem;
             transition: 0.15s;
-            background: #1a3a5a;
-            color: white;
-            font-size: 0.8rem;
         }
         .actions button:hover { transform: scale(1.02); }
         .btn-work { background: #4fc3f7; color: #0b1a26; }
+        .btn-school { background: #f5a623; color: #0b1a26; }
         .btn-rest { background: #7cf5b0; color: #0b1a26; }
         .btn-doctor { background: #f57c9f; color: #0b1a26; }
         .btn-age { background: #ffd93d; color: #0b1a26; }
         .btn-reset { background: #ff6b6b; color: white; }
         .btn-crime { background: #b07cf5; color: white; }
-        .btn-jail { background: #ff9f43; color: #0b1a26; }
-        .btn-lawyer { background: #2ecc71; color: #0b1a26; }
-        .btn-lawyer-private { background: #f1c40f; color: #0b1a26; }
+        .btn-drive { background: #2ecc71; color: #0b1a26; }
+        .btn-license { background: #f1c40f; color: #0b1a26; }
+        .btn-parent { background: #e67e22; color: white; }
+        .btn-minigame { background: #1abc9c; color: #0b1a26; }
         .message-box {
             background: #0f1f2e;
             border-radius: 10px;
             padding: 10px;
             margin: 10px 0;
-            font-size: 0.9rem;
             min-height: 50px;
             border-left: 4px solid #4fc3f7;
+            font-size: 0.9rem;
         }
         .friends-section {
             margin-top: 12px;
@@ -92,17 +92,11 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 0.8rem;
         }
         .friend-list { margin-top: 6px; font-size: 0.8rem; color: #8899aa; }
         .friend-list span { display: inline-block; background: #1a3344; padding: 2px 8px; margin: 2px; border-radius: 12px; border: 1px solid #ffd93d; }
         .friend-list .remove { cursor: pointer; color: #ff6b6b; margin-left: 4px; }
-        .back-link {
-            display: inline-block;
-            margin-top: 12px;
-            color: #4fc3f7;
-            text-decoration: none;
-        }
-        .back-link:hover { text-decoration: underline; }
         .jail-overlay {
             background: #2c1a1a;
             border: 2px solid #ff6b6b;
@@ -113,57 +107,84 @@
         }
         .jail-overlay h3 { color: #ff6b6b; }
         .lawyer-options { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 8px 0; }
+        .mini-game-area {
+            background: #0f1f2e;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #2a4a5e;
+        }
+        .mini-game-area button { background: #4fc3f7; color: #0b1a26; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .back-link {
+            display: inline-block;
+            margin-top: 12px;
+            color: #4fc3f7;
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
         .small-text { font-size: 0.7rem; color: #8899aa; }
     </style>
 </head>
 <body>
 <div class="game-container">
-    <h1>👤 Sims Mini <span style="font-size:0.7rem; background:#b07cf5; padding:0.1rem 0.6rem; border-radius:20px; color:white;">Crime</span></h1>
+    <h1>👤 Sims Mini <span style="font-size:0.7rem; background:#b07cf5; padding:0.1rem 0.6rem; border-radius:20px; color:white;">Ultimate</span></h1>
 
     <!-- Stats -->
     <div class="stats" id="statsDisplay">
-        <div class="stat-item"><span class="label">🎂 Age</span><span class="value" id="ageDisplay">0</span></div>
+        <div class="stat-item"><span class="label">🎂 Age</span><span class="value good" id="ageDisplay">0</span></div>
         <div class="stat-item"><span class="label">🌟 Stage</span><span class="value" id="stageDisplay">Baby</span></div>
-        <div class="stat-item"><span class="label">💰 Money</span><span class="value" id="moneyDisplay">100</span></div>
-        <div class="stat-item"><span class="label">❤️ Health</span><span class="value" id="healthDisplay">100</span></div>
+        <div class="stat-item"><span class="label">💰 Money</span><span class="value good" id="moneyDisplay">100</span></div>
+        <div class="stat-item"><span class="label">❤️ Health</span><span class="value good" id="healthDisplay">100</span></div>
         <div class="stat-item"><span class="label">💼 Job</span><span class="value" id="jobDisplay">None</span></div>
         <div class="stat-item"><span class="label">🎓 Education</span><span class="value" id="eduDisplay">None</span></div>
         <div class="stat-item"><span class="label">👥 Friends</span><span class="value" id="friendCount">0</span></div>
-        <div class="stat-item"><span class="label">🚔 Criminal</span><span class="value danger" id="criminalDisplay">No</span></div>
+        <div class="stat-item"><span class="label">🚔 Criminal</span><span class="value" id="criminalDisplay">No</span></div>
+        <div class="stat-item"><span class="label">🚗 License</span><span class="value" id="licenseDisplay">No</span></div>
     </div>
 
-    <!-- Message / Status -->
-    <div class="message-box" id="messageBox">👶 Welcome to the new Sims! Live your life – but watch out for the law!</div>
+    <!-- Message -->
+    <div class="message-box" id="messageBox">👶 Welcome! Live your life, but watch the law.</div>
 
-    <!-- Jail overlay (shown when in jail) -->
+    <!-- Jail Overlay -->
     <div id="jailOverlay" style="display:none;" class="jail-overlay">
         <h3>🚔 IN JAIL</h3>
         <p id="jailStatus">You have been arrested! Hire a lawyer to get out.</p>
         <div class="lawyer-options">
-            <button class="btn-lawyer" onclick="hireLawyer('free')">⚖️ Free Lawyer (50% success)</button>
-            <button class="btn-lawyer-private" onclick="hireLawyer('private')">💼 Private Lawyer (65% success, costs $500)</button>
+            <button class="btn-work" onclick="hireLawyer('free')">⚖️ Free Lawyer (50%)</button>
+            <button class="btn-drive" onclick="hireLawyer('private')">💼 Private Lawyer (65%, $500)</button>
         </div>
         <p class="small-text">If you don't hire a lawyer, you stay in jail for 3 turns.</p>
     </div>
 
-    <!-- Actions -->
+    <!-- Main Actions -->
     <div class="actions">
         <button class="btn-work" onclick="doWork()">💼 Work</button>
+        <button class="btn-school" onclick="doSchool()">📚 School</button>
         <button class="btn-rest" onclick="doRest()">😴 Rest</button>
         <button class="btn-doctor" onclick="doDoctor()">🏥 Doctor</button>
         <button class="btn-age" onclick="ageUp()">🎂 Age +1</button>
-        <button class="btn-crime" onclick="commitCrime()">🔫 Commit Crime</button>
+        <button class="btn-crime" onclick="showCrimeMenu()">🔫 Crime</button>
+        <button class="btn-drive" onclick="doDrive()">🚗 Drive</button>
+        <button class="btn-license" onclick="getLicense()">🚦 License</button>
+        <button class="btn-parent" onclick="askParents()">👪 Parents</button>
         <button class="btn-reset" onclick="resetGame()">🔄 Reset</button>
     </div>
 
-    <!-- Fake Friends System -->
+    <!-- Friends Section (no "Fake") -->
     <div class="friends-section">
         <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-            <span>👥 Fake Friends:</span>
-            <button onclick="meetFakePerson()">Meet Someone</button>
-            <button onclick="clearFakeFriends()" style="background:#ff6b6b;color:white;">Clear</button>
+            <span>👥 Friends:</span>
+            <button onclick="meetPerson()">Meet Someone</button>
+            <button onclick="clearFriends()" style="background:#ff6b6b;color:white;">Clear</button>
         </div>
-        <div class="friend-list" id="fakeFriendList">No friends yet.</div>
+        <div class="friend-list" id="friendList">No friends yet.</div>
+    </div>
+
+    <!-- Mini-game area (hidden initially) -->
+    <div id="miniGameArea" class="mini-game-area" style="display:none;">
+        <h4 id="miniGameTitle">Mini Game</h4>
+        <div id="miniGameContent"></div>
+        <button onclick="closeMiniGame()">Close</button>
     </div>
 
     <a href="../base.html" class="back-link">← Back to Hub</a>
@@ -180,32 +201,32 @@ let game = {
     health: 100,
     job: 'None',
     education: 'None',
-    criminal: false,      // has ever committed crime?
-    jail: false,          // currently in jail?
+    criminal: false,
+    jail: false,
     jailTurns: 0,
-    stage: 'Baby'
+    stage: 'Baby',
+    license: false,
+    parentsHappy: true,
+    crimes: []
 };
-
-// Fake friends
-let fakeFriends = [];
+let friends = [];
 
 // ============================================================
 // LOAD / SAVE
 // ============================================================
 function loadGame() {
     try {
-        const saved = localStorage.getItem('simsGame');
+        const saved = localStorage.getItem('simsUltimate');
         if (saved) {
             const parsed = JSON.parse(saved);
             game = parsed.game || game;
-            fakeFriends = parsed.fakeFriends || [];
+            friends = parsed.friends || [];
         }
     } catch(e) {}
 }
-
 function saveGame() {
     try {
-        localStorage.setItem('simsGame', JSON.stringify({ game, fakeFriends }));
+        localStorage.setItem('simsUltimate', JSON.stringify({ game, friends }));
     } catch(e) {}
 }
 
@@ -219,15 +240,17 @@ function updateUI() {
     document.getElementById('healthDisplay').textContent = game.health;
     document.getElementById('jobDisplay').textContent = game.job;
     document.getElementById('eduDisplay').textContent = game.education;
-    document.getElementById('friendCount').textContent = fakeFriends.length;
+    document.getElementById('friendCount').textContent = friends.length;
     document.getElementById('criminalDisplay').textContent = game.criminal ? 'Yes' : 'No';
-    document.getElementById('criminalDisplay').className = 'value ' + (game.criminal ? 'danger' : '');
+    document.getElementById('criminalDisplay').className = 'value ' + (game.criminal ? 'bad' : '');
+    document.getElementById('licenseDisplay').textContent = game.license ? 'Yes' : 'No';
+    document.getElementById('licenseDisplay').className = 'value ' + (game.license ? 'good' : '');
 
     // Jail overlay
     const jailDiv = document.getElementById('jailOverlay');
     if (game.jail) {
         jailDiv.style.display = 'block';
-        document.getElementById('jailStatus').textContent = `You are in jail! (${game.jailTurns} turns remaining if no lawyer)`;
+        document.getElementById('jailStatus').textContent = `You are in jail! (${game.jailTurns} turns remaining)`;
     } else {
         jailDiv.style.display = 'none';
     }
@@ -236,31 +259,64 @@ function updateUI() {
     saveGame();
 }
 
-// ============================================================
-// MESSAGE
-// ============================================================
-function setMessage(msg, isGood = true) {
+function setMessage(msg, good = true) {
     const box = document.getElementById('messageBox');
     box.textContent = msg;
-    box.style.borderLeftColor = isGood ? '#7cf5b0' : '#ff6b6b';
+    box.style.borderLeftColor = good ? '#7cf5b0' : '#ff6b6b';
 }
 
 // ============================================================
-// GAME ACTIONS
+// FRIENDS (no "Fake")
 // ============================================================
-function ageUp() {
-    if (game.jail) {
-        setMessage('You are in jail! You cannot age up.', false);
+const names = ["Alex","Jordan","Taylor","Morgan","Casey","Riley","Avery","Quinn","Logan","Cameron","Parker","Harper","Skyler","Ellis","Sage","Rowan","Emerson","Reese","Finley","Blake","Jules","Kai","Nova","Orion"];
+const jobs = ["Student","Chef","Doctor","Engineer","Artist","Teacher","Athlete","Musician","Writer","Scientist"];
+const hobbies = ["Gaming","Reading","Music","Sports","Cooking","Dancing"];
+
+function meetPerson() {
+    if (game.jail) { setMessage('In jail – no new friends.', false); return; }
+    const name = names[Math.floor(Math.random() * names.length)];
+    const job = jobs[Math.floor(Math.random() * jobs.length)];
+    const hobby = hobbies[Math.floor(Math.random() * hobbies.length)];
+    const age = Math.floor(Math.random() * 40) + 18;
+    if (friends.some(f => f.name === name)) { setMessage(`Already know ${name}.`, false); return; }
+    const msg = `👤 You met ${name}!\nAge: ${age}\nJob: ${job}\nHobby: ${hobby}\n\nBe friends?`;
+    if (confirm(msg)) {
+        friends.push({ name, job, hobby, age });
+        setMessage(`✅ You are friends with ${name}!`);
+        updateUI();
+    } else {
+        setMessage(`❌ Declined ${name}.`);
+    }
+}
+function removeFriend(name) {
+    if (confirm(`Remove ${name}?`)) {
+        friends = friends.filter(f => f.name !== name);
+        updateUI();
+        setMessage(`Removed ${name}.`);
+    }
+}
+function clearFriends() {
+    if (confirm('Remove all friends?')) {
+        friends = [];
+        updateUI();
+        setMessage('All friends cleared.');
+    }
+}
+function updateFriendDisplay() {
+    const container = document.getElementById('friendList');
+    if (!container) return;
+    if (friends.length === 0) {
+        container.innerHTML = 'No friends yet. Click "Meet Someone"!';
         return;
     }
-    game.age++;
-    // Health slowly decreases with age
-    if (game.health > 20) game.health -= 2;
-    updateStage();
-    setMessage(`🎂 You are now ${game.age} years old.`);
-    updateUI();
+    container.innerHTML = friends.map(f => 
+        `<span>${f.name} (${f.age}yrs, ${f.job}) <span class="remove" onclick="removeFriend('${f.name}')">✖</span></span>`
+    ).join(' ');
 }
 
+// ============================================================
+// AGE & STAGE
+// ============================================================
 function updateStage() {
     if (game.age < 3) game.stage = 'Baby';
     else if (game.age < 13) game.stage = 'Child';
@@ -270,174 +326,248 @@ function updateStage() {
     else game.stage = 'Elder';
 }
 
+function ageUp() {
+    if (game.jail) { setMessage('In jail – cannot age.', false); return; }
+    game.age++;
+    // Health declines slightly with age
+    game.health = Math.max(0, game.health - (Math.floor(Math.random() * 3) + 1));
+    // Money may increase if working (if job not none)
+    if (game.job !== 'None') {
+        const bonus = Math.floor(Math.random() * 10) + 5;
+        game.money += bonus;
+        setMessage(`🎂 You aged up to ${game.age} and earned $${bonus} from work.`);
+    } else {
+        setMessage(`🎂 You are now ${game.age} years old.`);
+    }
+    updateStage();
+    checkDeath();
+    updateUI();
+    jailTurnPass();
+}
+
+// ============================================================
+// WORK & SCHOOL MINI-GAMES
+// ============================================================
 function doWork() {
-    if (game.jail) { setMessage('You are in jail! You cannot work.', false); return; }
-    if (game.health < 10) { setMessage('Too sick to work! See a doctor.', false); return; }
-    let earn = 20 + Math.floor(Math.random() * 30);
-    if (game.job !== 'None') earn += 10;
-    game.money += earn;
-    game.health -= 5;
-    setMessage(`💼 You worked and earned $${earn}.`);
-    updateUI();
+    if (game.jail) { setMessage('In jail – cannot work.', false); return; }
+    if (game.age < 16) { setMessage('You must be at least 16 to work.', false); return; }
+    if (game.health < 20) { setMessage('Too sick to work!', false); return; }
+    // Start mini-game: click the button as fast as possible
+    startMiniGame('work', 'Work Mini-Game: Click the button 10 times quickly!', 10, (score) => {
+        if (score >= 8) {
+            const earn = 30 + Math.floor(Math.random() * 40);
+            game.money += earn;
+            game.health -= 5;
+            setMessage(`💼 You earned $${earn} from work!`);
+        } else {
+            setMessage(`💼 You only managed ${score}/10 – got $5 for effort.`, false);
+            game.money += 5;
+        }
+        updateUI();
+        jailTurnPass();
+    });
 }
 
-function doRest() {
-    if (game.jail) { setMessage('You are in jail! You cannot rest properly.', false); return; }
-    game.health = Math.min(100, game.health + 15);
-    setMessage('😴 You rested and regained health.');
-    updateUI();
+function doSchool() {
+    if (game.jail) { setMessage('In jail – cannot go to school.', false); return; }
+    if (game.age < 5) { setMessage('Too young for school.', false); return; }
+    if (game.health < 20) { setMessage('Too sick for school.', false); return; }
+    // Mini-game: math quiz
+    startMiniGame('school', 'School: Solve 3 math problems correctly!', 3, (score) => {
+        if (score === 3) {
+            game.education = 'High School';
+            game.money += 10;
+            setMessage('📚 You passed school with flying colors! +$10');
+        } else {
+            game.education = 'Basic';
+            setMessage('📚 You barely passed school.', false);
+        }
+        updateUI();
+        jailTurnPass();
+    });
 }
 
+// ============================================================
+// MINI-GAME ENGINE
+// ============================================================
+let miniGameCallback = null;
+function startMiniGame(type, title, rounds, callback) {
+    const area = document.getElementById('miniGameArea');
+    const titleEl = document.getElementById('miniGameTitle');
+    const content = document.getElementById('miniGameContent');
+    area.style.display = 'block';
+    titleEl.textContent = title;
+    miniGameCallback = callback;
+
+    if (type === 'work') {
+        let clicks = 0;
+        let target = rounds;
+        content.innerHTML = `
+            <p>Click the button as fast as you can! (${target} times)</p>
+            <button id="workBtn" onclick="workClick()" style="font-size:2rem;padding:10px 30px;">👆</button>
+            <p>Progress: <span id="workProgress">0</span> / ${target}</p>
+        `;
+        window.workClick = function() {
+            clicks++;
+            document.getElementById('workProgress').textContent = clicks;
+            if (clicks >= target) {
+                closeMiniGame();
+                if (miniGameCallback) {
+                    miniGameCallback(clicks);
+                    miniGameCallback = null;
+                }
+            }
+        };
+    } else if (type === 'school') {
+        let correct = 0;
+        let asked = 0;
+        function askQuestion() {
+            if (asked >= rounds) {
+                closeMiniGame();
+                if (miniGameCallback) {
+                    miniGameCallback(correct);
+                    miniGameCallback = null;
+                }
+                return;
+            }
+            const a = Math.floor(Math.random() * 10) + 1;
+            const b = Math.floor(Math.random() * 10) + 1;
+            const op = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+            let ans;
+            if (op === '+') ans = a + b;
+            else if (op === '-') ans = a - b;
+            else ans = a * b;
+            const user = prompt(`What is ${a} ${op} ${b}?`);
+            if (parseInt(user) === ans) {
+                correct++;
+                setMessage('✅ Correct!');
+            } else {
+                setMessage(`❌ Wrong. Answer was ${ans}.`, false);
+            }
+            asked++;
+            // Continue after a short delay
+            setTimeout(askQuestion, 500);
+        }
+        content.innerHTML = `<p>Answer ${rounds} math problems.</p><button onclick="askQuestion()">Start Quiz</button>`;
+        // Store the function on window
+        window.schoolStart = askQuestion;
+    }
+}
+
+function closeMiniGame() {
+    document.getElementById('miniGameArea').style.display = 'none';
+    document.getElementById('miniGameContent').innerHTML = '';
+}
+
+// ============================================================
+// DOCTOR & PARENTS
+// ============================================================
 function doDoctor() {
-    if (game.jail) { setMessage('You are in jail! No doctor for you.', false); return; }
-    if (game.money < 50) { setMessage('💰 Not enough money! Doctor costs $50.', false); return; }
-    game.money -= 50;
-    game.health = 100;
-    setMessage('🏥 You visited the doctor and are fully healed!');
+    if (game.jail) { setMessage('In jail – no doctor.', false); return; }
+    if (game.health >= 80) {
+        // Free because healthy
+        game.health = 100;
+        setMessage('🏥 You are healthy – doctor visit was free!');
+        updateUI();
+        jailTurnPass();
+        return;
+    }
+    // Not healthy – ask parents
+    if (game.age < 18) {
+        // Ask parents (50% chance they pay)
+        if (Math.random() < 0.5) {
+            game.health = 100;
+            setMessage('👪 Your parents paid for the doctor! You are healed.');
+        } else {
+            setMessage('👪 Your parents refused to pay. You stay sick.', false);
+        }
+        updateUI();
+        jailTurnPass();
+        return;
+    } else {
+        // Adult – must pay
+        if (game.money < 50) {
+            setMessage('💰 Not enough money ($50) for doctor.', false);
+            return;
+        }
+        game.money -= 50;
+        game.health = 100;
+        setMessage('🏥 You paid $50 and healed.');
+        updateUI();
+        jailTurnPass();
+    }
+}
+
+function askParents() {
+    if (game.jail) { setMessage('In jail – parents can\'t help.', false); return; }
+    if (game.age >= 18) { setMessage('You are an adult – parents won\'t help.', false); return; }
+    const happy = Math.random() < 0.6;
+    if (happy) {
+        game.money += 20;
+        setMessage('👪 Your parents gave you $20!');
+    } else {
+        setMessage('👪 Your parents are disappointed and gave nothing.', false);
+    }
     updateUI();
+    jailTurnPass();
 }
 
 // ============================================================
-// CRIME SYSTEM
+// CRIME SYSTEM (with selection and age rules)
 // ============================================================
-function commitCrime() {
-    if (game.jail) { setMessage('You are already in jail!', false); return; }
-    if (game.health < 20) { setMessage('Too weak to commit a crime!', false); return; }
+const crimeList = [
+    { name: 'Shoplifting', reward: 20, baseJail: 0.15 },
+    { name: 'Pickpocket', reward: 40, baseJail: 0.20 },
+    { name: 'Robbery', reward: 80, baseJail: 0.30 },
+    { name: 'Heist', reward: 150, baseJail: 0.45 },
+    { name: 'Hack', reward: 120, baseJail: 0.35 }
+];
 
-    // Decide outcome
-    const caught = Math.random() < 0.2; // 20% chance
-    if (caught) {
+function showCrimeMenu() {
+    if (game.jail) { setMessage('You are in jail – cannot commit crimes.', false); return; }
+    if (game.age < 16) { setMessage('You must be at least 16 to commit crimes.', false); return; }
+    let menu = 'Choose a crime:\n';
+    crimeList.forEach((c, i) => {
+        menu += `${i+1}. ${c.name} ($${c.reward}, jail ${Math.round(c.baseJail*100)}%)\n`;
+    });
+    menu += '0. Cancel';
+    const choice = prompt(menu);
+    const idx = parseInt(choice) - 1;
+    if (isNaN(idx) || idx < 0 || idx >= crimeList.length) return;
+    const crime = crimeList[idx];
+    // Determine jail chance based on age
+    let jailChance = crime.baseJail;
+    if (game.age >= 16 && game.age <= 17) {
+        jailChance *= 0.5; // lower chance for 16-17
+        setMessage(`🔫 Since you are ${game.age}, jail chance is reduced.`, true);
+    }
+    if (Math.random() < jailChance) {
         // Go to jail
         game.jail = true;
         game.jailTurns = 3;
         game.criminal = true;
-        setMessage('🚔 You got caught by the police! You are now in jail.', false);
+        setMessage(`🚔 You got caught! ${crime.name} – you are in jail.`, false);
         updateUI();
         return;
     } else {
-        // Success: earn money
-        const loot = 50 + Math.floor(Math.random() * 150);
-        game.money += loot;
+        // Success
+        game.money += crime.reward;
         game.criminal = true;
-        setMessage(`🔫 You committed a crime and got away with $${loot}!`);
+        setMessage(`✅ ${crime.name} succeeded! You earned $${crime.reward}.`);
         updateUI();
+        jailTurnPass();
     }
 }
 
 // ============================================================
-// LAWYER SYSTEM
-// ============================================================
-function hireLawyer(type) {
-    if (!game.jail) { setMessage('You are not in jail.', false); return; }
-
-    if (type === 'free') {
-        // Free lawyer: 50% success
-        const success = Math.random() < 0.5;
-        if (success) {
-            game.jail = false;
-            game.jailTurns = 0;
-            setMessage('⚖️ Your free lawyer got you out of jail! (50% chance worked)');
-        } else {
-            setMessage('❌ Your free lawyer failed! You stay in jail.', false);
-        }
-    } else if (type === 'private') {
-        if (game.money < 500) {
-            setMessage('💰 You need $500 for a private lawyer!', false);
-            return;
-        }
-        const success = Math.random() < 0.65;
-        if (success) {
-            game.money -= 500;
-            game.jail = false;
-            game.jailTurns = 0;
-            setMessage('💼 Your private lawyer got you out of jail! (65% chance worked)');
-        } else {
-            game.money -= 500;
-            setMessage('❌ Your private lawyer failed! Money wasted.', false);
-        }
-    }
-    updateUI();
-}
-
-// ============================================================
-// FAKE FRIENDS (unchanged from previous, but we keep)
-// ============================================================
-const fakeNames = ["Alex","Jordan","Taylor","Morgan","Casey","Riley","Avery","Quinn","Logan","Cameron","Parker","Harper","Skyler","Ellis","Sage","Rowan","Emerson","Reese","Finley","Blake","Jules","Kai","Nova","Orion","Felix","Iris","Leo","Mia","Noah","Olivia","Liam","Emma","Luna","Milo","Zara","Jasper","Ivy","Eli","Vera","Silas"];
-const fakeJobs = ["Student","Chef","Doctor","Engineer","Artist","Teacher","Athlete","Musician","Writer","Scientist","Pilot","Designer","Photographer"];
-const fakeHobbies = ["Gaming","Reading","Music","Sports","Cooking","Dancing","Drawing","Hiking"];
-
-function meetFakePerson() {
-    if (game.jail) { setMessage('You are in jail! No new friends here.', false); return; }
-    const name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
-    const job = fakeJobs[Math.floor(Math.random() * fakeJobs.length)];
-    const hobby = fakeHobbies[Math.floor(Math.random() * fakeHobbies.length)];
-    const age = Math.floor(Math.random() * 40) + 18;
-    const friend = { name, job, hobby, age };
-
-    if (fakeFriends.some(f => f.name === name)) {
-        setMessage(`You already met ${name}!`, false);
-        return;
-    }
-
-    const msg = `👤 You met ${name}!\nAge: ${age}\nJob: ${job}\nHobby: ${hobby}\n\nBe friends?`;
-    if (confirm(msg)) {
-        fakeFriends.push(friend);
-        setMessage(`✅ You are now friends with ${name}!`);
-        updateUI();
-    } else {
-        setMessage(`❌ You declined friendship with ${name}.`);
-    }
-}
-
-function removeFakeFriend(name) {
-    if (confirm(`Remove ${name}?`)) {
-        fakeFriends = fakeFriends.filter(f => f.name !== name);
-        updateUI();
-        setMessage(`Removed ${name}.`);
-    }
-}
-
-function clearFakeFriends() {
-    if (confirm('Remove all fake friends?')) {
-        fakeFriends = [];
-        updateUI();
-        setMessage('All fake friends cleared.');
-    }
-}
-
-function updateFriendDisplay() {
-    const container = document.getElementById('fakeFriendList');
-    if (!container) return;
-    if (fakeFriends.length === 0) {
-        container.innerHTML = 'No friends yet. Click "Meet Someone"!';
-        return;
-    }
-    container.innerHTML = fakeFriends.map(f => 
-        `<span>${f.name} (${f.age}yrs, ${f.job}) <span class="remove" onclick="removeFakeFriend('${f.name}')">✖</span></span>`
-    ).join(' ');
-}
-
-// ============================================================
-// RESET
-// ============================================================
-function resetGame() {
-    if (confirm('Reset everything?')) {
-        game = { age:0, money:100, health:100, job:'None', education:'None', criminal:false, jail:false, jailTurns:0, stage:'Baby' };
-        fakeFriends = [];
-        updateUI();
-        setMessage('🔄 Game reset!');
-    }
-}
-
-// ============================================================
-// JAIL TURN DECREMENT (called after each action that is not specifically blocked)
+// JAIL TURN PASS
 // ============================================================
 function jailTurnPass() {
     if (game.jail) {
         game.jailTurns--;
         if (game.jailTurns <= 0) {
             game.jail = false;
-            setMessage('🚪 You served your time and are released from jail!');
+            setMessage('🚪 You served your time and are released!');
         } else {
             setMessage(`⏳ You are still in jail. ${game.jailTurns} turns left.`, false);
         }
@@ -445,57 +575,102 @@ function jailTurnPass() {
     }
 }
 
-// Override some actions to call jailTurnPass after certain actions
-// We'll add a hook in doWork, doRest, doDoctor, ageUp, commitCrime
-// But we need to be careful not to double-decrement.
-// We'll modify each function to call jailTurnPass after a successful action.
-// However, we already have logic in each; we can add a call at the end.
+// ============================================================
+// LAWYER
+// ============================================================
+function hireLawyer(type) {
+    if (!game.jail) { setMessage('Not in jail.', false); return; }
+    if (type === 'free') {
+        if (Math.random() < 0.5) {
+            game.jail = false;
+            setMessage('⚖️ Free lawyer got you out!');
+        } else {
+            setMessage('❌ Free lawyer failed.', false);
+        }
+    } else if (type === 'private') {
+        if (game.money < 500) {
+            setMessage('💰 Need $500 for private lawyer.', false);
+            return;
+        }
+        game.money -= 500;
+        if (Math.random() < 0.65) {
+            game.jail = false;
+            setMessage('💼 Private lawyer got you out!');
+        } else {
+            setMessage('❌ Private lawyer failed – money wasted.', false);
+        }
+    }
+    updateUI();
+}
 
-// Patch the functions to handle jail turns after action
-const originalDoWork = doWork;
-doWork = function() {
-    if (game.jail) { setMessage('You are in jail! You cannot work.', false); return; }
-    originalDoWork();
-    jailTurnPass();
-};
-const originalDoRest = doRest;
-doRest = function() {
-    if (game.jail) { setMessage('You are in jail! You cannot rest properly.', false); return; }
-    originalDoRest();
-    jailTurnPass();
-};
-const originalDoDoctor = doDoctor;
-doDoctor = function() {
-    if (game.jail) { setMessage('You are in jail! No doctor for you.', false); return; }
-    originalDoDoctor();
-    jailTurnPass();
-};
-const originalAgeUp = ageUp;
-ageUp = function() {
-    if (game.jail) { setMessage('You are in jail! You cannot age up.', false); return; }
-    originalAgeUp();
-    jailTurnPass();
-};
-const originalCommitCrime = commitCrime;
-commitCrime = function() {
-    // If already in jail, handled inside original
-    originalCommitCrime();
-    // If not jailed, we don't call jailTurnPass because the crime itself may have put us in jail.
-    // But if we succeeded, we might still want to decrement? Not necessary.
-    // We'll only call jailTurnPass if the crime did NOT result in jail (i.e., we are not in jail).
-    // But we can call it conditionally.
-    // However, to keep simple, we'll let the jailTurnPass be called by other actions.
-    // We'll not add it here to avoid double decrement.
-};
+// ============================================================
+// DRIVING LICENSE & DRIVE
+// ============================================================
+function getLicense() {
+    if (game.jail) { setMessage('In jail – no license.', false); return; }
+    if (game.age < 16) { setMessage('Must be 16 to get a license.', false); return; }
+    if (game.license) { setMessage('You already have a license.', false); return; }
+    // Take a test: simple yes/no
+    if (confirm('Take the driving test? (You need to answer 3 questions correctly)')) {
+        let correct = 0;
+        const qs = [
+            { q: 'What does a red light mean?', a: 'Stop' },
+            { q: 'What is the speed limit in a school zone?', a: '25' },
+            { q: 'What side of the road do you drive on?', a: 'Right' }
+        ];
+        for (let q of qs) {
+            const ans = prompt(q.q);
+            if (ans && ans.toLowerCase().includes(q.a.toLowerCase())) correct++;
+        }
+        if (correct >= 2) {
+            game.license = true;
+            setMessage('🚦 You passed! You have a driving license.');
+        } else {
+            setMessage('❌ You failed the test. Try again later.', false);
+        }
+        updateUI();
+        jailTurnPass();
+    }
+}
 
-// Also for meetFakePerson and others, we might not want jail turn decrement.
+function doDrive() {
+    if (game.jail) { setMessage('In jail – cannot drive.', false); return; }
+    if (!game.license) { setMessage('You need a driving license first.', false); return; }
+    if (game.health < 20) { setMessage('Too sick to drive.', false); return; }
+    // Drive – earn some money (like a taxi)
+    const earn = 20 + Math.floor(Math.random() * 30);
+    game.money += earn;
+    game.health -= 3;
+    setMessage(`🚗 You went for a drive and earned $${earn}.`);
+    updateUI();
+    jailTurnPass();
+}
+
+// ============================================================
+// RESET & DEATH
+// ============================================================
+function checkDeath() {
+    if (game.health <= 0) {
+        alert('💀 You have died of old age or illness. Game over. Resetting...');
+        resetGame();
+    }
+}
+
+function resetGame() {
+    if (confirm('Reset everything?')) {
+        game = { age:0, money:100, health:100, job:'None', education:'None', criminal:false, jail:false, jailTurns:0, stage:'Baby', license:false, parentsHappy:true };
+        friends = [];
+        updateUI();
+        setMessage('🔄 Reset!');
+    }
+}
 
 // ============================================================
 // INIT
 // ============================================================
 loadGame();
 updateUI();
-setMessage('👶 Welcome to the new Sims! Live your life – but watch out for the law!');
+setMessage('👶 Welcome to the Ultimate Sims!');
 </script>
 </body>
 </html>

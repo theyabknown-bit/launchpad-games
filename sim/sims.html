@@ -1149,12 +1149,73 @@ function displaySimsFriends() {
 }
 // Call on load
 window.addEventListener('DOMContentLoaded', displaySimsFriends);
+// ============================================================
+// SIMS MINI – IN‑GAME FRIENDS (local only)
+// ============================================================
+function getSimsFriends() {
+    try {
+        return JSON.parse(localStorage.getItem('simsMiniFriends') || '[]');
+    } catch(e) { return []; }
+}
+function saveSimsFriends(friends) {
+    localStorage.setItem('simsMiniFriends', JSON.stringify(friends));
+    updateSimsFriendUI();
+}
+function addSimsInGameFriend() {
+    var input = document.getElementById('simsFriendName');
+    var name = input.value.trim();
+    if (!name) { alert('Please enter a name.'); return; }
+    var friends = getSimsFriends();
+    if (friends.includes(name)) { alert('Already friends with ' + name); return; }
+    friends.push(name);
+    saveSimsFriends(friends);
+    input.value = '';
+    alert('✅ Added ' + name + ' to your Sims friends!');
+}
+function removeSimsFriend(name) {
+    var friends = getSimsFriends();
+    var index = friends.indexOf(name);
+    if (index !== -1) {
+        friends.splice(index, 1);
+        saveSimsFriends(friends);
+    }
+}
+function clearSimsFriends() {
+    if (confirm('Remove all Sims friends?')) {
+        saveSimsFriends([]);
+    }
+}
+function updateSimsFriendUI() {
+    var friends = getSimsFriends();
+    var container = document.getElementById('simsFriendNames');
+    if (!container) return;
+    if (friends.length === 0) {
+        container.textContent = 'None';
+        return;
+    }
+    container.innerHTML = friends.map(function(f) {
+        return '<span style="display:inline-block; background:#1a3344; padding:2px 8px; margin:2px; border-radius:12px; border:1px solid #4fc3f7;">' + f + ' <span style="cursor:pointer;color:#ff6b6b;" onclick="removeSimsFriend(\'' + f + '\')">✖</span></span>';
+    }).join(' ');
+}
+// Update on load
+window.addEventListener('DOMContentLoaded', updateSimsFriendUI);
 </script>
 <div id="simsFriends" style="margin:10px;">
     <button onclick="addSimsFriend()">👥 Add Friend</button>
     <span id="simsFriendStatus"></span>
 </div>
+<div id="simsInGameFriends" style="margin:10px; padding:10px; background:#1a3344; border-radius:8px; border:1px solid #2a4a5e;">
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <input type="text" id="simsFriendName" placeholder="Enter friend name..." style="flex:1; min-width:120px; padding:6px 10px; border-radius:6px; border:1px solid #2a4a5e; background:#0f1f2e; color:#d0e8f0;">
+        <button onclick="addSimsInGameFriend()" style="background:#7cf5b0; color:#0b1a26; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">➕ Add Friend</button>
+        <button onclick="clearSimsFriends()" style="background:#ff6b6b; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">🗑️ Clear</button>
+    </div>
+    <div id="simsFriendList" style="margin-top:8px; color:#8899aa; font-size:0.8rem;">
+        👥 Friends: <span id="simsFriendNames">None</span>
+    </div>
+</div>
 </body>
 </html>
+
 
 

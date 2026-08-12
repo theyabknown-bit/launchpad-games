@@ -1,0 +1,5 @@
+﻿# No cache files
+*.cache
+*.tmp
+.DS_Store
+Thumbs.db

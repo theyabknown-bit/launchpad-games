@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>🚀 Space Shooter</title>
+    <style>
+        body { margin: 0; background: #0a0a0a; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { border: 2px solid #e94560; background: #000; }
+        .info { position: absolute; top: 20px; color: #fff; font-family: Arial; }
+        button { padding: 10px 20px; background: #e94560; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="info">Score: <span id="score">0</span> <button onclick="location.href='base.html'">🏠 Menu</button></div>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 600;
+        canvas.height = 400;
+        
+        let score = 0;
+        let gameOver = false;
+        const player = { x: 300, y: 350, width: 40, height: 40 };
+        const enemies = [];
+        const bullets = [];
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && player.x > 0) player.x -= 10;
+            if (e.key === 'ArrowRight' && player.x < canvas.width - player.width) player.x += 10;
+            if (e.key === ' ') {
+                bullets.push({ x: player.x + player.width/2 - 5, y: player.y, width: 10, height: 20 });
+            }
+        });
+        
+        function spawnEnemy() {
+            enemies.push({
+                x: Math.random() * (canvas.width - 30),
+                y: 0,
+                width: 30,
+                height: 30,
+                speed: 2 + Math.random() * 2
+            });
+        }
+        
+        function update() {
+            if (gameOver) return;
+            
+            // Move enemies
+            enemies.forEach((enemy, i) => {
+                enemy.y += enemy.speed;
+                if (enemy.y > canvas.height) {
+                    enemies.splice(i, 1);
+                    score--;
+                    document.getElementById('score').textContent = score;
+                }
+            });
+            
+            // Move bullets
+            bullets.forEach((bullet, i) => {
+                bullet.y -= 5;
+                if (bullet.y < 0) bullets.splice(i, 1);
+            });
+            
+            // Check collisions
+            enemies.forEach((enemy, ei) => {
+                bullets.forEach((bullet, bi) => {
+                    if (bullet.x < enemy.x + enemy.width &&
+                        bullet.x + bullet.width > enemy.x &&
+                        bullet.y < enemy.y + enemy.height &&
+                        bullet.y + bullet.height > enemy.y) {
+                        enemies.splice(ei, 1);
+                        bullets.splice(bi, 1);
+                        score++;
+                        document.getElementById('score').textContent = score;
+                    }
+                });
+            });
+            
+            // Check player collision
+            enemies.forEach((enemy, i) => {
+                if (player.x < enemy.x + enemy.width &&
+                    player.x + player.width > enemy.x &&
+                    player.y < enemy.y + enemy.height &&
+                    player.y + player.height > enemy.y) {
+                    gameOver = true;
+                    alert('Game Over! Score: ' + score);
+                }
+            });
+            
+            // Spawn enemies
+            if (Math.random() < 0.02) spawnEnemy();
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw player
+            ctx.fillStyle = '#00ff88';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            // Draw enemies
+            ctx.fillStyle = '#ff4444';
+            enemies.forEach(enemy => {
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            });
+            
+            // Draw bullets
+            ctx.fillStyle = '#ffff00';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        gameLoop();
+        setInterval(spawnEnemy, 2000);
+    </script>
+</body>
+</html>

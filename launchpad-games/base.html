@@ -1,0 +1,444 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Launchpad Games Hub</title>
+    
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #e94560;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #e94560, #f5a623);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-dot.online { background: #00ff88; }
+        .status-dot.offline { background: #ff4444; }
+        .status-dot.connecting { background: #ffaa00; animation: pulse 1s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .game-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+        }
+        .game-card .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .game-card h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .game-card .category {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .auth-section {
+            background: rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            margin: 40px auto;
+        }
+        .auth-section input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+        .auth-section button {
+            width: 100%;
+            padding: 12px;
+            background: #e94560;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px 0;
+        }
+        .auth-section button:hover {
+            background: #c73652;
+            transform: scale(1.02);
+        }
+        .auth-section .toggle-link {
+            color: #e94560;
+            cursor: pointer;
+            text-align: center;
+            display: block;
+            margin-top: 10px;
+        }
+        
+        .user-info {
+            display: none;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .user-info.active { display: block; }
+        
+        .friend-code {
+            background: rgba(233, 69, 96, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">🚀 Launchpad Games</div>
+            <div class="status">
+                <span id="statusText">Connecting...</span>
+                <span class="status-dot connecting" id="statusDot"></span>
+            </div>
+        </div>
+        
+        <!-- Auth Section -->
+        <div id="authSection" class="auth-section">
+            <h2 id="authTitle">Login</h2>
+            <input type="text" id="username" placeholder="Username" />
+            <input type="password" id="password" placeholder="Password" />
+            <input type="email" id="email" placeholder="Email (optional)" class="hidden" />
+            <button id="authButton">Login</button>
+            <span class="toggle-link" id="toggleAuth">Don't have an account? Register</span>
+            <div id="authMessage" style="color: #ff6b6b; margin-top: 10px; text-align: center;"></div>
+        </div>
+        
+        <!-- User Info -->
+        <div id="userInfo" class="user-info">
+            <h3>Welcome, <span id="displayUsername">User</span>!</h3>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin: 10px 0;">
+                <div>⭐ XP: <span id="userXp">0</span></div>
+                <div>🎮 Games: <span id="userGames">0</span></div>
+                <div>👥 Friends: <span id="userFriends">0</span></div>
+            </div>
+            <div>Your Friend Code: <span class="friend-code" id="friendCode">------</span></div>
+            <button onclick="logout()" style="margin-top: 10px; padding: 8px 20px; background: #e94560; border: none; border-radius: 5px; color: #fff; cursor: pointer;">Logout</button>
+        </div>
+        
+        <!-- Games Grid -->
+        <h2 style="margin-top: 40px;">🎮 All Games</h2>
+        <div id="gamesContainer" class="game-grid">
+            <!-- Games will be loaded here -->
+        </div>
+    </div>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlNDLv-6M3Qt6skPY6e37t8-cCBieck00",
+            authDomain: "mono-launchgamepad.firebaseapp.com",
+            projectId: "mono-launchgamepad",
+            storageBucket: "mono-launchgamepad.firebasestorage.app"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // State
+        let currentUser = null;
+        let isLogin = true;
+        
+        // DOM Elements
+        const authSection = document.getElementById('authSection');
+        const userInfo = document.getElementById('userInfo');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const emailInput = document.getElementById('email');
+        const authButton = document.getElementById('authButton');
+        const toggleAuth = document.getElementById('toggleAuth');
+        const authTitle = document.getElementById('authTitle');
+        const authMessage = document.getElementById('authMessage');
+        const statusText = document.getElementById('statusText');
+        const statusDot = document.getElementById('statusDot');
+        
+        // Connection Status
+        function updateConnectionStatus(connected) {
+            if (connected) {
+                statusText.textContent = 'Online';
+                statusDot.className = 'status-dot online';
+            } else {
+                statusText.textContent = 'Offline';
+                statusDot.className = 'status-dot offline';
+            }
+        }
+        
+        // Check Connection
+        function checkConnection() {
+            db.collection('users').limit(1).get()
+                .then(() => updateConnectionStatus(true))
+                .catch(() => updateConnectionStatus(false));
+        }
+        checkConnection();
+        setInterval(checkConnection, 30000);
+        
+        // Games Data
+        const games = [
+            { id: 'space', name: 'Space Shooter', icon: '🚀', category: 'Space', file: 'space/space.html' },
+            { id: 'asteroid', name: 'Asteroid Dodge', icon: '☄️', category: 'Space', file: 'space/asteroiddodge.html' },
+            { id: 'tictactoe', name: 'Tic Tac Toe', icon: '❌', category: 'Arcade', file: 'a/tictactoe.html' },
+            { id: 'snake', name: 'Snake', icon: '🐍', category: 'Arcade', file: 'a/snake.html' },
+            { id: 'fishing', name: 'Fishing Sim', icon: '🎣', category: 'Simulation', file: 'a/fishing.html' },
+            { id: 'sims', name: 'Sims Mini', icon: '🏠', category: 'Simulation', file: 'sim/sims.html' }
+        ];
+        
+        // Load Games
+        function loadGames() {
+            const container = document.getElementById('gamesContainer');
+            container.innerHTML = '';
+            games.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.innerHTML = `
+                    <div class="icon">${game.icon}</div>
+                    <h3>${game.name}</h3>
+                    <div class="category">${game.category}</div>
+                `;
+                card.onclick = () => playGame(game.file);
+                container.appendChild(card);
+            });
+        }
+        
+        function playGame(file) {
+            if (!currentUser) {
+                authMessage.textContent = 'Please login first!';
+                return;
+            }
+            window.open(file, '_blank');
+        }
+        
+        // Auth Functions
+        async function login() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (!username || !password) {
+                authMessage.textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            try {
+                const userDoc = await db.collection('users').doc(username).get();
+                if (!userDoc.exists) {
+                    authMessage.textContent = 'User not found';
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                if (userData.password !== password) {
+                    authMessage.textContent = 'Incorrect password';
+                    return;
+                }
+                
+                currentUser = username;
+                showUserInfo(userData);
+                authMessage.textContent = '✅ Login successful!';
+                authMessage.style.color = '#00ff88';
+                authSection.style.display = 'none';
+                userInfo.classList.add('active');
+                updateConnectionStatus(true);
+                
+                // Update stats
+                document.getElementById('displayUsername').textContent = username;
+                document.getElementById('userXp').textContent = userData.xp || 0;
+                document.getElementById('userGames').textContent = userData.gamesPlayed || 0;
+                document.getElementById('userFriends').textContent = (userData.friends || []).length;
+                document.getElementById('friendCode').textContent = userData.friendCode || '------';
+                
+            } catch (error) {
+                authMessage.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function register() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            const email = emailInput.value.trim();
+            
+            if (!username || !password) {
+                authMessage.textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            if (username.length < 3) {
+                authMessage.textContent = 'Username must be at least 3 characters';
+                return;
+            }
+            
+            if (password.length < 6) {
+                authMessage.textContent = 'Password must be at least 6 characters';
+                return;
+            }
+            
+            try {
+                const userDoc = await db.collection('users').doc(username).get();
+                if (userDoc.exists) {
+                    authMessage.textContent = 'Username already taken';
+                    return;
+                }
+                
+                const friendCode = generateFriendCode();
+                
+                await db.collection('users').doc(username).set({
+                    password: password,
+                    email: email || '',
+                    friendCode: friendCode,
+                    friends: [],
+                    friendRequests: [],
+                    bio: '',
+                    achievements: [],
+                    gameAchievements: {},
+                    chatCount: 0,
+                    xp: 0,
+                    gamesPlayed: 0,
+                    createdAt: new Date().toISOString()
+                });
+                
+                authMessage.textContent = '✅ Registration successful! Please login.';
+                authMessage.style.color = '#00ff88';
+                toggleAuth.click();
+                
+            } catch (error) {
+                authMessage.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        function generateFriendCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+        
+        function showUserInfo(userData) {
+            // Show user info
+        }
+        
+        function logout() {
+            currentUser = null;
+            userInfo.classList.remove('active');
+            authSection.style.display = 'block';
+            authTitle.textContent = 'Login';
+            authButton.textContent = 'Login';
+            isLogin = true;
+            toggleAuth.textContent = "Don't have an account? Register";
+            usernameInput.value = '';
+            passwordInput.value = '';
+            emailInput.value = '';
+            emailInput.classList.add('hidden');
+            authMessage.textContent = '';
+            updateConnectionStatus(true);
+        }
+        
+        // Event Listeners
+        authButton.onclick = () => {
+            authMessage.textContent = '';
+            if (isLogin) {
+                login();
+            } else {
+                register();
+            }
+        };
+        
+        toggleAuth.onclick = () => {
+            isLogin = !isLogin;
+            if (isLogin) {
+                authTitle.textContent = 'Login';
+                authButton.textContent = 'Login';
+                toggleAuth.textContent = "Don't have an account? Register";
+                emailInput.classList.add('hidden');
+            } else {
+                authTitle.textContent = 'Register';
+                authButton.textContent = 'Register';
+                toggleAuth.textContent = "Already have an account? Login";
+                emailInput.classList.remove('hidden');
+            }
+            authMessage.textContent = '';
+        };
+        
+        // Enter key support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && authSection.style.display !== 'none') {
+                authButton.click();
+            }
+        });
+        
+        // Load games on startup
+        loadGames();
+        checkConnection();
+        
+        console.log('🚀 Launchpad Games Hub loaded!');
+    </script>
+</body>
+</html>

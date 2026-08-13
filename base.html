@@ -468,7 +468,7 @@
         <input type="text" id="loginUsername" placeholder="Enter username">
         <label for="loginPassword">Password</label>
         <input type="password" id="loginPassword" placeholder="Enter password">
-        <button class="submit-btn" id="loginSubmitBtn">Login</button>
+        <button class="submit-btn" id="loginSubmitBtn" onclick="loginUser()">Login</button>
         <div class="switch-link" id="switchToRegister">Don't have an account? Register</div>
     </div>
 </div>
@@ -485,7 +485,7 @@
         <input type="email" id="registerEmail" placeholder="Enter your email" autocomplete="off">
         <label for="registerPassword">Password</label>
         <input type="password" id="registerPassword" placeholder="Choose a password (min 4 characters)">
-        <button class="submit-btn" id="registerSubmitBtn">Register</button>
+        <button class="submit-btn" id="registerSubmitBtn" onclick="registerUser()">Register</button>
         <div class="switch-link" id="switchToLogin">Already have an account? Login</div>
     </div>
 </div>
@@ -1754,6 +1754,7 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
+
 
 
 

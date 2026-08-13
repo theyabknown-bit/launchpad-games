@@ -1,251 +1,341 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Launchpad Games Hub</title>
-    <!-- CSP meta (fallback) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; style-src * 'self' 'unsafe-inline'; img-src * 'self' data: https:; connect-src * 'self' https:;">
+    <title>🚀 Launchpad Games Hub</title>
+    <!-- No Firebase, no CSP issues -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
-    <!-- Include Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* minimal styling for forms */
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #d0e8f0; font-size: 14px; }
-        .form-group input { padding: 10px; border: 2px solid rgba(79,195,247,0.1); border-radius: 8px; background: rgba(0,0,0,0.3); color: #d0e8f0; font-size: 14px; }
-        .form-group input:focus { border-color: #4fc3f7; outline: none; }
-        .btn-primary { background: #4fc3f7; color: #0b1a26; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
-        .btn-success { background: #7cf5b0; color: #0b1a26; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0a1a; color: #d0e8f0; font-family: 'Segoe UI', Roboto, sans-serif; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; flex-wrap: wrap; gap: 10px; }
+        .header .logo { font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, #4fc3f7, #7cf5b0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .profile-area { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(79,195,247,0.1); }
+        .profile-area .username { font-weight: 600; }
+        .profile-area .code { color: #4fc3f7; font-size: 0.8rem; cursor: pointer; }
+        .profile-area .code:hover { text-decoration: underline; }
+        .btn { background: #4fc3f7; color: #0b1a26; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn:hover { transform: scale(1.02); background: #7cf5b0; }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: #d0e8f0; border: 1px solid rgba(255,255,255,0.1); }
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 1000; }
+        .modal.show { display: flex; }
+        .modal-content { background: #1a1a2e; padding: 30px; border-radius: 16px; max-width: 400px; width: 90%; border: 1px solid rgba(79,195,247,0.1); }
+        .modal-content h2 { margin-bottom: 15px; }
+        .modal-content input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(79,195,247,0.2); background: rgba(0,0,0,0.3); color: #d0e8f0; margin-bottom: 12px; }
+        .modal-content .btn { width: 100%; }
+        .close { float: right; cursor: pointer; color: #8899aa; font-size: 1.5rem; }
+        /* Friends list */
+        .friends-section { margin: 20px 0; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(79,195,247,0.05); }
+        .friends-section h3 { margin-bottom: 10px; color: #7cf5b0; }
+        .friend-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .friend-item .name { color: #d0e8f0; }
+        .friend-item .code { color: #4fc3f7; font-size: 0.7rem; }
+        /* Games Grid */
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
+        .game-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(79,195,247,0.05); border-radius: 12px; padding: 15px; text-align: center; transition: 0.2s; text-decoration: none; color: inherit; }
+        .game-card:hover { transform: translateY(-3px); border-color: #4fc3f7; box-shadow: 0 8px 25px rgba(79,195,247,0.05); }
+        .game-card .icon { font-size: 2.5rem; margin-bottom: 8px; }
+        .game-card .name { font-weight: 600; font-size: 0.9rem; }
+        .game-card .sub { font-size: 0.7rem; color: #8899aa; }
+        /* Responsive */
+        @media (max-width: 600px) { .header { flex-direction: column; align-items: stretch; } .profile-area { justify-content: center; } }
     </style>
 </head>
 <body>
-    <!-- Your existing content goes here -->
-    <!-- We'll keep it minimal for demo; but we'll put the forms with labels -->
-
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="document.getElementById('loginModal').classList.remove('show')">&times;</span>
-            <h2>Login</h2>
-            <form id="loginForm" onsubmit="return false;">
-                <div class="form-group">
-                    <label for="loginUsername">Username</label>
-                    <input type="text" id="loginUsername" placeholder="Enter username" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter password" required>
-                </div>
-                <div id="loginError" style="display:none;color:#ff6b6b;"></div>
-                <button type="submit" class="btn-primary" id="loginSubmitBtn" onclick="loginUser()">Login</button>
-            </form>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">🚀 Launchpad</div>
+        <div class="profile-area" id="profileArea">
+            <span class="username" id="displayName">Guest</span>
+            <span class="code" id="displayCode" onclick="copyCode()">📋 Invite Code</span>
+            <button class="btn btn-secondary" onclick="openProfileModal()">👤 Profile</button>
         </div>
     </div>
 
-    <!-- Register Modal -->
-    <div id="registerModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="document.getElementById('registerModal').classList.remove('show')">&times;</span>
-            <h2>Register</h2>
-            <form id="registerForm" onsubmit="return false;">
-                <div class="form-group">
-                    <label for="regUsername">Username</label>
-                    <input type="text" id="regUsername" placeholder="Choose username" required>
-                </div>
-                <div class="form-group">
-                    <label for="regEmail">Email</label>
-                    <input type="email" id="regEmail" placeholder="Enter email" required>
-                </div>
-                <div class="form-group">
-                    <label for="regPassword">Password</label>
-                    <input type="password" id="regPassword" placeholder="Choose password" required>
-                </div>
-                <div class="form-group">
-                    <label for="regConfirmPassword">Confirm Password</label>
-                    <input type="password" id="regConfirmPassword" placeholder="Confirm password" required>
-                </div>
-                <div id="registerError" style="display:none;color:#ff6b6b;"></div>
-                <button type="submit" class="btn-success" id="registerSubmitBtn" onclick="registerUser()">Register</button>
-            </form>
-        </div>
+    <!-- Friends Section -->
+    <div class="friends-section" id="friendsSection">
+        <h3>👥 Friends</h3>
+        <div id="friendsList">No friends yet. Share your invite code!</div>
+        <button class="btn btn-secondary" onclick="openAddFriendModal()" style="margin-top:10px;">➕ Add Friend by Code</button>
     </div>
 
-    <script>
-        // ============================================================
-        // FIREBASE CONFIG (with modern settings)
-        // ============================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyBlNDLv-6M3Qt6skPY6e37t8-cCBieck00",
-            authDomain: "mono-launchgamepad.firebaseapp.com",
-            projectId: "mono-launchgamepad",
-            storageBucket: "mono-launchgamepad.firebasestorage.app",
-            messagingSenderId: "577252894102",
-            appId: "1:577252894102:web:f67df25ddaa7096e5029b7",
-            measurementId: "G-9FFFLNB8T1"
-        };
+    <!-- Games Grid -->
+    <div class="games-grid" id="gamesGrid">
+        <!-- Games will be rendered here -->
+    </div>
+</div>
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+<!-- Profile Modal -->
+<div class="modal" id="profileModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('profileModal')">&times;</span>
+        <h2>👤 Your Profile</h2>
+        <p><strong>Username:</strong> <span id="modalUsername">-</span></p>
+        <p><strong>Invite Code:</strong> <span id="modalCode">-</span></p>
+        <p><strong>Friends:</strong> <span id="modalFriendCount">0</span></p>
+        <button class="btn" onclick="copyCode()">📋 Copy Invite Code</button>
+        <button class="btn btn-secondary" style="margin-top:10px;" onclick="resetProfile()">🔄 Reset Profile</button>
+    </div>
+</div>
 
-        // Modern cache settings (prevents deprecation warning)
-        db.settings({
-            cache: {
-                enabled: true,
-                tabSync: true
-            }
-        });
+<!-- Add Friend Modal -->
+<div class="modal" id="addFriendModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('addFriendModal')">&times;</span>
+        <h2>➕ Add Friend</h2>
+        <p>Enter your friend's invite code:</p>
+        <input type="text" id="friendCodeInput" placeholder="e.g. ABC123">
+        <button class="btn" onclick="addFriend()">Add Friend</button>
+        <div id="addFriendError" style="color:#ff6b6b;margin-top:8px;"></div>
+    </div>
+</div>
 
-        console.log("✅ Firestore configured");
+<!-- Onboarding Modal (first visit) -->
+<div class="modal" id="onboardingModal">
+    <div class="modal-content">
+        <h2>👋 Welcome!</h2>
+        <p>Choose a username to get started:</p>
+        <input type="text" id="onboardingUsername" placeholder="Your username">
+        <button class="btn" onclick="createProfile()">Let's Go!</button>
+        <div id="onboardingError" style="color:#ff6b6b;margin-top:8px;"></div>
+    </div>
+</div>
 
-        // ============================================================
-        // CONSOLE WARN SUPPRESSION (fixes unload violations)
-        // ============================================================
-        (function() {
-            var ow = console.warn;
-            console.warn = function() {
-                if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
-                    return;
-                }
-                ow.apply(console, arguments);
-            };
-            console.log("✅ unload warnings suppressed");
-        })();
-
-        // ============================================================
-        // REGISTRATION & LOGIN (global functions)
-        // ============================================================
-        window.registerUser = function() {
-            console.log("🔵 Register clicked");
-            var username = document.getElementById('regUsername').value.trim();
-            var email = document.getElementById('regEmail').value.trim();
-            var password = document.getElementById('regPassword').value.trim();
-            var error = document.getElementById('registerError');
-
-            error.style.display = 'none';
-            error.textContent = '';
-
-            if (!username || !email || !password) {
-                error.textContent = '⚠️ Please fill in all fields';
-                error.style.display = 'block';
-                return;
-            }
-            if (username.length < 3) {
-                error.textContent = '⚠️ Username must be at least 3 characters';
-                error.style.display = 'block';
-                return;
-            }
-            if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
-                error.textContent = '⚠️ Please enter a valid email';
-                error.style.display = 'block';
-                return;
-            }
-            if (password.length < 4) {
-                error.textContent = '⚠️ Password must be at least 4 characters';
-                error.style.display = 'block';
-                return;
-            }
-
-            // Save offline (localStorage) – simple demo
-            var users = JSON.parse(localStorage.getItem('offlineUsers') || '{}');
-            if (users[username]) {
-                error.textContent = '⚠️ Username "' + username + '" already taken';
-                error.style.display = 'block';
-                return;
-            }
-
-            users[username] = {
-                password: password,
-                email: email,
-                friendCode: '123ABC',
-                deviceName: 'Browser',
-                friends: [],
-                friendRequests: [],
-                bio: '',
-                achievements: [],
-                gameAchievements: [],
-                chatCount: 0,
-                createdAt: new Date().toISOString()
-            };
-            localStorage.setItem('offlineUsers', JSON.stringify(users));
-
-            // Auto-login
-            localStorage.setItem('launchPadUser', username);
-            alert('🎉 Registration successful! Welcome ' + username + '!');
-            document.getElementById('registerModal').classList.remove('show');
-            // You can reload or update UI here
-            location.reload(); // simplest for demo
-        };
-
-        window.loginUser = function() {
-            console.log("🔵 Login clicked");
-            var username = document.getElementById('loginUsername').value.trim();
-            var password = document.getElementById('loginPassword').value.trim();
-            var error = document.getElementById('loginError');
-
-            error.style.display = 'none';
-            error.textContent = '';
-
-            if (!username || !password) {
-                error.textContent = '⚠️ Please enter username and password';
-                error.style.display = 'block';
-                return;
-            }
-
-            var users = JSON.parse(localStorage.getItem('offlineUsers') || '{}');
-            if (!users[username]) {
-                error.textContent = '⚠️ Username not found. Please register first.';
-                error.style.display = 'block';
-                return;
-            }
-            if (users[username].password !== password) {
-                error.textContent = '⚠️ Incorrect password';
-                error.style.display = 'block';
-                return;
-            }
-
-            localStorage.setItem('launchPadUser', username);
-            alert('🎉 Welcome back, ' + username + '!');
-            document.getElementById('loginModal').classList.remove('show');
-            location.reload();
-        };
-
-        console.log("✅ registerUser and loginUser ready");
-
-        // ============================================================
-        // AUTO‑LABEL FALLBACK (for any other inputs)
-        // ============================================================
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"])').forEach(function(input) {
-                if (!input.id) return;
-                if (!document.querySelector('label[for="' + input.id + '"]')) {
-                    var label = document.createElement('label');
-                    label.setAttribute('for', input.id);
-                    label.textContent = input.placeholder || input.name || input.id;
-                    input.parentNode.insertBefore(label, input);
-                }
-            });
-        });
-    </script>
 <script>
-// Register Service Worker to override CSP
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-        .then(function(reg) {
-            console.log('✅ Service Worker registered with scope:', reg.scope);
-        })
-        .catch(function(err) {
-            console.error('❌ Service Worker registration failed:', err);
-        });
-    // Force reload once the worker takes control
-    navigator.serviceWorker.addEventListener('controllerchange', function() {
-        console.log('🔄 Service Worker activated – reloading to apply CSP');
-        location.reload();
+// ============================================================
+// DATA LAYER (localStorage)
+// ============================================================
+let currentUser = null;
+let users = {};
+
+function loadData() {
+    try { users = JSON.parse(localStorage.getItem('launchpad_users') || '{}'); } catch(e) { users = {}; }
+    const saved = localStorage.getItem('launchpad_current_user');
+    if (saved) {
+        const u = JSON.parse(saved);
+        if (users[u.username]) currentUser = users[u.username];
+    }
+}
+
+function saveUsers() {
+    localStorage.setItem('launchpad_users', JSON.stringify(users));
+}
+
+function saveCurrentUser() {
+    localStorage.setItem('launchpad_current_user', JSON.stringify({ username: currentUser.username }));
+}
+
+// ============================================================
+// INVITE CODE GENERATION
+// ============================================================
+function generateCode() {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+// ============================================================
+// PROFILE & INVITE SYSTEM
+// ============================================================
+function createProfile() {
+    const username = document.getElementById('onboardingUsername').value.trim();
+    const error = document.getElementById('onboardingError');
+    error.textContent = '';
+    if (!username) { error.textContent = 'Please enter a username.'; return; }
+    if (users[username]) { error.textContent = 'Username already taken.'; return; }
+
+    const code = generateCode();
+    users[username] = {
+        username: username,
+        code: code,
+        friends: [] // list of usernames
+    };
+    currentUser = users[username];
+    saveUsers();
+    saveCurrentUser();
+    document.getElementById('onboardingModal').classList.remove('show');
+    updateUI();
+}
+
+function addFriend() {
+    const code = document.getElementById('friendCodeInput').value.trim().toUpperCase();
+    const error = document.getElementById('addFriendError');
+    error.textContent = '';
+    if (!code) { error.textContent = 'Please enter a code.'; return; }
+    // Find user with this code
+    let found = null;
+    for (let u in users) {
+        if (users[u].code === code && u !== currentUser.username) {
+            found = u;
+            break;
+        }
+    }
+    if (!found) { error.textContent = 'No user found with that code.'; return; }
+    if (currentUser.friends.includes(found)) { error.textContent = 'Already friends.'; return; }
+
+    currentUser.friends.push(found);
+    saveUsers();
+    saveCurrentUser();
+    document.getElementById('addFriendModal').classList.remove('show');
+    document.getElementById('friendCodeInput').value = '';
+    updateUI();
+}
+
+function copyCode() {
+    if (!currentUser) return;
+    navigator.clipboard.writeText(currentUser.code).then(() => {
+        alert('Invite code copied: ' + currentUser.code);
+    }).catch(() => {
+        // fallback
+        const input = document.createElement('input');
+        input.value = currentUser.code;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        alert('Invite code copied: ' + currentUser.code);
     });
 }
+
+function resetProfile() {
+    if (!currentUser) return;
+    if (confirm('This will delete your profile and all data. Continue?')) {
+        delete users[currentUser.username];
+        currentUser = null;
+        localStorage.removeItem('launchpad_current_user');
+        saveUsers();
+        updateUI();
+        // Show onboarding again
+        document.getElementById('onboardingModal').classList.add('show');
+    }
+}
+
+// ============================================================
+// UI UPDATE
+// ============================================================
+function updateUI() {
+    if (!currentUser) {
+        // Show onboarding
+        document.getElementById('onboardingModal').classList.add('show');
+        document.getElementById('displayName').textContent = 'Guest';
+        document.getElementById('displayCode').textContent = '📋 No Profile';
+        document.getElementById('friendsList').innerHTML = 'Please create a profile.';
+        return;
+    }
+
+    document.getElementById('displayName').textContent = currentUser.username;
+    document.getElementById('displayCode').textContent = '📋 ' + currentUser.code;
+    document.getElementById('modalUsername').textContent = currentUser.username;
+    document.getElementById('modalCode').textContent = currentUser.code;
+    document.getElementById('modalFriendCount').textContent = currentUser.friends.length;
+
+    // Friends list
+    const list = document.getElementById('friendsList');
+    if (currentUser.friends.length === 0) {
+        list.innerHTML = 'No friends yet. Share your invite code!';
+    } else {
+        list.innerHTML = currentUser.friends.map(f => {
+            const friend = users[f];
+            return `<div class="friend-item"><span class="name">${f}</span><span class="code">${friend ? friend.code : '???'}</span></div>`;
+        }).join('');
+    }
+}
+
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function openProfileModal() { document.getElementById('profileModal').classList.add('show'); }
+function openAddFriendModal() { document.getElementById('addFriendModal').classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// Click outside to close modals
+document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+});
+
+// ============================================================
+// GAME RENDERING (keep your games)
+// ============================================================
+const GAMES = {
+    space: [
+        { id: 'space', name: 'Space Explorer', icon: 'fa-rocket', file: 'space/space.html' },
+        { id: 'asteroid', name: 'Asteroid Dodge', icon: 'fa-meteor', file: 'space/asteroiddodge.html' },
+        { id: 'planetbuilder', name: 'Planet Builder', icon: 'fa-globe', file: 'space/PlanetBuilder.html' },
+        { id: 'aliens', name: 'Alien Translator', icon: 'fa-language', file: 'space/AlienTranslator.html' },
+        { id: 'station', name: 'Space Station', icon: 'fa-space-shuttle', file: 'space/SpaceStationManager.html' },
+        { id: 'mining', name: 'Asteroid Mining', icon: 'fa-gem', file: 'space/AsteroidMining.html' },
+        { id: 'delivery', name: 'Galactic Delivery', icon: 'fa-truck', file: 'space/GalacticDelivery.html' },
+        { id: 'blackhole', name: 'Black Hole Escape', icon: 'fa-circle', file: 'space/BlackHoleEscape.html' },
+        { id: 'alienzoo', name: 'Alien Zoo', icon: 'fa-paw', file: 'space/AlienZoo.html' }
+    ],
+    arcade: [
+        { id: 'tictactoe', name: 'Tic Tac Toe', icon: 'fa-hashtag', file: 'a/tictactoe.html' },
+        { id: 'snake', name: 'Snake', icon: 'fa-cubes', file: 'a/snake.html' },
+        { id: 'simon', name: 'Simon Says', icon: 'fa-bolt', file: 'a/simon.html' },
+        { id: 'hangman', name: 'Hangman', icon: 'fa-font', file: 'a/hangman.html' },
+        { id: 'whackamole', name: 'Whack-A-Mole', icon: 'fa-hammer', file: 'a/whackamole.html' },
+        { id: 'scam', name: 'ScamSavvy', icon: 'fa-shield', file: 'a/scam.html' },
+        { id: 'wordblitz', name: 'Word Blitz', icon: 'fa-keyboard', file: 'a/wordblitz.html' },
+        { id: 'colormatch', name: 'Color Match', icon: 'fa-palette', file: 'a/colormatch.html' },
+        { id: 'numbercrunch', name: 'Number Crunch', icon: 'fa-calculator', file: 'a/numbercrunch.html' },
+        { id: 'reactiontap', name: 'Reaction Tap', icon: 'fa-hand-pointer', file: 'a/reactiontap.html' },
+        { id: 'draw', name: 'Draw It!', icon: 'fa-pen', file: 'a/draw.html' },
+        { id: 'typeracer', name: 'Type Racer', icon: 'fa-tachometer-alt', file: 'a/typeracer.html' },
+        { id: 'beatbop', name: 'Beat Bop', icon: 'fa-music', file: 'a/beatbop.html' },
+        { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', file: 'a/slidepuzzle.html' },
+        { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-question-circle', file: 'a/trivia.html' },
+        { id: 'stim', name: 'Stimulation Overload', icon: 'fa-brain', file: 'a/stim.html' },
+        { id: 'memory', name: 'Memory Card', icon: 'fa-clone', file: 'a/memorycard.html' },
+        { id: 'fishing', name: 'Fishing Sim', icon: 'fa-fish', file: 'a/fishing.html' }
+    ],
+    sim: [
+        { id: 'sims', name: 'Sims Mini', icon: 'fa-user', file: 'sim/sims.html' },
+        { id: 'doctor', name: 'MediCore', icon: 'fa-stethoscope', file: 'sim/doctor.html' },
+        { id: 'cashier', name: 'Cashier Sim', icon: 'fa-cash-register', file: 'sim/cashier.html' },
+        { id: 'hotel', name: 'Hotel Sim', icon: 'fa-hotel', file: 'sim/hotel.html' }
+    ]
+};
+
+function renderGames() {
+    const grid = document.getElementById('gamesGrid');
+    grid.innerHTML = '';
+    const categories = ['space', 'arcade', 'sim'];
+    categories.forEach(cat => {
+        const games = GAMES[cat] || [];
+        games.forEach(game => {
+            const card = document.createElement('a');
+            card.className = 'game-card';
+            card.href = game.file;
+            card.innerHTML = `
+                <div class="icon"><i class="fas ${game.icon}"></i></div>
+                <div class="name">${game.name}</div>
+                <div class="sub">${cat}</div>
+            `;
+            grid.appendChild(card);
+        });
+    });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadData();
+if (currentUser) {
+    updateUI();
+} else {
+    // Show onboarding
+    document.getElementById('onboardingModal').classList.add('show');
+    updateUI();
+}
+renderGames();
+
+console.log('🚀 Launchpad loaded (no Firebase)');
 </script>
 </body>
 </html>
-

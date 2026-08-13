@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 Sims Mini</title>
+    <title>🧬 Sims Mini</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,7 +19,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 700px;
+            max-width: 750px;
             width: 100%;
             background: rgba(26,51,68,0.3);
             backdrop-filter: blur(10px);
@@ -30,7 +30,7 @@
         }
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .header .title {
             font-size: 2.2rem;
@@ -39,45 +39,44 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .header .sub {
-            color: #8899aa;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-        }
-        .stats {
+        .header .sub { color: #8899aa; font-size: 0.8rem; letter-spacing: 2px; }
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
         }
         .stat {
             background: rgba(0,0,0,0.3);
-            padding: 10px 12px;
-            border-radius: 12px;
+            padding: 8px 10px;
+            border-radius: 10px;
             border: 1px solid rgba(79,195,247,0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 0.85rem;
         }
-        .stat .label { font-size: 0.8rem; color: #8899aa; }
-        .stat .value { font-weight: 700; font-size: 1.1rem; }
+        .stat .label { color: #8899aa; }
+        .stat .value { font-weight: 700; }
         .stat .value.money { color: #ffd93d; }
         .stat .value.happiness { color: #ff6b6b; }
         .stat .value.energy { color: #4fc3f7; }
         .stat .value.knowledge { color: #7cf5b0; }
+        .stat .value.age { color: #a29bfe; }
+        .stat .value.jail { color: #ff6b6b; }
 
         .actions {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 15px 0;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 10px 0;
         }
         .btn {
-            padding: 12px;
+            padding: 10px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: 0.2s;
             color: #0b1a26;
@@ -88,45 +87,35 @@
         .btn-study { background: linear-gradient(135deg, #7cf5b0, #4fc3f7); }
         .btn-work { background: linear-gradient(135deg, #ffd93d, #f6b93b); }
         .btn-relax { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
-        .btn-job { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; }
+        .btn-day { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; }
+        .btn-crime { background: linear-gradient(135deg, #fd79a8, #e17055); color: white; }
+        .btn-lawyer { background: linear-gradient(135deg, #00b894, #00a381); color: white; }
+        .btn-friend { background: linear-gradient(135deg, #fdcb6e, #f9a825); color: #0b1a26; }
 
-        .job-section {
-            margin: 15px 0;
-            padding: 15px;
+        .section {
+            margin: 12px 0;
+            padding: 12px;
             background: rgba(0,0,0,0.2);
             border-radius: 12px;
             border: 1px solid rgba(79,195,247,0.05);
         }
-        .job-section select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            background: rgba(0,0,0,0.3);
-            color: #d0e8f0;
-            border: 1px solid rgba(79,195,247,0.2);
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-        .job-section .job-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            color: #8899aa;
-        }
-        .job-section .job-info span { color: #d0e8f0; }
+        .section h3 { font-size: 1rem; margin-bottom: 6px; color: #4fc3f7; }
+        .section .info { font-size: 0.85rem; color: #8899aa; }
+
+        .friend-item { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; }
+        .friend-item .name { color: #d0e8f0; }
+        .friend-item .age { color: #a29bfe; }
 
         .message {
             background: rgba(255,255,255,0.03);
             padding: 10px;
             border-radius: 8px;
-            margin-top: 15px;
+            margin-top: 12px;
             text-align: center;
             min-height: 40px;
             font-size: 0.9rem;
             border: 1px solid rgba(255,255,255,0.05);
         }
-        .message .emoji { margin-right: 6px; }
-
         .back-btn {
             display: inline-block;
             margin-top: 15px;
@@ -136,8 +125,34 @@
         }
         .back-btn:hover { text-decoration: underline; }
 
-        @media (max-width: 500px) {
-            .stats { grid-template-columns: 1fr 1fr; }
+        .crime-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+        .crime-btn {
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+            color: #d0e8f0;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: 0.2s;
+        }
+        .crime-btn:hover { background: rgba(255,107,107,0.2); border-color: #ff6b6b; }
+
+        .lawyer-options { display: flex; gap: 10px; margin: 6px 0; }
+        .lawyer-btn {
+            padding: 4px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(79,195,247,0.2);
+            background: rgba(79,195,247,0.05);
+            color: #d0e8f0;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .lawyer-btn:hover { background: rgba(79,195,247,0.15); }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
             .actions { grid-template-columns: 1fr 1fr; }
         }
     </style>
@@ -145,69 +160,113 @@
 <body>
 <div class="container">
     <div class="header">
-        <div class="title">🏠 Sims Mini</div>
-        <div class="sub">Live your digital life</div>
+        <div class="title">🧬 Sims Mini</div>
+        <div class="sub">Live. Grow. Survive.</div>
     </div>
 
     <!-- Stats -->
-    <div class="stats">
+    <div class="stats-grid">
         <div class="stat"><span class="label">💰 Money</span><span class="value money" id="money">100</span></div>
         <div class="stat"><span class="label">😊 Happiness</span><span class="value happiness" id="happiness">80</span></div>
         <div class="stat"><span class="label">⚡ Energy</span><span class="value energy" id="energy">70</span></div>
         <div class="stat"><span class="label">📚 Knowledge</span><span class="value knowledge" id="knowledge">10</span></div>
+        <div class="stat"><span class="label">🎂 Age</span><span class="value age" id="age">18</span></div>
+        <div class="stat"><span class="label">⛓️ Jail</span><span class="value jail" id="jailStatus">Free</span></div>
     </div>
 
-    <!-- Actions -->
+    <!-- Main Actions -->
     <div class="actions">
         <button class="btn btn-study" onclick="study()"><i class="fas fa-book"></i> Study</button>
         <button class="btn btn-work" onclick="work()"><i class="fas fa-briefcase"></i> Work</button>
         <button class="btn btn-relax" onclick="relax()"><i class="fas fa-bed"></i> Relax</button>
-        <button class="btn btn-job" onclick="showJobInfo()"><i class="fas fa-user-tie"></i> Job Info</button>
+        <button class="btn btn-day" onclick="passDay()"><i class="fas fa-calendar-day"></i> Pass Day</button>
+        <button class="btn btn-crime" onclick="showCrimes()"><i class="fas fa-gavel"></i> Commit Crime</button>
+        <button class="btn btn-lawyer" onclick="showLawyer()"><i class="fas fa-balance-scale"></i> Hire Lawyer</button>
+        <button class="btn btn-friend" onclick="makeFriend()"><i class="fas fa-user-plus"></i> Make Friend</button>
     </div>
 
-    <!-- Job System -->
-    <div class="job-section">
-        <label for="jobSelect">Choose your career:</label>
-        <select id="jobSelect" onchange="changeJob()">
-            <option value="unemployed">Unemployed ($0/hr)</option>
-            <option value="cashier">Cashier ($5/hr)</option>
-            <option value="teacher">Teacher ($10/hr)</option>
-            <option value="doctor">Doctor ($15/hr) - needs Knowledge 30</option>
-            <option value="programmer">Programmer ($20/hr) - needs Knowledge 50</option>
-            <option value="engineer">Engineer ($25/hr) - needs Knowledge 70</option>
-        </select>
-        <div class="job-info">
-            <span>Current Job: <span id="currentJobDisplay">Unemployed</span></span>
-            <span>Pay: <span id="payDisplay">$0</span>/hr</span>
-        </div>
+    <!-- Friend List -->
+    <div class="section" id="friendSection">
+        <h3>👥 Friends (<span id="friendCount">0</span>)</h3>
+        <div id="friendList"><span style="color:#8899aa; font-size:0.85rem;">Make friends to build your circle.</span></div>
     </div>
 
-    <!-- Message Area -->
-    <div class="message" id="message">💡 Click Study to gain knowledge, Work to earn money!</div>
+    <!-- Dynamic crime/lawyer UI -->
+    <div id="dynamicUI"></div>
+
+    <!-- Message -->
+    <div class="message" id="message">💡 Study to gain knowledge, Work to earn money, Pass Day to age.</div>
 
     <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a>
 </div>
 
 <script>
 // ============================================================
-// SIMS STATE (saved in localStorage)
+// CONFIG & STATE
 // ============================================================
 const DEFAULT_STATE = {
     money: 100,
     happiness: 80,
     energy: 70,
     knowledge: 10,
-    job: 'unemployed'
+    age: 18,
+    jailDays: 0,          // days left in jail
+    lawyer: null,         // 'public' or 'private'
+    friends: [],          // array of {name, age}
+    usedCrimes: [],       // not used yet
+    dayCount: 0
 };
 
-const JOBS = {
-    unemployed: { label: 'Unemployed', pay: 0, reqKnowledge: 0 },
-    cashier: { label: 'Cashier', pay: 5, reqKnowledge: 0 },
-    teacher: { label: 'Teacher', pay: 10, reqKnowledge: 0 },
-    doctor: { label: 'Doctor', pay: 15, reqKnowledge: 30 },
-    programmer: { label: 'Programmer', pay: 20, reqKnowledge: 50 },
-    engineer: { label: 'Engineer', pay: 25, reqKnowledge: 70 }
-};
+// Crime definitions
+const CRIMES = [
+    { id: 'theft', label: 'Petty Theft', risk: 0.2, jailDays: 1, fine: 10 },
+    { id: 'fraud', label: 'Fraud', risk: 0.3, jailDays: 2, fine: 20 },
+    { id: 'assault', label: 'Assault', risk: 0.4, jailDays: 3, fine: 30 },
+    { id: 'grandtheft', label: 'Grand Theft', risk: 0.5, jailDays: 4, fine: 50 },
+    { id: 'hacking', label: 'Hacking', risk: 0.6, jailDays: 5, fine: 80 }
+];
+
+// Name generation for 1000 unique names
+const FIRST_NAMES = [
+    "James","Mary","John","Patricia","Robert","Jennifer","Michael","Linda","William","Elizabeth",
+    "David","Barbara","Richard","Susan","Joseph","Jessica","Thomas","Sarah","Charles","Karen",
+    "Christopher","Nancy","Daniel","Lisa","Matthew","Betty","Anthony","Helen","Mark","Sandra",
+    "Donald","Donna","Steven","Carol","Paul","Ruth","Andrew","Sharon","Joshua","Michelle",
+    "Kenneth","Laura","Kevin","Sarah","Brian","Kimberly","George","Deborah","Timothy","Amanda",
+    "Ronald","Melissa","Edward","Stephanie","Jason","Rebecca","Jeffrey","Shirley","Ryan","Cynthia",
+    "Jacob","Amy","Gary","Angela","Nicholas","Anna","Eric","Ruth","Jonathan","Brenda",
+    "Stephen","Pamela","Larry","Nicole","Justin","Katherine","Scott","Samantha","Brandon","Christine",
+    "Benjamin","Emma","Samuel","Megan","Gregory","Laura","Alexander","Jacqueline","Patrick","Carolyn",
+    "Frank","Janet","Raymond","Maria","Jack","Heather","Dennis","Diane","Jerry","Julie"
+];
+
+const LAST_NAMES = [
+    "Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez",
+    "Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin",
+    "Lee","Perez","Thompson","White","Harris","Sanchez","Clark","Ramirez","Lewis","Robinson",
+    "Walker","Young","Allen","King","Wright","Scott","Torres","Nguyen","Hill","Flores",
+    "Green","Adams","Nelson","Baker","Hall","Rivera","Campbell","Mitchell","Carter","Roberts"
+];
+
+let allNames = [];
+
+function generateNames() {
+    if (allNames.length > 0) return;
+    // Generate up to 1000 unique combinations
+    for (let f of FIRST_NAMES) {
+        for (let l of LAST_NAMES) {
+            const name = f + ' ' + l;
+            allNames.push(name);
+            if (allNames.length >= 1000) break;
+        }
+        if (allNames.length >= 1000) break;
+    }
+    // Shuffle
+    for (let i = allNames.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allNames[i], allNames[j]] = [allNames[j], allNames[i]];
+    }
+}
 
 let state = {};
 
@@ -215,18 +274,23 @@ function loadState() {
     try {
         const saved = localStorage.getItem('simsUltimate');
         if (saved) {
-            state = JSON.parse(saved);
+            const parsed = JSON.parse(saved);
+            // Merge with defaults
+            state = { ...DEFAULT_STATE, ...parsed };
         } else {
             state = { ...DEFAULT_STATE };
         }
     } catch(e) {
         state = { ...DEFAULT_STATE };
     }
+    // Ensure arrays
+    if (!Array.isArray(state.friends)) state.friends = [];
+    if (!state.friends) state.friends = [];
     // Ensure all fields exist
     for (let key in DEFAULT_STATE) {
         if (!(key in state)) state[key] = DEFAULT_STATE[key];
     }
-    if (!(state.job in JOBS)) state.job = 'unemployed';
+    generateNames();
 }
 
 function saveState() {
@@ -238,14 +302,29 @@ function updateUI() {
     document.getElementById('happiness').textContent = state.happiness;
     document.getElementById('energy').textContent = state.energy;
     document.getElementById('knowledge').textContent = state.knowledge;
+    document.getElementById('age').textContent = state.age;
 
-    // Update job display
-    const job = JOBS[state.job];
-    document.getElementById('currentJobDisplay').textContent = job.label;
-    document.getElementById('payDisplay').textContent = '$' + job.pay;
+    const jailStatus = state.jailDays > 0 ? `Jail (${state.jailDays} days)` : 'Free';
+    document.getElementById('jailStatus').textContent = jailStatus;
 
-    // Set select to current job
-    document.getElementById('jobSelect').value = state.job;
+    // Friend list
+    const friendContainer = document.getElementById('friendList');
+    document.getElementById('friendCount').textContent = state.friends.length;
+    if (state.friends.length === 0) {
+        friendContainer.innerHTML = '<span style="color:#8899aa; font-size:0.85rem;">Make friends to build your circle.</span>';
+    } else {
+        friendContainer.innerHTML = state.friends.map(f =>
+            `<div class="friend-item"><span class="name">${f.name}</span><span class="age">${f.age} yo</span></div>`
+        ).join('');
+    }
+
+    // Clear dynamic UI
+    document.getElementById('dynamicUI').innerHTML = '';
+
+    // If in jail, show lawyer options
+    if (state.jailDays > 0) {
+        showLawyerUI();
+    }
 }
 
 function setMessage(text, isGood = true) {
@@ -258,13 +337,11 @@ function setMessage(text, isGood = true) {
 // ACTIONS
 // ============================================================
 function study() {
-    if (state.energy < 10) {
-        setMessage('😴 Too tired to study! Relax first.', false);
-        return;
-    }
+    if (state.jailDays > 0) { setMessage('⛓️ Cannot study while in jail!', false); return; }
+    if (state.energy < 10) { setMessage('😴 Too tired to study! Relax first.', false); return; }
     state.energy -= 10;
     state.knowledge += 5;
-    state.happiness -= 2; // studying is boring
+    state.happiness -= 2;
     if (state.happiness < 0) state.happiness = 0;
     saveState();
     updateUI();
@@ -272,38 +349,24 @@ function study() {
 }
 
 function work() {
-    const job = JOBS[state.job];
-    if (job.pay === 0) {
-        setMessage('💼 You have no job! Choose a career first.', false);
-        return;
-    }
-    if (state.energy < 15) {
-        setMessage('😴 Too tired to work! Relax first.', false);
-        return;
-    }
-    if (state.happiness < 10) {
-        setMessage('😢 Too unhappy to work! Do something fun.', false);
-        return;
-    }
-    // Check knowledge requirement
-    if (state.knowledge < job.reqKnowledge) {
-        setMessage(`📚 You need ${job.reqKnowledge} Knowledge to work as ${job.label}. Study more!`, false);
-        return;
-    }
+    if (state.jailDays > 0) { setMessage('⛓️ Cannot work in jail!', false); return; }
+    if (state.energy < 15) { setMessage('😴 Too tired to work! Relax first.', false); return; }
+    if (state.happiness < 10) { setMessage('😢 Too unhappy to work! Do something fun.', false); return; }
+    // Simple pay: $5 + knowledge bonus (1 per 10 knowledge)
+    const bonus = Math.floor(state.knowledge / 10);
+    const pay = 5 + bonus;
     state.energy -= 15;
     state.happiness -= 5;
-    state.money += job.pay;
+    state.money += pay;
     if (state.happiness < 0) state.happiness = 0;
     saveState();
     updateUI();
-    setMessage(`💰 Worked as ${job.label} and earned $${job.pay}!`);
+    setMessage(`💰 Worked and earned $${pay}!`);
 }
 
 function relax() {
-    if (state.energy >= 100) {
-        setMessage('⚡ Already full energy!', false);
-        return;
-    }
+    if (state.jailDays > 0) { setMessage('⛓️ Can relax in jail? Not really...', false); return; }
+    if (state.energy >= 100) { setMessage('⚡ Already full energy!', false); return; }
     state.energy += 20;
     if (state.energy > 100) state.energy = 100;
     state.happiness += 5;
@@ -313,28 +376,158 @@ function relax() {
     setMessage('😌 Relaxed! Energy +20, Happiness +5.');
 }
 
-// ============================================================
-// JOB SYSTEM
-// ============================================================
-function changeJob() {
-    const selected = document.getElementById('jobSelect').value;
-    const job = JOBS[selected];
-    if (state.knowledge < job.reqKnowledge) {
-        setMessage(`📚 You need ${job.reqKnowledge} Knowledge to become ${job.label}.`, false);
-        // Revert select back to current job
-        document.getElementById('jobSelect').value = state.job;
-        return;
+function passDay() {
+    // Age everyone
+    state.age += 1;
+    // Age friends
+    state.friends.forEach(f => f.age += 1);
+    // Reduce jail days
+    if (state.jailDays > 0) {
+        state.jailDays -= 1;
+        if (state.jailDays < 0) state.jailDays = 0;
+        setMessage(`⛓️ Day passed. ${state.jailDays} days left in jail.`);
+    } else {
+        setMessage(`🎂 You are now ${state.age} years old. Your friends aged too.`);
     }
-    state.job = selected;
+    // Lose some happiness/energy over time
+    state.happiness -= 2;
+    if (state.happiness < 0) state.happiness = 0;
+    state.energy -= 3;
+    if (state.energy < 0) state.energy = 0;
     saveState();
     updateUI();
-    setMessage(`💼 You are now a ${job.label}!`);
 }
 
-function showJobInfo() {
-    const job = JOBS[state.job];
-    let req = job.reqKnowledge > 0 ? `Requires ${job.reqKnowledge} Knowledge` : 'No requirements';
-    setMessage(`💼 ${job.label}: $${job.pay}/hr. ${req}`);
+// ============================================================
+// CRIME SYSTEM
+// ============================================================
+function showCrimes() {
+    if (state.jailDays > 0) {
+        setMessage('⛓️ You are in jail! Can\'t commit crimes.', false);
+        return;
+    }
+    const ui = document.getElementById('dynamicUI');
+    ui.innerHTML = `
+        <div class="section">
+            <h3>🔫 Choose a Crime</h3>
+            <div class="crime-list">
+                ${CRIMES.map(c => `
+                    <button class="crime-btn" onclick="commitCrime('${c.id}')">${c.label} (Risk ${Math.round(c.risk*100)}%)</button>
+                `).join('')}
+            </div>
+            <div style="margin-top:6px; font-size:0.8rem; color:#8899aa;">Higher risk = more jail time. Good luck!</div>
+        </div>
+    `;
+}
+
+function commitCrime(crimeId) {
+    const crime = CRIMES.find(c => c.id === crimeId);
+    if (!crime) return;
+    if (state.jailDays > 0) { setMessage('⛓️ You are already in jail!', false); return; }
+
+    const roll = Math.random();
+    if (roll < crime.risk) {
+        // Caught!
+        state.jailDays = crime.jailDays;
+        state.money -= crime.fine;
+        if (state.money < 0) state.money = 0;
+        setMessage(`🚔 Caught! You're sentenced to ${crime.jailDays} days in jail and fined $${crime.fine}.`, false);
+    } else {
+        // Success
+        const reward = crime.fine * 2 + Math.floor(Math.random() * 20);
+        state.money += reward;
+        setMessage(`🎉 Success! You earned $${reward} from ${crime.label}.`);
+    }
+    saveState();
+    updateUI();
+    document.getElementById('dynamicUI').innerHTML = ''; // clear crime list
+}
+
+// ============================================================
+// LAWYER SYSTEM
+// ============================================================
+function showLawyer() {
+    if (state.jailDays === 0) {
+        setMessage('💼 You are not in jail. No need for a lawyer.', false);
+        return;
+    }
+    showLawyerUI();
+}
+
+function showLawyerUI() {
+    const ui = document.getElementById('dynamicUI');
+    const hasPublic = state.lawyer === 'public';
+    const hasPrivate = state.lawyer === 'private';
+    ui.innerHTML = `
+        <div class="section">
+            <h3>⚖️ Hire a Lawyer</h3>
+            <div class="lawyer-options">
+                <button class="lawyer-btn" onclick="hireLawyer('public')" ${hasPublic ? 'style="border-color:#7cf5b0;"' : ''}>
+                    🆓 Public Defender ${hasPublic ? '✅' : ''}
+                </button>
+                <button class="lawyer-btn" onclick="hireLawyer('private')" ${hasPrivate ? 'style="border-color:#7cf5b0;"' : ''}>
+                    💰 Private Lawyer ($100) ${hasPrivate ? '✅' : ''}
+                </button>
+            </div>
+            <div style="font-size:0.8rem; color:#8899aa; margin-top:6px;">
+                Public: reduces jail time by 20% | Private: reduces by 50%
+            </div>
+        </div>
+    `;
+}
+
+function hireLawyer(type) {
+    if (state.jailDays === 0) {
+        setMessage('You are not in jail.', false);
+        document.getElementById('dynamicUI').innerHTML = '';
+        return;
+    }
+    if (type === 'public') {
+        state.lawyer = 'public';
+        const reduction = Math.floor(state.jailDays * 0.2);
+        state.jailDays -= reduction;
+        if (state.jailDays < 0) state.jailDays = 0;
+        setMessage(`⚖️ Public defender hired! Jail time reduced by ${reduction} days.`);
+    } else if (type === 'private') {
+        if (state.money < 100) {
+            setMessage('❌ Not enough money! Need $100.', false);
+            return;
+        }
+        state.money -= 100;
+        state.lawyer = 'private';
+        const reduction = Math.floor(state.jailDays * 0.5);
+        state.jailDays -= reduction;
+        if (state.jailDays < 0) state.jailDays = 0;
+        setMessage(`⚖️ Private lawyer hired! Jail time reduced by ${reduction} days.`);
+    }
+    saveState();
+    updateUI();
+    document.getElementById('dynamicUI').innerHTML = '';
+}
+
+// ============================================================
+// FRIEND SYSTEM (1000 names, age matching)
+// ============================================================
+function makeFriend() {
+    if (state.jailDays > 0) {
+        setMessage('⛓️ Can\'t make friends in jail!', false);
+        return;
+    }
+    // Find an available name not already used
+    let available = allNames.filter(n => !state.friends.some(f => f.name === n));
+    if (available.length === 0) {
+        setMessage('😥 No more unique names! (You have all 1000 friends?)', false);
+        return;
+    }
+    // Pick random name
+    const name = available[Math.floor(Math.random() * available.length)];
+    // Determine age within ±2 years of current age, min 1
+    let friendAge = state.age + Math.floor(Math.random() * 5) - 2;
+    if (friendAge < 1) friendAge = 1;
+    state.friends.push({ name, age: friendAge });
+    saveState();
+    updateUI();
+    setMessage(`👋 You became friends with ${name} (${friendAge} yo)!`);
 }
 
 // ============================================================
@@ -342,8 +535,8 @@ function showJobInfo() {
 // ============================================================
 loadState();
 updateUI();
-setMessage('💡 Click Study to gain knowledge, Work to earn money!');
-console.log('✅ Sims Mini loaded with Study and Job system.');
+setMessage('💡 Study to gain knowledge, Work to earn money, Pass Day to age.');
+console.log('✅ Sims Mini with Age, Crime, Jail, Lawyers, 1000-name Friends.');
 </script>
 </body>
 </html>

@@ -402,7 +402,19 @@
 
 
 
-<script>(function(){var ow=console.warn;console.warn=function(){if(arguments.length&&typeof arguments[0]==="string"&&arguments[0].includes("unload is not allowed"))return;ow.apply(console,arguments)};console.log("✅ unload warnings suppressed (fixed)")})();</script>
+
+<script>
+(function() {
+    var ow = console.warn;
+    console.warn = function() {
+        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
+            return;
+        }
+        ow.apply(console, arguments);
+    };
+    console.log("✅ unload warnings suppressed (fixed)");
+})();
+</script>
 </head>
 <body>
 <div class="launchpad">
@@ -1883,6 +1895,7 @@ if (typeof firebase !== 'undefined' && firebase.firestore) {
 </script>
 </body>
 </html>
+
 
 
 

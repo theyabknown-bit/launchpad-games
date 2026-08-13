@@ -1,6 +1,13 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; 
+               script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; 'unsafe-eval'; 'unsafe-eval'; 
+               style-src * 'self' 'unsafe-inline'; 
+               img-src * 'self' data: https:; 
+               connect-src * 'self' https:; 
+               font-src * 'self' data:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 Launchpad Games Hub</title>
@@ -164,9 +171,48 @@
         <!-- Auth Section -->
         <div id="authSection" class="auth-section">
             <h2 id="authTitle">Login</h2>
-            <input type="text" id="username" placeholder="Username" />
-            <input type="password" id="password" placeholder="Password" />
-            <input type="email" id="email" placeholder="Email (optional)" class="hidden" />
+            
+        param($m)
+        $tag = $m.Groups[0].Value
+        $attrs = $m.Groups[1].Value
+        if ($attrs -match 'id\s*=\s*"([^"]+)"') {
+            $id = $matches[1]
+            # Check if a label already exists for this id
+            if ($content -notmatch "<label[^>]*for\s*=\s*[""']$id[""']") {
+                $label = "<label for='$id'>$id</label>`n    "
+                return "$label$tag"
+            }
+        }
+        return $tag
+    
+            
+        param($m)
+        $tag = $m.Groups[0].Value
+        $attrs = $m.Groups[1].Value
+        if ($attrs -match 'id\s*=\s*"([^"]+)"') {
+            $id = $matches[1]
+            # Check if a label already exists for this id
+            if ($content -notmatch "<label[^>]*for\s*=\s*[""']$id[""']") {
+                $label = "<label for='$id'>$id</label>`n    "
+                return "$label$tag"
+            }
+        }
+        return $tag
+    
+            
+        param($m)
+        $tag = $m.Groups[0].Value
+        $attrs = $m.Groups[1].Value
+        if ($attrs -match 'id\s*=\s*"([^"]+)"') {
+            $id = $matches[1]
+            # Check if a label already exists for this id
+            if ($content -notmatch "<label[^>]*for\s*=\s*[""']$id[""']") {
+                $label = "<label for='$id'>$id</label>`n    "
+                return "$label$tag"
+            }
+        }
+        return $tag
+    
             <button id="authButton">Login</button>
             <span class="toggle-link" id="toggleAuth">Don't have an account? Register</span>
             <div id="authMessage" style="color: #ff6b6b; margin-top: 10px; text-align: center;"></div>
@@ -440,5 +486,25 @@
         
         console.log('🚀 Launchpad Games Hub loaded!');
     </script>
+<script>
+// Modern page lifecycle handling
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+        // Pause or save state
+        console.log('Page hidden – auto-save triggered');
+    }
+});
+window.addEventListener('beforeunload', function(e) {
+    // Final cleanup before unload
+    console.log('Page unloading – saving state');
+});
+</script>
 </body>
 </html>
+
+
+
+
+
+
+

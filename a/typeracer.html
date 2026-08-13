@@ -1,6 +1,13 @@
 ﻿<!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; 
+               script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; 'unsafe-eval'; 'unsafe-eval'; 
+               style-src * 'self' 'unsafe-inline'; 
+               img-src * 'self' data: https:; 
+               connect-src * 'self' https:; 
+               font-src * 'self' data:;"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🏎️ Type Racer</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
@@ -34,7 +41,20 @@ input{display:none;}
         <div class="stat-box"><span id="highScore">0</span><span class="label">Best</span></div>
     </div>
     <div class="text-display" id="textDisplay"></div>
-    <input type="text" id="hiddenInput">
+    
+        param($m)
+        $tag = $m.Groups[0].Value
+        $attrs = $m.Groups[1].Value
+        if ($attrs -match 'id\s*=\s*"([^"]+)"') {
+            $id = $matches[1]
+            # Check if a label already exists for this id
+            if ($content -notmatch "<label[^>]*for\s*=\s*[""']$id[""']") {
+                $label = "<label for='$id'>$id</label>`n    "
+                return "$label$tag"
+            }
+        }
+        return $tag
+    
     <button class="btn" id="startBtn">▶ Start Game</button>
     <div class="message" id="message">🎯 Type the text as fast as you can!</div>
 </div>
@@ -619,7 +639,7 @@ msg.textContent='🎯 Type the text as fast as you can!';
     // ============================================================
     // SAVE ON PAGE CLOSE
     // ============================================================
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforebeforebeforeunload', function() {
         if (typeof saveGame === 'function') {
             saveGame();
         }
@@ -789,8 +809,27 @@ if (document.readyState === 'complete') {
 // Also force refresh if user manually clicks
 console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
+<script>
+// Modern page lifecycle handling
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+        // Pause or save state
+        console.log('Page hidden – auto-save triggered');
+    }
+});
+window.addEventListener('beforeunload', function(e) {
+    // Final cleanup before unload
+    console.log('Page unloading – saving state');
+});
+</script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 

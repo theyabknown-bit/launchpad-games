@@ -1,6 +1,13 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; 
+               script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; 'unsafe-eval'; 'unsafe-eval'; 
+               style-src * 'self' 'unsafe-inline'; 
+               img-src * 'self' data: https:; 
+               connect-src * 'self' https:; 
+               font-src * 'self' data:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👽 Alien Translator Pro</title>
@@ -343,7 +350,20 @@
     </div>
 
     <div class="input-area">
-        <input type="text" id="humanInput" placeholder="Type a message to translate..." autofocus>
+        
+        param($m)
+        $tag = $m.Groups[0].Value
+        $attrs = $m.Groups[1].Value
+        if ($attrs -match 'id\s*=\s*"([^"]+)"') {
+            $id = $matches[1]
+            # Check if a label already exists for this id
+            if ($content -notmatch "<label[^>]*for\s*=\s*[""']$id[""']") {
+                $label = "<label for='$id'>$id</label>`n    "
+                return "$label$tag"
+            }
+        }
+        return $tag
+    
         <button class="btn-translate" id="translateBtn"><i class="fas fa-arrow-right"></i> Translate</button>
     </div>
 
@@ -696,5 +716,24 @@ console.log('👽 Alien Translator Pro loaded!');
 console.log('🌌 Languages:', LANG_KEYS.length);
 console.log('📝 History:', history.length);
 </script>
+<script>
+// Modern page lifecycle handling
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+        // Pause or save state
+        console.log('Page hidden – auto-save triggered');
+    }
+});
+window.addEventListener('beforeunload', function(e) {
+    // Final cleanup before unload
+    console.log('Page unloading – saving state');
+});
+</script>
 </body>
 </html>
+
+
+
+
+
+

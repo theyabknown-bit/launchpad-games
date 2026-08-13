@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com;">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com 'unsafe-eval'; 'unsafe-eval'; 'unsafe-eval'; 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com;">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -255,8 +255,27 @@
         setTimeout(addSoundToggle, 500);
     });
 
-    console.log('🔊 Sound system loaded!');</script></body>
+    console.log('🔊 Sound system loaded!');</script><script>
+// Modern page lifecycle handling
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+        // Pause or save state
+        console.log('Page hidden – auto-save triggered');
+    }
+});
+window.addEventListener('beforeunload', function(e) {
+    // Final cleanup before unload
+    console.log('Page unloading – saving state');
+});
+</script>
+</body>
 </html>
+
+
+
+
+
+
 
 
 

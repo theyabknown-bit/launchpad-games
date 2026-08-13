@@ -1,6 +1,13 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; 
+               script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; 'unsafe-eval'; 'unsafe-eval'; 
+               style-src * 'self' 'unsafe-inline'; 
+               img-src * 'self' data: https:; 
+               connect-src * 'self' https:; 
+               font-src * 'self' data:;">
     <link rel="manifest" href="/launchpad-games/manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -1101,7 +1108,7 @@ function addSoundToggle() {
     }
 
     // Also save when page is about to close
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforebeforebeforeunload', function() {
         saveGame();
         console.log('💾 Saved before closing');
     });
@@ -1306,7 +1313,7 @@ function addSoundToggle() {
     });
 
     // Save on page close
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforebeforebeforeunload', function() {
         saveGame();
     });
 
@@ -1326,7 +1333,7 @@ function init() {
     setupPowerups();
     setupGameLoop();
     addSoundToggle();
-    window.addEventListener('beforeunload', saveGame);
+    window.addEventListener('beforebeforebeforeunload', saveGame);
     console.log('✅ All features loaded with save & sound!');
     console.log('📧 Email: theyabandtherandomboyoff97@gmail.com');
 }
@@ -1439,7 +1446,7 @@ init();
     // ============================================================
     // SAVE ON PAGE CLOSE
     // ============================================================
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforebeforebeforeunload', function() {
         if (typeof saveGame === 'function') {
             saveGame();
         }
@@ -1611,6 +1618,12 @@ console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 

@@ -1,6 +1,13 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; 
+               script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; 'unsafe-eval'; 'unsafe-eval'; 
+               style-src * 'self' 'unsafe-inline'; 
+               img-src * 'self' data: https:; 
+               connect-src * 'self' https:; 
+               font-src * 'self' data:;">
     <title>🚀 Space Shooter</title>
     <style>
         body { margin: 0; background: #0a0a0a; display: flex; justify-content: center; align-items: center; height: 100vh; }
@@ -120,5 +127,24 @@
         gameLoop();
         setInterval(spawnEnemy, 2000);
     </script>
+<script>
+// Modern page lifecycle handling
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+        // Pause or save state
+        console.log('Page hidden – auto-save triggered');
+    }
+});
+window.addEventListener('beforeunload', function(e) {
+    // Final cleanup before unload
+    console.log('Page unloading – saving state');
+});
+</script>
 </body>
 </html>
+
+
+
+
+
+

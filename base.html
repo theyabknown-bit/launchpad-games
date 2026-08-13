@@ -229,5 +229,23 @@
             });
         });
     </script>
+<script>
+// Register Service Worker to override CSP
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+        .then(function(reg) {
+            console.log('✅ Service Worker registered with scope:', reg.scope);
+        })
+        .catch(function(err) {
+            console.error('❌ Service Worker registration failed:', err);
+        });
+    // Force reload once the worker takes control
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+        console.log('🔄 Service Worker activated – reloading to apply CSP');
+        location.reload();
+    });
+}
+</script>
 </body>
 </html>
+

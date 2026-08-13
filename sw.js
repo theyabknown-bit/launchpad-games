@@ -1,50 +1,38 @@
-﻿const CACHE_NAME = 'launchpad-v1';
-const urlsToCache = [
-    '/launchpad-games/base.html',
-    '/launchpad-games/index.html',
-    '/launchpad-games/manifest.json',
-    '/launchpad-games/icon192.svg',
-    '/launchpad-games/icon512.svg'
-];
-
+﻿// sw.js – Service Worker to override CSP header
 self.addEventListener('install', function(event) {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(function(cache) {
-                console.log('📦 Caching assets...');
-                return cache.addAll(urlsToCache);
-            })
-            .then(function() {
-                return self.skipWaiting();
-            })
-    );
+    console.log('✅ Service Worker installed');
+    event.waitUntil(self.skipWaiting());
 });
-
 self.addEventListener('activate', function(event) {
-    event.waitUntil(
-        caches.keys().then(function(cacheNames) {
-            return Promise.all(
-                cacheNames.map(function(cacheName) {
-                    if (cacheName !== CACHE_NAME) {
-                        console.log('🗑️ Deleting old cache:', cacheName);
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        }).then(function() {
-            return self.clients.claim();
-        })
-    );
+    console.log('✅ Service Worker activated');
+    event.waitUntil(self.clients.claim());
 });
-
 self.addEventListener('fetch', function(event) {
-    event.respondWith(
-        caches.match(event.request)
-            .then(function(response) {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
+    const request = event.request;
+    if (request.mode === 'navigate') {
+        event.respondWith(
+            fetch(request).then(function(response) {
+                const clonedResponse = response.clone();
+                const headers = new Headers(clonedResponse.headers);
+                headers.set(
+                    'Content-Security-Policy',
+                    "default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; " +
+                    "script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; " +
+                    "style-src * 'self' 'unsafe-inline'; " +
+                    "img-src * 'self' data: https:; " +
+                    "connect-src * 'self' https:;"
+                );
+                return new Response(clonedResponse.body, {
+                    status: clonedResponse.status,
+                    statusText: clonedResponse.statusText,
+                    headers: headers
+                });
+            }).catch(function(error) {
+                console.error('Service Worker fetch error:', error);
+                return fetch(request);
             })
-    );
+        );
+    } else {
+        event.respondWith(fetch(request));
+    }
 });

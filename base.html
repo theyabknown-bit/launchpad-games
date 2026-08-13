@@ -1313,12 +1313,19 @@ async function sendChatMessage() {
 // PROFILE UI
 // ============================================================
 function updateProfileUI() {
-    document.getElementById('profileName').textContent = currentUser || 'Guest';
-    document.getElementById('profileBio').textContent = userProfile.bio || 'No bio yet';
-    const stats = `🎮 ${friends.length} friends • 🏆 ${userProfile.achievements ? userProfile.achievements.length : 0} achievements`;
-    document.getElementById('profileStats').textContent = stats;
-    document.getElementById('profileBioInput').value = userProfile.bio || '';
-    renderAchievements();
+    const nameEl = document.getElementById('profileName');
+    const bioEl = document.getElementById('profileBio');
+    const statsEl = document.getElementById('profileStats');
+    const bioInputEl = document.getElementById('profileBioInput');
+    
+    if (nameEl) nameEl.textContent = currentUser || 'Guest';
+    if (bioEl) bioEl.textContent = userProfile.bio || 'No bio yet';
+    if (statsEl) statsEl.textContent = `🎮 ${friends.length} friends • 🏆 ${userProfile.achievements ? userProfile.achievements.length : 0} achievements`;
+    if (bioInputEl) bioInputEl.value = userProfile.bio || '';
+    
+    // Only render achievements if grid exists
+    const gridEl = document.getElementById('achievementGrid');
+    if (gridEl) renderAchievements();
 }
 
 function saveProfile() {
@@ -1334,13 +1341,23 @@ function saveProfile() {
 // FRIEND UI
 // ============================================================
 function updateFriendUI() {
-    document.getElementById('friendCode').textContent = friendCode;
-    document.getElementById('deviceName').textContent = deviceName;
-    document.getElementById('friendCount').textContent = friends.length;
+    const codeEl = document.getElementById('friendCode');
+    const deviceEl = document.getElementById('deviceName');
+    const countEl = document.getElementById('friendCount');
+    const requestEl = document.getElementById('requestCount');
+    const badgeEl = document.getElementById('requestBadge');
+    
+    if (codeEl) codeEl.textContent = friendCode;
+    if (deviceEl) deviceEl.textContent = deviceName;
+    if (countEl) countEl.textContent = friends.length;
+    
     const pendingRequests = friendRequests.filter(r => r.status === 'pending').length;
-    document.getElementById('requestCount').textContent = pendingRequests;
-    document.getElementById('requestBadge').textContent = pendingRequests;
-    renderFriendsList();
+    if (requestEl) requestEl.textContent = pendingRequests;
+    if (badgeEl) badgeEl.textContent = pendingRequests;
+    
+    // Only render friends list if container exists
+    const listEl = document.getElementById('friendsList');
+    if (listEl) renderFriendsList();
 }
 
 function renderFriendsList() {
@@ -1737,6 +1754,7 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
+
 
 
 

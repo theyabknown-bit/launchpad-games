@@ -644,6 +644,58 @@ const GAMES = {
 };
 
 // ============================================================
+// FORCE RENDER GAMES IMMEDIATELY (before Firebase)
+// ============================================================
+(function() {
+    function renderNow() {
+        try {
+            if (typeof renderGames === 'function') {
+                renderGames();
+                console.log('✅ Games rendered immediately');
+                return;
+            }
+            // Manual render if renderGames not defined yet
+            const sections = ['space', 'arcade', 'sim'];
+            sections.forEach(category => {
+                const container = document.getElementById(category + 'Grid');
+                if (!container) return;
+                const games = GAMES[category] || [];
+                container.innerHTML = games.map(game => {
+                    let progress = { played: false, xp: 0 };
+                    try {
+                        const p = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+                        if (p.games && p.games[game.id]) progress = p.games[game.id];
+                    } catch(e) {}
+                    const pct = Math.min(100, (progress.xp || 0) * 2);
+                    const badge = progress.played ? `<span class="played-badge"><i class="fas fa-check-circle" style="color:#7cf5b0;"></i> ${progress.xp} XP</span>` : '';
+                    const progressBar = progress.played ? `<div class="progress-bar"><div class="fill" style="width:${pct}%;"></div></div>` : '';
+                    const ach = progress.played && progress.xp >= 5 ? '<span class="achievement-badge">🏆</span>' : '';
+                    return `<a href="${game.file}" class="pick-card" onclick="handleGameClick('${game.id}')">
+                        ${ach}
+                        <div class="icon-wrap"><i class="fas ${game.icon}"></i></div>
+                        <h3>${game.name}</h3>
+                        <div class="sub">${game.sub}</div>
+                        <span class="arrow"><i class="fas fa-arrow-right"></i> go</span>
+                        ${progressBar}${badge}
+                    </a>`;
+                }).join('');
+            });
+            console.log('✅ Games rendered manually');
+        } catch(e) {
+            console.error('❌ Render error:', e);
+        }
+    }
+    // Try immediately
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        renderNow();
+    } else {
+        document.addEventListener('DOMContentLoaded', renderNow);
+        // Also after a short delay
+        setTimeout(renderNow, 100);
+    }
+})();
+
+// ============================================================
 // ACHIEVEMENTS
 // ============================================================
 const ACHIEVEMENTS = {
@@ -1685,6 +1737,7 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
+
 
 
 

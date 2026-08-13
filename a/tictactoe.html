@@ -1,967 +1,389 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel='stylesheet' href='../assets/css/game.css'>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com 'unsafe-eval'; 'unsafe-eval'; 'unsafe-eval'; 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com;">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>❌ Tic Tac Toe</title>
+    <title>🎮 Tic Tac Toe Pro</title>
+    <link rel="stylesheet" href="../assets/css/game.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0b1a26; color: #d0e8f0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .back-btn { position: fixed; top: 20px; left: 20px; background: #1a3344; color: #4fc3f7; padding: 10px 20px; border-radius: 8px; text-decoration: none; }
-        .back-btn:hover { background: #2a4a5e; }
-        .container { text-align: center; padding: 20px; }
-        h1 { color: #4fc3f7; margin-bottom: 20px; }
-        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; margin: 20px auto; }
-        .cell { width: 100px; height: 100px; background: #1a3344; border: 2px solid #2a4a5e; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 3rem; cursor: pointer; transition: 0.2s; }
-        .cell:hover:not(.taken) { transform: scale(1.05); border-color: #4fc3f7; }
-        .cell.taken { cursor: default; opacity: 0.9; }
-        .cell.x { color: #4fc3f7; }
-        .cell.o { color: #7cf5b0; }
-        .status { font-size: 1.2rem; margin: 10px 0; color: #ffd93d; }
-        .btn { background: #4fc3f7; color: #0b1a26; border: none; padding: 10px 30px; border-radius: 8px; font-size: 1rem; cursor: pointer; margin: 10px; transition: 0.2s; }
-        .btn:hover { background: #7cf5b0; transform: scale(1.05); }
-        .btn-danger { background: #ff6b6b; }
-        .btn-danger:hover { background: #ff4444; }
-        @media (max-width: 480px) { .board { grid-template-columns: repeat(3, 80px); gap: 8px; } .cell { width: 80px; height: 80px; font-size: 2.5rem; } }
-    </style>
-<script>
-// Suppress unload violation warnings
-(function() {
-    var ow = console.warn;
-    console.warn = function() {
-        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
-            return;
+        .game-container { text-align: center; }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 360px;
+            margin: 20px auto;
+            background: rgba(79,195,247,0.05);
+            padding: 10px;
+            border-radius: 16px;
         }
-        ow.apply(console, arguments);
-    };
-})();
-</script>
+        .cell {
+            aspect-ratio: 1/1;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(79,195,247,0.1);
+            border-radius: 12px;
+            font-size: 4rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #4fc3f7;
+            text-shadow: 0 0 20px rgba(79,195,247,0.2);
+        }
+        .cell:hover:not(.taken) { border-color: #4fc3f7; background: rgba(79,195,247,0.05); }
+        .cell.taken { cursor: default; opacity: 0.8; }
+        .cell.win { background: rgba(124,245,176,0.15); border-color: #7cf5b0; color: #7cf5b0; }
+        .cell.lose { background: rgba(255,107,107,0.1); border-color: #ff6b6b; color: #ff6b6b; }
+        .cell.draw { background: rgba(255,215,0,0.05); border-color: #ffd93d; color: #ffd93d; }
+        .status {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 10px 0;
+            min-height: 3rem;
+        }
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 1.1rem;
+            margin: 10px 0;
+        }
+        .scoreboard span { color: #8899aa; }
+        .scoreboard .wins { color: #7cf5b0; }
+        .scoreboard .losses { color: #ff6b6b; }
+        .scoreboard .draws { color: #ffd93d; }
+        .controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 15px 0; }
+        .controls button { background: rgba(255,255,255,0.05); color: #d0e8f0; border: 1px solid rgba(255,255,255,0.1); }
+        .controls button.active { background: #4fc3f7; color: #0b1a26; border-color: #4fc3f7; }
+        .difficulty-selector { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+        .difficulty-selector button { background: rgba(255,255,255,0.05); color: #d0e8f0; border: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; padding: 6px 16px; }
+        .difficulty-selector button.active { background: #4fc3f7; color: #0b1a26; border-color: #4fc3f7; }
+        .message { animation: pop 0.3s ease; }
+        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; overflow: hidden; }
+        .confetti-piece { position: absolute; width: 10px; height: 10px; background: #4fc3f7; border-radius: 2px; animation: fall linear infinite; }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+    </style>
 </head>
 <body>
-<div class='game-container'>
+<div class="game-container">
     <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a>
-    <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
-    <div class="container">
-        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.8rem;">🚀</span><div><div style="font-size:1.2rem;font-weight:700;background:linear-gradient(135deg,#4fc3f7,#7cf5b0,#ffd93d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">LAUNCHPAD</div><div style="font-size:0.5rem;color:#7cf5b0;letter-spacing:3px;">READINESS TO LAUNCH</div></div></div>
-        <div class="status" id="status">Your turn (X)</div>
-        <div class="board" id="board"></div>
-        <div>
-            <button class="btn" onclick="resetGame()">ðŸ”„ New Game</button>
-            <button class="btn btn-danger" onclick="resetAndSave()">ðŸ—‘ï¸ Reset & Save</button>
-        </div>
+    <h1 class="game-title">🎮 Tic Tac Toe Pro</h1>
+
+    <!-- Scoreboard -->
+    <div class="scoreboard">
+        <span>🏆 Wins: <span class="wins" id="wins">0</span></span>
+        <span>💀 Losses: <span class="losses" id="losses">0</span></span>
+        <span>🤝 Draws: <span class="draws" id="draws">0</span></span>
     </div>
 
-    <script>
-    // Game-specific save function - override this in your game
-    function saveGame() {
-        // For games with their own save system, this will be overridden
-        // For games without, it does nothing
-        console.log('💾 Save called but no game-specific save implemented');
-        return true;
-    }
-    // ============================================================
-    // FIXED SOUND SYSTEM - WORKS ON FIRST CLICK
-    // ============================================================
-    let soundEnabled = true;
-    let audioCtx = null;
-    let audioUnlocked = false;
+    <!-- Difficulty -->
+    <div class="difficulty-selector">
+        <button data-diff="easy" class="active">Easy</button>
+        <button data-diff="medium">Medium</button>
+        <button data-diff="hard">Hard</button>
+    </div>
 
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            audioUnlocked = true;
-            console.log('🔊 Audio unlocked!');
-        } catch(e) { console.log('Audio error:', e); }
-    }
+    <!-- Status -->
+    <div class="status" id="status">Your turn! (X)</div>
 
-    // Unlock audio on any click
-    document.addEventListener('click', unlockAudio, { once: false });
-    document.addEventListener('touchstart', unlockAudio, { once: false });
-    document.addEventListener('keydown', unlockAudio, { once: false });
+    <!-- Board -->
+    <div class="board" id="board"></div>
 
-    function getAudioCtx() {
-        if (!audioCtx) {
-            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        return audioCtx;
-    }
+    <!-- Controls -->
+    <div class="controls">
+        <button onclick="resetGame()"><i class="fas fa-redo"></i> Restart</button>
+        <button onclick="togglePause()"><i class="fas fa-pause"></i> <span id="pauseLabel">Pause</span></button>
+    </div>
 
-    function playTone(frequency, duration = 150, type = 'sine') {
-        if (!soundEnabled) return;
-        try {
-            const ctx = getAudioCtx();
-            if (!ctx) return;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = type;
-            osc.frequency.value = frequency;
-            gain.gain.setValueAtTime(0.12, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + duration / 1000);
-        } catch(e) { console.log('Play error:', e); }
-    }
+    <div id="confettiContainer" class="confetti" style="display:none;"></div>
+</div>
 
-    function playClick() { playTone(600, 80); }
-    function playWin() { 
-        playTone(523, 150); 
-        setTimeout(() => playTone(659, 150), 150); 
-        setTimeout(() => playTone(784, 200), 300); 
-    }
-    function playLose() { 
-        playTone(300, 200); 
-        setTimeout(() => playTone(200, 300), 200); 
-    }
-    function playCorrect() { playTone(800, 100); }
-    function playWrong() { playTone(250, 200); }
-    function playLevelUp() { 
-        playTone(440, 100); 
-        setTimeout(() => playTone(523, 100), 100); 
-        setTimeout(() => playTone(659, 150), 200); 
-    }
-        // ============================================
-        // SAVE FUNCTIONS (from base.html)
-        // ============================================
-        function loadGameState(gameId) {
-            try {
-                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
-                if (save.gameStates && save.gameStates[gameId]) {
-                    return save.gameStates[gameId].data;
-                }
-            } catch(e) {}
-            return null;
-        }
-
-        function saveGameState(gameId, stateData) {
-            try {
-                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
-                if (!save.gameStates) save.gameStates = {};
-                save.gameStates[gameId] = { data: stateData, timestamp: new Date().toISOString() };
-                localStorage.setItem('launchpad_progress', JSON.stringify(save));
-                return true;
-            } catch(e) { return false; }
-        }
-
-        function updateGameProgress(gameId) {
-            try {
-                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
-                if (!save.games) save.games = {};
-                if (!save.games[gameId]) save.games[gameId] = { played: false, xp: 0 };
-                var game = save.games[gameId];
-                if (!game.played) { game.played = true; save.gamesPlayed = (save.gamesPlayed || 0) + 1; }
-                game.xp = (game.xp || 0) + 1;
-                var totalXp = 0, gamesPlayed = 0;
-                Object.values(save.games).forEach(function(g) { totalXp += (g.xp || 0); if (g.played) gamesPlayed++; });
-                save.totalXp = totalXp;
-                save.gamesPlayed = gamesPlayed;
-                localStorage.setItem('launchpad_progress', JSON.stringify(save));
-            } catch(e) {}
-        }
-
-        // ============================================
-        // TIC TAC TOE GAME
-        // ============================================
-        const GAME_ID = 'tictactoe';
-        let board = ['', '', '', '', '', '', '', '', ''];
-        let currentPlayer = 'X';
-        let gameActive = true;
-
-        function renderBoard() {
-            const boardEl = document.getElementById('board');
-            boardEl.innerHTML = '';
-            for (let i = 0; i < 9; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell' + (board[i] ? ' taken' : '');
-                if (board[i] === 'X') cell.classList.add('x');
-                if (board[i] === 'O') cell.classList.add('o');
-                cell.textContent = board[i];
-                cell.dataset.index = i;
-                cell.addEventListener('click', () => handleClick(i));
-                boardEl.appendChild(cell);
-            }
-            updateStatus();
-        }
-
-        function handleClick(index) {
-            if (!gameActive || board[index] !== '') return;
-            board[index] = currentPlayer;
-            const winner = checkWinner();
-            if (winner) {
-                gameActive = false;
-                document.getElementById('status').textContent = 'ðŸ† ' + winner + ' wins!';
-                saveState();
-                updateGameProgress(GAME_ID);
-                renderBoard();
-                return;
-            }
-            if (board.every(cell => cell !== '')) {
-                gameActive = false;
-                document.getElementById('status').textContent = 'ðŸ¤ Draw!';
-                saveState();
-                renderBoard();
-                return;
-            }
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            document.getElementById('status').textContent = 'Your turn (' + currentPlayer + ')';
-            saveState();
-            renderBoard();
-        }
-
-        function checkWinner() {
-            const winPatterns = [
-                [0,1,2], [3,4,5], [6,7,8],
-                [0,3,6], [1,4,7], [2,5,8],
-                [0,4,8], [2,4,6]
-            ];
-            for (const pattern of winPatterns) {
-                const [a,b,c] = pattern;
-                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                    return board[a];
-                }
-            }
-            return null;
-        }
-
-        function saveState() {
-            saveGameState(GAME_ID, {
-                board: board,
-                currentPlayer: currentPlayer,
-                gameActive: gameActive
-            });
-        }
-
-        function loadState() {
-            const state = loadGameState(GAME_ID);
-            if (state) {
-                board = state.board || ['', '', '', '', '', '', '', '', ''];
-                currentPlayer = state.currentPlayer || 'X';
-                gameActive = state.gameActive !== undefined ? state.gameActive : true;
-                return true;
-            }
-            return false;
-        }
-
-        function resetGame() {
-            board = ['', '', '', '', '', '', '', '', ''];
-            currentPlayer = 'X';
-            gameActive = true;
-            document.getElementById('status').textContent = 'Your turn (X)';
-            saveState();
-            renderBoard();
-        }
-
-        function resetAndSave() {
-            resetGame();
-            alert('âœ… Game reset and saved!');
-        }
-
-        // ============================================
-        // INIT
-        // ============================================
-        if (!loadState()) {
-            resetGame();
-        } else {
-            renderBoard();
-            document.getElementById('status').textContent = gameActive ? 'Your turn (' + currentPlayer + ')' : 'Game Over';
-        }
-
-        // Auto-save every 10 seconds
-        setInterval(saveState, 10000);
-        
-    
-
-    // Add sound toggle to settings
-    function addSoundToggle() {
-        const settings = document.getElementById('settingsPanel');
-        if (!settings) return;
-        const item = document.createElement('div');
-        item.className = 'settings-item';
-        item.innerHTML = `
-            <span class="label">🔊 Sound Effects</span>
-            <div class="settings-toggle active" id="soundToggle"><div class="knob"></div></div>
-        `;
-        settings.appendChild(item);
-        document.getElementById('soundToggle').addEventListener('click', function() {
-            this.classList.toggle('active');
-            soundEnabled = this.classList.contains('active');
-            if (soundEnabled) playClick();
-        });
-    }
-
-    // Minigame: Quick Tap Challenge
-    function startQuickTap() {
-        if (document.getElementById('minigameOverlay')) return;
-        const overlay = document.createElement('div');
-        overlay.id = 'minigameOverlay';
-        overlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-            flex-direction: column; padding: 20px;
-            animation: fadeIn 0.3s ease;
-        `;
-        overlay.innerHTML = `
-            <div style="background: #1a1a2e; border-radius: 24px; padding: 30px; max-width: 400px; width: 100%; text-align: center; border: 2px solid rgba(255,215,0,0.1);">
-                <h2 style="color: #ffd700; margin-bottom: 10px;">🎯 Quick Tap Challenge</h2>
-                <p style="color: #888; margin-bottom: 15px;">Tap as fast as you can!</p>
-                <div style="font-size: 72px; margin: 15px 0;" id="tapCounter">0</div>
-                <div style="font-size: 24px; color: #ff6b6b; margin-bottom: 10px;" id="tapTimer">3s</div>
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <button id="tapBtn" style="
-                        background: linear-gradient(135deg, #ffd700, #f5a623);
-                        border: none; padding: 15px 40px; border-radius: 30px;
-                        font-weight: 700; font-size: 18px; color: #1a1a2e;
-                        cursor: pointer; font-family: 'Segoe UI', sans-serif;
-                    ">👆 TAP!</button>
-                    <button onclick="this.closest('#minigameOverlay').remove()" style="
-                        background: rgba(255,255,255,0.05);
-                        border: 1px solid rgba(255,255,255,0.1);
-                        padding: 15px 20px; border-radius: 30px;
-                        color: #888; cursor: pointer; font-size: 14px;
-                        font-family: 'Segoe UI', sans-serif;
-                    ">✕ Close</button>
-                </div>
-                <div id="tapResult" style="margin-top: 10px; color: #7cf5b0; font-weight: 700;"></div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-
-        let taps = 0;
-        let timeLeft = 3;
-        let active = true;
-
-        const tapBtn = document.getElementById('tapBtn');
-        const counter = document.getElementById('tapCounter');
-        const timer = document.getElementById('tapTimer');
-        const result = document.getElementById('tapResult');
-
-        tapBtn.addEventListener('click', function() {
-            if (!active) return;
-            taps++;
-            counter.textContent = taps;
-            playClick();
-            this.style.transform = 'scale(0.9)';
-            setTimeout(() => this.style.transform = '', 100);
-        });
-
-        const interval = setInterval(() => {
-            timeLeft--;
-            timer.textContent = timeLeft + 's';
-            if (timeLeft <= 0) {
-                clearInterval(interval);
-                active = false;
-                tapBtn.disabled = true;
-                tapBtn.style.opacity = '0.5';
-                const reward = taps * 50;
-                result.textContent = '🏆 You tapped ' + taps + ' times! +' + reward + ' points!';
-                playWin();
-                // Add points if game supports it
-                if (typeof points !== 'undefined') {
-                    points += reward;
-                    if (typeof updateUI === 'function') updateUI();
-                    if (typeof saveGame === 'function') saveGame();
-                }
-                setTimeout(() => {
-                    overlay.querySelector('button:last-child').click();
-                }, 3000);
-            }
-        }, 1000);
-
-        // Add CSS animation
-        const style = document.createElement('style');
-        style.textContent = '@keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }';
-        document.head.appendChild(style);
-    }
-
-    // Add minigame button to games
-    function addMinigameButton() {
-        const container = document.querySelector('.container') || document.querySelector('#app');
-        if (!container) return;
-        const btn = document.createElement('button');
-        btn.className = 'btn';
-        btn.style.cssText = `
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            color: white; border: none; padding: 10px 20px;
-            border-radius: 30px; font-weight: 700; font-size: 13px;
-            cursor: pointer; margin: 5px;
-            font-family: 'Segoe UI', sans-serif;
-            transition: 0.2s;
-        `;
-        btn.textContent = '🎯 Quick Tap Challenge';
-        btn.onmouseover = function() { this.style.transform = 'scale(1.05)'; };
-        btn.onmouseout = function() { this.style.transform = ''; };
-        btn.onclick = startQuickTap;
-        container.appendChild(btn);
-    }
-
-    // Initialize sound and minigame
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add sound toggle if settings exist
-        setTimeout(addSoundToggle, 100);
-        // Add minigame button
-        setTimeout(addMinigameButton, 200);
-    });
-    // ============================================================
-    // ACHIEVEMENT POPUP SYSTEM - WORKS EVERYWHERE
-    // ============================================================
-    
-    // Check achievements and show popup
-    function checkAchievements() {
-        try {
-            const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{"games":{},"totalXp":0,"gamesPlayed":0}');
-            const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
-            let newAchievements = [];
-
-            // First game
-            if (progress.gamesPlayed >= 1 && !unlocked.includes('first_game')) {
-                newAchievements.push('first_game');
-                showAchievementPopup('🎮', 'First Game!', 'Played your first game!');
-            }
-
-            // Game master (10 games)
-            if (progress.gamesPlayed >= 10 && !unlocked.includes('game_master')) {
-                newAchievements.push('game_master');
-                showAchievementPopup('👑', 'Game Master!', 'Played 10 games!');
-            }
-
-            // XP collector
-            if (progress.totalXp >= 100 && !unlocked.includes('xp_collector')) {
-                newAchievements.push('xp_collector');
-                showAchievementPopup('⭐', 'XP Collector!', 'Earned 100 XP!');
-            }
-
-            // Level up
-            const level = Math.floor((progress.totalXp || 0) / 100) + 1;
-            if (level >= 5 && !unlocked.includes('level_up')) {
-                newAchievements.push('level_up');
-                showAchievementPopup('🏅', 'Level Up!', 'Reached Level 5!');
-            }
-
-            // Save new achievements
-            if (newAchievements.length > 0) {
-                const all = [...unlocked, ...newAchievements];
-                localStorage.setItem('launchpad_achievements', JSON.stringify(all));
-                updateAchievementCount();
-            }
-
-            return newAchievements;
-        } catch(e) { return []; }
-    }
-
-    // Show achievement popup
-    function showAchievementPopup(emoji, title, desc) {
-        try { playAchievement(); } catch(e) {}
-        // Check if popup already exists
-        let popup = document.getElementById('achievementPopupGlobal');
-        if (!popup) {
-            popup = document.createElement('div');
-            popup.id = 'achievementPopupGlobal';
-            popup.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: rgba(18, 16, 30, 0.96);
-                backdrop-filter: blur(20px);
-                border: 2px solid #7cf5b0;
-                border-radius: 16px;
-                padding: 16px 24px;
-                max-width: 350px;
-                z-index: 99999;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-                display: none;
-                animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                color: #d0e8f0;
-                font-family: 'Segoe UI', Roboto, sans-serif;
-            `;
-            document.body.appendChild(popup);
-            
-            // Add animation styles
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-                @keyframes pulseGold {
-                    0%, 100% { box-shadow: 0 0 20px rgba(124, 245, 176, 0.1); }
-                    50% { box-shadow: 0 0 40px rgba(124, 245, 176, 0.3); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        // Fill popup content
-        popup.innerHTML = `
-            <div style="display:flex;align-items:center;gap:14px;">
-                <div style="font-size:2.8rem;line-height:1;">${emoji}</div>
-                <div>
-                    <div style="color:#7cf5b0;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;">🏆 Achievement Unlocked!</div>
-                    <div style="color:#f0f8ff;font-weight:700;font-size:1.1rem;">${title}</div>
-                    <div style="color:#8899aa;font-size:0.85rem;">${desc}</div>
-                </div>
-            </div>
-            <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;">
-                <button onclick="document.getElementById('achievementPopupGlobal').style.display='none'" style="
-                    background:rgba(255,255,255,0.05);
-                    border:1px solid rgba(255,255,255,0.1);
-                    color:#8899aa;
-                    padding:4px 14px;
-                    border-radius:20px;
-                    cursor:pointer;
-                    font-size:0.7rem;
-                    font-family:'Segoe UI',sans-serif;
-                ">Dismiss</button>
-            </div>
-        `;
-
-        // Show popup
-        popup.style.display = 'block';
-        popup.style.animation = 'slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-
-        // Auto-hide after 6 seconds
-        clearTimeout(popup._timeout);
-        popup._timeout = setTimeout(() => {
-            popup.style.animation = 'slideOutRight 0.4s ease-in';
-            setTimeout(() => {
-                popup.style.display = 'none';
-                popup.style.animation = '';
-            }, 400);
-        }, 6000);
-
-        // Play sound
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            [523, 659, 784, 1047].forEach((freq, i) => {
-                setTimeout(() => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.2);
-                }, i * 120);
-            });
-        } catch(e) {}
-    }
-
-    // Update achievement count in stats
-    function updateAchievementCount() {
-        try {
-            const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
-            const countEl = document.getElementById('achievementCount');
-            if (countEl) countEl.textContent = unlocked.length;
-        } catch(e) {}
-    }
-
-    // Check achievements every 10 seconds
-    setInterval(checkAchievements, 10000);
-
-    // Also check on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(checkAchievements, 1000);
-    });
-
-    // Check when progress updates
-    const origSetItem = localStorage.setItem;
-    localStorage.setItem = function(key, value) {
-        origSetItem.apply(this, arguments);
-        if (key === 'launchpad_progress') {
-            setTimeout(checkAchievements, 500);
-        }
-    };
-    // ============================================================
-    // UNIVERSAL SAVE SYSTEM - Auto & Manual Save
-    // ============================================================
-    
-    // Save system variables
-    let saveEnabled = true;
-    let saveInterval = null;
-    let lastSaveTime = 'Never';
-    
-    // ============================================================
-    // SAVE FUNCTIONS
-    // ============================================================
-    function saveGameData(gameId, data) {
-        try {
-            const saves = JSON.parse(localStorage.getItem('gameSaves') || '{}');
-            saves[gameId] = {
-                data: data,
-                timestamp: Date.now()
-            };
-            localStorage.setItem('gameSaves', JSON.stringify(saves));
-            showSaveFeedback('✅ Saved!');
-            return true;
-        } catch(e) {
-            console.log('Save error:', e);
-            return false;
-        }
-    }
-    
-    function loadGameData(gameId) {
-        try {
-            const saves = JSON.parse(localStorage.getItem('gameSaves') || '{}');
-            if (saves[gameId]) {
-                return saves[gameId].data;
-            }
-        } catch(e) {
-            console.log('Load error:', e);
-        }
-        return null;
-    }
-    
-    function showSaveFeedback(message) {
-        let indicator = document.getElementById('saveIndicator');
-        if (!indicator) {
-            indicator = document.createElement('div');
-            indicator.id = 'saveIndicator';
-            indicator.style.cssText = `
-                text-align: center;
-                font-size: 11px;
-                color: #666;
-                padding: 6px 0;
-                margin-top: 8px;
-                border-top: 1px solid rgba(255,255,255,0.05);
-                transition: color 0.3s;
-                font-family: 'Segoe UI', sans-serif;
-            `;
-            const container = document.querySelector('.container') || document.querySelector('#app') || document.body;
-            container.appendChild(indicator);
-        }
-        
-        indicator.textContent = '💾 ' + message;
-        indicator.style.color = '#7cf5b0';
-        setTimeout(() => {
-            indicator.style.color = '#666';
-            const now = new Date();
-            indicator.textContent = '💾 Auto-saved at ' + now.toLocaleTimeString();
-        }, 2000);
-    }
-    
-    function manualSave() {
-        if (typeof saveGame === 'function') {
-            saveGame();
-            showSaveFeedback('✅ Manually saved!');
-            return true;
-        }
-        return false;
-    }
-    
-    // ============================================================
-    // AUTO-SAVE
-    // ============================================================
-    function startAutoSave(interval = 5000) {
-        if (saveInterval) clearInterval(saveInterval);
-        
-        saveInterval = setInterval(() => {
-            if (typeof saveGame === 'function') {
-                saveGame();
-            }
-        }, interval);
-        
-        console.log('💾 Auto-save started (every ' + (interval/1000) + 's)');
-    }
-    
-    // ============================================================
-    // KEYBOARD SHORTCUT - Ctrl+S
-    // ============================================================
-    document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            if (typeof manualSave === 'function') {
-                manualSave();
-            }
-        }
-    });
-    
-    // ============================================================
-    // SAVE ON PAGE CLOSE
-    // ============================================================
-    window.addEventListener('beforebeforebeforeunload', function() {
-        if (typeof saveGame === 'function') {
-            saveGame();
-        }
-    });
-    
-    // ============================================================
-    // SAVE INDICATOR STYLES
-    // ============================================================
-    const saveStyles = document.createElement('style');
-    saveStyles.textContent = `
-        #saveIndicator {
-            text-align: center;
-            font-size: 11px;
-            color: #666;
-            padding: 6px 0;
-            margin-top: 8px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            transition: color 0.3s;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        #saveIndicator.saving {
-            color: #7cf5b0 !important;
-        }
-        .save-btn {
-            background: rgba(79,195,247,0.08);
-            border: 1px solid rgba(79,195,247,0.12);
-            color: #4fc3f7;
-            padding: 4px 18px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: 'Segoe UI', sans-serif;
-            transition: 0.2s;
-            margin: 2px;
-        }
-        .save-btn:hover {
-            background: rgba(79,195,247,0.15);
-        }
-    `;
-    document.head.appendChild(saveStyles);
-    
-    // ============================================================
-    // ADD MANUAL SAVE BUTTON
-    // ============================================================
-    function addSaveButton() {
-        const container = document.querySelector('.container') || document.querySelector('#app');
-        if (!container) return;
-        
-        // Check if button already exists
-        if (document.getElementById('manualSaveBtn')) return;
-        
-        const btn = document.createElement('button');
-        btn.id = 'manualSaveBtn';
-        btn.className = 'save-btn';
-        btn.textContent = '💾 Manual Save';
-        btn.onclick = function() {
-            if (typeof manualSave === 'function') {
-                manualSave();
-            }
-        };
-        
-        // Find footer or add at bottom
-        const footer = container.querySelector('.footer');
-        if (footer) {
-            const btnContainer = document.createElement('div');
-            btnContainer.style.cssText = 'margin-top: 6px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;';
-            btnContainer.appendChild(btn);
-            footer.appendChild(btnContainer);
-        } else {
-            container.appendChild(btn);
-        }
-    }
-    
-    // ============================================================
-    // INIT
-    // ============================================================
-    console.log('💾 Save system loaded!');
-    console.log('⌨️  Press Ctrl+S to save manually');
-    console.log('💾 Auto-save every 5 seconds');
-    
-    // Add save button when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(addSaveButton, 500);
-        if (typeof startAutoSave === 'function') {
-            startAutoSave(5000);
-        }
-    });
-    
-    // Also run immediately if DOM already loaded
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(addSaveButton, 500);
-        if (typeof startAutoSave === 'function') {
-            startAutoSave(5000);
-        }
-    }
+<script>
 // ============================================================
-// AUTO-REFRESH ON PAGE LOAD (Ctrl+Shift+R effect)
+// TIC TAC TOE PRO – AI, Animations, Score, Sound
 // ============================================================
+const boardEl = document.getElementById('board');
+const statusEl = document.getElementById('status');
+const winsEl = document.getElementById('wins');
+const lossesEl = document.getElementById('losses');
+const drawsEl = document.getElementById('draws');
+const confettiContainer = document.getElementById('confettiContainer');
 
-// Check if this is the first time loading
-function checkAndRefresh() {
-    const pageId = window.location.pathname.split('/').pop();
-    const key = 'refresh_' + pageId;
-    
-    // Check if we already refreshed this session
-    if (sessionStorage.getItem(key) === 'true') {
-        console.log('🔄 Already refreshed this session');
+let board = Array(9).fill(null);
+let currentPlayer = 'X'; // X always goes first
+let gameOver = false;
+let paused = false;
+let difficulty = 'easy';
+let scores = { wins: 0, losses: 0, draws: 0 };
+
+// Load scores & difficulty
+(function load() {
+    try {
+        const saved = JSON.parse(localStorage.getItem('tictactoe_scores') || '{"wins":0,"losses":0,"draws":0}');
+        scores = saved;
+        const diff = localStorage.getItem('tictactoe_difficulty') || 'easy';
+        difficulty = diff;
+    } catch(e) {}
+    updateScoreUI();
+    document.querySelectorAll('.difficulty-selector button').forEach(b => {
+        b.classList.toggle('active', b.dataset.diff === difficulty);
+    });
+})();
+
+function saveScores() {
+    localStorage.setItem('tictactoe_scores', JSON.stringify(scores));
+    localStorage.setItem('tictactoe_difficulty', difficulty);
+}
+
+function updateScoreUI() {
+    winsEl.textContent = scores.wins;
+    lossesEl.textContent = scores.losses;
+    drawsEl.textContent = scores.draws;
+}
+
+// ---- Board Rendering ----
+function renderBoard() {
+    boardEl.innerHTML = '';
+    board.forEach((val, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell' + (val ? ' taken' : '');
+        cell.textContent = val || '';
+        if (!val && !gameOver && !paused && currentPlayer === 'X') {
+            cell.style.cursor = 'pointer';
+            cell.onclick = () => humanMove(i);
+        } else {
+            cell.style.cursor = 'default';
+        }
+        if (val) {
+            if (val === 'X') cell.style.color = '#4fc3f7';
+            else cell.style.color = '#ff6b6b';
+        }
+        boardEl.appendChild(cell);
+    });
+    statusEl.textContent = gameOver ? statusEl.textContent : (paused ? '⏸️ Paused' : (currentPlayer === 'X' ? 'Your turn! (X)' : 'AI is thinking...'));
+}
+
+// ---- Human Move ----
+function humanMove(index) {
+    if (gameOver || paused || board[index] || currentPlayer !== 'X') return;
+    makeMove(index, 'X');
+    if (!gameOver && !checkWinner(board)) {
+        currentPlayer = 'O';
+        renderBoard();
+        setTimeout(aiMove, 400);
+    }
+}
+
+// ---- Make Move ----
+function makeMove(index, player) {
+    board[index] = player;
+    renderBoard();
+    const winner = checkWinner(board);
+    if (winner) {
+        gameOver = true;
+        highlightWinningCells(winner);
+        statusEl.textContent = winner === 'X' ? '🎉 You win!' : '💀 AI wins!';
+        if (winner === 'X') { scores.wins++; saveScores(); updateScoreUI(); spawnConfetti(); }
+        else if (winner === 'O') { scores.losses++; saveScores(); updateScoreUI(); }
+        renderBoard();
         return;
     }
-    
-    // Mark as refreshed
-    sessionStorage.setItem(key, 'true');
-    
-    // Show loading message
-    const container = document.querySelector('.container') || document.querySelector('#app') || document.body;
-    const msg = document.createElement('div');
-    msg.id = 'refreshMessage';
-    msg.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.85);
-        color: #7cf5b0;
-        padding: 20px 40px;
-        border-radius: 16px;
-        font-size: 18px;
-        font-weight: 700;
-        z-index: 99999;
-        font-family: 'Segoe UI', sans-serif;
-        text-align: center;
-        border: 2px solid #4fc3f7;
-        box-shadow: 0 0 60px rgba(79,195,247,0.2);
-    `;
-    msg.innerHTML = `
-        <div style="font-size: 48px; margin-bottom: 10px;">🔄</div>
-        <div>Refreshing game...</div>
-        <div style="font-size: 12px; color: #666; margin-top: 8px;">Loading latest version</div>
-    `;
-    document.body.appendChild(msg);
-    
-    // Perform a hard refresh (Ctrl+Shift+R equivalent)
-    setTimeout(() => {
-        // Clear all caches
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                for (let name of names) {
-                    caches.delete(name);
+    if (board.every(c => c !== null)) {
+        gameOver = true;
+        statusEl.textContent = '🤝 Draw!';
+        scores.draws++; saveScores(); updateScoreUI();
+        renderBoard();
+        return;
+    }
+}
+
+// ---- Check Winner ----
+function checkWinner(b) {
+    const lines = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+    for (let line of lines) {
+        const [a,b,c] = line;
+        if (b[a] && b[a] === b[b] && b[a] === b[c]) return b[a];
+    }
+    return null;
+}
+
+function highlightWinningCells(winner) {
+    const lines = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+    for (let line of lines) {
+        const [a,b,c] = line;
+        if (board[a] === winner && board[b] === winner && board[c] === winner) {
+            boardEl.children[a].classList.add(winner === 'X' ? 'win' : 'lose');
+            boardEl.children[b].classList.add(winner === 'X' ? 'win' : 'lose');
+            boardEl.children[c].classList.add(winner === 'X' ? 'win' : 'lose');
+            break;
+        }
+    }
+}
+
+// ---- AI Move (with difficulty) ----
+function aiMove() {
+    if (gameOver || paused || currentPlayer !== 'O') return;
+    let index = -1;
+    if (difficulty === 'easy') index = randomMove();
+    else if (difficulty === 'medium') {
+        // 70% smart, 30% random
+        index = Math.random() < 0.7 ? getBestMove() : randomMove();
+    } else { // hard
+        index = getBestMove();
+    }
+    if (index === -1) { // fallback
+        const empty = board.map((v,i) => v === null ? i : null).filter(v => v !== null);
+        if (empty.length) index = empty[Math.floor(Math.random() * empty.length)];
+    }
+    if (index !== -1) {
+        makeMove(index, 'O');
+        if (!gameOver && !checkWinner(board)) {
+            currentPlayer = 'X';
+            renderBoard();
+        }
+    }
+}
+
+function randomMove() {
+    const empty = board.map((v,i) => v === null ? i : null).filter(v => v !== null);
+    return empty.length ? empty[Math.floor(Math.random() * empty.length)] : -1;
+}
+
+function getBestMove() {
+    // Minimax for Tic Tac Toe
+    function minimax(b, depth, isMaximizing) {
+        const winner = checkWinner(b);
+        if (winner === 'O') return 10 - depth;
+        if (winner === 'X') return depth - 10;
+        if (b.every(c => c !== null)) return 0;
+        if (isMaximizing) {
+            let best = -Infinity;
+            for (let i=0; i<9; i++) {
+                if (!b[i]) {
+                    b[i] = 'O';
+                    const val = minimax(b, depth+1, false);
+                    b[i] = null;
+                    best = Math.max(best, val);
                 }
-            });
-        }
-        
-        // Force reload with cache-buster
-        const url = window.location.href.split('?')[0] + '?t=' + Date.now();
-        window.location.replace(url);
-    }, 1000);
-}
-
-// Run on page load
-if (document.readyState === 'complete') {
-    checkAndRefresh();
-} else {
-    document.addEventListener('DOMContentLoaded', checkAndRefresh);
-}
-
-// Also force refresh if user manually clicks
-console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
-</script>
-<script>
-// Modern page lifecycle handling
-document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden') {
-        // Pause or save state
-        console.log('Page hidden – auto-save triggered');
-    }
-});
-window.addEventListener('beforeunload', function(e) {
-    // Final cleanup before unload
-    console.log('Page unloading – saving state');
-});
-</script>
-</div>
-<script>
-// High-score & difficulty (auto-save)
-(function() {
-    const gameId = window.location.pathname.split('/').pop().replace('.html','');
-    const highScoreKey = 'highscore_' + gameId;
-    const difficultyKey = 'difficulty_' + gameId;
-    // Load high score
-    let highScore = localStorage.getItem(highScoreKey) || 0;
-    let currentDiff = localStorage.getItem(difficultyKey) || 'medium';
-    // Find score display
-    const scoreEl = document.querySelector('.score, #score, [id*="score"], .points, #points');
-    if (scoreEl) {
-        // Observe score changes
-        const observer = new MutationObserver(() => {
-            const val = parseInt(scoreEl.textContent);
-            if (!isNaN(val) && val > highScore) {
-                highScore = val;
-                localStorage.setItem(highScoreKey, highScore);
             }
-        });
-        observer.observe(scoreEl, { childList: true, subtree: true, characterData: true });
-        // Initial save if score present
-        const initVal = parseInt(scoreEl.textContent);
-        if (!isNaN(initVal) && initVal > highScore) {
-            highScore = initVal;
-            localStorage.setItem(highScoreKey, highScore);
+            return best;
+        } else {
+            let best = Infinity;
+            for (let i=0; i<9; i++) {
+                if (!b[i]) {
+                    b[i] = 'X';
+                    const val = minimax(b, depth+1, true);
+                    b[i] = null;
+                    best = Math.min(best, val);
+                }
+            }
+            return best;
         }
-        // Display high score
-        const hsEl = document.createElement('div');
-        hsEl.className = 'high-score';
-        hsEl.innerHTML = '🏆 High Score: <span id="highScoreDisplay">' + highScore + '</span>';
-        scoreEl.parentNode.insertBefore(hsEl, scoreEl.nextSibling);
-        // Update display when high score changes
-        window.updateHighScore = function() {
-            document.getElementById('highScoreDisplay').textContent = highScore;
-        };
     }
-    // Difficulty selector
-    const diffContainer = document.createElement('div');
-    diffContainer.className = 'difficulty-selector';
-    diffContainer.innerHTML = `
-        <button data-diff="easy" class="${currentDiff === 'easy' ? 'active' : ''}">Easy</button>
-        <button data-diff="medium" class="${currentDiff === 'medium' ? 'active' : ''}">Medium</button>
-        <button data-diff="hard" class="${currentDiff === 'hard' ? 'active' : ''}">Hard</button>
-    `;
-    const container = document.querySelector('.game-container') || document.body;
-    const firstChild = container.firstChild;
-    if (firstChild) {
-        container.insertBefore(diffContainer, firstChild.nextSibling);
-    } else {
-        container.appendChild(diffContainer);
+    let bestScore = -Infinity;
+    let bestMove = -1;
+    for (let i=0; i<9; i++) {
+        if (!board[i]) {
+            board[i] = 'O';
+            const score = minimax(board, 0, false);
+            board[i] = null;
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = i;
+            }
+        }
     }
-    diffContainer.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const diff = this.dataset.diff;
-            localStorage.setItem(difficultyKey, diff);
-            diffContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            // Dispatch custom event for game to use
-            window.dispatchEvent(new CustomEvent('difficultyChanged', { detail: { difficulty: diff } }));
-        });
+    return bestMove;
+}
+
+// ---- Confetti ----
+function spawnConfetti() {
+    confettiContainer.style.display = 'block';
+    const colors = ['#4fc3f7','#7cf5b0','#ffd93d','#ff6b6b','#a29bfe'];
+    for (let i=0; i<60; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.width = (Math.random() * 8 + 4) + 'px';
+        piece.style.height = (Math.random() * 8 + 4) + 'px';
+        piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+        piece.style.animationDelay = (Math.random() * 0.5) + 's';
+        confettiContainer.appendChild(piece);
+    }
+    setTimeout(() => {
+        confettiContainer.innerHTML = '';
+        confettiContainer.style.display = 'none';
+    }, 3000);
+}
+
+// ---- Pause ----
+function togglePause() {
+    paused = !paused;
+    document.getElementById('pauseLabel').textContent = paused ? 'Resume' : 'Pause';
+    renderBoard();
+}
+
+// ---- Restart ----
+function resetGame() {
+    board = Array(9).fill(null);
+    currentPlayer = 'X';
+    gameOver = false;
+    paused = false;
+    document.getElementById('pauseLabel').textContent = 'Pause';
+    statusEl.textContent = 'Your turn! (X)';
+    renderBoard();
+}
+
+// ---- Difficulty ----
+document.querySelectorAll('.difficulty-selector button').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.difficulty-selector button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        difficulty = this.dataset.diff;
+        localStorage.setItem('tictactoe_difficulty', difficulty);
+        resetGame();
     });
-    console.log('✅ Game enhanced with high-score & difficulty for', gameId);
-})();
+});
+
+// ---- Sound (optional) ----
+function playSound(type) {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        if (type === 'click') { osc.frequency.value = 600; gain.gain.value = 0.05; osc.start(); osc.stop(ctx.currentTime + 0.08); }
+        else if (type === 'win') { osc.frequency.value = 800; gain.gain.value = 0.1; osc.start(); setTimeout(() => { osc.frequency.value = 1000; }, 100); osc.stop(ctx.currentTime + 0.3); }
+        else if (type === 'lose') { osc.frequency.value = 300; gain.gain.value = 0.08; osc.start(); setTimeout(() => { osc.frequency.value = 200; }, 100); osc.stop(ctx.currentTime + 0.4); }
+    } catch(e) {}
+}
+
+// Override makeMove to add sounds
+const origMakeMove = makeMove;
+makeMove = function(index, player) {
+    origMakeMove(index, player);
+    if (!gameOver) playSound('click');
+    else if (checkWinner(board) === 'X') playSound('win');
+    else if (checkWinner(board) === 'O') playSound('lose');
+};
+
+// ---- Init ----
+resetGame();
+console.log('✅ Tic Tac Toe Pro loaded with AI, scores, sounds.');
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

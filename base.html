@@ -1893,8 +1893,30 @@ if (typeof firebase !== 'undefined' && firebase.firestore) {
     }
 }
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"])').forEach(function(input) {
+        if (!input.id) return;
+        if (!document.querySelector('label[for="' + input.id + '"]')) {
+            var label = document.createElement('label');
+            label.setAttribute('for', input.id);
+            label.textContent = input.placeholder || input.name || input.id;
+            input.parentNode.insertBefore(label, input);
+        }
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var regBtn = document.getElementById('registerSubmitBtn');
+    var loginBtn = document.getElementById('loginSubmitBtn');
+    if (regBtn) regBtn.addEventListener('click', registerUser);
+    if (loginBtn) loginBtn.addEventListener('click', loginUser);
+});
+</script>
 </body>
 </html>
+
 
 
 

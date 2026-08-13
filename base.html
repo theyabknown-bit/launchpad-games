@@ -411,7 +411,7 @@
             <button class="profile-btn" id="profileBtn"><i class="fas fa-user-circle"></i> Profile</button>
             <button class="friends-btn" id="friendsBtn"><i class="fas fa-users"></i> Friends</button>
             <button class="stats-btn" id="statsBtn"><i class="fas fa-chart-bar"></i> Stats</button>
-            <button class="btn-small btn-purple" onclick="loadLeaderboard()" style="padding:0.25rem 0.8rem;border-radius:40px;font-size:0.7rem;background:linear-gradient(135deg,#b07cf5,#7a4ab5);border-color:#b07cf5;color:white;cursor:pointer;border:none;">🏆 Leaderboard</button>
+            
             <button class="feedback-btn" id="feedbackBtn"><i class="fas fa-envelope"></i> Feedback</button>
             <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
         </div>
@@ -680,7 +680,7 @@ function getDeviceName() {
     if (ua.indexOf('Windows') > -1) return '💻 Windows';
     if (ua.indexOf('Mac') > -1) return '💻 Mac';
     if (ua.indexOf('Linux') > -1) return '🐧 Linux';
-    return '🖥️ Computer';
+    return 'Computer';
 }
 
 function generateFriendCode() {
@@ -1685,6 +1685,7 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
+
 
 
 

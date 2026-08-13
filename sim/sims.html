@@ -28,10 +28,7 @@
             border: 1px solid rgba(79,195,247,0.1);
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
-        .header {
-            text-align: center;
-            margin-bottom: 15px;
-        }
+        .header { text-align: center; margin-bottom: 15px; }
         .header .title {
             font-size: 2.2rem;
             font-weight: 900;
@@ -64,6 +61,7 @@
         .stat .value.knowledge { color: #7cf5b0; }
         .stat .value.age { color: #a29bfe; }
         .stat .value.jail { color: #ff6b6b; }
+        .stat .value.health { color: #fdcb6e; }
 
         .actions {
             display: grid;
@@ -91,6 +89,8 @@
         .btn-crime { background: linear-gradient(135deg, #fd79a8, #e17055); color: white; }
         .btn-lawyer { background: linear-gradient(135deg, #00b894, #00a381); color: white; }
         .btn-friend { background: linear-gradient(135deg, #fdcb6e, #f9a825); color: #0b1a26; }
+        .btn-doctor { background: linear-gradient(135deg, #55efc4, #00b894); color: #0b1a26; }
+        .btn-minigame { background: linear-gradient(135deg, #ff9ff3, #f368e0); color: white; }
 
         .section {
             margin: 12px 0;
@@ -102,9 +102,15 @@
         .section h3 { font-size: 1rem; margin-bottom: 6px; color: #4fc3f7; }
         .section .info { font-size: 0.85rem; color: #8899aa; }
 
-        .friend-item { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; }
-        .friend-item .name { color: #d0e8f0; }
-        .friend-item .age { color: #a29bfe; }
+        .friend-item, .family-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-size: 0.85rem;
+        }
+        .friend-item .name, .family-item .name { color: #d0e8f0; }
+        .friend-item .age, .family-item .age { color: #a29bfe; }
 
         .message {
             background: rgba(255,255,255,0.03);
@@ -125,8 +131,8 @@
         }
         .back-btn:hover { text-decoration: underline; }
 
-        .crime-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
-        .crime-btn {
+        .crime-list, .minigame-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+        .crime-btn, .minigame-btn {
             padding: 4px 12px;
             border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.1);
@@ -137,6 +143,7 @@
             transition: 0.2s;
         }
         .crime-btn:hover { background: rgba(255,107,107,0.2); border-color: #ff6b6b; }
+        .minigame-btn:hover { background: rgba(255,159,243,0.2); border-color: #ff9ff3; }
 
         .lawyer-options { display: flex; gap: 10px; margin: 6px 0; }
         .lawyer-btn {
@@ -151,6 +158,25 @@
         }
         .lawyer-btn:hover { background: rgba(79,195,247,0.15); }
 
+        .mini-game-area {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 12px;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .mini-game-area .game-btn {
+            font-size: 2rem;
+            padding: 10px 30px;
+            background: #4fc3f7;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mini-game-area .game-btn:hover { transform: scale(1.05); }
+        .mini-game-area .progress { font-size: 0.9rem; margin-top: 6px; }
+
         @media (max-width: 600px) {
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .actions { grid-template-columns: 1fr 1fr; }
@@ -161,7 +187,7 @@
 <div class="container">
     <div class="header">
         <div class="title">🧬 Sims Mini</div>
-        <div class="sub">Live. Grow. Survive.</div>
+        <div class="sub" id="subTitle">Live. Grow. Survive.</div>
     </div>
 
     <!-- Stats -->
@@ -170,8 +196,11 @@
         <div class="stat"><span class="label">😊 Happiness</span><span class="value happiness" id="happiness">80</span></div>
         <div class="stat"><span class="label">⚡ Energy</span><span class="value energy" id="energy">70</span></div>
         <div class="stat"><span class="label">📚 Knowledge</span><span class="value knowledge" id="knowledge">10</span></div>
+        <div class="stat"><span class="label">❤️ Health</span><span class="value health" id="health">80</span></div>
         <div class="stat"><span class="label">🎂 Age</span><span class="value age" id="age">18</span></div>
         <div class="stat"><span class="label">⛓️ Jail</span><span class="value jail" id="jailStatus">Free</span></div>
+        <div class="stat"><span class="label">😔 Depression</span><span class="value" id="depressionStatus" style="color:#ff6b6b;">No</span></div>
+        <div class="stat"><span class="label">👪 Family</span><span class="value" id="familyStatus">-</span></div>
     </div>
 
     <!-- Main Actions -->
@@ -183,6 +212,14 @@
         <button class="btn btn-crime" onclick="showCrimes()"><i class="fas fa-gavel"></i> Commit Crime</button>
         <button class="btn btn-lawyer" onclick="showLawyer()"><i class="fas fa-balance-scale"></i> Hire Lawyer</button>
         <button class="btn btn-friend" onclick="makeFriend()"><i class="fas fa-user-plus"></i> Make Friend</button>
+        <button class="btn btn-doctor" onclick="visitDoctor()"><i class="fas fa-user-md"></i> Visit Doctor</button>
+        <button class="btn btn-minigame" onclick="showMiniGames()"><i class="fas fa-gamepad"></i> Mini-Games</button>
+    </div>
+
+    <!-- Family Section -->
+    <div class="section" id="familySection">
+        <h3>👪 Family</h3>
+        <div id="familyList"></div>
     </div>
 
     <!-- Friend List -->
@@ -191,7 +228,7 @@
         <div id="friendList"><span style="color:#8899aa; font-size:0.85rem;">Make friends to build your circle.</span></div>
     </div>
 
-    <!-- Dynamic crime/lawyer UI -->
+    <!-- Dynamic UI -->
     <div id="dynamicUI"></div>
 
     <!-- Message -->
@@ -209,12 +246,18 @@ const DEFAULT_STATE = {
     happiness: 80,
     energy: 70,
     knowledge: 10,
+    health: 80,
     age: 18,
-    jailDays: 0,          // days left in jail
-    lawyer: null,         // 'public' or 'private'
-    friends: [],          // array of {name, age}
-    usedCrimes: [],       // not used yet
-    dayCount: 0
+    jailDays: 0,
+    lawyer: null,
+    friends: [],
+    // New fields
+    firstName: '',
+    lastName: '',
+    parents: [], // [{name, age}]
+    depressed: false,
+    depressionDays: 0, // consecutive days with happiness < 20
+    dead: false
 };
 
 // Crime definitions
@@ -226,7 +269,7 @@ const CRIMES = [
     { id: 'hacking', label: 'Hacking', risk: 0.6, jailDays: 5, fine: 80 }
 ];
 
-// Name generation for 1000 unique names
+// Name generation
 const FIRST_NAMES = [
     "James","Mary","John","Patricia","Robert","Jennifer","Michael","Linda","William","Elizabeth",
     "David","Barbara","Richard","Susan","Joseph","Jessica","Thomas","Sarah","Charles","Karen",
@@ -239,7 +282,6 @@ const FIRST_NAMES = [
     "Benjamin","Emma","Samuel","Megan","Gregory","Laura","Alexander","Jacqueline","Patrick","Carolyn",
     "Frank","Janet","Raymond","Maria","Jack","Heather","Dennis","Diane","Jerry","Julie"
 ];
-
 const LAST_NAMES = [
     "Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez",
     "Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin",
@@ -250,9 +292,8 @@ const LAST_NAMES = [
 
 let allNames = [];
 
-function generateNames() {
+function generateAllNames() {
     if (allNames.length > 0) return;
-    // Generate up to 1000 unique combinations
     for (let f of FIRST_NAMES) {
         for (let l of LAST_NAMES) {
             const name = f + ' ' + l;
@@ -275,7 +316,6 @@ function loadState() {
         const saved = localStorage.getItem('simsUltimate');
         if (saved) {
             const parsed = JSON.parse(saved);
-            // Merge with defaults
             state = { ...DEFAULT_STATE, ...parsed };
         } else {
             state = { ...DEFAULT_STATE };
@@ -285,12 +325,30 @@ function loadState() {
     }
     // Ensure arrays
     if (!Array.isArray(state.friends)) state.friends = [];
-    if (!state.friends) state.friends = [];
-    // Ensure all fields exist
+    if (!Array.isArray(state.parents)) state.parents = [];
+    // Ensure all fields
     for (let key in DEFAULT_STATE) {
         if (!(key in state)) state[key] = DEFAULT_STATE[key];
     }
-    generateNames();
+    generateAllNames();
+    // If no firstName, set random
+    if (!state.firstName) {
+        state.firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+    }
+    if (!state.lastName) {
+        state.lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+    }
+    // Generate parents if empty
+    if (state.parents.length === 0) {
+        const motherName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)] + ' ' + state.lastName;
+        const fatherName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)] + ' ' + state.lastName;
+        state.parents = [
+            { name: motherName, age: state.age + 22 + Math.floor(Math.random() * 10) },
+            { name: fatherName, age: state.age + 24 + Math.floor(Math.random() * 10) }
+        ];
+    }
+    // If dead, reset? We'll keep dead state but if dead, show game over.
+    saveState();
 }
 
 function saveState() {
@@ -302,10 +360,22 @@ function updateUI() {
     document.getElementById('happiness').textContent = state.happiness;
     document.getElementById('energy').textContent = state.energy;
     document.getElementById('knowledge').textContent = state.knowledge;
+    document.getElementById('health').textContent = state.health;
     document.getElementById('age').textContent = state.age;
+    document.getElementById('jailStatus').textContent = state.jailDays > 0 ? `Jail (${state.jailDays} days)` : 'Free';
+    document.getElementById('depressionStatus').textContent = state.depressed ? 'Yes' : 'No';
+    document.getElementById('depressionStatus').style.color = state.depressed ? '#ff6b6b' : '#7cf5b0';
+    document.getElementById('familyStatus').textContent = state.parents.length > 0 ? '👨‍👩‍👧' : 'None';
 
-    const jailStatus = state.jailDays > 0 ? `Jail (${state.jailDays} days)` : 'Free';
-    document.getElementById('jailStatus').textContent = jailStatus;
+    // Family list
+    const familyContainer = document.getElementById('familyList');
+    if (state.parents.length === 0) {
+        familyContainer.innerHTML = '<span style="color:#8899aa;">No parents.</span>';
+    } else {
+        familyContainer.innerHTML = state.parents.map(p =>
+            `<div class="family-item"><span class="name">${p.name}</span><span class="age">${p.age} yo</span></div>`
+        ).join('');
+    }
 
     // Friend list
     const friendContainer = document.getElementById('friendList');
@@ -318,12 +388,21 @@ function updateUI() {
         ).join('');
     }
 
-    // Clear dynamic UI
-    document.getElementById('dynamicUI').innerHTML = '';
+    // Check death
+    if (state.dead) {
+        document.getElementById('dynamicUI').innerHTML = `
+            <div class="section" style="border-color:#ff6b6b;">
+                <h3 style="color:#ff6b6b;">💀 GAME OVER</h3>
+                <p>You have died. Your stats have been reset.</p>
+                <button class="btn" onclick="resetGame()">Start New Life</button>
+            </div>
+        `;
+        return;
+    }
 
-    // If in jail, show lawyer options
-    if (state.jailDays > 0) {
-        showLawyerUI();
+    // Clear dynamic UI if not active
+    if (!document.querySelector('#dynamicUI .section')) {
+        document.getElementById('dynamicUI').innerHTML = '';
     }
 }
 
@@ -337,22 +416,23 @@ function setMessage(text, isGood = true) {
 // ACTIONS
 // ============================================================
 function study() {
-    if (state.jailDays > 0) { setMessage('⛓️ Cannot study while in jail!', false); return; }
-    if (state.energy < 10) { setMessage('😴 Too tired to study! Relax first.', false); return; }
+    if (state.dead) return;
+    if (state.jailDays > 0) { setMessage('⛓️ Cannot study in jail!', false); return; }
+    if (state.energy < 10) { setMessage('😴 Too tired to study!', false); return; }
     state.energy -= 10;
     state.knowledge += 5;
     state.happiness -= 2;
     if (state.happiness < 0) state.happiness = 0;
     saveState();
     updateUI();
-    setMessage('📚 Studied hard! Knowledge +5, Energy -10.');
+    setMessage('📚 Studied! Knowledge +5, Energy -10.');
 }
 
 function work() {
+    if (state.dead) return;
     if (state.jailDays > 0) { setMessage('⛓️ Cannot work in jail!', false); return; }
-    if (state.energy < 15) { setMessage('😴 Too tired to work! Relax first.', false); return; }
-    if (state.happiness < 10) { setMessage('😢 Too unhappy to work! Do something fun.', false); return; }
-    // Simple pay: $5 + knowledge bonus (1 per 10 knowledge)
+    if (state.energy < 15) { setMessage('😴 Too tired to work!', false); return; }
+    if (state.happiness < 10) { setMessage('😢 Too unhappy to work!', false); return; }
     const bonus = Math.floor(state.knowledge / 10);
     const pay = 5 + bonus;
     state.energy -= 15;
@@ -365,47 +445,83 @@ function work() {
 }
 
 function relax() {
-    if (state.jailDays > 0) { setMessage('⛓️ Can relax in jail? Not really...', false); return; }
+    if (state.dead) return;
+    if (state.jailDays > 0) { setMessage('⛓️ Can\'t relax properly in jail.', false); return; }
     if (state.energy >= 100) { setMessage('⚡ Already full energy!', false); return; }
     state.energy += 20;
     if (state.energy > 100) state.energy = 100;
     state.happiness += 5;
     if (state.happiness > 100) state.happiness = 100;
+    state.health += 2;
+    if (state.health > 100) state.health = 100;
     saveState();
     updateUI();
-    setMessage('😌 Relaxed! Energy +20, Happiness +5.');
+    setMessage('😌 Relaxed! Energy +20, Happiness +5, Health +2.');
 }
 
 function passDay() {
-    // Age everyone
+    if (state.dead) return;
     state.age += 1;
+    // Age parents
+    state.parents.forEach(p => p.age += 1);
     // Age friends
     state.friends.forEach(f => f.age += 1);
-    // Reduce jail days
+    // Reduce jail
     if (state.jailDays > 0) {
         state.jailDays -= 1;
         if (state.jailDays < 0) state.jailDays = 0;
-        setMessage(`⛓️ Day passed. ${state.jailDays} days left in jail.`);
-    } else {
-        setMessage(`🎂 You are now ${state.age} years old. Your friends aged too.`);
     }
-    // Lose some happiness/energy over time
+    // Natural decay
     state.happiness -= 2;
     if (state.happiness < 0) state.happiness = 0;
     state.energy -= 3;
     if (state.energy < 0) state.energy = 0;
+    state.health -= 1;
+    if (state.health < 0) state.health = 0;
+
+    // Depression check
+    if (state.happiness < 20) {
+        state.depressionDays = (state.depressionDays || 0) + 1;
+        if (state.depressionDays >= 3) {
+            state.depressed = true;
+            setMessage('😔 You are depressed. Visit a doctor.', false);
+        }
+    } else {
+        state.depressionDays = 0;
+        if (state.depressed) {
+            state.depressed = false;
+            setMessage('😊 You are no longer depressed!');
+        }
+    }
+
+    // Check death conditions
+    if (state.health <= 0) {
+        state.dead = true;
+        setMessage('💀 You died from poor health.', false);
+    } else if (state.happiness <= 0) {
+        state.dead = true;
+        setMessage('💀 You died from extreme unhappiness.', false);
+    } else {
+        // Check if parents die of old age (age > 100)
+        state.parents = state.parents.filter(p => p.age < 100);
+        if (state.parents.length === 0) {
+            setMessage('Your parents have passed away.', false);
+        }
+    }
+
     saveState();
     updateUI();
+    if (!state.dead) {
+        setMessage(`🎂 You are now ${state.age} years old.`);
+    }
 }
 
 // ============================================================
 // CRIME SYSTEM
 // ============================================================
 function showCrimes() {
-    if (state.jailDays > 0) {
-        setMessage('⛓️ You are in jail! Can\'t commit crimes.', false);
-        return;
-    }
+    if (state.dead) return;
+    if (state.jailDays > 0) { setMessage('⛓️ Already in jail!', false); return; }
     const ui = document.getElementById('dynamicUI');
     ui.innerHTML = `
         <div class="section">
@@ -415,90 +531,27 @@ function showCrimes() {
                     <button class="crime-btn" onclick="commitCrime('${c.id}')">${c.label} (Risk ${Math.round(c.risk*100)}%)</button>
                 `).join('')}
             </div>
-            <div style="margin-top:6px; font-size:0.8rem; color:#8899aa;">Higher risk = more jail time. Good luck!</div>
+            <div style="margin-top:6px; font-size:0.8rem; color:#8899aa;">Higher risk = more jail time.</div>
         </div>
     `;
 }
 
 function commitCrime(crimeId) {
+    if (state.dead) return;
     const crime = CRIMES.find(c => c.id === crimeId);
     if (!crime) return;
-    if (state.jailDays > 0) { setMessage('⛓️ You are already in jail!', false); return; }
+    if (state.jailDays > 0) { setMessage('Already in jail!', false); return; }
 
     const roll = Math.random();
     if (roll < crime.risk) {
-        // Caught!
         state.jailDays = crime.jailDays;
         state.money -= crime.fine;
         if (state.money < 0) state.money = 0;
-        setMessage(`🚔 Caught! You're sentenced to ${crime.jailDays} days in jail and fined $${crime.fine}.`, false);
+        setMessage(`🚔 Caught! ${crime.jailDays} days in jail, fined $${crime.fine}.`, false);
     } else {
-        // Success
         const reward = crime.fine * 2 + Math.floor(Math.random() * 20);
         state.money += reward;
-        setMessage(`🎉 Success! You earned $${reward} from ${crime.label}.`);
-    }
-    saveState();
-    updateUI();
-    document.getElementById('dynamicUI').innerHTML = ''; // clear crime list
-}
-
-// ============================================================
-// LAWYER SYSTEM
-// ============================================================
-function showLawyer() {
-    if (state.jailDays === 0) {
-        setMessage('💼 You are not in jail. No need for a lawyer.', false);
-        return;
-    }
-    showLawyerUI();
-}
-
-function showLawyerUI() {
-    const ui = document.getElementById('dynamicUI');
-    const hasPublic = state.lawyer === 'public';
-    const hasPrivate = state.lawyer === 'private';
-    ui.innerHTML = `
-        <div class="section">
-            <h3>⚖️ Hire a Lawyer</h3>
-            <div class="lawyer-options">
-                <button class="lawyer-btn" onclick="hireLawyer('public')" ${hasPublic ? 'style="border-color:#7cf5b0;"' : ''}>
-                    🆓 Public Defender ${hasPublic ? '✅' : ''}
-                </button>
-                <button class="lawyer-btn" onclick="hireLawyer('private')" ${hasPrivate ? 'style="border-color:#7cf5b0;"' : ''}>
-                    💰 Private Lawyer ($100) ${hasPrivate ? '✅' : ''}
-                </button>
-            </div>
-            <div style="font-size:0.8rem; color:#8899aa; margin-top:6px;">
-                Public: reduces jail time by 20% | Private: reduces by 50%
-            </div>
-        </div>
-    `;
-}
-
-function hireLawyer(type) {
-    if (state.jailDays === 0) {
-        setMessage('You are not in jail.', false);
-        document.getElementById('dynamicUI').innerHTML = '';
-        return;
-    }
-    if (type === 'public') {
-        state.lawyer = 'public';
-        const reduction = Math.floor(state.jailDays * 0.2);
-        state.jailDays -= reduction;
-        if (state.jailDays < 0) state.jailDays = 0;
-        setMessage(`⚖️ Public defender hired! Jail time reduced by ${reduction} days.`);
-    } else if (type === 'private') {
-        if (state.money < 100) {
-            setMessage('❌ Not enough money! Need $100.', false);
-            return;
-        }
-        state.money -= 100;
-        state.lawyer = 'private';
-        const reduction = Math.floor(state.jailDays * 0.5);
-        state.jailDays -= reduction;
-        if (state.jailDays < 0) state.jailDays = 0;
-        setMessage(`⚖️ Private lawyer hired! Jail time reduced by ${reduction} days.`);
+        setMessage(`🎉 Success! Earned $${reward} from ${crime.label}.`);
     }
     saveState();
     updateUI();
@@ -506,28 +559,216 @@ function hireLawyer(type) {
 }
 
 // ============================================================
-// FRIEND SYSTEM (1000 names, age matching)
+// LAWYER SYSTEM
+// ============================================================
+function showLawyer() {
+    if (state.dead) return;
+    if (state.jailDays === 0) { setMessage('💼 Not in jail.', false); return; }
+    const ui = document.getElementById('dynamicUI');
+    ui.innerHTML = `
+        <div class="section">
+            <h3>⚖️ Hire a Lawyer</h3>
+            <div class="lawyer-options">
+                <button class="lawyer-btn" onclick="hireLawyer('public')">🆓 Public Defender</button>
+                <button class="lawyer-btn" onclick="hireLawyer('private')">💰 Private Lawyer ($100)</button>
+            </div>
+            <div style="font-size:0.8rem; color:#8899aa;">Public: -20% time | Private: -50%</div>
+        </div>
+    `;
+}
+
+function hireLawyer(type) {
+    if (state.dead) return;
+    if (state.jailDays === 0) { setMessage('Not in jail.', false); return; }
+    let reduction = 0;
+    if (type === 'public') {
+        reduction = Math.floor(state.jailDays * 0.2);
+        state.lawyer = 'public';
+    } else if (type === 'private') {
+        if (state.money < 100) { setMessage('❌ Need $100.', false); return; }
+        state.money -= 100;
+        reduction = Math.floor(state.jailDays * 0.5);
+        state.lawyer = 'private';
+    }
+    state.jailDays -= reduction;
+    if (state.jailDays < 0) state.jailDays = 0;
+    setMessage(`⚖️ Jail time reduced by ${reduction} days.`);
+    saveState();
+    updateUI();
+    document.getElementById('dynamicUI').innerHTML = '';
+}
+
+// ============================================================
+// DOCTOR SYSTEM
+// ============================================================
+function visitDoctor() {
+    if (state.dead) return;
+    if (state.jailDays > 0) { setMessage('⛓️ Can\'t visit doctor in jail.', false); return; }
+    let msg = '';
+    let cost = 0;
+    let success = true;
+
+    if (state.health >= 50 && !state.depressed) {
+        msg = '🩺 Doctor says: "You are perfectly healthy!" No charge.';
+    } else {
+        // Need treatment
+        if (state.depressed) {
+            cost = 30;
+            success = Math.random() < 0.6;
+            msg = '🩺 Doctor prescribes depression medication.';
+        } else {
+            cost = 20;
+            success = Math.random() < 0.7;
+            msg = '🩺 Doctor recommends treatment for your health.';
+        }
+        if (state.money < cost) {
+            setMessage('❌ Not enough money for treatment.', false);
+            return;
+        }
+        state.money -= cost;
+        if (success) {
+            if (state.depressed) {
+                state.depressed = false;
+                state.depressionDays = 0;
+                state.happiness += 10;
+                if (state.happiness > 100) state.happiness = 100;
+                msg += ' ✅ Treatment successful! You are no longer depressed.';
+            } else {
+                state.health += 15;
+                if (state.health > 100) state.health = 100;
+                msg += ' ✅ Treatment improved your health.';
+            }
+        } else {
+            // Treatment failed
+            if (state.depressed) {
+                state.health -= 5;
+                msg += ' ❌ Medicine didn\'t work. Your health worsened.';
+            } else {
+                state.health -= 3;
+                msg += ' ❌ Treatment failed. Your health slightly worsened.';
+            }
+            if (state.health < 0) state.health = 0;
+        }
+    }
+    saveState();
+    updateUI();
+    setMessage(msg, success);
+    document.getElementById('dynamicUI').innerHTML = '';
+}
+
+// ============================================================
+// MINI-GAMES
+// ============================================================
+let miniGameActive = false;
+let miniGameTarget = 10;
+let miniGameClicks = 0;
+let miniGameCallback = null;
+
+function showMiniGames() {
+    if (state.dead) return;
+    const ui = document.getElementById('dynamicUI');
+    ui.innerHTML = `
+        <div class="section">
+            <h3>🎮 Mini-Games</h3>
+            <div class="minigame-list">
+                <button class="minigame-btn" onclick="startMiniGame('game')">🎮 Play Game (Happiness+5, Health+3)</button>
+                <button class="minigame-btn" onclick="startMiniGame('exercise')">🏋️ Exercise (Health+8, Happiness+2)</button>
+            </div>
+            <div id="miniGameArea" style="margin-top:8px;"></div>
+        </div>
+    `;
+}
+
+function startMiniGame(type) {
+    if (miniGameActive) return;
+    if (state.energy < 10) { setMessage('😴 Too tired for games.', false); return; }
+
+    miniGameActive = true;
+    miniGameClicks = 0;
+    miniGameTarget = 10;
+    const area = document.getElementById('miniGameArea');
+    let label = '';
+    let reward = {};
+
+    if (type === 'game') {
+        label = 'Click the button 10 times to play!';
+        reward = { happiness: 5, health: 3, energyCost: 10 };
+    } else if (type === 'exercise') {
+        label = 'Click the button 10 times to exercise!';
+        reward = { health: 8, happiness: 2, energyCost: 15 };
+    }
+
+    area.innerHTML = `
+        <p>${label}</p>
+        <button class="game-btn" onclick="miniGameClick('${type}', ${JSON.stringify(reward).replace(/"/g, '&quot;')})">👆</button>
+        <div class="progress">Progress: <span id="miniProgress">0</span> / ${miniGameTarget}</div>
+    `;
+}
+
+function miniGameClick(type, reward) {
+    if (!miniGameActive) return;
+    miniGameClicks++;
+    document.getElementById('miniProgress').textContent = miniGameClicks;
+    if (miniGameClicks >= miniGameTarget) {
+        // Complete
+        miniGameActive = false;
+        state.energy -= reward.energyCost;
+        if (state.energy < 0) state.energy = 0;
+        state.happiness += reward.happiness || 0;
+        if (state.happiness > 100) state.happiness = 100;
+        state.health += reward.health || 0;
+        if (state.health > 100) state.health = 100;
+        saveState();
+        updateUI();
+        setMessage(`🎉 Mini-game complete! ${reward.happiness ? 'Happiness +'+reward.happiness : ''} ${reward.health ? 'Health +'+reward.health : ''}`);
+        document.getElementById('miniGameArea').innerHTML = '<p style="color:#7cf5b0;">✅ Done!</p>';
+        // Clear dynamic UI after a moment
+        setTimeout(() => {
+            document.getElementById('dynamicUI').innerHTML = '';
+        }, 2000);
+    }
+}
+
+// ============================================================
+// FRIEND SYSTEM
 // ============================================================
 function makeFriend() {
-    if (state.jailDays > 0) {
-        setMessage('⛓️ Can\'t make friends in jail!', false);
-        return;
-    }
-    // Find an available name not already used
-    let available = allNames.filter(n => !state.friends.some(f => f.name === n));
-    if (available.length === 0) {
-        setMessage('😥 No more unique names! (You have all 1000 friends?)', false);
-        return;
-    }
-    // Pick random name
+    if (state.dead) return;
+    if (state.jailDays > 0) { setMessage('⛓️ Can\'t make friends in jail.', false); return; }
+    let available = allNames.filter(n => !state.friends.some(f => f.name === n) && !state.parents.some(p => p.name === n));
+    if (available.length === 0) { setMessage('😥 No more unique names!', false); return; }
     const name = available[Math.floor(Math.random() * available.length)];
-    // Determine age within ±2 years of current age, min 1
     let friendAge = state.age + Math.floor(Math.random() * 5) - 2;
     if (friendAge < 1) friendAge = 1;
     state.friends.push({ name, age: friendAge });
     saveState();
     updateUI();
-    setMessage(`👋 You became friends with ${name} (${friendAge} yo)!`);
+    setMessage(`👋 Became friends with ${name} (${friendAge} yo)!`);
+}
+
+// ============================================================
+// DEATH & RESET
+// ============================================================
+function resetGame() {
+    if (confirm('Start a new life? All progress will be lost.')) {
+        localStorage.removeItem('simsUltimate');
+        state = { ...DEFAULT_STATE };
+        // Regenerate name and parents
+        state.firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+        state.lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+        const motherName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)] + ' ' + state.lastName;
+        const fatherName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)] + ' ' + state.lastName;
+        state.parents = [
+            { name: motherName, age: state.age + 22 + Math.floor(Math.random() * 10) },
+            { name: fatherName, age: state.age + 24 + Math.floor(Math.random() * 10) }
+        ];
+        state.dead = false;
+        saveState();
+        loadState();
+        updateUI();
+        setMessage('🌟 New life begun!');
+        document.getElementById('dynamicUI').innerHTML = '';
+    }
 }
 
 // ============================================================
@@ -535,8 +776,8 @@ function makeFriend() {
 // ============================================================
 loadState();
 updateUI();
-setMessage('💡 Study to gain knowledge, Work to earn money, Pass Day to age.');
-console.log('✅ Sims Mini with Age, Crime, Jail, Lawyers, 1000-name Friends.');
+setMessage('💡 Study, Work, Relax, Pass Day to age. Stay healthy!');
+console.log('✅ Sims Mini with full family, health, doctor, mini-games.');
 </script>
 </body>
 </html>

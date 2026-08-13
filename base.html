@@ -708,7 +708,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-db.enablePersistence({ synchronizeTabs: true }).catch(err => console.log('Persistence error:', err));
+db.enablePersistence({ synchronizeTabs: true }));
 
 // ============================================================
 // GAMES DATA
@@ -1895,6 +1895,7 @@ if (typeof firebase !== 'undefined' && firebase.firestore) {
 </script>
 </body>
 </html>
+
 
 
 

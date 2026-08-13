@@ -445,8 +445,8 @@
         <div style="text-align:right;">
             <div class="device-info"> • 👥 <span class="friend-count" id="friendCount">0</span> friends • 📨 <span id="requestCount">0</span> requests</div>
             <div style="margin-top:4px; display:flex; gap:4px; justify-content:flex-end; flex-wrap:wrap;">
-                <button class="btn-small btn-cyan" onclick="copyFriendCode()">📋 Copy</button>
-                <button class="btn-small btn-warning" onclick="refreshFriendCode()">🔄 New</button>
+                <button class="btn-small btn-cyan" >📋 Copy</button>
+                <button class="btn-small btn-warning" >🔄 New</button>
             </div>
         </div>
     </div>
@@ -513,7 +513,7 @@
         }
         return $tag
     
-        <button class="submit-btn" id="loginSubmitBtn" onclick="loginUser()">Login</button>
+        <button class="submit-btn" id="loginSubmitBtn" >Login</button>
         <div class="switch-link" id="switchToRegister">Don't have an account? Register</div>
     </div>
 </div>
@@ -569,7 +569,7 @@
         }
         return $tag
     
-        <button class="submit-btn" id="registerSubmitBtn" onclick="registerUser()">Register</button>
+        <button class="submit-btn" id="registerSubmitBtn" >Register</button>
         <div class="switch-link" id="switchToLogin">Already have an account? Login</div>
     </div>
 </div>
@@ -590,7 +590,7 @@
         <div style="margin-bottom:10px;">
             <label style="font-size:0.7rem;color:#8899aa;">Edit Bio</label>
             <textarea id="profileBioInput" placeholder="Write something about yourself..." rows="2"></textarea>
-            <button class="btn-small btn-success" onclick="saveProfile()" style="width:100%;padding:6px;">💾 Save Bio</button>
+            <button class="btn-small btn-success"  style="width:100%;padding:6px;">💾 Save Bio</button>
         </div>
         <div>
             <div style="font-size:0.8rem;color:#8899aa;margin-bottom:4px;">🏆 Achievements</div>
@@ -606,8 +606,8 @@
         <h2><i class="fas fa-users"></i> Friends</h2>
         
         <div style="margin-bottom:8px;">
-            <button class="btn-small btn-cyan" onclick="showFriendRequests()">📨 Friend Requests (<span id="requestBadge">0</span>)</button>
-            <button class="btn-small btn-success" onclick="showFriends()">👥 My Friends</button>
+            <button class="btn-small btn-cyan" >📨 Friend Requests (<span id="requestBadge">0</span>)</button>
+            <button class="btn-small btn-success" >👥 My Friends</button>
         </div>
         
         <p style="color:#8899aa; font-size:0.8rem; margin-bottom:8px;">Enter your friend's 6-character code to send a request</p>
@@ -626,13 +626,13 @@
         }
         return $tag
     
-            <button class="btn-small btn-success" onclick="sendFriendRequest()" style="padding:8px 16px;">🔍 Find & Send</button>
+            <button class="btn-small btn-success"  style="padding:8px 16px;">🔍 Find & Send</button>
         </div>
         <div id="friendsList" style="margin-top:8px;">
             <div style="color:#666;padding:10px;">👥 Loading...</div>
         </div>
         <div style="margin-top:8px; display:flex; gap:4px; flex-wrap:wrap;">
-            <button class="btn-small btn-warning" onclick="syncFriends()">🔄 Sync</button>
+            <button class="btn-small btn-warning" >🔄 Sync</button>
         </div>
     </div>
 </div>
@@ -660,7 +660,7 @@
         }
         return $tag
     
-            <button class="btn-small btn-cyan" onclick="sendChatMessage()" style="padding:8px 16px;">📤 Send</button>
+            <button class="btn-small btn-cyan"  style="padding:8px 16px;">📤 Send</button>
         </div>
     </div>
 </div>
@@ -680,7 +680,7 @@
             <div style="font-size:0.8rem; color:#8899aa; margin-bottom:4px;">🎮 Games Played:</div>
             <div id="statsGameList" style="font-size:0.7rem; color:#b0d4f0; max-height:150px; overflow-y:auto;"></div>
         </div>
-        <button class="submit-btn" style="margin-top:10px;" onclick="resetStats()">🔄 Reset Stats</button>
+        <button class="submit-btn" style="margin-top:10px;" >🔄 Reset Stats</button>
     </div>
 </div>
 
@@ -780,7 +780,7 @@ const GAMES = {
                     const badge = progress.played ? `<span class="played-badge"><i class="fas fa-check-circle" style="color:#7cf5b0;"></i> ${progress.xp} XP</span>` : '';
                     const progressBar = progress.played ? `<div class="progress-bar"><div class="fill" style="width:${pct}%;"></div></div>` : '';
                     const ach = progress.played && progress.xp >= 5 ? '<span class="achievement-badge">🏆</span>' : '';
-                    return `<a href="${game.file}" class="pick-card" onclick="handleGameClick('${game.id}')">
+                    return `<a href="${game.file}" class="pick-card" >
                         ${ach}
                         <div class="icon-wrap"><i class="fas ${game.icon}"></i></div>
                         <h3>${game.name}</h3>
@@ -984,7 +984,7 @@ function renderGames() {
             const progressBar = progress.played ? `<div class="progress-bar"><div class="fill" style="width:${pct}%;"></div></div>` : '';
             // Check if game has achievement
             const ach = progress.played && progress.xp >= 5 ? '<span class="achievement-badge">🏆</span>' : '';
-            return `<a href="${game.file}" class="pick-card" onclick="handleGameClick('${game.id}')">
+            return `<a href="${game.file}" class="pick-card" >
                 ${ach}
                 <div class="icon-wrap"><i class="fas ${game.icon}"></i></div>
                 <h3>${game.name}</h3>
@@ -1492,8 +1492,8 @@ function renderFriendsList() {
                     <div class="details">${r.device} • 🔑 ${r.code}</div>
                 </div>
                 <div>
-                    <button class="accept-btn" onclick="acceptFriendRequest(${friendRequests.indexOf(r)})">✅ Accept</button>
-                    <button class="decline-btn" onclick="declineFriendRequest(${friendRequests.indexOf(r)})">✖</button>
+                    <button class="accept-btn" >✅ Accept</button>
+                    <button class="decline-btn" >✖</button>
                 </div>
             `;
             container.appendChild(div);
@@ -1524,10 +1524,10 @@ function renderFriendsList() {
                 <div class="details">${f.device} • 🔑 ${f.code} • <span class="online-dot ${dotClass}"></span>${f.status === 'online' ? 'Online' : 'Offline'}</div>
             </div>
             <div>
-                <button class="btn-small btn-cyan" onclick="openChat(${i})" style="margin-right:4px;">💬</button>
-                <button class="btn-small btn-purple" onclick="startVoiceChat('${f.code}')" style="margin-right:4px;background:linear-gradient(135deg,#b07cf5,#7a4ab5);border:none;color:white;border-radius:6px;padding:2px 8px;font-size:0.6rem;cursor:pointer;">🎙️</button>
-                <button class="btn-small btn-warning" onclick="sendGameInvite(${i}, 'tictactoe')" style="margin-right:4px;">🎮</button>
-                <button class="remove-btn" onclick="removeFriend(${i})">✖</button>
+                <button class="btn-small btn-cyan"  style="margin-right:4px;">💬</button>
+                <button class="btn-small btn-purple"  style="margin-right:4px;background:linear-gradient(135deg,#b07cf5,#7a4ab5);border:none;color:white;border-radius:6px;padding:2px 8px;font-size:0.6rem;cursor:pointer;">🎙️</button>
+                <button class="btn-small btn-warning"  style="margin-right:4px;">🎮</button>
+                <button class="remove-btn" >✖</button>
             </div>
         `;
         container.appendChild(div);
@@ -1895,6 +1895,7 @@ if (typeof firebase !== 'undefined' && firebase.firestore) {
 </script>
 </body>
 </html>
+
 
 
 

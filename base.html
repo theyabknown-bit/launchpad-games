@@ -31,17 +31,23 @@
         .friend-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .friend-item .name { color: #d0e8f0; }
         .friend-item .code { color: #4fc3f7; font-size: 0.7rem; }
-        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
+
+        /* Game Sections */
+        .game-section { margin-top: 30px; }
+        .game-section h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; color: #4fc3f7; border-bottom: 1px solid rgba(79,195,247,0.1); padding-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
+        .game-section h2 .emoji { margin-right: 10px; }
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
         .game-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(79,195,247,0.05); border-radius: 12px; padding: 15px; text-align: center; transition: 0.2s; text-decoration: none; color: inherit; }
         .game-card:hover { transform: translateY(-3px); border-color: #4fc3f7; box-shadow: 0 8px 25px rgba(79,195,247,0.05); }
         .game-card .icon { font-size: 2.5rem; margin-bottom: 8px; }
         .game-card .name { font-weight: 600; font-size: 0.9rem; }
         .game-card .sub { font-size: 0.7rem; color: #8899aa; }
-        @media (max-width: 600px) { .header { flex-direction: column; align-items: stretch; } .profile-area { justify-content: center; } }
+        @media (max-width: 600px) { .header { flex-direction: column; align-items: stretch; } .profile-area { justify-content: center; } .games-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); } }
     </style>
 </head>
 <body>
 <div class="container">
+    <!-- Header -->
     <div class="header">
         <div class="logo">🚀 Launchpad</div>
         <div class="profile-area" id="profileArea">
@@ -51,13 +57,15 @@
         </div>
     </div>
 
+    <!-- Friends Section -->
     <div class="friends-section" id="friendsSection">
         <h3>👥 Friends</h3>
         <div id="friendsList">No friends yet. Share your invite code!</div>
         <button class="btn btn-secondary" onclick="openAddFriendModal()" style="margin-top:10px;">➕ Add Friend by Code</button>
     </div>
 
-    <div class="games-grid" id="gamesGrid"></div>
+    <!-- Game Sections (will be filled by JavaScript) -->
+    <div id="gameSections"></div>
 </div>
 
 <!-- Profile Modal -->
@@ -139,7 +147,6 @@ function createProfile() {
     if (!username) { error.textContent = 'Please enter a username.'; return; }
     if (users[username]) { error.textContent = 'Username already taken.'; return; }
 
-    // Check if invite code is valid
     let inviter = null;
     if (inviteCode) {
         for (let u in users) {
@@ -150,23 +157,20 @@ function createProfile() {
         }
         if (!inviter) {
             error.textContent = 'Invite code not found. You can proceed without it.';
-            // But we'll still allow creation; just not add friend
+            // We'll still allow creation
         }
     }
 
-    // Create new user
     const newCode = generateCode();
     users[username] = {
         username: username,
         code: newCode,
-        friends: [] // usernames
+        friends: []
     };
 
-    // If inviter exists, add each other as friends
     if (inviter) {
         users[username].friends.push(inviter.username);
         inviter.friends.push(username);
-        // Save inviter changes
         saveUsers();
     }
 
@@ -269,53 +273,72 @@ document.querySelectorAll('.modal').forEach(m => {
 });
 
 // ============================================================
-// GAMES DATA & RENDER
+// GAMES DATA & RENDER WITH SECTIONS
 // ============================================================
 const GAMES = {
-    space: [
-        { id: 'space', name: 'Space Explorer', icon: 'fa-rocket', file: 'space/space.html' },
-        { id: 'asteroid', name: 'Asteroid Dodge', icon: 'fa-meteor', file: 'space/asteroiddodge.html' },
-        { id: 'planetbuilder', name: 'Planet Builder', icon: 'fa-globe', file: 'space/PlanetBuilder.html' },
-        { id: 'aliens', name: 'Alien Translator', icon: 'fa-language', file: 'space/AlienTranslator.html' },
-        { id: 'station', name: 'Space Station', icon: 'fa-space-shuttle', file: 'space/SpaceStationManager.html' },
-        { id: 'mining', name: 'Asteroid Mining', icon: 'fa-gem', file: 'space/AsteroidMining.html' },
-        { id: 'delivery', name: 'Galactic Delivery', icon: 'fa-truck', file: 'space/GalacticDelivery.html' },
-        { id: 'blackhole', name: 'Black Hole Escape', icon: 'fa-circle', file: 'space/BlackHoleEscape.html' },
-        { id: 'alienzoo', name: 'Alien Zoo', icon: 'fa-paw', file: 'space/AlienZoo.html' }
-    ],
-    arcade: [
-        { id: 'tictactoe', name: 'Tic Tac Toe', icon: 'fa-hashtag', file: 'a/tictactoe.html' },
-        { id: 'snake', name: 'Snake', icon: 'fa-cubes', file: 'a/snake.html' },
-        { id: 'simon', name: 'Simon Says', icon: 'fa-bolt', file: 'a/simon.html' },
-        { id: 'hangman', name: 'Hangman', icon: 'fa-font', file: 'a/hangman.html' },
-        { id: 'whackamole', name: 'Whack-A-Mole', icon: 'fa-hammer', file: 'a/whackamole.html' },
-        { id: 'scam', name: 'ScamSavvy', icon: 'fa-shield', file: 'a/scam.html' },
-        { id: 'wordblitz', name: 'Word Blitz', icon: 'fa-keyboard', file: 'a/wordblitz.html' },
-        { id: 'colormatch', name: 'Color Match', icon: 'fa-palette', file: 'a/colormatch.html' },
-        { id: 'numbercrunch', name: 'Number Crunch', icon: 'fa-calculator', file: 'a/numbercrunch.html' },
-        { id: 'reactiontap', name: 'Reaction Tap', icon: 'fa-hand-pointer', file: 'a/reactiontap.html' },
-        { id: 'draw', name: 'Draw It!', icon: 'fa-pen', file: 'a/draw.html' },
-        { id: 'typeracer', name: 'Type Racer', icon: 'fa-tachometer-alt', file: 'a/typeracer.html' },
-        { id: 'beatbop', name: 'Beat Bop', icon: 'fa-music', file: 'a/beatbop.html' },
-        { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', file: 'a/slidepuzzle.html' },
-        { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-question-circle', file: 'a/trivia.html' },
-        { id: 'stim', name: 'Stimulation Overload', icon: 'fa-brain', file: 'a/stim.html' },
-        { id: 'memory', name: 'Memory Card', icon: 'fa-clone', file: 'a/memorycard.html' },
-        { id: 'fishing', name: 'Fishing Sim', icon: 'fa-fish', file: 'a/fishing.html' }
-    ],
-    sim: [
-        { id: 'sims', name: 'Sims Mini', icon: 'fa-user', file: 'sim/sims.html' },
-        { id: 'doctor', name: 'MediCore', icon: 'fa-stethoscope', file: 'sim/doctor.html' },
-        { id: 'cashier', name: 'Cashier Sim', icon: 'fa-cash-register', file: 'sim/cashier.html' },
-        { id: 'hotel', name: 'Hotel Sim', icon: 'fa-hotel', file: 'sim/hotel.html' }
-    ]
+    space: {
+        label: '🚀 Space Games',
+        games: [
+            { id: 'space', name: 'Space Explorer', icon: 'fa-rocket', file: 'space/space.html' },
+            { id: 'asteroid', name: 'Asteroid Dodge', icon: 'fa-meteor', file: 'space/asteroiddodge.html' },
+            { id: 'planetbuilder', name: 'Planet Builder', icon: 'fa-globe', file: 'space/PlanetBuilder.html' },
+            { id: 'aliens', name: 'Alien Translator', icon: 'fa-language', file: 'space/AlienTranslator.html' },
+            { id: 'station', name: 'Space Station', icon: 'fa-space-shuttle', file: 'space/SpaceStationManager.html' },
+            { id: 'mining', name: 'Asteroid Mining', icon: 'fa-gem', file: 'space/AsteroidMining.html' },
+            { id: 'delivery', name: 'Galactic Delivery', icon: 'fa-truck', file: 'space/GalacticDelivery.html' },
+            { id: 'blackhole', name: 'Black Hole Escape', icon: 'fa-circle', file: 'space/BlackHoleEscape.html' },
+            { id: 'alienzoo', name: 'Alien Zoo', icon: 'fa-paw', file: 'space/AlienZoo.html' }
+        ]
+    },
+    arcade: {
+        label: '🎮 Arcade Games',
+        games: [
+            { id: 'tictactoe', name: 'Tic Tac Toe', icon: 'fa-hashtag', file: 'a/tictactoe.html' },
+            { id: 'snake', name: 'Snake', icon: 'fa-cubes', file: 'a/snake.html' },
+            { id: 'simon', name: 'Simon Says', icon: 'fa-bolt', file: 'a/simon.html' },
+            { id: 'hangman', name: 'Hangman', icon: 'fa-font', file: 'a/hangman.html' },
+            { id: 'whackamole', name: 'Whack-A-Mole', icon: 'fa-hammer', file: 'a/whackamole.html' },
+            { id: 'scam', name: 'ScamSavvy', icon: 'fa-shield', file: 'a/scam.html' },
+            { id: 'wordblitz', name: 'Word Blitz', icon: 'fa-keyboard', file: 'a/wordblitz.html' },
+            { id: 'colormatch', name: 'Color Match', icon: 'fa-palette', file: 'a/colormatch.html' },
+            { id: 'numbercrunch', name: 'Number Crunch', icon: 'fa-calculator', file: 'a/numbercrunch.html' },
+            { id: 'reactiontap', name: 'Reaction Tap', icon: 'fa-hand-pointer', file: 'a/reactiontap.html' },
+            { id: 'draw', name: 'Draw It!', icon: 'fa-pen', file: 'a/draw.html' },
+            { id: 'typeracer', name: 'Type Racer', icon: 'fa-tachometer-alt', file: 'a/typeracer.html' },
+            { id: 'beatbop', name: 'Beat Bop', icon: 'fa-music', file: 'a/beatbop.html' },
+            { id: 'slidepuzzle', name: 'Slide Puzzle', icon: 'fa-puzzle-piece', file: 'a/slidepuzzle.html' },
+            { id: 'trivia', name: 'Trivia Quiz', icon: 'fa-question-circle', file: 'a/trivia.html' },
+            { id: 'stim', name: 'Stimulation Overload', icon: 'fa-brain', file: 'a/stim.html' },
+            { id: 'memory', name: 'Memory Card', icon: 'fa-clone', file: 'a/memorycard.html' },
+            { id: 'fishing', name: 'Fishing Sim', icon: 'fa-fish', file: 'a/fishing.html' }
+        ]
+    },
+    sim: {
+        label: '🏥 Simulation Games',
+        games: [
+            { id: 'sims', name: 'Sims Mini', icon: 'fa-user', file: 'sim/sims.html' },
+            { id: 'doctor', name: 'MediCore', icon: 'fa-stethoscope', file: 'sim/doctor.html' },
+            { id: 'cashier', name: 'Cashier Sim', icon: 'fa-cash-register', file: 'sim/cashier.html' },
+            { id: 'hotel', name: 'Hotel Sim', icon: 'fa-hotel', file: 'sim/hotel.html' }
+        ]
+    }
 };
 
 function renderGames() {
-    const grid = document.getElementById('gamesGrid');
-    grid.innerHTML = '';
-    Object.keys(GAMES).forEach(cat => {
-        GAMES[cat].forEach(game => {
+    const container = document.getElementById('gameSections');
+    container.innerHTML = '';
+    const categories = ['space', 'arcade', 'sim'];
+    categories.forEach(cat => {
+        const section = GAMES[cat];
+        if (!section) return;
+        const div = document.createElement('div');
+        div.className = 'game-section';
+        const title = document.createElement('h2');
+        title.innerHTML = section.label;
+        div.appendChild(title);
+        const grid = document.createElement('div');
+        grid.className = 'games-grid';
+        section.games.forEach(game => {
             const card = document.createElement('a');
             card.className = 'game-card';
             card.href = game.file;
@@ -326,6 +349,8 @@ function renderGames() {
             `;
             grid.appendChild(card);
         });
+        div.appendChild(grid);
+        container.appendChild(div);
     });
 }
 
@@ -340,7 +365,7 @@ if (currentUser) {
     updateUI();
 }
 renderGames();
-console.log('🚀 Launchpad loaded (no Firebase)');
+console.log('🚀 Launchpad loaded with sections (no Firebase)');
 </script>
 </body>
 </html>

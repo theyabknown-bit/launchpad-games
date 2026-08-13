@@ -269,6 +269,18 @@
             .back-btn { font-size: 12px; padding: 8px 14px; top: 10px; left: 10px; }
         }
     </style>
+<script>
+// Suppress unload violation warnings
+(function() {
+    var ow = console.warn;
+    console.warn = function() {
+        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
+            return;
+        }
+        ow.apply(console, arguments);
+    };
+})();
+</script>
 </head>
 <body>
 
@@ -1165,6 +1177,7 @@ window.addEventListener('beforeunload', function(e) {
 </script>
 </body>
 </html>
+
 
 
 

@@ -157,6 +157,18 @@
         .slime-pet-area .slime-item .label { font-size: 10px; color: #888; }
         @media (max-width:480px) { #app { padding: 14px 12px 12px; border-radius:24px; } #clickBtn { width:130px; height:130px; } #clickBtn .emoji { font-size:28px; } .stats .points { font-size:36px; } .back-btn { font-size:11px; padding:8px 12px; top:10px; left:10px; } .upgrade { padding:8px 10px; } .upgrade button { padding:5px 10px; font-size:11px; min-width:55px; } .stock-chart { height:50px; } .daily-reward { flex-direction:column; gap:8px; text-align:center; } }
     </style>
+<script>
+// Suppress unload violation warnings
+(function() {
+    var ow = console.warn;
+    console.warn = function() {
+        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
+            return;
+        }
+        ow.apply(console, arguments);
+    };
+})();
+</script>
 </head>
 <body>
     <a href="../base.html" class="back-btn">← Back</a>
@@ -1618,6 +1630,7 @@ console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
 </body>
 </html>
+
 
 
 

@@ -143,6 +143,18 @@
             .stat-item { font-size: 0.7rem; padding: 0.2rem 0.8rem; }
         }
     </style>
+<script>
+// Suppress unload violation warnings
+(function() {
+    var ow = console.warn;
+    console.warn = function() {
+        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
+            return;
+        }
+        ow.apply(console, arguments);
+    };
+})();
+</script>
 </head>
 <body>
 <div class="game-wrapper">
@@ -1158,6 +1170,7 @@ console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
 </body>
 </html>
+
 
 
 

@@ -80,6 +80,18 @@
         .catch-log .catch { color: #7cf5b0; }
         .catch-log .miss { color: #ff6b6b; }
     </style>
+<script>
+// Suppress unload violation warnings
+(function() {
+    var ow = console.warn;
+    console.warn = function() {
+        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
+            return;
+        }
+        ow.apply(console, arguments);
+    };
+})();
+</script>
 </head>
 <body>
 <div class="container">
@@ -254,6 +266,7 @@ window.addEventListener('beforeunload', function(e) {
 </script>
 </body>
 </html>
+
 
 
 

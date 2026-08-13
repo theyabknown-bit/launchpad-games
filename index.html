@@ -7,6 +7,18 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>ðŸš€</text></svg>">
     <meta http-equiv="refresh" content="0; url=base.html">
     <title>Launchpad Games</title>
+<script>
+// Suppress unload violation warnings
+(function() {
+    var ow = console.warn;
+    console.warn = function() {
+        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
+            return;
+        }
+        ow.apply(console, arguments);
+    };
+})();
+</script>
 </head>
 <body>
     <p>Redirecting to <a href="base.html">Launchpad Games</a>...</p>
@@ -132,6 +144,7 @@ window.addEventListener('beforeunload', function(e) {
 </script>
 </body>
 </html>
+
 
 
 

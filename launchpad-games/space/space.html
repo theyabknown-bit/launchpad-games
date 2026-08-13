@@ -15,6 +15,18 @@
         .info { position: absolute; top: 20px; color: #fff; font-family: Arial; }
         button { padding: 10px 20px; background: #e94560; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
     </style>
+<script>
+// Suppress unload violation warnings
+(function() {
+    var ow = console.warn;
+    console.warn = function() {
+        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
+            return;
+        }
+        ow.apply(console, arguments);
+    };
+})();
+</script>
 </head>
 <body>
     <div class="info">Score: <span id="score">0</span> <button onclick="location.href='base.html'">🏠 Menu</button></div>
@@ -142,6 +154,7 @@ window.addEventListener('beforeunload', function(e) {
 </script>
 </body>
 </html>
+
 
 
 

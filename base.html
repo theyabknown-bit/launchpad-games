@@ -44,6 +44,18 @@
         .game-card .sub { font-size: 0.7rem; color: #8899aa; }
         @media (max-width: 600px) { .header { flex-direction: column; align-items: stretch; } .profile-area { justify-content: center; } .games-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); } }
     </style>
+<script>
+// Suppress unload violation warnings
+(function() {
+    var ow = console.warn;
+    console.warn = function() {
+        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
+            return;
+        }
+        ow.apply(console, arguments);
+    };
+})();
+</script>
 </head>
 <body>
 <div class="container">
@@ -369,3 +381,4 @@ console.log('🚀 Launchpad loaded with sections (no Firebase)');
 </script>
 </body>
 </html>
+

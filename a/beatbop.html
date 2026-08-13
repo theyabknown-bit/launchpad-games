@@ -30,6 +30,18 @@ h1{color:#4fc3f7;margin-bottom:10px;}
 .btn:hover{background:#7cf5b0;}
 .message{font-size:1.2rem;min-height:30px;color:#ffd93d;margin:10px 0;}
 </style>
+<script>
+// Suppress unload violation warnings
+(function() {
+    var ow = console.warn;
+    console.warn = function() {
+        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
+            return;
+        }
+        ow.apply(console, arguments);
+    };
+})();
+</script>
 </head>
 <body>
 <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
@@ -628,6 +640,7 @@ window.addEventListener('beforeunload', function(e) {
 </script>
 </body>
 </html>
+
 
 
 

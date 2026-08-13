@@ -27,6 +27,18 @@
         .btn-danger:hover { background: #ff4444; }
         @media (max-width: 480px) { .board { grid-template-columns: repeat(3, 80px); gap: 8px; } .cell { width: 80px; height: 80px; font-size: 2.5rem; } }
     </style>
+<script>
+// Suppress unload violation warnings
+(function() {
+    var ow = console.warn;
+    console.warn = function() {
+        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
+            return;
+        }
+        ow.apply(console, arguments);
+    };
+})();
+</script>
 </head>
 <body>
     <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
@@ -867,6 +879,7 @@ window.addEventListener('beforeunload', function(e) {
 </script>
 </body>
 </html>
+
 
 
 

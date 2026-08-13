@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; style-src * 'self' 'unsafe-inline'; img-src * 'self' data: https:; connect-src * 'self' https:;">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>"><text y='.9em' font-size='90'>🚀</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>"><text y='.9em' font-size='90'>🚀</text></svg>"><text y='.9em' font-size='90'>🚀</text></svg>"><text y='.9em' font-size='90'>🚀</text></svg>"><text y='.9em' font-size='90'>🚀</text></svg>"><text y='.9em' font-size='90'>🚀</text></svg>"><text y='.9em' font-size='90'>🚀</text></svg>">
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -399,59 +399,10 @@
             .stats-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
-<script>
-// Suppress known console errors
-console.warn = function(...args) {
-    if (args[0]?.includes('deprecated')) return;
-    console._warn.apply(console, args);
-};
-console.error = function(...args) {
-    if (args[0]?.includes('favicon.ico')) return;
-    console._error.apply(console, args);
-};
-</script>
-<script>
-// CSP-safe eval alternative
-(function() {
-    // Safe function constructor replacement for eval
-    const safeEval = function(code) {
-        try {
-            return new Function('"use strict"; return (' + code + ')')();
-        } catch (e) {
-            console.error('Safe eval error:', e);
-            return null;
-        }
-    };
-    
-    // Override eval if needed
-    if (window.eval) {
-        const originalEval = window.eval;
-        window.eval = function(code) {
-            // Only allow safe code
-            if (typeof code === 'string' && code.length < 1000) {
-                return safeEval(code);
-            }
-            return originalEval(code);
-        };
-    }
-    
-    console.log('✅ CSP-safe eval enabled');
-})();
-</script>
-<script>
-// Suppress Firebase's internal 'unload' violation warning
-(function() {
-    const originalWarn = console.warn;
-    console.warn = function(...args) {
-        const msg = args.join(' ');
-        if (msg.includes('unload is not allowed')) {
-            return; // suppress
-        }
-        originalWarn.apply(console, args);
-    };
-    console.log('✅ Console warnings suppressed for unload violations');
-})();
-</script>
+
+
+
+<script>(function(){var ow=console.warn;console.warn=function(){if(arguments.length&&typeof arguments[0]==="string"&&arguments[0].includes("unload is not allowed"))return;ow.apply(console,arguments)};console.log("✅ unload warnings suppressed (fixed)")})();</script>
 </head>
 <body>
 <div class="launchpad">
@@ -1932,6 +1883,10 @@ if (typeof firebase !== 'undefined' && firebase.firestore) {
 </script>
 </body>
 </html>
+
+
+
+
 
 
 

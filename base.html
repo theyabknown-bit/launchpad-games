@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 Launchpad Games Hub</title>
-    <!-- No Firebase, no CSP issues -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0a1a; color: #d0e8f0; font-family: 'Segoe UI', Roboto, sans-serif; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
-        /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; flex-wrap: wrap; gap: 10px; }
         .header .logo { font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, #4fc3f7, #7cf5b0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .profile-area { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(79,195,247,0.1); }
@@ -21,7 +19,6 @@
         .btn { background: #4fc3f7; color: #0b1a26; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn:hover { transform: scale(1.02); background: #7cf5b0; }
         .btn-secondary { background: rgba(255,255,255,0.05); color: #d0e8f0; border: 1px solid rgba(255,255,255,0.1); }
-        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 1000; }
         .modal.show { display: flex; }
         .modal-content { background: #1a1a2e; padding: 30px; border-radius: 16px; max-width: 400px; width: 90%; border: 1px solid rgba(79,195,247,0.1); }
@@ -29,26 +26,22 @@
         .modal-content input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(79,195,247,0.2); background: rgba(0,0,0,0.3); color: #d0e8f0; margin-bottom: 12px; }
         .modal-content .btn { width: 100%; }
         .close { float: right; cursor: pointer; color: #8899aa; font-size: 1.5rem; }
-        /* Friends list */
         .friends-section { margin: 20px 0; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(79,195,247,0.05); }
         .friends-section h3 { margin-bottom: 10px; color: #7cf5b0; }
         .friend-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .friend-item .name { color: #d0e8f0; }
         .friend-item .code { color: #4fc3f7; font-size: 0.7rem; }
-        /* Games Grid */
         .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
         .game-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(79,195,247,0.05); border-radius: 12px; padding: 15px; text-align: center; transition: 0.2s; text-decoration: none; color: inherit; }
         .game-card:hover { transform: translateY(-3px); border-color: #4fc3f7; box-shadow: 0 8px 25px rgba(79,195,247,0.05); }
         .game-card .icon { font-size: 2.5rem; margin-bottom: 8px; }
         .game-card .name { font-weight: 600; font-size: 0.9rem; }
         .game-card .sub { font-size: 0.7rem; color: #8899aa; }
-        /* Responsive */
         @media (max-width: 600px) { .header { flex-direction: column; align-items: stretch; } .profile-area { justify-content: center; } }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- Header -->
     <div class="header">
         <div class="logo">🚀 Launchpad</div>
         <div class="profile-area" id="profileArea">
@@ -58,17 +51,13 @@
         </div>
     </div>
 
-    <!-- Friends Section -->
     <div class="friends-section" id="friendsSection">
         <h3>👥 Friends</h3>
         <div id="friendsList">No friends yet. Share your invite code!</div>
         <button class="btn btn-secondary" onclick="openAddFriendModal()" style="margin-top:10px;">➕ Add Friend by Code</button>
     </div>
 
-    <!-- Games Grid -->
-    <div class="games-grid" id="gamesGrid">
-        <!-- Games will be rendered here -->
-    </div>
+    <div class="games-grid" id="gamesGrid"></div>
 </div>
 
 <!-- Profile Modal -->
@@ -100,8 +89,9 @@
 <div class="modal" id="onboardingModal">
     <div class="modal-content">
         <h2>👋 Welcome!</h2>
-        <p>Choose a username to get started:</p>
+        <p>Choose a username and (optionally) enter an invite code from a friend:</p>
         <input type="text" id="onboardingUsername" placeholder="Your username">
+        <input type="text" id="onboardingInviteCode" placeholder="Invite code (optional)">
         <button class="btn" onclick="createProfile()">Let's Go!</button>
         <div id="onboardingError" style="color:#ff6b6b;margin-top:8px;"></div>
     </div>
@@ -139,21 +129,47 @@ function generateCode() {
 }
 
 // ============================================================
-// PROFILE & INVITE SYSTEM
+// PROFILE CREATION WITH INVITE CODE
 // ============================================================
 function createProfile() {
     const username = document.getElementById('onboardingUsername').value.trim();
+    const inviteCode = document.getElementById('onboardingInviteCode').value.trim().toUpperCase();
     const error = document.getElementById('onboardingError');
     error.textContent = '';
     if (!username) { error.textContent = 'Please enter a username.'; return; }
     if (users[username]) { error.textContent = 'Username already taken.'; return; }
 
-    const code = generateCode();
+    // Check if invite code is valid
+    let inviter = null;
+    if (inviteCode) {
+        for (let u in users) {
+            if (users[u].code === inviteCode && u !== username) {
+                inviter = users[u];
+                break;
+            }
+        }
+        if (!inviter) {
+            error.textContent = 'Invite code not found. You can proceed without it.';
+            // But we'll still allow creation; just not add friend
+        }
+    }
+
+    // Create new user
+    const newCode = generateCode();
     users[username] = {
         username: username,
-        code: code,
-        friends: [] // list of usernames
+        code: newCode,
+        friends: [] // usernames
     };
+
+    // If inviter exists, add each other as friends
+    if (inviter) {
+        users[username].friends.push(inviter.username);
+        inviter.friends.push(username);
+        // Save inviter changes
+        saveUsers();
+    }
+
     currentUser = users[username];
     saveUsers();
     saveCurrentUser();
@@ -161,12 +177,14 @@ function createProfile() {
     updateUI();
 }
 
+// ============================================================
+// ADD FRIEND BY CODE (existing users)
+// ============================================================
 function addFriend() {
     const code = document.getElementById('friendCodeInput').value.trim().toUpperCase();
     const error = document.getElementById('addFriendError');
     error.textContent = '';
     if (!code) { error.textContent = 'Please enter a code.'; return; }
-    // Find user with this code
     let found = null;
     for (let u in users) {
         if (users[u].code === code && u !== currentUser.username) {
@@ -178,6 +196,7 @@ function addFriend() {
     if (currentUser.friends.includes(found)) { error.textContent = 'Already friends.'; return; }
 
     currentUser.friends.push(found);
+    users[found].friends.push(currentUser.username);
     saveUsers();
     saveCurrentUser();
     document.getElementById('addFriendModal').classList.remove('show');
@@ -185,12 +204,14 @@ function addFriend() {
     updateUI();
 }
 
+// ============================================================
+// OTHER HELPERS
+// ============================================================
 function copyCode() {
     if (!currentUser) return;
     navigator.clipboard.writeText(currentUser.code).then(() => {
         alert('Invite code copied: ' + currentUser.code);
     }).catch(() => {
-        // fallback
         const input = document.createElement('input');
         input.value = currentUser.code;
         document.body.appendChild(input);
@@ -209,31 +230,24 @@ function resetProfile() {
         localStorage.removeItem('launchpad_current_user');
         saveUsers();
         updateUI();
-        // Show onboarding again
         document.getElementById('onboardingModal').classList.add('show');
     }
 }
 
-// ============================================================
-// UI UPDATE
-// ============================================================
 function updateUI() {
     if (!currentUser) {
-        // Show onboarding
         document.getElementById('onboardingModal').classList.add('show');
         document.getElementById('displayName').textContent = 'Guest';
         document.getElementById('displayCode').textContent = '📋 No Profile';
         document.getElementById('friendsList').innerHTML = 'Please create a profile.';
         return;
     }
-
     document.getElementById('displayName').textContent = currentUser.username;
     document.getElementById('displayCode').textContent = '📋 ' + currentUser.code;
     document.getElementById('modalUsername').textContent = currentUser.username;
     document.getElementById('modalCode').textContent = currentUser.code;
     document.getElementById('modalFriendCount').textContent = currentUser.friends.length;
 
-    // Friends list
     const list = document.getElementById('friendsList');
     if (currentUser.friends.length === 0) {
         list.innerHTML = 'No friends yet. Share your invite code!';
@@ -245,14 +259,9 @@ function updateUI() {
     }
 }
 
-// ============================================================
-// MODAL HELPERS
-// ============================================================
 function openProfileModal() { document.getElementById('profileModal').classList.add('show'); }
 function openAddFriendModal() { document.getElementById('addFriendModal').classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-
-// Click outside to close modals
 document.querySelectorAll('.modal').forEach(m => {
     m.addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('show');
@@ -260,7 +269,7 @@ document.querySelectorAll('.modal').forEach(m => {
 });
 
 // ============================================================
-// GAME RENDERING (keep your games)
+// GAMES DATA & RENDER
 // ============================================================
 const GAMES = {
     space: [
@@ -305,10 +314,8 @@ const GAMES = {
 function renderGames() {
     const grid = document.getElementById('gamesGrid');
     grid.innerHTML = '';
-    const categories = ['space', 'arcade', 'sim'];
-    categories.forEach(cat => {
-        const games = GAMES[cat] || [];
-        games.forEach(game => {
+    Object.keys(GAMES).forEach(cat => {
+        GAMES[cat].forEach(game => {
             const card = document.createElement('a');
             card.className = 'game-card';
             card.href = game.file;
@@ -329,12 +336,10 @@ loadData();
 if (currentUser) {
     updateUI();
 } else {
-    // Show onboarding
     document.getElementById('onboardingModal').classList.add('show');
     updateUI();
 }
 renderGames();
-
 console.log('🚀 Launchpad loaded (no Firebase)');
 </script>
 </body>

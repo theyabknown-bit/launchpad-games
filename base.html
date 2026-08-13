@@ -425,7 +425,10 @@
         </div>
         <div style="text-align:right;">
             <div class="device-info"> • 👥 <span class="friend-count" id="friendCount">0</span> friends • 📨 <span id="requestCount">0</span> requests</div>
-            
+            <div style="margin-top:4px; display:flex; gap:4px; justify-content:flex-end; flex-wrap:wrap;">
+                <button class="btn-small btn-cyan" onclick="copyFriendCode()">📋 Copy</button>
+                <button class="btn-small btn-warning" onclick="refreshFriendCode()">🔄 New</button>
+            </div>
         </div>
     </div>
 

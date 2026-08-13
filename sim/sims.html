@@ -404,7 +404,7 @@ function startMiniGame(type, title, rounds, callback) {
         let target = rounds;
         content.innerHTML = `
             <p>Click the button as fast as you can! (${target} times)</p>
-            <button id="workBtn" onclick="workClick()" style="font-size:2rem;padding:10px 30px;background:#4fc3f7;color:#0b1a26;border:none;border-radius:8px;cursor:pointer;">👆</button>
+            <button id="workBtn" onclick="workClick()" style="font-size:2rem;padding:10px 30px;">👆</button>
             <p>Progress: <span id="workProgress">0</span> / ${target}</p>
         `;
         window.workClick = function() {
@@ -421,17 +421,7 @@ function startMiniGame(type, title, rounds, callback) {
     } else if (type === 'school') {
         let correct = 0;
         let asked = 0;
-        
-        content.innerHTML = `
-            <div id="quizContainer">
-                <p id="quizQuestion" style="font-size:1.1rem;margin-bottom:10px;">Loading question...</p>
-                <div id="quizOptions" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:10px 0;"></div>
-                <p style="color:#8899aa; font-size:0.8rem;">✅ Correct: <span id="quizCorrect">0</span> / ${rounds}</p>
-                <button onclick="window.startQuiz()" style="background:#4fc3f7;color:#0b1a26;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.9rem;">Start Quiz</button>
-            </div>
-        `;
-        
-        window.startQuiz = function() {
+        function askQuestion() {
             if (asked >= rounds) {
                 closeMiniGame();
                 if (miniGameCallback) {
@@ -440,91 +430,27 @@ function startMiniGame(type, title, rounds, callback) {
                 }
                 return;
             }
-            
-            let a = Math.floor(Math.random() * 10) + 1;
-            let b = Math.floor(Math.random() * 10) + 1;
-            const operators = ['+', '-', '*'];
-            const op = operators[Math.floor(Math.random() * operators.length)];
-            let answer;
-            
-            if (op === '+') { answer = a + b; }
-            else if (op === '-') { 
-                if (a < b) { 
-                    const temp = a;
-                    a = b;
-                    b = temp;
-                }
-                answer = a - b; 
+            const a = Math.floor(Math.random() * 10) + 1;
+            const b = Math.floor(Math.random() * 10) + 1;
+            const op = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+            let ans;
+            if (op === '+') ans = a + b;
+            else if (op === '-') ans = a - b;
+            else ans = a * b;
+            const user = prompt(`What is ${a} ${op} ${b}?`);
+            if (parseInt(user) === ans) {
+                correct++;
+                setMessage('✅ Correct!');
+            } else {
+                setMessage(`❌ Wrong. Answer was ${ans}.`, false);
             }
-            else if (op === '*') { answer = a * b; }
-            
-            // Generate wrong answers
-            let wrongAnswers = [];
-            let attempts = 0;
-            while (wrongAnswers.length < 3 && attempts < 50) {
-                let wrong = answer + Math.floor(Math.random() * 10) - 5;
-                if (wrong !== answer && wrong >= 0 && !wrongAnswers.includes(wrong)) {
-                    wrongAnswers.push(wrong);
-                }
-                attempts++;
-            }
-            while (wrongAnswers.length < 3) {
-                wrongAnswers.push(answer + wrongAnswers.length + 1);
-            }
-            
-            // Shuffle options
-            let options = [answer, ...wrongAnswers];
-            for (let i = options.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [options[i], options[j]] = [options[j], options[i]];
-            }
-            
-            document.getElementById('quizQuestion').textContent = `❓ What is ${a} ${op} ${b}?`;
-            const optionsContainer = document.getElementById('quizOptions');
-            optionsContainer.innerHTML = '';
-            
-            options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.textContent = opt;
-                btn.style.cssText = `
-                    background: #1a3344;
-                    color: #d0e8f0;
-                    border: 2px solid #2a4a5e;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-size: 1.2rem;
-                    font-weight: 700;
-                    transition: 0.2s;
-                    min-width: 60px;
-                    font-family: 'Segoe UI', sans-serif;
-                `;
-                btn.onmouseover = function() { this.style.borderColor = '#4fc3f7'; };
-                btn.onmouseout = function() { this.style.borderColor = '#2a4a5e'; };
-                btn.onclick = function() {
-                    optionsContainer.querySelectorAll('button').forEach(b => b.disabled = true);
-                    
-                    if (opt === answer) {
-                        correct++;
-                        this.style.borderColor = '#7cf5b0';
-                        this.style.background = '#1a4a3a';
-                        setMessage('✅ Correct!');
-                    } else {
-                        this.style.borderColor = '#ff6b6b';
-                        this.style.background = '#3a1a1a';
-                        setMessage(`❌ Wrong! The answer was ${answer}.`, false);
-                    }
-                    
-                    document.getElementById('quizCorrect').textContent = correct;
-                    asked++;
-                    setTimeout(window.startQuiz, 1200);
-                };
-                optionsContainer.appendChild(btn);
-            });
-        };
-        
-        // Auto-start the quiz
-        setTimeout(window.startQuiz, 500);
+            asked++;
+            // Continue after a short delay
+            setTimeout(askQuestion, 500);
+        }
+        content.innerHTML = `<p>Answer ${rounds} math problems.</p><button onclick="askQuestion()">Start Quiz</button>`;
+        // Store the function on window
+        window.schoolStart = askQuestion;
     }
 }
 

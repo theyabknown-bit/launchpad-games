@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+    <link rel='stylesheet' href='../assets/css/game.css'>
     <meta http-equiv="Content-Security-Policy" 
       content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; 
                script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; 'unsafe-eval'; 'unsafe-eval'; 
@@ -338,6 +339,8 @@
 </script>
 </head>
 <body>
+<div class='game-container'>
+    <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a>
 <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
 <div class="container">
     <div class="header">
@@ -741,8 +744,10 @@ window.addEventListener('beforeunload', function(e) {
     console.log('Page unloading – saving state');
 });
 </script>
+</div>
 </body>
 </html>
+
 
 
 

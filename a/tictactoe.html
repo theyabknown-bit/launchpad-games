@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel='stylesheet' href='../assets/css/game.css'>
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com 'unsafe-eval'; 'unsafe-eval'; 'unsafe-eval'; 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com;">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
     <meta charset="UTF-8">
@@ -41,6 +42,8 @@
 </script>
 </head>
 <body>
+<div class='game-container'>
+    <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a>
     <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
     <div class="container">
         <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.8rem;">🚀</span><div><div style="font-size:1.2rem;font-weight:700;background:linear-gradient(135deg,#4fc3f7,#7cf5b0,#ffd93d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">LAUNCHPAD</div><div style="font-size:0.5rem;color:#7cf5b0;letter-spacing:3px;">READINESS TO LAUNCH</div></div></div>
@@ -877,8 +880,75 @@ window.addEventListener('beforeunload', function(e) {
     console.log('Page unloading – saving state');
 });
 </script>
+</div>
+<script>
+// High-score & difficulty (auto-save)
+(function() {
+    const gameId = window.location.pathname.split('/').pop().replace('.html','');
+    const highScoreKey = 'highscore_' + gameId;
+    const difficultyKey = 'difficulty_' + gameId;
+    // Load high score
+    let highScore = localStorage.getItem(highScoreKey) || 0;
+    let currentDiff = localStorage.getItem(difficultyKey) || 'medium';
+    // Find score display
+    const scoreEl = document.querySelector('.score, #score, [id*="score"], .points, #points');
+    if (scoreEl) {
+        // Observe score changes
+        const observer = new MutationObserver(() => {
+            const val = parseInt(scoreEl.textContent);
+            if (!isNaN(val) && val > highScore) {
+                highScore = val;
+                localStorage.setItem(highScoreKey, highScore);
+            }
+        });
+        observer.observe(scoreEl, { childList: true, subtree: true, characterData: true });
+        // Initial save if score present
+        const initVal = parseInt(scoreEl.textContent);
+        if (!isNaN(initVal) && initVal > highScore) {
+            highScore = initVal;
+            localStorage.setItem(highScoreKey, highScore);
+        }
+        // Display high score
+        const hsEl = document.createElement('div');
+        hsEl.className = 'high-score';
+        hsEl.innerHTML = '🏆 High Score: <span id="highScoreDisplay">' + highScore + '</span>';
+        scoreEl.parentNode.insertBefore(hsEl, scoreEl.nextSibling);
+        // Update display when high score changes
+        window.updateHighScore = function() {
+            document.getElementById('highScoreDisplay').textContent = highScore;
+        };
+    }
+    // Difficulty selector
+    const diffContainer = document.createElement('div');
+    diffContainer.className = 'difficulty-selector';
+    diffContainer.innerHTML = `
+        <button data-diff="easy" class="${currentDiff === 'easy' ? 'active' : ''}">Easy</button>
+        <button data-diff="medium" class="${currentDiff === 'medium' ? 'active' : ''}">Medium</button>
+        <button data-diff="hard" class="${currentDiff === 'hard' ? 'active' : ''}">Hard</button>
+    `;
+    const container = document.querySelector('.game-container') || document.body;
+    const firstChild = container.firstChild;
+    if (firstChild) {
+        container.insertBefore(diffContainer, firstChild.nextSibling);
+    } else {
+        container.appendChild(diffContainer);
+    }
+    diffContainer.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const diff = this.dataset.diff;
+            localStorage.setItem(difficultyKey, diff);
+            diffContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            // Dispatch custom event for game to use
+            window.dispatchEvent(new CustomEvent('difficultyChanged', { detail: { difficulty: diff } }));
+        });
+    });
+    console.log('✅ Game enhanced with high-score & difficulty for', gameId);
+})();
+</script>
 </body>
 </html>
+
 
 
 

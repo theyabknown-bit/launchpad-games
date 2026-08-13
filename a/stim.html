@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel='stylesheet' href='../assets/css/game.css'>
     <meta http-equiv="Content-Security-Policy" 
       content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; 
                script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; 'unsafe-eval'; 'unsafe-eval'; 
@@ -171,6 +172,8 @@
 </script>
 </head>
 <body>
+<div class='game-container'>
+    <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a>
     <a href="../base.html" class="back-btn">← Back</a>
     <div id="app">
         <div class="stats">
@@ -480,72 +483,7 @@ function updateUI() {
         document.getElementById('frenzyStatus').textContent = '⚡ Active!';
     } else {
         frenzyBtn.textContent = 'Activate (✦100)';
-        frenzyBtn.disabled = points < 100;
-        document.getElementById('clickBtn').classList.remove('frenzy');
-        document.getElementById('frenzyStatus').textContent = 'Ready';
-    }
-
-    const x2 = document.getElementById('powerupX2');
-    if (x2Powerup) { x2.classList.add('active'); document.getElementById('x2Timer').textContent = Math.ceil(x2Timer) + 's'; }
-    else { x2.classList.remove('active'); document.getElementById('x2Timer').textContent = ''; }
-
-    const auto = document.getElementById('powerupAuto');
-    if (autoPowerup) { auto.classList.add('active'); document.getElementById('autoTimer').textContent = Math.ceil(autoTimer) + 's'; }
-    else { auto.classList.remove('active'); document.getElementById('autoTimer').textContent = ''; }
-
-    updateDailyUI();
-    renderSlimes();
-
-    const slimeBtn = document.getElementById('buySlimeBtn');
-    if (slimePets.slime) { slimeBtn.textContent = '✅ Owned'; slimeBtn.disabled = true; document.getElementById('slimeStatus').textContent = '✅ Owned (+0.5/s)'; } 
-    else { slimeBtn.textContent = 'Adopt (✦500)'; slimeBtn.disabled = points < 500; document.getElementById('slimeStatus').textContent = '🔒 Not owned'; }
-
-    const waxBtn = document.getElementById('buyWaxBtn');
-    if (slimePets.wax) { waxBtn.textContent = '✅ Owned'; waxBtn.disabled = true; document.getElementById('waxStatus').textContent = '✅ Owned (+2/s)'; } 
-    else { waxBtn.textContent = 'Unlock (✦5,000)'; waxBtn.disabled = points < 5000; document.getElementById('waxStatus').textContent = '🔒 Locked'; }
-
-    const prestigeBtn = document.getElementById('buyPrestigeBtn');
-    if (prestigeUnlocked) { prestigeBtn.textContent = '✅ Unlocked'; prestigeBtn.disabled = true; document.getElementById('prestigeStatus').textContent = '✅ Unlocked (bonus: +' + ((prestigeLevel + 1) * prestigeBase).toLocaleString() + ')'; } 
-    else { prestigeBtn.textContent = 'Unlock (✦5,000)'; prestigeBtn.disabled = points < 5000; document.getElementById('prestigeStatus').textContent = '🔒 Locked'; }
-
-    const stockBtn = document.getElementById('buyStockBtn');
-    if (stockUnlocked) { stockBtn.textContent = '✅ Unlocked'; stockBtn.disabled = true; document.getElementById('stockStatus').textContent = '✅ Unlocked'; } 
-    else { stockBtn.textContent = 'Unlock (✦2,500)'; stockBtn.disabled = points < 2500; document.getElementById('stockStatus').textContent = '🔒 Locked'; }
-
-    const miniBtn = document.getElementById('buyMinigameBtn');
-    if (minigameUnlocked) { miniBtn.textContent = '✅ Unlocked'; miniBtn.disabled = true; document.getElementById('minigameStatus').textContent = '✅ Unlocked'; document.getElementById('minigameBtn').disabled = false; document.getElementById('minigameBtn').textContent = '🎯 Quick Tap Challenge'; } 
-    else { miniBtn.textContent = 'Unlock (✦1,000)'; miniBtn.disabled = points < 1000; document.getElementById('minigameStatus').textContent = '🔒 Locked'; }
-
-    const otherButtons = {
-        'buyMultBtn': multPrice, 'buyCritBtn': critPrice, 'buyGoldenBtn': goldenPrice,
-        'buySimileBtn': similePrice, 'buyMegaBtn': megaPrice, 'buyPassiveBtn': 100 + passiveIncome * 50,
-        'buyAutoCritBtn': 150 + autoCritLevel * 100, 'buyGrindMultBtn': 200 + Math.floor(grindMultiplier * 50),
-        'buyAchievementBtn': 0
-    };
-    for (const [id, price] of Object.entries(otherButtons)) {
-        const btn = document.getElementById(id);
-        if (!btn) continue;
-        if (id === 'buyAchievementBtn') { btn.textContent = 'Claim'; btn.disabled = false; continue; }
-        btn.textContent = 'Buy (✦' + price + ')';
-        btn.disabled = points < price;
-    }
-
-    document.getElementById('passiveBonus').textContent = passiveIncome;
-    document.getElementById('autoCritLevel').textContent = autoCritLevel;
-    document.getElementById('goldenLevel').textContent = goldenLevel;
-    document.getElementById('achievementBonus').textContent = achievementBonus;
-    document.getElementById('simileLevel').textContent = simileLevel;
-    document.getElementById('megaLevel').textContent = megaLevel;
-    document.getElementById('grindMultDisplay').textContent = grindMultiplier.toFixed(2);
-    document.getElementById('grindMeter').textContent = '🔥 Grind: ' + grindCount;
-
-    const wheelBtn = document.getElementById('wheelBtn');
-    if (wheelBtn) { wheelBtn.textContent = '🎰 Spin the Wheel (✦500)'; wheelBtn.disabled = points < 500; }
-
-    if (stockUnlocked) { document.getElementById('stockSection').classList.add('visible'); updateStockUI(); }
-
-    const streakDisplay = document.getElementById('streakDisplay');
-    if (totalClicks > 0 && totalClicks % 10 === 0) { streakDisplay.textContent = '🔥 Streak x' + Math.floor(totalClicks / 10) + '!'; streakDisplay.style.color = '#ffd700'; } 
+        frenzyBtn.disabled = points  0 && totalClicks % 10 === 0) { streakDisplay.textContent = '🔥 Streak x' + Math.floor(totalClicks / 10) + '!'; streakDisplay.style.color = '#ffd700'; } 
     else { streakDisplay.textContent = '🔥 Click to build your streak!'; streakDisplay.style.color = '#ff6b6b'; }
 }
 
@@ -1628,8 +1566,75 @@ if (document.readyState === 'complete') {
 // Also force refresh if user manually clicks
 console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
+</div>
+<script>
+// High-score & difficulty (auto-save)
+(function() {
+    const gameId = window.location.pathname.split('/').pop().replace('.html','');
+    const highScoreKey = 'highscore_' + gameId;
+    const difficultyKey = 'difficulty_' + gameId;
+    // Load high score
+    let highScore = localStorage.getItem(highScoreKey) || 0;
+    let currentDiff = localStorage.getItem(difficultyKey) || 'medium';
+    // Find score display
+    const scoreEl = document.querySelector('.score, #score, [id*="score"], .points, #points');
+    if (scoreEl) {
+        // Observe score changes
+        const observer = new MutationObserver(() => {
+            const val = parseInt(scoreEl.textContent);
+            if (!isNaN(val) && val > highScore) {
+                highScore = val;
+                localStorage.setItem(highScoreKey, highScore);
+            }
+        });
+        observer.observe(scoreEl, { childList: true, subtree: true, characterData: true });
+        // Initial save if score present
+        const initVal = parseInt(scoreEl.textContent);
+        if (!isNaN(initVal) && initVal > highScore) {
+            highScore = initVal;
+            localStorage.setItem(highScoreKey, highScore);
+        }
+        // Display high score
+        const hsEl = document.createElement('div');
+        hsEl.className = 'high-score';
+        hsEl.innerHTML = '🏆 High Score: <span id="highScoreDisplay">' + highScore + '</span>';
+        scoreEl.parentNode.insertBefore(hsEl, scoreEl.nextSibling);
+        // Update display when high score changes
+        window.updateHighScore = function() {
+            document.getElementById('highScoreDisplay').textContent = highScore;
+        };
+    }
+    // Difficulty selector
+    const diffContainer = document.createElement('div');
+    diffContainer.className = 'difficulty-selector';
+    diffContainer.innerHTML = `
+        <button data-diff="easy" class="${currentDiff === 'easy' ? 'active' : ''}">Easy</button>
+        <button data-diff="medium" class="${currentDiff === 'medium' ? 'active' : ''}">Medium</button>
+        <button data-diff="hard" class="${currentDiff === 'hard' ? 'active' : ''}">Hard</button>
+    `;
+    const container = document.querySelector('.game-container') || document.body;
+    const firstChild = container.firstChild;
+    if (firstChild) {
+        container.insertBefore(diffContainer, firstChild.nextSibling);
+    } else {
+        container.appendChild(diffContainer);
+    }
+    diffContainer.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const diff = this.dataset.diff;
+            localStorage.setItem(difficultyKey, diff);
+            diffContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            // Dispatch custom event for game to use
+            window.dispatchEvent(new CustomEvent('difficultyChanged', { detail: { difficulty: diff } }));
+        });
+    });
+    console.log('✅ Game enhanced with high-score & difficulty for', gameId);
+})();
+</script>
 </body>
 </html>
+
 
 
 

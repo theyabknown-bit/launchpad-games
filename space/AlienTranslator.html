@@ -3,794 +3,698 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👽 Alien Translator</title>
+    <title>👽 Alien Translator Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0b1a26; color: #d0e8f0; font-family: 'Segoe UI', Roboto, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
-        .back-btn { position: fixed; top: 20px; left: 20px; background: #1a3344; color: #4fc3f7; padding: 12px 20px; border: none; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; z-index: 100; }
-        .back-btn:hover { background: #2a4a5e; transform: translateX(-5px); }
-        .container { max-width: 500px; width: 100%; text-align: center; margin-top: 60px; }
-        h1 { color: #4fc3f7; font-size: 2.5rem; margin-bottom: 10px; }
-        .stats { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-        .stat-box { background: #1a3344; padding: 10px 20px; border-radius: 10px; min-width: 80px; border: 1px solid #2a4a5e; }
-        .stat-box span { color: #4fc3f7; font-weight: bold; font-size: 1.2rem; display: block; }
-        .stat-box .label { color: #8899aa; font-size: 0.7rem; text-transform: uppercase; }
-        .alien-text { font-size: 2.5rem; padding: 20px; background: #1a3344; border-radius: 16px; border: 2px solid #2a4a5e; margin: 15px 0; min-height: 80px; display: flex; align-items: center; justify-content: center; font-family: 'Courier New', monospace; }
-        .input-area { display: flex; gap: 10px; justify-content: center; margin: 15px 0; flex-wrap: wrap; }
-        .input-area input { padding: 12px 16px; border-radius: 12px; border: 2px solid #2a4a5e; background: #1a3344; color: #d0e8f0; font-size: 1rem; flex: 1; min-width: 200px; outline: none; }
-        .input-area input:focus { border-color: #4fc3f7; }
-        .btn { background: #4fc3f7; color: #0b1a26; border: none; padding: 12px 25px; border-radius: 8px; font-size: 1rem; cursor: pointer; }
-        .btn:hover { background: #7cf5b0; }
-        .message { font-size: 1.2rem; min-height: 30px; color: #ffd93d; margin: 10px 0; }
+        body {
+            background: #0a0a1a;
+            color: #d0e8f0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            background-image: radial-gradient(ellipse at 20% 50%, rgba(79,195,247,0.05) 0%, transparent 60%),
+                              radial-gradient(ellipse at 80% 50%, rgba(124,245,176,0.05) 0%, transparent 60%);
+        }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(26, 51, 68, 0.8);
+            color: #4fc3f7;
+            padding: 10px 18px;
+            border: 1px solid rgba(79,195,247,0.2);
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-btn:hover { background: rgba(79,195,247,0.15); border-color: #4fc3f7; transform: translateX(-4px); }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            margin-top: 50px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header .glow-text {
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4fc3f7, #7cf5b0, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 60px rgba(79,195,247,0.1);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .header .sub {
+            color: #8899aa;
+            font-size: 1rem;
+            margin-top: 4px;
+            letter-spacing: 4px;
+        }
+        .header .alien-emoji {
+            font-size: 3.5rem;
+            display: inline-block;
+            animation: floatAlien 4s ease-in-out infinite;
+        }
+        @keyframes floatAlien {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .stat-box {
+            background: rgba(26, 51, 68, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(79,195,247,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+        .stat-box span { color: #4fc3f7; font-weight: 700; font-size: 1.1rem; }
+
+        .language-selector {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .lang-btn {
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 2px solid rgba(79,195,247,0.1);
+            background: rgba(26, 51, 68, 0.3);
+            color: #8899aa;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: 0.3s;
+            font-family: 'Segoe UI', sans-serif;
+            backdrop-filter: blur(10px);
+        }
+        .lang-btn:hover { border-color: rgba(79,195,247,0.3); color: #d0e8f0; }
+        .lang-btn.active {
+            background: linear-gradient(135deg, rgba(79,195,247,0.2), rgba(124,245,176,0.1));
+            border-color: #4fc3f7;
+            color: #4fc3f7;
+            box-shadow: 0 0 30px rgba(79,195,247,0.05);
+        }
+        .lang-btn .emoji { margin-right: 6px; }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 16px;
+            border: 2px solid rgba(79,195,247,0.1);
+            background: rgba(0,0,0,0.3);
+            color: #d0e8f0;
+            font-size: 1.1rem;
+            outline: none;
+            transition: 0.3s;
+            font-family: 'Segoe UI', sans-serif;
+            backdrop-filter: blur(10px);
+        }
+        .input-area input:focus { border-color: #4fc3f7; box-shadow: 0 0 40px rgba(79,195,247,0.05); }
+        .input-area input::placeholder { color: #4a6a8a; }
+
+        .btn-translate {
+            padding: 14px 28px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #4fc3f7, #1a6a8a);
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Segoe UI', sans-serif;
+            white-space: nowrap;
+        }
+        .btn-translate:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(79,195,247,0.2); }
+        .btn-translate:active { transform: scale(0.95); }
+
+        .output-area {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 100px;
+            border: 2px solid rgba(79,195,247,0.05);
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            transition: 0.3s;
+        }
+        .output-area.has-translation { border-color: rgba(79,195,247,0.15); }
+        .output-area .alien-text {
+            font-size: 2.2rem;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            color: #7cf5b0;
+            word-wrap: break-word;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .output-area .alien-text .char {
+            display: inline-block;
+            animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .output-area .human-text {
+            font-size: 0.9rem;
+            color: #8899aa;
+            margin-top: 8px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.03);
+            padding-top: 8px;
+        }
+        .output-area .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #8899aa;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: 0.2s;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .output-area .copy-btn:hover { background: rgba(79,195,247,0.1); color: #4fc3f7; }
+
+        .history {
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(79,195,247,0.05);
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .history::-webkit-scrollbar { width: 4px; }
+        .history::-webkit-scrollbar-thumb { background: rgba(79,195,247,0.2); border-radius: 10px; }
+        .history .history-title {
+            font-size: 0.7rem;
+            color: #4a6a8a;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history .history-title .clear-btn {
+            background: rgba(255,107,107,0.1);
+            border: none;
+            color: #ff6b6b;
+            padding: 2px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.6rem;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .history .history-title .clear-btn:hover { background: rgba(255,107,107,0.2); }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            font-size: 0.8rem;
+            gap: 10px;
+        }
+        .history-item .h-human { color: #8899aa; flex: 1; }
+        .history-item .h-alien { color: #7cf5b0; font-family: 'Courier New', monospace; }
+        .history-item .h-lang { color: #4a6a8a; font-size: 0.6rem; min-width: 50px; }
+
+        .fun-fact {
+            background: rgba(255,215,0,0.03);
+            border-radius: 12px;
+            padding: 10px 16px;
+            border: 1px solid rgba(255,215,0,0.06);
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #8899aa;
+            text-align: center;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .fun-fact .fact-emoji { font-size: 1.2rem; }
+
+        .alien-species {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .species-badge {
+            background: rgba(26, 51, 68, 0.3);
+            border: 1px solid rgba(79,195,247,0.05);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 0.7rem;
+            color: #8899aa;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .species-badge.active {
+            border-color: #4fc3f7;
+            color: #4fc3f7;
+            background: rgba(79,195,247,0.05);
+        }
+
+        @media (max-width: 480px) {
+            .header .glow-text { font-size: 2rem; }
+            .input-area { flex-direction: column; }
+            .btn-translate { width: 100%; justify-content: center; }
+            .lang-btn { font-size: 0.7rem; padding: 6px 14px; }
+            .output-area .alien-text { font-size: 1.6rem; }
+            .stats { gap: 10px; }
+            .stat-box { font-size: 0.7rem; padding: 5px 14px; }
+            .back-btn { font-size: 11px; padding: 6px 12px; }
+        }
     </style>
 </head>
 <body>
 <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
 <div class="container">
-    <h1><i class="fas fa-language" style="color:#a29bfe;"></i> Alien Translator</h1>
+    <div class="header">
+        <span class="alien-emoji">👽</span>
+        <div class="glow-text">ALIEN TRANSLATOR</div>
+        <div class="sub">🌌 SPEAK THE COSMOS</div>
+    </div>
+
     <div class="stats">
-        <div class="stat-box"><span id="count">0</span><span class="label">Translated</span></div>
+        <div class="stat-box"><i class="fas fa-language"></i> <span id="langCount">6</span> Languages</div>
+        <div class="stat-box"><i class="fas fa-history"></i> <span id="historyCount">0</span> Translations</div>
+        <div class="stat-box"><i class="fas fa-star"></i> <span id="totalChars">0</span> Characters</div>
     </div>
-    <div class="alien-text" id="alienText">👽 👾 🛸</div>
+
+    <div class="language-selector" id="langSelector"></div>
+
+    <div class="alien-species" id="speciesDisplay">
+        <span class="species-badge active">🌌 Zorgon</span>
+        <span class="species-badge">🪐 Xylar</span>
+        <span class="species-badge">🌠 Nebulon</span>
+        <span class="species-badge">☄️ Vortex</span>
+    </div>
+
     <div class="input-area">
-        <input type="text" id="humanInput" placeholder="Type a message...">
-        <button class="btn" id="translateBtn">🔮 Translate</button>
+        <input type="text" id="humanInput" placeholder="Type a message to translate..." autofocus>
+        <button class="btn-translate" id="translateBtn"><i class="fas fa-arrow-right"></i> Translate</button>
     </div>
-    <div class="message" id="message">👽 Translate your message to alien!</div>
+
+    <div class="output-area" id="outputArea">
+        <div class="alien-text" id="alienText">👾 👽 🛸</div>
+        <div class="human-text" id="humanText">Ready for translation</div>
+        <button class="copy-btn" id="copyBtn"><i class="fas fa-copy"></i> Copy</button>
+    </div>
+
+    <div class="fun-fact" id="funFact">
+        <span class="fact-emoji">💡</span>
+        <span id="factText">Click Translate to begin your interstellar journey!</span>
+    </div>
+
+    <div class="history">
+        <div class="history-title">
+            <span><i class="fas fa-clock"></i> Translation History</span>
+            <button class="clear-btn" id="clearHistory"><i class="fas fa-trash"></i> Clear</button>
+        </div>
+        <div id="historyList">
+            <div style="color:#4a6a8a; font-size:0.8rem; padding:10px 0; text-align:center;">No translations yet</div>
+        </div>
+    </div>
 </div>
+
 <script>
-    // Game-specific save function - override this in your game
-    function saveGame() {
-        // For games with their own save system, this will be overridden
-        // For games without, it does nothing
-        console.log('💾 Save called but no game-specific save implemented');
-        return true;
+// ============================================================
+// ALIEN LANGUAGES
+// ============================================================
+const ALIEN_LANGUAGES = {
+    zorgon: {
+        name: 'Zorgon',
+        emoji: '🌌',
+        chars: ['🛸', '👾', '👽', '🤖', '👁️', '🌠', '⭐', '💫', '🌀', '✨', '🔮', '🪐', '☄️', '🌙', '☀️'],
+        sounds: [220, 260, 300, 340, 380, 420, 460, 500],
+        fact: 'Zorgons communicate through telepathic emoji pulses!'
+    },
+    xylar: {
+        name: 'Xylar',
+        emoji: '🪐',
+        chars: ['◈', '◉', '◊', '○', '●', '◐', '◑', '◒', '◓', '◔', '◕', '◖', '◗', '◘', '◙'],
+        sounds: [180, 220, 280, 340, 400, 460, 520, 580],
+        fact: 'Xylarians write in geometric patterns that form constellations!'
+    },
+    nebulon: {
+        name: 'Nebulon',
+        emoji: '🌠',
+        chars: ['✦', '✧', '★', '☆', '✩', '✪', '✫', '✬', '✭', '✮', '✯', '✰', '✱', '✲', '✳'],
+        sounds: [300, 350, 400, 450, 500, 550, 600, 650],
+        fact: 'Nebulon language is based on the light patterns of dying stars!'
+    },
+    vortex: {
+        name: 'Vortex',
+        emoji: '☄️',
+        chars: ['⌘', '⌃', '⌥', '⌦', '⌫', '⌧', '⌨', '⌰', '⌱', '⌲', '⌳', '⌴', '⌵', '⌶', '⌷'],
+        sounds: [150, 200, 270, 350, 440, 540, 650, 770],
+        fact: 'Vortexians use key-like symbols that unlock dimensional portals!'
+    },
+    lumina: {
+        name: 'Lumina',
+        emoji: '✨',
+        chars: ['◈', '◉', '◊', '○', '●', '◐', '◑', '◒', '◓', '◔', '◕', '◖', '◗', '◘', '◙'],
+        sounds: [400, 450, 500, 550, 600, 650, 700, 750],
+        fact: 'Luminari language glows brighter as you speak!'
+    },
+    void: {
+        name: 'Void',
+        emoji: '🕳️',
+        chars: ['⬡', '⬢', '⬣', '⬤', '⬥', '⬦', '⬧', '⬨', '⬩', '⬪', '⬫', '⬬', '⬭', '⬮', '⬯'],
+        sounds: [80, 120, 180, 260, 360, 480, 620, 780],
+        fact: 'Void language is whispered across the fabric of spacetime!'
     }
-    // ============================================================
-    // FIXED SOUND SYSTEM - WORKS ON FIRST CLICK
-    // ============================================================
-    let soundEnabled = true;
-    let audioCtx = null;
-    let audioUnlocked = false;
+};
 
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            audioUnlocked = true;
-            console.log('🔊 Audio unlocked!');
-        } catch(e) { console.log('Audio error:', e); }
-    }
+const LANG_KEYS = Object.keys(ALIEN_LANGUAGES);
+let currentLang = 'zorgon';
+let history = [];
+let totalChars = 0;
+let audioCtx = null;
 
-    // Unlock audio on any click
-    document.addEventListener('click', unlockAudio, { once: false });
-    document.addEventListener('touchstart', unlockAudio, { once: false });
-    document.addEventListener('keydown', unlockAudio, { once: false });
+// ============================================================
+// SOUND SYSTEM
+// ============================================================
+function initAudio() {
+    if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+    if (audioCtx && audioCtx.state === 'suspended') { audioCtx.resume(); }
+    return audioCtx;
+}
 
-    function getAudioCtx() {
-        if (!audioCtx) {
-            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        return audioCtx;
-    }
+function playAlienSound(freq, dur = 100) {
+    try {
+        const ctx = initAudio();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.06, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur / 1000);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + dur / 1000);
+    } catch(e) {}
+}
 
-    function playTone(frequency, duration = 150, type = 'sine') {
-        if (!soundEnabled) return;
-        try {
-            const ctx = getAudioCtx();
-            if (!ctx) return;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = type;
-            osc.frequency.value = frequency;
-            gain.gain.setValueAtTime(0.12, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + duration / 1000);
-        } catch(e) { console.log('Play error:', e); }
+function playTranslate() {
+    const lang = ALIEN_LANGUAGES[currentLang];
+    const sounds = lang.sounds;
+    for (let i = 0; i < 3; i++) {
+        setTimeout(() => playAlienSound(sounds[Math.floor(Math.random() * sounds.length)], 120), i * 120);
     }
+}
 
-    function playClick() { playTone(600, 80); }
-    function playWin() { 
-        playTone(523, 150); 
-        setTimeout(() => playTone(659, 150), 150); 
-        setTimeout(() => playTone(784, 200), 300); 
-    }
-    function playLose() { 
-        playTone(300, 200); 
-        setTimeout(() => playTone(200, 300), 200); 
-    }
-    function playCorrect() { playTone(800, 100); }
-    function playWrong() { playTone(250, 200); }
-    function playLevelUp() { 
-        playTone(440, 100); 
-        setTimeout(() => playTone(523, 100), 100); 
-        setTimeout(() => playTone(659, 150), 200); 
-    }
-const ALIEN_WORDS = ['👾', '🛸', '👽', '🤖', '👁️', '🌌', '⭐', '💫', '🌀', '✨', '🔮', '🪐'];
-let count = 0;
-
-function translate(text) {
+// ============================================================
+// TRANSLATION ENGINE
+// ============================================================
+function translateToAlien(text, langKey) {
+    const lang = ALIEN_LANGUAGES[langKey] || ALIEN_LANGUAGES.zorgon;
+    const chars = lang.chars;
     let result = '';
     for (let char of text) {
-        if (char === ' ') { result += '  '; }
-        else if (char.match(/[a-zA-Z]/)) {
-            const idx = char.toLowerCase().charCodeAt(0) - 97;
-            result += ALIEN_WORDS[idx % ALIEN_WORDS.length] + ' ';
-        } else {
-            result += char + ' ';
-        }
+        if (char === ' ') { result += '  '; continue; }
+        const code = char.toLowerCase().charCodeAt(0) || 0;
+        const idx = code % chars.length;
+        result += chars[idx] + ' ';
     }
     return result.trim() || '👾 👾 👾';
 }
 
+function translateToHuman(text, langKey) {
+    const lang = ALIEN_LANGUAGES[langKey] || ALIEN_LANGUAGES.zorgon;
+    const chars = lang.chars;
+    let result = '';
+    const tokens = text.split(' ');
+    for (let token of tokens) {
+        if (token === '') { result += ' '; continue; }
+        const idx = chars.indexOf(token);
+        if (idx !== -1) {
+            const code = 97 + idx % 26;
+            result += String.fromCharCode(code);
+        } else {
+            result += '?';
+        }
+    }
+    return result.trim() || '...';
+}
+
+// ============================================================
+// UI UPDATE
+// ============================================================
+function renderLanguages() {
+    const container = document.getElementById('langSelector');
+    container.innerHTML = '';
+    LANG_KEYS.forEach(key => {
+        const lang = ALIEN_LANGUAGES[key];
+        const btn = document.createElement('button');
+        btn.className = 'lang-btn' + (key === currentLang ? ' active' : '');
+        btn.innerHTML = `<span class="emoji">${lang.emoji}</span> ${lang.name}`;
+        btn.dataset.lang = key;
+        btn.addEventListener('click', () => setLanguage(key));
+        container.appendChild(btn);
+    });
+}
+
+function setLanguage(key) {
+    currentLang = key;
+    renderLanguages();
+    updateSpeciesDisplay();
+    document.getElementById('funFact').querySelector('.fact-emoji').textContent = '💡';
+    document.getElementById('factText').textContent = ALIEN_LANGUAGES[key].fact;
+    // Re-translate if there's input
+    const input = document.getElementById('humanInput').value.trim();
+    if (input) {
+        document.getElementById('translateBtn').click();
+    }
+}
+
+function updateSpeciesDisplay() {
+    const badges = document.querySelectorAll('.species-badge');
+    const lang = ALIEN_LANGUAGES[currentLang];
+    badges.forEach((badge, i) => {
+        const names = ['Zorgon', 'Xylar', 'Nebulon', 'Vortex'];
+        badge.classList.toggle('active', names[i] === lang.name);
+        badge.textContent = lang.emoji + ' ' + names[i];
+    });
+}
+
+function updateStats() {
+    document.getElementById('langCount').textContent = LANG_KEYS.length;
+    document.getElementById('historyCount').textContent = history.length;
+    document.getElementById('totalChars').textContent = totalChars;
+}
+
+function renderHistory() {
+    const container = document.getElementById('historyList');
+    if (history.length === 0) {
+        container.innerHTML = '<div style="color:#4a6a8a; font-size:0.8rem; padding:10px 0; text-align:center;">No translations yet</div>';
+        return;
+    }
+    container.innerHTML = history.slice().reverse().map((item, idx) => {
+        const langName = ALIEN_LANGUAGES[item.lang]?.name || 'Unknown';
+        const langEmoji = ALIEN_LANGUAGES[item.lang]?.emoji || '👽';
+        return `<div class="history-item">
+            <span class="h-human">${item.human}</span>
+            <span class="h-alien">${item.alien}</span>
+            <span class="h-lang">${langEmoji} ${langName}</span>
+        </div>`;
+    }).join('');
+}
+
+// ============================================================
+// MAIN TRANSLATE FUNCTION
+// ============================================================
 function doTranslate() {
     const input = document.getElementById('humanInput');
     const text = input.value.trim();
-    if (!text) { document.getElementById('message').textContent = '👽 Say something!'; return; }
-    const translated = translate(text);
-    document.getElementById('alienText').textContent = translated;
-    count++;
-    document.getElementById('count').textContent = count;
-    document.getElementById('message').textContent = '👽 Translated!';
+    if (!text) {
+        document.getElementById('alienText').textContent = '👾 👽 🛸';
+        document.getElementById('humanText').textContent = 'Enter some text to translate!';
+        document.getElementById('outputArea').classList.remove('has-translation');
+        return;
+    }
+
+    const langKey = currentLang;
+    const alien = translateToAlien(text, langKey);
+    const lang = ALIEN_LANGUAGES[langKey];
+
+    // Animate characters
+    const alienEl = document.getElementById('alienText');
+    alienEl.innerHTML = alien.split('').map(char => {
+        if (char === ' ') return ' ';
+        return `<span class="char">${char}</span>`;
+    }).join('');
+
+    document.getElementById('humanText').textContent = `📝 ${text}`;
+    document.getElementById('outputArea').classList.add('has-translation');
+
+    // Play sound
+    playTranslate();
+
+    // Add to history
+    history.push({
+        human: text.length > 30 ? text.substring(0, 30) + '...' : text,
+        alien: alien.length > 40 ? alien.substring(0, 40) + '...' : alien,
+        lang: langKey,
+        timestamp: Date.now()
+    });
+    if (history.length > 50) history.shift();
+
+    totalChars += text.length;
+    updateStats();
+    renderHistory();
     input.value = '';
+
+    // Fun fact update
+    const facts = [
+        `${lang.emoji} ${lang.fact}`,
+        `🌌 Did you know? ${lang.name} has ${lang.chars.length} characters in their alphabet!`,
+        `✨ The ${lang.name} language sounds like ${lang.sounds.slice(0,3).join(', ')} Hz frequencies!`,
+        `🪐 ${lang.name} translators are 99.9% accurate across the galaxy!`
+    ];
+    document.getElementById('factText').textContent = facts[Math.floor(Math.random() * facts.length)];
+    document.getElementById('funFact').querySelector('.fact-emoji').textContent = '✨';
 }
 
+// ============================================================
+// COPY
+// ============================================================
+function copyTranslation() {
+    const alienText = document.getElementById('alienText').textContent;
+    if (alienText && alienText !== '👾 👽 🛸') {
+        navigator.clipboard.writeText(alienText).then(() => {
+            const btn = document.getElementById('copyBtn');
+            btn.textContent = '✅ Copied!';
+            setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 1500);
+        }).catch(() => {
+            // Fallback
+            const text = document.getElementById('alienText').textContent;
+            const input = document.createElement('input');
+            input.value = text;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            const btn = document.getElementById('copyBtn');
+            btn.textContent = '✅ Copied!';
+            setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 1500);
+        });
+    }
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
 document.getElementById('translateBtn').addEventListener('click', doTranslate);
 document.getElementById('humanInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') doTranslate();
 });
-    
-    
-
-    // Add sound toggle to settings
-    function addSoundToggle() {
-        const settings = document.getElementById('settingsPanel');
-        if (!settings) return;
-        const item = document.createElement('div');
-        item.className = 'settings-item';
-        item.innerHTML = `
-            <span class="label">🔊 Sound Effects</span>
-            <div class="settings-toggle active" id="soundToggle"><div class="knob"></div></div>
-        `;
-        settings.appendChild(item);
-        document.getElementById('soundToggle').addEventListener('click', function() {
-            this.classList.toggle('active');
-            soundEnabled = this.classList.contains('active');
-            if (soundEnabled) playClick();
-        });
+document.getElementById('copyBtn').addEventListener('click', copyTranslation);
+document.getElementById('clearHistory').addEventListener('click', () => {
+    if (history.length === 0) return;
+    if (confirm('Clear all translation history?')) {
+        history = [];
+        renderHistory();
+        updateStats();
     }
+});
 
-    // Minigame: Quick Tap Challenge
-    function startQuickTap() {
-        if (document.getElementById('minigameOverlay')) return;
-        const overlay = document.createElement('div');
-        overlay.id = 'minigameOverlay';
-        overlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-            flex-direction: column; padding: 20px;
-            animation: fadeIn 0.3s ease;
-        `;
-        overlay.innerHTML = `
-            <div style="background: #1a1a2e; border-radius: 24px; padding: 30px; max-width: 400px; width: 100%; text-align: center; border: 2px solid rgba(255,215,0,0.1);">
-                <h2 style="color: #ffd700; margin-bottom: 10px;">🎯 Quick Tap Challenge</h2>
-                <p style="color: #888; margin-bottom: 15px;">Tap as fast as you can!</p>
-                <div style="font-size: 72px; margin: 15px 0;" id="tapCounter">0</div>
-                <div style="font-size: 24px; color: #ff6b6b; margin-bottom: 10px;" id="tapTimer">3s</div>
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <button id="tapBtn" style="
-                        background: linear-gradient(135deg, #ffd700, #f5a623);
-                        border: none; padding: 15px 40px; border-radius: 30px;
-                        font-weight: 700; font-size: 18px; color: #1a1a2e;
-                        cursor: pointer; font-family: 'Segoe UI', sans-serif;
-                    ">👆 TAP!</button>
-                    <button onclick="this.closest('#minigameOverlay').remove()" style="
-                        background: rgba(255,255,255,0.05);
-                        border: 1px solid rgba(255,255,255,0.1);
-                        padding: 15px 20px; border-radius: 30px;
-                        color: #888; cursor: pointer; font-size: 14px;
-                        font-family: 'Segoe UI', sans-serif;
-                    ">✕ Close</button>
-                </div>
-                <div id="tapResult" style="margin-top: 10px; color: #7cf5b0; font-weight: 700;"></div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-
-        let taps = 0;
-        let timeLeft = 3;
-        let active = true;
-
-        const tapBtn = document.getElementById('tapBtn');
-        const counter = document.getElementById('tapCounter');
-        const timer = document.getElementById('tapTimer');
-        const result = document.getElementById('tapResult');
-
-        tapBtn.addEventListener('click', function() {
-            if (!active) return;
-            taps++;
-            counter.textContent = taps;
-            playClick();
-            this.style.transform = 'scale(0.9)';
-            setTimeout(() => this.style.transform = '', 100);
-        });
-
-        const interval = setInterval(() => {
-            timeLeft--;
-            timer.textContent = timeLeft + 's';
-            if (timeLeft <= 0) {
-                clearInterval(interval);
-                active = false;
-                tapBtn.disabled = true;
-                tapBtn.style.opacity = '0.5';
-                const reward = taps * 50;
-                result.textContent = '🏆 You tapped ' + taps + ' times! +' + reward + ' points!';
-                playWin();
-                // Add points if game supports it
-                if (typeof points !== 'undefined') {
-                    points += reward;
-                    if (typeof updateUI === 'function') updateUI();
-                    if (typeof saveGame === 'function') saveGame();
-                }
-                setTimeout(() => {
-                    overlay.querySelector('button:last-child').click();
-                }, 3000);
-            }
-        }, 1000);
-
-        // Add CSS animation
-        const style = document.createElement('style');
-        style.textContent = '@keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }';
-        document.head.appendChild(style);
+// Click on the output area to re-translate (if there's text)
+document.getElementById('outputArea').addEventListener('dblclick', () => {
+    const text = document.getElementById('humanText').textContent.replace('📝 ', '');
+    if (text && text !== 'Ready for translation' && text !== 'Enter some text to translate!') {
+        document.getElementById('humanInput').value = text;
+        doTranslate();
     }
+});
 
-    // Add minigame button to games
-    function addMinigameButton() {
-        const container = document.querySelector('.container') || document.querySelector('#app');
-        if (!container) return;
-        const btn = document.createElement('button');
-        btn.className = 'btn';
-        btn.style.cssText = `
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            color: white; border: none; padding: 10px 20px;
-            border-radius: 30px; font-weight: 700; font-size: 13px;
-            cursor: pointer; margin: 5px;
-            font-family: 'Segoe UI', sans-serif;
-            transition: 0.2s;
-        `;
-        btn.textContent = '🎯 Quick Tap Challenge';
-        btn.onmouseover = function() { this.style.transform = 'scale(1.05)'; };
-        btn.onmouseout = function() { this.style.transform = ''; };
-        btn.onclick = startQuickTap;
-        container.appendChild(btn);
-    }
-
-    // Initialize sound and minigame
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add sound toggle if settings exist
-        setTimeout(addSoundToggle, 100);
-        // Add minigame button
-        setTimeout(addMinigameButton, 200);
-    });
-    // ============================================================
-    // ACHIEVEMENT POPUP SYSTEM - WORKS EVERYWHERE
-    // ============================================================
-    
-    // Check achievements and show popup
-    function checkAchievements() {
-        try {
-            const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{"games":{},"totalXp":0,"gamesPlayed":0}');
-            const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
-            let newAchievements = [];
-
-            // First game
-            if (progress.gamesPlayed >= 1 && !unlocked.includes('first_game')) {
-                newAchievements.push('first_game');
-                showAchievementPopup('🎮', 'First Game!', 'Played your first game!');
-            }
-
-            // Game master (10 games)
-            if (progress.gamesPlayed >= 10 && !unlocked.includes('game_master')) {
-                newAchievements.push('game_master');
-                showAchievementPopup('👑', 'Game Master!', 'Played 10 games!');
-            }
-
-            // XP collector
-            if (progress.totalXp >= 100 && !unlocked.includes('xp_collector')) {
-                newAchievements.push('xp_collector');
-                showAchievementPopup('⭐', 'XP Collector!', 'Earned 100 XP!');
-            }
-
-            // Level up
-            const level = Math.floor((progress.totalXp || 0) / 100) + 1;
-            if (level >= 5 && !unlocked.includes('level_up')) {
-                newAchievements.push('level_up');
-                showAchievementPopup('🏅', 'Level Up!', 'Reached Level 5!');
-            }
-
-            // Save new achievements
-            if (newAchievements.length > 0) {
-                const all = [...unlocked, ...newAchievements];
-                localStorage.setItem('launchpad_achievements', JSON.stringify(all));
-                updateAchievementCount();
-            }
-
-            return newAchievements;
-        } catch(e) { return []; }
-    }
-
-    // Show achievement popup
-    function showAchievementPopup(emoji, title, desc) {
-        try { playAchievement(); } catch(e) {}
-        // Check if popup already exists
-        let popup = document.getElementById('achievementPopupGlobal');
-        if (!popup) {
-            popup = document.createElement('div');
-            popup.id = 'achievementPopupGlobal';
-            popup.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: rgba(18, 16, 30, 0.96);
-                backdrop-filter: blur(20px);
-                border: 2px solid #7cf5b0;
-                border-radius: 16px;
-                padding: 16px 24px;
-                max-width: 350px;
-                z-index: 99999;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-                display: none;
-                animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                color: #d0e8f0;
-                font-family: 'Segoe UI', Roboto, sans-serif;
-            `;
-            document.body.appendChild(popup);
-            
-            // Add animation styles
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-                @keyframes pulseGold {
-                    0%, 100% { box-shadow: 0 0 20px rgba(124, 245, 176, 0.1); }
-                    50% { box-shadow: 0 0 40px rgba(124, 245, 176, 0.3); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        // Fill popup content
-        popup.innerHTML = `
-            <div style="display:flex;align-items:center;gap:14px;">
-                <div style="font-size:2.8rem;line-height:1;">${emoji}</div>
-                <div>
-                    <div style="color:#7cf5b0;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;">🏆 Achievement Unlocked!</div>
-                    <div style="color:#f0f8ff;font-weight:700;font-size:1.1rem;">${title}</div>
-                    <div style="color:#8899aa;font-size:0.85rem;">${desc}</div>
-                </div>
-            </div>
-            <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;">
-                <button onclick="document.getElementById('achievementPopupGlobal').style.display='none'" style="
-                    background:rgba(255,255,255,0.05);
-                    border:1px solid rgba(255,255,255,0.1);
-                    color:#8899aa;
-                    padding:4px 14px;
-                    border-radius:20px;
-                    cursor:pointer;
-                    font-size:0.7rem;
-                    font-family:'Segoe UI',sans-serif;
-                ">Dismiss</button>
-            </div>
-        `;
-
-        // Show popup
-        popup.style.display = 'block';
-        popup.style.animation = 'slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-
-        // Auto-hide after 6 seconds
-        clearTimeout(popup._timeout);
-        popup._timeout = setTimeout(() => {
-            popup.style.animation = 'slideOutRight 0.4s ease-in';
-            setTimeout(() => {
-                popup.style.display = 'none';
-                popup.style.animation = '';
-            }, 400);
-        }, 6000);
-
-        // Play sound
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            [523, 659, 784, 1047].forEach((freq, i) => {
-                setTimeout(() => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.2);
-                }, i * 120);
-            });
-        } catch(e) {}
-    }
-
-    // Update achievement count in stats
-    function updateAchievementCount() {
-        try {
-            const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
-            const countEl = document.getElementById('achievementCount');
-            if (countEl) countEl.textContent = unlocked.length;
-        } catch(e) {}
-    }
-
-    // Check achievements every 10 seconds
-    setInterval(checkAchievements, 10000);
-
-    // Also check on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(checkAchievements, 1000);
-    });
-
-    // Check when progress updates
-    const origSetItem = localStorage.setItem;
-    localStorage.setItem = function(key, value) {
-        origSetItem.apply(this, arguments);
-        if (key === 'launchpad_progress') {
-            setTimeout(checkAchievements, 500);
-        }
-    };
-    // ============================================================
-    // UNIVERSAL SAVE SYSTEM - Auto & Manual Save
-    // ============================================================
-    
-    // Save system variables
-    let saveEnabled = true;
-    let saveInterval = null;
-    let lastSaveTime = 'Never';
-    
-    // ============================================================
-    // SAVE FUNCTIONS
-    // ============================================================
-    function saveGameData(gameId, data) {
-        try {
-            const saves = JSON.parse(localStorage.getItem('gameSaves') || '{}');
-            saves[gameId] = {
-                data: data,
-                timestamp: Date.now()
-            };
-            localStorage.setItem('gameSaves', JSON.stringify(saves));
-            showSaveFeedback('✅ Saved!');
-            return true;
-        } catch(e) {
-            console.log('Save error:', e);
-            return false;
-        }
-    }
-    
-    function loadGameData(gameId) {
-        try {
-            const saves = JSON.parse(localStorage.getItem('gameSaves') || '{}');
-            if (saves[gameId]) {
-                return saves[gameId].data;
-            }
-        } catch(e) {
-            console.log('Load error:', e);
-        }
-        return null;
-    }
-    
-    function showSaveFeedback(message) {
-        let indicator = document.getElementById('saveIndicator');
-        if (!indicator) {
-            indicator = document.createElement('div');
-            indicator.id = 'saveIndicator';
-            indicator.style.cssText = `
-                text-align: center;
-                font-size: 11px;
-                color: #666;
-                padding: 6px 0;
-                margin-top: 8px;
-                border-top: 1px solid rgba(255,255,255,0.05);
-                transition: color 0.3s;
-                font-family: 'Segoe UI', sans-serif;
-            `;
-            const container = document.querySelector('.container') || document.querySelector('#app') || document.body;
-            container.appendChild(indicator);
-        }
-        
-        indicator.textContent = '💾 ' + message;
-        indicator.style.color = '#7cf5b0';
-        setTimeout(() => {
-            indicator.style.color = '#666';
-            const now = new Date();
-            indicator.textContent = '💾 Auto-saved at ' + now.toLocaleTimeString();
-        }, 2000);
-    }
-    
-    function manualSave() {
-        if (typeof saveGame === 'function') {
-            saveGame();
-            showSaveFeedback('✅ Manually saved!');
-            return true;
-        }
-        return false;
-    }
-    
-    // ============================================================
-    // AUTO-SAVE
-    // ============================================================
-    function startAutoSave(interval = 5000) {
-        if (saveInterval) clearInterval(saveInterval);
-        
-        saveInterval = setInterval(() => {
-            if (typeof saveGame === 'function') {
-                saveGame();
-            }
-        }, interval);
-        
-        console.log('💾 Auto-save started (every ' + (interval/1000) + 's)');
-    }
-    
-    // ============================================================
-    // KEYBOARD SHORTCUT - Ctrl+S
-    // ============================================================
-    document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            if (typeof manualSave === 'function') {
-                manualSave();
-            }
-        }
-    });
-    
-    // ============================================================
-    // SAVE ON PAGE CLOSE
-    // ============================================================
-    window.addEventListener('beforeunload', function() {
-        if (typeof saveGame === 'function') {
-            saveGame();
-        }
-    });
-    
-    // ============================================================
-    // SAVE INDICATOR STYLES
-    // ============================================================
-    const saveStyles = document.createElement('style');
-    saveStyles.textContent = `
-        #saveIndicator {
-            text-align: center;
-            font-size: 11px;
-            color: #666;
-            padding: 6px 0;
-            margin-top: 8px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            transition: color 0.3s;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        #saveIndicator.saving {
-            color: #7cf5b0 !important;
-        }
-        .save-btn {
-            background: rgba(79,195,247,0.08);
-            border: 1px solid rgba(79,195,247,0.12);
-            color: #4fc3f7;
-            padding: 4px 18px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: 'Segoe UI', sans-serif;
-            transition: 0.2s;
-            margin: 2px;
-        }
-        .save-btn:hover {
-            background: rgba(79,195,247,0.15);
-        }
-    `;
-    document.head.appendChild(saveStyles);
-    
-    // ============================================================
-    // ADD MANUAL SAVE BUTTON
-    // ============================================================
-    function addSaveButton() {
-        const container = document.querySelector('.container') || document.querySelector('#app');
-        if (!container) return;
-        
-        // Check if button already exists
-        if (document.getElementById('manualSaveBtn')) return;
-        
-        const btn = document.createElement('button');
-        btn.id = 'manualSaveBtn';
-        btn.className = 'save-btn';
-        btn.textContent = '💾 Manual Save';
-        btn.onclick = function() {
-            if (typeof manualSave === 'function') {
-                manualSave();
-            }
-        };
-        
-        // Find footer or add at bottom
-        const footer = container.querySelector('.footer');
-        if (footer) {
-            const btnContainer = document.createElement('div');
-            btnContainer.style.cssText = 'margin-top: 6px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;';
-            btnContainer.appendChild(btn);
-            footer.appendChild(btnContainer);
-        } else {
-            container.appendChild(btn);
-        }
-    }
-    
-    // ============================================================
-    // INIT
-    // ============================================================
-    console.log('💾 Save system loaded!');
-    console.log('⌨️  Press Ctrl+S to save manually');
-    console.log('💾 Auto-save every 5 seconds');
-    
-    // Add save button when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(addSaveButton, 500);
-        if (typeof startAutoSave === 'function') {
-            startAutoSave(5000);
-        }
-    });
-    
-    // Also run immediately if DOM already loaded
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(addSaveButton, 500);
-        if (typeof startAutoSave === 'function') {
-            startAutoSave(5000);
-        }
-    }
-    // ============================================================
-    // SAVE SYSTEM FOR ALIEN TRANSLATOR
-    // ============================================================
-    function saveGame() {
-        try {
-            const data = {
-                count: typeof count !== 'undefined' ? count : 0,
-                savedAt: Date.now()
-            };
-            localStorage.setItem('alienTranslatorSave', JSON.stringify(data));
-            console.log('💾 Alien Translator saved!');
-            
-            // Show feedback
-            let indicator = document.getElementById('saveIndicator');
-            if (indicator) {
-                indicator.textContent = '💾 Saved! ✓';
-                indicator.style.color = '#7cf5b0';
-                setTimeout(() => {
-                    indicator.style.color = '#666';
-                    const now = new Date();
-                    indicator.textContent = '💾 Auto-saved at ' + now.toLocaleTimeString();
-                }, 1500);
-            }
-            return true;
-        } catch(e) { console.log('Save error:', e); return false; }
-    }
-    
-    function loadGame() {
-        try {
-            const saved = localStorage.getItem('alienTranslatorSave');
-            if (saved) {
-                const data = JSON.parse(saved);
-                count = data.count || 0;
-                document.getElementById('count').textContent = count;
-                console.log('✅ Alien Translator loaded! Count:', count);
-                return true;
-            }
-        } catch(e) { console.log('Load error:', e); }
-        return false;
-    }
-    
-    // Auto-save every 5 seconds
-    setInterval(saveGame, 5000);
-    
-    // Save on page close
-    window.addEventListener('beforeunload', saveGame);
-    
-    // Load on start
-    loadGame();
 // ============================================================
-// AUTO-REFRESH ON PAGE LOAD (Ctrl+Shift+R effect)
+// INIT
 // ============================================================
+renderLanguages();
+updateSpeciesDisplay();
+updateStats();
+renderHistory();
 
-// Check if this is the first time loading
-function checkAndRefresh() {
-    const pageId = window.location.pathname.split('/').pop();
-    const key = 'refresh_' + pageId;
-    
-    // Check if we already refreshed this session
-    if (sessionStorage.getItem(key) === 'true') {
-        console.log('🔄 Already refreshed this session');
-        return;
-    }
-    
-    // Mark as refreshed
-    sessionStorage.setItem(key, 'true');
-    
-    // Show loading message
-    const container = document.querySelector('.container') || document.querySelector('#app') || document.body;
-    const msg = document.createElement('div');
-    msg.id = 'refreshMessage';
-    msg.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.85);
-        color: #7cf5b0;
-        padding: 20px 40px;
-        border-radius: 16px;
-        font-size: 18px;
-        font-weight: 700;
-        z-index: 99999;
-        font-family: 'Segoe UI', sans-serif;
-        text-align: center;
-        border: 2px solid #4fc3f7;
-        box-shadow: 0 0 60px rgba(79,195,247,0.2);
-    `;
-    msg.innerHTML = `
-        <div style="font-size: 48px; margin-bottom: 10px;">🔄</div>
-        <div>Refreshing game...</div>
-        <div style="font-size: 12px; color: #666; margin-top: 8px;">Loading latest version</div>
-    `;
-    document.body.appendChild(msg);
-    
-    // Perform a hard refresh (Ctrl+Shift+R equivalent)
-    setTimeout(() => {
-        // Clear all caches
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                for (let name of names) {
-                    caches.delete(name);
-                }
-            });
+// Load saved history from localStorage
+try {
+    const saved = localStorage.getItem('alienHistory');
+    if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            history = parsed;
+            renderHistory();
+            updateStats();
         }
-        
-        // Force reload with cache-buster
-        const url = window.location.href.split('?')[0] + '?t=' + Date.now();
-        window.location.replace(url);
-    }, 1000);
-}
+    }
+} catch(e) {}
 
-// Run on page load
-if (document.readyState === 'complete') {
-    checkAndRefresh();
-} else {
-    document.addEventListener('DOMContentLoaded', checkAndRefresh);
-}
+// Save history on change
+setInterval(() => {
+    try {
+        localStorage.setItem('alienHistory', JSON.stringify(history));
+    } catch(e) {}
+}, 5000);
 
-// Also force refresh if user manually clicks
-console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
+console.log('👽 Alien Translator Pro loaded!');
+console.log('🌌 Languages:', LANG_KEYS.length);
+console.log('📝 History:', history.length);
 </script>
 </body>
 </html>
-
-
-
-
-
-
-

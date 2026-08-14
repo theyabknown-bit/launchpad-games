@@ -1,5 +1,4 @@
-﻿/* LAUNCHPAD GAMES – UNIFIED UI (does NOT touch game logic) */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+﻿/* LAUNCHPAD GAMES – UNIFIED DARK THEME (matches Hub) */
 html, body {
     background: #0a0a1a !important;
     background-image: radial-gradient(ellipse at 20% 30%, rgba(79,195,247,0.06) 0%, transparent 60%),

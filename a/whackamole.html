@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head><link rel="stylesheet" href="../assets/css/game.css"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🔨 Whack-A-Mole</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
@@ -23,7 +23,7 @@ h1{color:#4fc3f7;margin-bottom:10px;}
 .message{font-size:1.2rem;min-height:30px;color:#ffd93d;margin:10px 0;}
 </style>
 </head>
-<body>
+<body><div class='game-container'><a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a>
 <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
 <div class="container">
     <h1><i class="fas fa-hammer" style="color:#ff6b6b;"></i> Whack-A-Mole</h1>
@@ -806,8 +806,9 @@ if (document.readyState === 'complete') {
 // Also force refresh if user manually clicks
 console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
-</body>
+</div></body>
 </html>
+
 
 
 

@@ -149,9 +149,12 @@
         .slime-pet-area .slime-item .emoji { font-size: 28px; }
         .slime-pet-area .slime-item .label { font-size: 10px; color: #888; }
         @media (max-width:480px) { #app { padding: 14px 12px 12px; border-radius:24px; } #clickBtn { width:130px; height:130px; } #clickBtn .emoji { font-size:28px; } .stats .points { font-size:36px; } .back-btn { font-size:11px; padding:8px 12px; top:10px; left:10px; } .upgrade { padding:8px 10px; } .upgrade button { padding:5px 10px; font-size:11px; min-width:55px; } .stock-chart { height:50px; } .daily-reward { flex-direction:column; gap:8px; text-align:center; } }
-    </style>
+        .container { display: flex; flex-direction: column; min-height: 100vh; }
+    .footer { margin-top: auto; display: flex; flex-direction: column; align-items: center; width: 100%; }
+    .footer-buttons { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+</style>
 </head>
-<body>
+<body><div class="container">
     <a href="../base.html" class="back-btn">← Back</a>
     <div id="app" class="container">
         <div class="stats">
@@ -1609,8 +1612,9 @@ if (document.readyState === 'complete') {
 // Also force refresh if user manually clicks
 console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
-</body>
+</div></body>
 </html>
+
 
 
 

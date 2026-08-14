@@ -19,12 +19,12 @@
         
         <!-- Slime Pet Area -->
         <div class="slime-pet-area" id="slimePetArea">
-            <div class="pet-stats" style="margin-bottom:6px;">
+            <div class="pet-stats" >
                 <span>❤️ Happiness: <span id="petHappiness">0</span>%</span>
                 <span>🎯 Pet count: <span id="petCount">0</span></span>
             </div>
             <div class="slime-row" id="slimeRow"></div>
-            <div style="font-size:10px;color:#666;margin-top:4px;">Tap a slime to pet it! ❤️</div>
+            <div >Tap a slime to pet it! ❤️</div>
         </div>
 
         <div class="powerup-container">
@@ -72,19 +72,7 @@
             <div class="flavor">✨ Your brain is a dopamine factory ✨</div>
             <a href="#" class="email-link">✉️ theyabandtherandomboyoff97@gmail.com</a>
             <div class="footer-buttons">
-                        <button onclick="saveGame(); alert('💾 Game saved!');" style="
-                background: rgba(79,195,247,0.08);
-                border: 1px solid rgba(79,195,247,0.12);
-                color: #4fc3f7;
-                padding: 4px 18px;
-                border-radius: 30px;
-                font-size: 12px;
-                font-weight: 700;
-                cursor: pointer;
-                font-family: 'Segoe UI', sans-serif;
-                transition: 0.2s;
-                margin: 2px;
-            ">💾 Manual Save</button>
+                        <button onclick="saveGame(); alert('💾 Game saved!');" >💾 Manual Save</button>
                 <button class="prestige-btn" onclick="doPrestige()">🔄 Prestige (✦10,000)</button>
                 <button class="reset-btn" onclick="resetSave()">🗑️ Delete Save</button>
             </div>
@@ -709,15 +697,15 @@ function startQuickTap() {
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;display:flex;justify-content:center;align-items:center;flex-direction:column;padding:20px;animation:fadeIn 0.3s ease;';
     overlay.innerHTML = `
         <div style="background:#1a1a2e;border-radius:24px;padding:30px;max-width:400px;width:100%;text-align:center;border:2px solid rgba(255,215,0,0.1);">
-            <h2 style="color:#ffd700;margin-bottom:10px;">🎯 Quick Tap Challenge</h2>
-            <p style="color:#888;margin-bottom:15px;">Tap as fast as you can!</p>
-            <div style="font-size:72px;margin:15px 0;" id="tapCounter">0</div>
-            <div style="font-size:24px;color:#ff6b6b;margin-bottom:10px;" id="tapTimer">3s</div>
+            <h2 >🎯 Quick Tap Challenge</h2>
+            <p >Tap as fast as you can!</p>
+            <div  id="tapCounter">0</div>
+            <div  id="tapTimer">3s</div>
             <div >
                 <button id="tapBtn" style="background:linear-gradient(135deg,#ffd700,#f5a623);border:none;padding:15px 40px;border-radius:30px;font-weight:700;font-size:18px;color:#1a1a2e;cursor:pointer;font-family:'Segoe UI',sans-serif;">👆 TAP!</button>
                 <button onclick="this.closest('#minigameOverlay').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:15px 20px;border-radius:30px;color:#888;cursor:pointer;font-size:14px;font-family:'Segoe UI',sans-serif;">✕ Close</button>
             </div>
-            <div id="tapResult" style="margin-top:10px;color:#7cf5b0;font-weight:700;"></div>
+            <div id="tapResult" ></div>
         </div>
     `;
     document.body.appendChild(overlay);
@@ -1432,9 +1420,9 @@ function checkAndRefresh() {
         box-shadow: 0 0 60px rgba(79,195,247,0.2);
     `;
     msg.innerHTML = `
-        <div style="font-size: 48px; margin-bottom: 10px;">🔄</div>
+        <div >🔄</div>
         <div>Refreshing game...</div>
-        <div style="font-size: 12px; color: #666; margin-top: 8px;">Loading latest version</div>
+        <div >Loading latest version</div>
     `;
     document.body.appendChild(msg);
     
@@ -1467,6 +1455,7 @@ console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
 </div></body>
 </html>
+
 
 
 

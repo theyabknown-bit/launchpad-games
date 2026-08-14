@@ -1,420 +1,236 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎣 Fishing Pro</title>
-    <link rel="stylesheet" href="../assets/css/game.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>🎣 Fishing Sim</title>
     <style>
-        .game-container { text-align: center; }
-        .status-bar {
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b1a26;
+            color: #d0e8f0;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 10px 0;
-        }
-        .status-bar .stat { color: #8899aa; font-size: 0.9rem; }
-        .status-bar .stat span { color: #d0e8f0; font-weight: 700; }
-        .lake-area {
-            background: radial-gradient(ellipse at center, rgba(79,195,247,0.05), rgba(0,0,0,0.3));
-            border-radius: 20px;
+            justify-content: center;
             padding: 20px;
+        }
+        .container { max-width: 400px; width: 100%; text-align: center; }
+        h1 { color: #4fc3f7; font-size: 2rem; margin-bottom: 10px; }
+        .fish-pool {
+            background: #1a3344;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #2a4a5e;
             margin: 15px 0;
-            min-height: 200px;
-            border: 1px solid rgba(79,195,247,0.05);
-            position: relative;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
         }
-        .lake-area .fish-icon {
-            font-size: 4rem;
-            animation: floatFish 2s ease-in-out infinite;
-        }
-        @keyframes floatFish {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-15px) rotate(5deg); }
-        }
-        .cast-meter {
-            width: 100%;
-            height: 20px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            margin: 10px 0;
-            overflow: hidden;
+        .fish-pool .emoji { font-size: 4rem; }
+        .fish-pool .status { font-size: 1.2rem; margin: 10px 0; color: #ffd93d; }
+        .stats { display: flex; justify-content: space-around; margin: 10px 0; }
+        .stat-box { background: #0f1f2e; padding: 8px 15px; border-radius: 10px; border: 1px solid #1a3344; }
+        .stat-box span { color: #7cf5b0; font-weight: 700; font-size: 1.3rem; display: block; }
+        .stat-box .label { font-size: 0.6rem; color: #8899aa; text-transform: uppercase; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
             cursor: pointer;
+            margin: 5px;
+            transition: 0.2s;
         }
-        .cast-meter .fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4fc3f7, #ffd93d, #ff6b6b);
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: #4fc3f7; color: #0b1a26; }
+        .btn-success { background: #7cf5b0; color: #0b1a26; }
+        .btn-warning { background: #ffd93d; color: #0b1a26; }
+        .btn-danger { background: #ff6b6b; color: white; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #4fc3f7;
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .catch-log {
+            background: #0f1f2e;
             border-radius: 10px;
-            transition: width 0.05s linear;
-            width: 0%;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            color: #8899aa;
+            text-align: left;
         }
-        .controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 15px 0; }
-        .controls button { background: rgba(255,255,255,0.05); color: #d0e8f0; border: 1px solid rgba(255,255,255,0.1); }
-        .controls button:disabled { opacity: 0.4; cursor: not-allowed; }
-        .bait-shop { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
-        .bait-shop button { background: rgba(255,255,255,0.05); color: #d0e8f0; border: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; padding: 6px 16px; }
-        .bait-shop button.active { background: #4fc3f7; color: #0b1a26; border-color: #4fc3f7; }
-        .collection-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            gap: 6px;
-            margin: 10px 0;
-        }
-        .collection-item {
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-            padding: 6px;
-            text-align: center;
-            font-size: 0.7rem;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .collection-item.caught { border-color: rgba(124,245,176,0.2); background: rgba(124,245,176,0.03); }
-        .collection-item .emoji { font-size: 1.5rem; display: block; }
-        .collection-item .name { color: #8899aa; }
-        #message { min-height: 2rem; font-size: 1rem; }
-        .weather-display { font-size: 0.9rem; color: #8899aa; }
-        .weather-display span { color: #d0e8f0; }
+        .catch-log .catch { color: #7cf5b0; }
+        .catch-log .miss { color: #ff6b6b; }
     </style>
 </head>
 <body>
-<div class="game-container">
-    <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a>
-    <h1 class="game-title">🎣 Fishing Pro</h1>
-
-    <!-- Status -->
-    <div class="status-bar">
-        <div class="stat">💰 Cash: <span id="cash">50</span></div>
-        <div class="stat">🎣 Casts: <span id="casts">0</span></div>
-        <div class="stat">🏆 Best: <span id="bestScore">-</span></div>
-        <div class="stat weather-display">🌤️ <span id="weatherDisplay">Sunny</span></div>
+<div class="container">
+    <h1>🎣 Fishing Sim</h1>
+    <div class="fish-pool" id="fishPool">
+        <div class="emoji" id="fishEmoji">🐟</div>
+        <div class="status" id="statusMsg">Cast your line!</div>
     </div>
-
-    <!-- Lake -->
-    <div class="lake-area" id="lakeArea">
-        <div class="fish-icon" id="fishDisplay">🐟</div>
-        <div id="catchDisplay" style="font-size:1.2rem; margin-top:10px;">Cast your line!</div>
+    <div class="stats">
+        <div class="stat-box"><span id="fishCount">0</span><span class="label">🐟 Caught</span></div>
+        <div class="stat-box"><span id="money">0</span><span class="label">💰 Money</span></div>
+        <div class="stat-box"><span id="castCount">0</span><span class="label">🎣 Casts</span></div>
     </div>
-
-    <!-- Cast Meter -->
-    <div class="cast-meter" id="castMeter" onclick="castPower()">
-        <div class="fill" id="powerFill"></div>
+    <div>
+        <button class="btn btn-primary" id="castBtn" onclick="castLine()">🎣 Cast Line</button>
+        <button class="btn btn-warning" onclick="sellFish()">💰 Sell Fish (✦5 each)</button>
+        <button class="btn btn-danger" onclick="resetGame()">🔄 Reset</button>
     </div>
-
-    <!-- Bait Shop -->
-    <div class="bait-shop">
-        <button data-bait="none" class="active">No Bait (free)</button>
-        <button data-bait="worm">🪱 Worm ($5)</button>
-        <button data-bait="minnow">🐟 Minnow ($10)</button>
-        <button data-bait="lure">🎣 Lure ($20)</button>
+    <div class="catch-log" id="catchLog">
+        <div>🎣 Welcome! Start fishing!</div>
     </div>
-
-    <div id="message">💡 Click the meter to cast! Power = distance, timing = accuracy.</div>
-
-    <div class="controls">
-        <button onclick="castLine()" id="castBtn"><i class="fas fa-fish"></i> Cast</button>
-        <button onclick="sellCatch()"><i class="fas fa-coins"></i> Sell Catch</button>
-        <button onclick="resetGame()"><i class="fas fa-redo"></i> Restart</button>
-        <button onclick="togglePause()"><i class="fas fa-pause"></i> <span id="pauseLabel">Pause</span></button>
-    </div>
-
-    <!-- Collection -->
-    <div class="section" style="margin-top:15px;">
-        <h3>🐠 Collection (<span id="collectionCount">0</span>/<span id="totalFish">0</span>)</h3>
-        <div class="collection-grid" id="collectionGrid"></div>
-    </div>
+    <a href="../base.html" class="back-link">← Back to Hub</a>
 </div>
 
 <script>
-// ============================================================
-// FISHING PRO – Fish types, casting, weather, bait, collection
-// ============================================================
-const cashEl = document.getElementById('cash');
-const castsEl = document.getElementById('casts');
-const bestEl = document.getElementById('bestScore');
-const weatherEl = document.getElementById('weatherDisplay');
-const fishDisplay = document.getElementById('fishDisplay');
-const catchDisplay = document.getElementById('catchDisplay');
-const powerFill = document.getElementById('powerFill');
-const msgEl = document.getElementById('message');
-const castBtn = document.getElementById('castBtn');
-const collectionGrid = document.getElementById('collectionGrid');
-const collectionCount = document.getElementById('collectionCount');
-const totalFishEl = document.getElementById('totalFish');
-
-let cash = 50;
-let casts = 0;
-let bestScore = 0;
-let currentCatch = null;
-let power = 0;
-let powerDirection = 1;
-let castInterval = null;
-let weather = 'sunny';
-let bait = 'none';
+let fishCount = 0;
+let money = 0;
+let castCount = 0;
 let isCasting = false;
-let gameOver = false;
-let paused = false;
-let collection = {};
-let fishCaught = 0;
+let fishTypes = ['🐟', '🐠', '🐡', '🐙', '🦑', '🐚', '🦀', '🐋', '🐊', '🐬', '🐳', '🐠', '🐟'];
+let fishNames = ['Tilapia', 'Salmon', 'Pufferfish', 'Octopus', 'Squid', 'Clam', 'Crab', 'Whale', 'Crocodile', 'Dolphin', 'Blue Whale', 'Goldfish'];
 
-// Fish types
-const FISH_TYPES = [
-    { id: 'minnow', name: 'Minnow', emoji: '🐟', rarity: 'Common', value: 2, minSize: 2, maxSize: 5 },
-    { id: 'perch', name: 'Perch', emoji: '🐠', rarity: 'Common', value: 3, minSize: 3, maxSize: 8 },
-    { id: 'bass', name: 'Bass', emoji: '🐡', rarity: 'Uncommon', value: 5, minSize: 5, maxSize: 12 },
-    { id: 'trout', name: 'Trout', emoji: '🎣', rarity: 'Uncommon', value: 6, minSize: 4, maxSize: 15 },
-    { id: 'salmon', name: 'Salmon', emoji: '🐟', rarity: 'Rare', value: 10, minSize: 8, maxSize: 20 },
-    { id: 'pike', name: 'Pike', emoji: '🐊', rarity: 'Rare', value: 12, minSize: 10, maxSize: 25 },
-    { id: 'sturgeon', name: 'Sturgeon', emoji: '🐋', rarity: 'Epic', value: 20, minSize: 15, maxSize: 35 },
-    { id: 'muskie', name: 'Muskie', emoji: '🦈', rarity: 'Epic', value: 25, minSize: 18, maxSize: 40 },
-    { id: 'goldfish', name: 'Golden Fish', emoji: '🐠', rarity: 'Legendary', value: 50, minSize: 5, maxSize: 10 },
-    { id: 'dragonfish', name: 'Dragon Fish', emoji: '🐉', rarity: 'Legendary', value: 100, minSize: 20, maxSize: 50 }
-];
-
-const WEATHERS = ['sunny', 'rainy', 'stormy'];
-const WEATHER_ICONS = { sunny: '☀️', rainy: '🌧️', stormy: '⛈️' };
-const BAIT_BONUS = { none: 1, worm: 1.2, minnow: 1.5, lure: 2.0 };
-const BAIT_COST = { none: 0, worm: 5, minnow: 10, lure: 20 };
-
-// Load saved data
-(function load() {
+function loadGame() {
     try {
-        const saved = JSON.parse(localStorage.getItem('fishing_save') || '{}');
-        cash = saved.cash || 50;
-        bestScore = saved.bestScore || 0;
-        collection = saved.collection || {};
-        fishCaught = saved.fishCaught || 0;
-        if (bestScore) bestEl.textContent = bestScore;
-        else bestEl.textContent = '-';
-        const baitSaved = localStorage.getItem('fishing_bait') || 'none';
-        bait = baitSaved;
-        document.querySelectorAll('.bait-shop button').forEach(b => {
-            b.classList.toggle('active', b.dataset.bait === bait);
-        });
+        const data = JSON.parse(localStorage.getItem('fishingGameData'));
+        if (data) {
+            fishCount = data.fishCount || 0;
+            money = data.money || 0;
+            castCount = data.castCount || 0;
+            updateUI();
+        }
     } catch(e) {}
-    updateUI();
-})();
+}
 
 function saveGame() {
     try {
-        localStorage.setItem('fishing_save', JSON.stringify({
-            cash, bestScore, collection, fishCaught
-        }));
-        localStorage.setItem('fishing_bait', bait);
+        localStorage.setItem('fishingGameData', JSON.stringify({ fishCount, money, castCount }));
     } catch(e) {}
 }
 
 function updateUI() {
-    cashEl.textContent = cash;
-    castsEl.textContent = casts;
-    weatherEl.textContent = WEATHER_ICONS[weather] + ' ' + weather.charAt(0).toUpperCase() + weather.slice(1);
-    // Collection
-    const total = FISH_TYPES.length;
-    const caught = Object.keys(collection).length;
-    collectionCount.textContent = caught;
-    totalFishEl.textContent = total;
-    collectionGrid.innerHTML = FISH_TYPES.map(f => {
-        const has = collection[f.id];
-        return `<div class="collection-item ${has ? 'caught' : ''}">
-            <span class="emoji">${f.emoji}</span>
-            <span class="name">${has ? f.name : '???'}</span>
-        </div>`;
-    }).join('');
+    document.getElementById('fishCount').textContent = fishCount;
+    document.getElementById('money').textContent = money;
+    document.getElementById('castCount').textContent = castCount;
 }
 
-function getWeather() {
-    const r = Math.random();
-    if (r < 0.5) return 'sunny';
-    if (r < 0.8) return 'rainy';
-    return 'stormy';
+function addLog(msg, type = 'normal') {
+    const log = document.getElementById('catchLog');
+    const div = document.createElement('div');
+    div.className = type;
+    div.textContent = msg;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    if (log.children.length > 20) log.removeChild(log.firstChild);
 }
 
-function changeWeather() {
-    weather = getWeather();
-    updateUI();
-}
-
-// ---- Casting ----
 function castLine() {
-    if (isCasting || paused || gameOver) return;
+    if (isCasting) return;
+    const btn = document.getElementById('castBtn');
+    btn.disabled = true;
     isCasting = true;
-    power = 0;
-    powerDirection = 1;
-    powerFill.style.width = '0%';
-    msgEl.textContent = '⚡ Charging power... Click again to set!';
-    castBtn.disabled = true;
-    if (castInterval) clearInterval(castInterval);
-    castInterval = setInterval(() => {
-        if (paused) return;
-        power += powerDirection * 1.5;
-        if (power >= 100) { power = 100; powerDirection = -1; }
-        if (power <= 0) { power = 0; powerDirection = 1; }
-        powerFill.style.width = power + '%';
-    }, 30);
-    // One-time click on meter to set power
-    const meter = document.getElementById('castMeter');
-    meter.onclick = function() {
-        if (!isCasting) return;
-        clearInterval(castInterval);
-        castInterval = null;
-        // Accuracy based on how close to 50% power is
-        const accuracy = Math.max(0, 100 - Math.abs(power - 50) * 2);
-        const result = getFishResult(accuracy);
-        currentCatch = result;
-        fishDisplay.textContent = result.emoji;
-        catchDisplay.textContent = `🎣 Caught a ${result.rarity} ${result.name}! (${result.weight} lbs)`;
-        msgEl.textContent = `💰 Value: $${result.value} | Accuracy: ${Math.round(accuracy)}%`;
-        casts++;
-        cash += result.value;
-        // Add to collection
-        if (!collection[result.id]) {
-            collection[result.id] = 0;
-        }
-        collection[result.id]++;
-        fishCaught++;
-        playSound('catch');
-        saveGame();
-        updateUI();
-        isCasting = false;
-        castBtn.disabled = false;
-        meter.onclick = null;
-        // Random weather change
-        if (Math.random() < 0.2) changeWeather();
-    };
-}
+    castCount++;
+    document.getElementById('statusMsg').textContent = '🎣 Casting...';
+    document.getElementById('fishEmoji').textContent = '🎣';
+    updateUI();
+    saveGame();
 
-function getFishResult(accuracy) {
-    const weatherModifier = { sunny: 1, rainy: 1.2, stormy: 0.7 };
-    const wMod = weatherModifier[weather] || 1;
-    const baitMod = BAIT_BONUS[bait] || 1;
-    const roll = Math.random() * 100 * wMod * baitMod;
-    // Determine fish rarity based on roll + bait + weather
-    let rarity = 'Common';
-    if (roll > 80) rarity = 'Legendary';
-    else if (roll > 60) rarity = 'Epic';
-    else if (roll > 40) rarity = 'Rare';
-    else if (roll > 20) rarity = 'Uncommon';
-    const pool = FISH_TYPES.filter(f => f.rarity === rarity);
-    if (pool.length === 0) {
-        // fallback
-        const fallback = FISH_TYPES.find(f => f.id === 'minnow');
-        return { ...fallback, weight: 3, value: 2 };
+    // Random delay (1-3 seconds)
+    const delay = 1000 + Math.random() * 2000;
+    setTimeout(() => {
+        const caught = Math.random() < 0.6; // 60% catch rate
+        if (caught) {
+            const fishIndex = Math.floor(Math.random() * fishTypes.length);
+            const emoji = fishTypes[fishIndex];
+            const name = fishNames[fishIndex];
+            fishCount++;
+// Track achievement progress
+try {
+    const progress = JSON.parse(localStorage.getItem('fishing_progress') || '{}');
+    progress.total = (progress.total || 0) + 1;
+    localStorage.setItem('fishing_progress', JSON.stringify(progress));
+    // Update Launchpad
+    const lp = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+    if (!lp.games) lp.games = {};
+    if (!lp.games['fishing']) lp.games['fishing'] = { played: true, xp: 0 };
+    lp.games['fishing'].played = true;
+    lp.games['fishing'].xp = (lp.games['fishing'].xp || 0) + 1;
+    lp.totalXp = (lp.totalXp || 0) + 1;
+    localStorage.setItem('launchpad_progress', JSON.stringify(lp));
+    // Check achievements in parent window
+    if (window.parent && window.parent.checkGameAchievement) {
+        window.parent.checkGameAchievement('fishing', { total: progress.total });
     }
-    const fish = pool[Math.floor(Math.random() * pool.length)];
-    const sizeRange = fish.maxSize - fish.minSize;
-    const weight = Math.round((fish.minSize + Math.random() * sizeRange) * 10) / 10;
-    const value = Math.round(fish.value * (weight / 10) * (accuracy / 50) * 10) / 10;
-    return {
-        ...fish,
-        weight,
-        value: Math.max(1, Math.round(value))
-    };
+} catch(e) {}
+            money += 5; // each fish worth 5
+            document.getElementById('fishEmoji').textContent = emoji;
+            document.getElementById('statusMsg').textContent = `🎣 Caught a ${name}! ${emoji}`;
+            addLog(`✅ Caught ${name} ${emoji} (✦5)`, 'catch');
+        } else {
+            document.getElementById('fishEmoji').textContent = '💨';
+            document.getElementById('statusMsg').textContent = '😤 Nothing bit! Try again.';
+            addLog('❌ Missed!', 'miss');
+        }
+        isCasting = false;
+        btn.disabled = false;
+        updateUI();
+        saveGame();
+        // Update stats in Launchpad progress
+        try {
+            const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
+            if (!progress.games) progress.games = {};
+            if (!progress.games['fishing']) progress.games['fishing'] = { played: false, xp: 0 };
+            progress.games['fishing'].played = true;
+            progress.games['fishing'].xp = (progress.games['fishing'].xp || 0) + 1;
+            localStorage.setItem('launchpad_progress', JSON.stringify(progress));
+        } catch(e) {}
+    }, delay);
 }
 
-function sellCatch() {
-    if (!currentCatch) {
-        msgEl.textContent = 'Nothing to sell. Go fishing!';
+function sellFish() {
+    if (fishCount === 0) {
+        addLog('❌ No fish to sell!', 'miss');
         return;
     }
-    const val = currentCatch.value;
-    cash += val;
-    cashEl.textContent = cash;
-    msgEl.textContent = `💰 Sold ${currentCatch.name} for $${val}!`;
-    playSound('sell');
-    currentCatch = null;
-    fishDisplay.textContent = '🐟';
-    catchDisplay.textContent = 'Cast your line!';
-    saveGame();
+    const earnings = fishCount * 5;
+    money += earnings;
+    addLog(`💰 Sold ${fishCount} fish for ✦${earnings}!`, 'catch');
+    fishCount = 0;
     updateUI();
-}
-
-function togglePause() {
-    if (gameOver) return;
-    paused = !paused;
-    document.getElementById('pauseLabel').textContent = paused ? 'Resume' : 'Pause';
-    msgEl.textContent = paused ? '⏸️ Paused' : 'Cast your line!';
+    saveGame();
 }
 
 function resetGame() {
-    if (confirm('Reset everything?')) {
-        localStorage.removeItem('fishing_save');
-        localStorage.removeItem('fishing_bait');
-        cash = 50;
-        casts = 0;
-        bestScore = 0;
-        collection = {};
-        fishCaught = 0;
-        currentCatch = null;
-        gameOver = false;
-        paused = false;
-        bait = 'none';
-        document.querySelectorAll('.bait-shop button').forEach(b => {
-            b.classList.toggle('active', b.dataset.bait === bait);
-        });
-        saveGame();
-        updateUI();
-        fishDisplay.textContent = '🐟';
-        catchDisplay.textContent = 'Cast your line!';
-        msgEl.textContent = '🔄 Reset complete!';
-        castBtn.disabled = false;
-        if (castInterval) { clearInterval(castInterval); castInterval = null; }
-    }
+    if (!confirm('Reset all fishing progress?')) return;
+    fishCount = 0;
+    money = 0;
+    castCount = 0;
+    document.getElementById('fishEmoji').textContent = '🐟';
+    document.getElementById('statusMsg').textContent = 'Cast your line!';
+    document.getElementById('catchLog').innerHTML = '<div>🔄 Reset!</div>';
+    updateUI();
+    saveGame();
 }
 
-// ---- Bait ----
-document.querySelectorAll('.bait-shop button').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const newBait = this.dataset.bait;
-        const cost = BAIT_COST[newBait] || 0;
-        if (cost > 0 && cash < cost) {
-            msgEl.textContent = `❌ Not enough cash! Need $${cost}`;
-            return;
-        }
-        if (cost > 0) {
-            cash -= cost;
-            cashEl.textContent = cash;
-        }
-        bait = newBait;
-        document.querySelectorAll('.bait-shop button').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        localStorage.setItem('fishing_bait', bait);
-        saveGame();
-        msgEl.textContent = `🎣 Bait set to ${this.textContent.trim()}`;
-    });
-});
-
-// ---- Sound ----
-function playSound(type) {
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        if (type === 'catch') {
-            osc.frequency.value = 600;
-            gain.gain.value = 0.08;
-            osc.start();
-            setTimeout(() => { osc.frequency.value = 800; }, 80);
-            setTimeout(() => { osc.frequency.value = 1000; }, 160);
-            osc.stop(ctx.currentTime + 0.3);
-        } else if (type === 'sell') {
-            osc.frequency.value = 400;
-            gain.gain.value = 0.06;
-            osc.start();
-            setTimeout(() => { osc.frequency.value = 600; }, 100);
-            osc.stop(ctx.currentTime + 0.2);
-        }
-    } catch(e) {}
-}
-
-// ---- Init ----
-changeWeather();
+loadGame();
 updateUI();
-msgEl.textContent = '🎣 Click "Cast" then click the meter to set power!';
-console.log('🎣 Fishing Pro loaded with 10 fish types, weather, bait, collection.');
+document.getElementById('statusMsg').textContent = '🎣 Ready to fish!';
+console.log('🎣 Fishing Sim loaded!');
 </script>
 </body>
 </html>

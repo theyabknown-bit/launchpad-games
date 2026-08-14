@@ -1,33 +1,29 @@
 ﻿<!DOCTYPE html>
 <html>
-<head>
-    <link rel="stylesheet" href="../assets/css/game.css">
-    <meta http-equiv="Content-Security-Policy" 
-      content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; 
-               script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; 'unsafe-eval'; 'unsafe-eval'; 
-               style-src * 'self' 'unsafe-inline'; 
-               img-src * 'self' data: https:; 
-               connect-src * 'self' https:; 
-               font-src * 'self' data:;"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>💰 Cashier Sim</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<script>
-// Suppress unload violation warnings
-(function() {
-    var ow = console.warn;
-    console.warn = function() {
-        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
-            return;
-        }
-        ow.apply(console, arguments);
-    };
-})();
-</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0b1a26;color:#d0e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;flex-direction:column;}
+.back-btn{position:fixed;top:20px;left:20px;background:#1a3344;color:#4fc3f7;padding:12px 20px;border-radius:8px;text-decoration:none;}
+.back-btn:hover{background:#2a4a5e;transform:translateX(-5px);}
+.container{max-width:500px;width:100%;text-align:center;}
+h1{color:#4fc3f7;margin-bottom:10px;}
+.stats{display:flex;justify-content:center;gap:20px;margin-bottom:20px;}
+.stat-box{background:#1a3344;padding:10px 20px;border-radius:10px;min-width:80px;}
+.stat-box span{color:#4fc3f7;font-weight:bold;font-size:1.2rem;display:block;}
+.stat-box .label{color:#8899aa;font-size:0.7rem;text-transform:uppercase;}
+.item-display{font-size:2rem;padding:20px;background:#1a3344;border-radius:12px;border:2px solid #2a4a5e;margin:15px 0;min-height:80px;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.item-display .price{font-size:1.5rem;color:#ffd93d;margin-top:5px;}
+.btn{background:#4fc3f7;color:#0b1a26;border:none;padding:12px 25px;border-radius:8px;font-size:1rem;cursor:pointer;margin:5px;}
+.btn:hover{background:#7cf5b0;}
+.btn-sell{background:linear-gradient(135deg,#7cf5b0,#2d8b4e);color:white;}
+.btn-skip{background:linear-gradient(135deg,#ffd93d,#f5a623);color:#0b1a26;}
+.message{font-size:1.2rem;min-height:30px;color:#ffd93d;margin:10px 0;}
+</style>
 </head>
 <body>
-<div class='game-container'>
-    <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a>
 <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
 <div class="container">
     <h1><i class="fas fa-cash-register" style="color:#4fc3f7;"></i> Cashier Sim</h1>
@@ -574,7 +570,7 @@ document.getElementById('message').textContent='🏪 Serve customers to earn mon
     // ============================================================
     // SAVE ON PAGE CLOSE
     // ============================================================
-    window.addEventListener('beforebeforebeforeunload', function() {
+    window.addEventListener('beforeunload', function() {
         if (typeof saveGame === 'function') {
             saveGame();
         }
@@ -744,97 +740,8 @@ if (document.readyState === 'complete') {
 // Also force refresh if user manually clicks
 console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
-<script>
-// Modern page lifecycle handling
-document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden') {
-        // Pause or save state
-        console.log('Page hidden – auto-save triggered');
-    }
-});
-window.addEventListener('beforeunload', function(e) {
-    // Final cleanup before unload
-    console.log('Page unloading – saving state');
-});
-</script>
-</div>
-<script>
-// High-score & difficulty (auto-save)
-(function() {
-    const gameId = window.location.pathname.split('/').pop().replace('.html','');
-    const highScoreKey = 'highscore_' + gameId;
-    const difficultyKey = 'difficulty_' + gameId;
-    // Load high score
-    let highScore = localStorage.getItem(highScoreKey) || 0;
-    let currentDiff = localStorage.getItem(difficultyKey) || 'medium';
-    // Find score display
-    const scoreEl = document.querySelector('.score, #score, [id*="score"], .points, #points');
-    if (scoreEl) {
-        // Observe score changes
-        const observer = new MutationObserver(() => {
-            const val = parseInt(scoreEl.textContent);
-            if (!isNaN(val) && val > highScore) {
-                highScore = val;
-                localStorage.setItem(highScoreKey, highScore);
-            }
-        });
-        observer.observe(scoreEl, { childList: true, subtree: true, characterData: true });
-        // Initial save if score present
-        const initVal = parseInt(scoreEl.textContent);
-        if (!isNaN(initVal) && initVal > highScore) {
-            highScore = initVal;
-            localStorage.setItem(highScoreKey, highScore);
-        }
-        // Display high score
-        const hsEl = document.createElement('div');
-        hsEl.className = 'high-score';
-        hsEl.innerHTML = '🏆 High Score: <span id="highScoreDisplay">' + highScore + '</span>';
-        scoreEl.parentNode.insertBefore(hsEl, scoreEl.nextSibling);
-        // Update display when high score changes
-        window.updateHighScore = function() {
-            document.getElementById('highScoreDisplay').textContent = highScore;
-        };
-    }
-    // Difficulty selector
-    const diffContainer = document.createElement('div');
-    diffContainer.className = 'difficulty-selector';
-    diffContainer.innerHTML = `
-        <button data-diff="easy" class="${currentDiff === 'easy' ? 'active' : ''}">Easy</button>
-        <button data-diff="medium" class="${currentDiff === 'medium' ? 'active' : ''}">Medium</button>
-        <button data-diff="hard" class="${currentDiff === 'hard' ? 'active' : ''}">Hard</button>
-    `;
-    const container = document.querySelector('.game-container') || document.body;
-    const firstChild = container.firstChild;
-    if (firstChild) {
-        container.insertBefore(diffContainer, firstChild.nextSibling);
-    } else {
-        container.appendChild(diffContainer);
-    }
-    diffContainer.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const diff = this.dataset.diff;
-            localStorage.setItem(difficultyKey, diff);
-            diffContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            // Dispatch custom event for game to use
-            window.dispatchEvent(new CustomEvent('difficultyChanged', { detail: { difficulty: diff } }));
-        });
-    });
-    console.log('✅ Game enhanced with high-score & difficulty for', gameId);
-})();
-</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
 
 
 

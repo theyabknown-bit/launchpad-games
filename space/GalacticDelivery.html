@@ -1,58 +1,945 @@
 ﻿<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>🚚 Galactic Delivery Pro</title><link rel="stylesheet" href="../assets/css/game.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><style>
-.game-container{text-align:center}
-.status-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
-.status-bar .stat{background:rgba(0,0,0,0.3);padding:6px 10px;border-radius:8px;border:1px solid rgba(79,195,247,0.05)}
-.status-bar .stat .label{font-size:.7rem;color:#8899aa}
-.status-bar .stat .value{font-weight:700;font-size:1.1rem}
-.status-bar .stat .value.fuel{color:#ffd93d}
-.planet-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:15px 0}
-.planet{background:rgba(0,0,0,0.3);padding:12px;border-radius:12px;border:2px solid rgba(79,195,247,0.05);cursor:pointer;transition:.2s}
-.planet:hover{border-color:rgba(79,195,247,0.2)}
-.planet .emoji{font-size:2rem;display:block}
-.planet .name{font-size:.7rem;color:#8899aa;margin-top:4px}
-.planet.current{border-color:#4fc3f7;background:rgba(79,195,247,0.05)}
-.planet.has-cargo{border-color:#ffd93d;background:rgba(255,215,0,0.03)}
-.cargo-area{background:rgba(0,0,0,0.2);border-radius:12px;padding:12px;margin:10px 0;border:1px solid rgba(79,195,247,0.05)}
-.cargo-area .cargo-item{display:inline-block;padding:4px 12px;margin:4px;border-radius:20px;background:rgba(79,195,247,0.05);border:1px solid rgba(79,195,247,0.1);font-size:.8rem}
-.events{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.05);border-radius:8px;padding:8px;margin:10px 0;font-size:.85rem;min-height:40px;color:#8899aa}
-.controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:15px 0}
-.controls button{background:rgba(255,255,255,0.05);color:#d0e8f0;border:1px solid rgba(255,255,255,0.1)}
-.actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
-.actions button{background:rgba(79,195,247,0.05);border:1px solid rgba(79,195,247,0.1);color:#d0e8f0;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.8rem}
-.actions button:hover{background:rgba(79,195,247,0.1)}
-#message{min-height:2rem;font-size:.9rem}
-</style></head><body>
-<div class="game-container"><a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a><h1 class="game-title">🚚 Galactic Delivery Pro</h1>
-<div class="status-bar"><div class="stat"><div class="label">⛽ Fuel</div><div class="value fuel" id="fuel">100</div></div><div class="stat"><div class="label">📦 Cargo</div><div class="value" id="cargoCount">0</div></div><div class="stat"><div class="label">🏆 Score</div><div class="value" id="score">0</div></div><div class="stat"><div class="label">🏅 Best</div><div class="value" id="bestScore">-</div></div></div>
-<div class="planet-grid" id="planetGrid"></div>
-<div class="cargo-area" id="cargoArea"><span style="color:#8899aa;font-size:.8rem">No cargo. Visit a planet to pick up delivery.</span></div>
-<div class="events" id="events">🚀 Ready for delivery!</div>
-<div class="actions"><button onclick="pickupCargo()">📦 Pickup Cargo</button><button onclick="deliverCargo()">🚚 Deliver Cargo</button><button onclick="refuel()">⛽ Refuel ($5)</button><button onclick="upgradeShip()">⬆️ Upgrade Ship ($30)</button></div>
-<div id="message">💡 Visit planets, pick up cargo, deliver for profit!</div>
-<div class="controls"><button onclick="startGame()"><i class="fas fa-play"></i> Start</button><button onclick="resetGame()"><i class="fas fa-redo"></i> Restart</button><button onclick="togglePause()"><i class="fas fa-pause"></i> <span id="pauseLabel">Pause</span></button></div>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>📦 Galactic Delivery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b1a26;
+            color: #d0e8f0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #1a3344;
+            color: #4fc3f7;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+            font-size: 14px;
+        }
+        .back-btn:hover { background: #2a4a5e; transform: translateX(-5px); }
+        .container { max-width: 500px; width: 100%; text-align: center; margin-top: 60px; }
+        h1 { color: #4fc3f7; font-size: 2.5rem; margin-bottom: 4px; }
+        .subtitle { color: #7cf5b0; font-size: 0.9rem; margin-bottom: 15px; }
+
+        .stats { display: flex; justify-content: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .stat-box { background: #1a3344; padding: 8px 16px; border-radius: 10px; min-width: 70px; border: 1px solid #2a4a5e; }
+        .stat-box span { color: #4fc3f7; font-weight: bold; font-size: 1.1rem; display: block; }
+        .stat-box .label { color: #8899aa; font-size: 0.6rem; text-transform: uppercase; }
+
+        .game-area {
+            background: #0f1f2e;
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid #1a3344;
+            margin: 10px 0;
+            position: relative;
+            min-height: 300px;
+        }
+
+        .delivery-emoji {
+            font-size: 6rem;
+            display: block;
+            margin: 10px 0;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        .destination {
+            font-size: 2rem;
+            margin: 10px 0;
+            color: #ffd93d;
+        }
+
+        .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 15px 0; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-deliver {
+            background: linear-gradient(135deg, #7cf5b0, #2d8b4e);
+            color: #0b1a26;
+        }
+        .btn-deliver:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,245,176,0.2); }
+        .btn-skip {
+            background: linear-gradient(135deg, #ffd93d, #f5a623);
+            color: #0b1a26;
+        }
+        .btn-skip:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,217,61,0.2); }
+        .btn-reset {
+            background: #1a3344;
+            color: #d0e8f0;
+            border: 2px solid #2a4a5e;
+        }
+        .btn-reset:hover { background: #2a4a5e; border-color: #4fc3f7; }
+
+        .message { font-size: 1.1rem; min-height: 30px; color: #ffd93d; margin: 10px 0; font-weight: 600; }
+
+        .settings-panel {
+            background: #1a3344;
+            border-radius: 16px;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #2a4a5e;
+            display: none;
+        }
+        .settings-panel.open { display: block; }
+        .settings-panel h3 { color: #4fc3f7; margin-bottom: 10px; font-size: 1rem; }
+        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .settings-item:last-child { border-bottom: none; }
+        .settings-item .label { font-size: 0.9rem; color: #d0e8f0; }
+        .settings-toggle {
+            width: 44px; height: 24px; background: #2a4a5e; border-radius: 30px;
+            cursor: pointer; position: relative; transition: 0.3s;
+        }
+        .settings-toggle.active { background: #4fc3f7; }
+        .settings-toggle .knob {
+            width: 18px; height: 18px; background: white; border-radius: 50%;
+            position: absolute; top: 3px; left: 3px; transition: 0.3s;
+        }
+        .settings-toggle.active .knob { left: 23px; }
+        .settings-btn-icon {
+            background: none; border: none; color: #8899aa; font-size: 1.2rem;
+            cursor: pointer; padding: 4px 8px; transition: 0.2s;
+        }
+        .settings-btn-icon:hover { color: #4fc3f7; transform: rotate(30deg); }
+
+        .particle-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 999; overflow: hidden;
+        }
+        .particle {
+            position: absolute; font-size: 24px; font-weight: 700;
+            animation: floatUp 1.2s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); }
+            100% { opacity: 0; transform: translateY(-180px) scale(1.5) rotate(20deg); }
+        }
+
+        .explosion {
+            position: fixed; pointer-events: none; z-index: 1000;
+            font-size: 60px; animation: explode 0.8s ease-out forwards;
+        }
+        @keyframes explode {
+            0% { opacity: 1; transform: translate(0,0) scale(0.3) rotate(0deg); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(2) rotate(60deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container { margin-top: 50px; }
+            h1 { font-size: 2rem; }
+            .delivery-emoji { font-size: 4rem; }
+            .btn { padding: 10px 18px; font-size: 0.9rem; }
+            .stats { gap: 10px; }
+            .stat-box { padding: 6px 12px; min-width: 60px; }
+            .back-btn { font-size: 12px; padding: 8px 12px; top: 10px; left: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+
+<div class="container">
+    <h1><i class="fas fa-shipping-fast" style="color:#ff9f43;"></i> Galactic Delivery</h1>
+    <p class="subtitle">📦 Deliver packages across the galaxy!</p>
+
+    <div class="stats">
+        <div class="stat-box"><span id="deliveries">0</span><span class="label">Deliveries</span></div>
+        <div class="stat-box"><span id="money">0</span><span class="label">💰 Money</span></div>
+        <div class="stat-box"><span id="combo">0</span><span class="label">Combo</span></div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
+        <button class="settings-btn-icon" id="settingsBtn">⚙️</button>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <h3>⚙️ Settings</h3>
+        <div class="settings-item">
+            <span class="label">🔊 Sound Effects</span>
+            <div class="settings-toggle active" id="soundToggle"><div class="knob"></div></div>
+        </div>
+        <div class="settings-item">
+            <span class="label">💥 Explosions</span>
+            <div class="settings-toggle active" id="explosionToggle"><div class="knob"></div></div>
+        </div>
+        <div class="settings-item">
+            <span class="label">✨ Particles</span>
+            <div class="settings-toggle active" id="particleToggle"><div class="knob"></div></div>
+        </div>
+    </div>
+
+    <div class="game-area">
+        <span class="delivery-emoji" id="deliveryEmoji">📦</span>
+        <div class="destination" id="destinationDisplay">🪐 To: Jupiter</div>
+        <div style="font-size: 1.2rem; color: #7cf5b0;" id="rewardDisplay">✦25</div>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn btn-deliver" id="deliverBtn">🚀 Deliver!</button>
+        <button class="btn btn-skip" id="skipBtn">⏭️ Skip</button>
+        <button class="btn btn-reset" id="resetBtn">🔄 Reset</button>
+    </div>
+
+    <div class="message" id="message">📦 Start delivering!</div>
 </div>
+
+<div class="particle-container" id="particleContainer"></div>
+
 <script>
-const fuelEl=document.getElementById('fuel'),cargoEl=document.getElementById('cargoCount'),scoreEl=document.getElementById('score'),bestEl=document.getElementById('bestScore'),planetGrid=document.getElementById('planetGrid'),cargoArea=document.getElementById('cargoArea'),eventsEl=document.getElementById('events'),msgEl=document.getElementById('message');
-const PLANETS=[{name:'Earth',emoji:'🌍',distance:1},{name:'Mars',emoji:'🔴',distance:2},{name:'Venus',emoji:'🟡',distance:3},{name:'Jupiter',emoji:'🟠',distance:4},{name:'Saturn',emoji:'🪐',distance:5}];
-const CARGO_TYPES=['Food','Medicine','Tech','Fuel','Water','Minerals','Data','Weapons','Art','Spices'];
-let state={fuel:100,maxFuel:100,cargo:[],score:0,currentPlanet:0,bestScore:0,shipLevel:1,gameActive:!1,paused:!1,timerId:null};
-(function load(){try{let s=JSON.parse(localStorage.getItem('delivery_best')||'{}');state.bestScore=s['all']||0;bestEl.textContent=state.bestScore||'-'}catch(e){}})();
-function saveBest(){if(state.score>state.bestScore){state.bestScore=state.score;let s=JSON.parse(localStorage.getItem('delivery_best')||'{}');s['all']=state.score;localStorage.setItem('delivery_best',JSON.stringify(s));bestEl.textContent=state.score}}
-function saveState(){try{localStorage.setItem('delivery_state',JSON.stringify(state))}catch(e){}}
-function renderPlanets(){planetGrid.innerHTML='';PLANETS.forEach((p,i)=>{let div=document.createElement('div');div.className='planet'+(i===state.currentPlanet?' current':'')+(state.cargo.some(c=>c.planet===i)?' has-cargo':'');div.innerHTML='<span class="emoji">'+p.emoji+'</span><div class="name">'+p.name+'</div>';div.onclick=()=>{if(state.gameActive&&!state.paused)travelTo(i)};planetGrid.appendChild(div)})}
-function renderCargo(){if(state.cargo.length===0){cargoArea.innerHTML='<span style="color:#8899aa;font-size:.8rem">No cargo. Visit a planet to pick up delivery.</span>';cargoEl.textContent=0;return}cargoArea.innerHTML=state.cargo.map(c=>'<span class="cargo-item">📦 '+c.type+' → '+PLANETS[c.planet].emoji+' '+PLANETS[c.planet].name+'</span>').join('');cargoEl.textContent=state.cargo.length}
-function travelTo(idx){if(!state.gameActive||state.paused)return;let dist=PLANETS[idx].distance;let fuelCost=dist*2;if(state.fuel<fuelCost){msgEl.textContent='❌ Not enough fuel! Need '+fuelCost;return}state.fuel-=fuelCost;state.currentPlanet=idx;renderPlanets();addEvent('🛸 Traveled to '+PLANETS[idx].name);playSound('travel');saveState();updateUI()}
-function pickupCargo(){if(!state.gameActive||state.paused)return;if(state.cargo.length>=3+state.shipLevel){msgEl.textContent='❌ Cargo hold full! Upgrade ship.';return}let types=CARGO_TYPES.filter(t=>!state.cargo.some(c=>c.type===t));if(types.length===0){msgEl.textContent='❌ No cargo types available';return}let type=types[Math.floor(Math.random()*types.length)];let dest=(state.currentPlanet+1+Math.floor(Math.random()*(PLANETS.length-1)))%PLANETS.length;state.cargo.push({type,planet:dest});renderCargo();addEvent('📦 Picked up '+type+' for '+PLANETS[dest].name);playSound('pickup');saveState();updateUI()}
-function deliverCargo(){if(!state.gameActive||state.paused)return;if(state.cargo.length===0){msgEl.textContent='❌ No cargo to deliver!';return}let delivered=[];state.cargo.forEach((c,i)=>{if(c.planet===state.currentPlanet){delivered.push(i)}});if(delivered.length===0){msgEl.textContent='❌ No cargo for this planet!';return}let deliveredCount=0;delivered.reverse().forEach(i=>{let c=state.cargo[i];let profit=10+Math.floor(Math.random()*15)+state.shipLevel*2;state.score+=profit;state.cargo.splice(i,1);deliveredCount++});saveBest();addEvent('🚚 Delivered '+deliveredCount+' cargo! +'+(10+state.shipLevel*2)+' each');playSound('deliver');renderCargo();saveState();updateUI()}
-function refuel(){if(!state.gameActive||state.paused)return;if(state.score<5){msgEl.textContent='❌ Need 5 score to refuel!';return}state.score-=5;state.fuel=Math.min(state.maxFuel,state.fuel+30);addEvent('⛽ Refueled +30 fuel');playSound('refuel');saveState();updateUI()}
-function upgradeShip(){if(!state.gameActive||state.paused)return;if(state.score<30){msgEl.textContent='❌ Need 30 score to upgrade!';return}state.score-=30;state.shipLevel++;state.maxFuel+=10;state.fuel=Math.min(state.maxFuel,state.fuel+10);addEvent('⬆️ Ship upgraded! Level '+state.shipLevel);playSound('upgrade');saveState();updateUI()}
-function addEvent(msg){eventsEl.textContent='🚀 '+msg}
-function updateUI(){fuelEl.textContent=Math.round(state.fuel);scoreEl.textContent=Math.round(state.score);bestEl.textContent=state.bestScore||'-';renderPlanets();renderCargo()}
-function startGame(){state.gameActive=!0;state.paused=!1;state.fuel=100;state.maxFuel=100;state.cargo=[];state.score=0;state.currentPlanet=0;state.shipLevel=1;document.getElementById('pauseLabel').textContent='Pause';addEvent('🚀 Delivery service started!');if(state.timerId)clearInterval(state.timerId);state.timerId=setInterval(()=>{if(!state.paused&&state.gameActive){state.fuel=Math.max(0,state.fuel-0.5);if(state.fuel<=0){addEvent('💀 Out of fuel! Game Over.');state.gameActive=!1;playSound('gameover')}saveState();updateUI()}},2000);saveState();updateUI();msgEl.textContent='💡 Travel, pickup, deliver!'}
-function togglePause(){if(!state.gameActive)return;state.paused=!state.paused;document.getElementById('pauseLabel').textContent=state.paused?'Resume':'Pause';msgEl.textContent=state.paused?'⏸️ Paused':'💡 Keep delivering!';if(state.paused&&state.timerId)clearInterval(state.timerId);else if(!state.paused){state.timerId=setInterval(()=>{if(!state.paused&&state.gameActive){state.fuel=Math.max(0,state.fuel-0.5);if(state.fuel<=0){addEvent('💀 Out of fuel! Game Over.');state.gameActive=!1;playSound('gameover')}saveState();updateUI()}},2000)}}
-function resetGame(){if(state.timerId)clearInterval(state.timerId);state.gameActive=!1;state.paused=!1;state.fuel=100;state.maxFuel=100;state.cargo=[];state.score=0;state.currentPlanet=0;state.shipLevel=1;document.getElementById('pauseLabel').textContent='Pause';addEvent('🔄 Station reset.');saveState();updateUI();msgEl.textContent='💡 Click Start to begin!'}
-function playSound(type){try{let c=new(window.AudioContext||window.webkitAudioContext),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);if(type==='travel'){o.frequency.value=500;g.gain.value=.04;o.start();setTimeout(()=>{o.frequency.value=700},100);o.stop(c.currentTime+.2)}else if(type==='pickup'){o.frequency.value=600;g.gain.value=.05;o.start();setTimeout(()=>{o.frequency.value=800},80);o.stop(c.currentTime+.15)}else if(type==='deliver'){o.frequency.value=700;g.gain.value=.06;o.start();setTimeout(()=>{o.frequency.value=900},100);setTimeout(()=>{o.frequency.value=1100},200);o.stop(c.currentTime+.3)}else if(type==='refuel'){o.frequency.value=400;g.gain.value=.04;o.start();setTimeout(()=>{o.frequency.value=500},100);o.stop(c.currentTime+.15)}else if(type==='upgrade'){o.frequency.value=500;g.gain.value=.06;o.start();setTimeout(()=>{o.frequency.value=700},100);setTimeout(()=>{o.frequency.value=900},200);o.stop(c.currentTime+.35)}else if(type==='gameover'){o.frequency.value=300;g.gain.value=.08;o.start();setTimeout(()=>{o.frequency.value=200},200);o.stop(c.currentTime+.5)}}catch(e){}}
-loadState();updateUI();console.log('🚚 Galactic Delivery Pro loaded');
-</script></body></html>
+    // Game-specific save function - override this in your game
+    function saveGame() {
+        // For games with their own save system, this will be overridden
+        // For games without, it does nothing
+        console.log('💾 Save called but no game-specific save implemented');
+        return true;
+    }
+    // ============================================================
+    // FIXED SOUND SYSTEM - WORKS ON FIRST CLICK
+    // ============================================================
+    let soundEnabled = true;
+    let audioCtx = null;
+    let audioUnlocked = false;
+
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            audioUnlocked = true;
+            console.log('🔊 Audio unlocked!');
+        } catch(e) { console.log('Audio error:', e); }
+    }
+
+    // Unlock audio on any click
+    document.addEventListener('click', unlockAudio, { once: false });
+    document.addEventListener('touchstart', unlockAudio, { once: false });
+    document.addEventListener('keydown', unlockAudio, { once: false });
+
+    function getAudioCtx() {
+        if (!audioCtx) {
+            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    function playTone(frequency, duration = 150, type = 'sine') {
+        if (!soundEnabled) return;
+        try {
+            const ctx = getAudioCtx();
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.value = frequency;
+            gain.gain.setValueAtTime(0.12, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + duration / 1000);
+        } catch(e) { console.log('Play error:', e); }
+    }
+
+    function playClick() { playTone(600, 80); }
+    function playWin() { 
+        playTone(523, 150); 
+        setTimeout(() => playTone(659, 150), 150); 
+        setTimeout(() => playTone(784, 200), 300); 
+    }
+    function playLose() { 
+        playTone(300, 200); 
+        setTimeout(() => playTone(200, 300), 200); 
+    }
+    function playCorrect() { playTone(800, 100); }
+    function playWrong() { playTone(250, 200); }
+    function playLevelUp() { 
+        playTone(440, 100); 
+        setTimeout(() => playTone(523, 100), 100); 
+        setTimeout(() => playTone(659, 150), 200); 
+    }
+// ============================================================
+// SETTINGS
+// ============================================================
+let soundEnabled = true;
+let explosionEnabled = true;
+let particleEnabled = true;
+
+document.getElementById('settingsBtn').addEventListener('click', function() {
+    document.getElementById('settingsPanel').classList.toggle('open');
+});
+
+document.querySelectorAll('.settings-toggle').forEach(toggle => {
+    toggle.addEventListener('click', function() {
+        this.classList.toggle('active');
+        const id = this.id;
+        if (id === 'soundToggle') soundEnabled = this.classList.contains('active');
+        if (id === 'explosionToggle') explosionEnabled = this.classList.contains('active');
+        if (id === 'particleToggle') particleEnabled = this.classList.contains('active');
+    });
+});
+
+// ============================================================
+// PARTICLES & EXPLOSIONS
+// ============================================================
+function spawnParticle(x, y, text, color = '#ffd700') {
+    if (!particleEnabled) return;
+    const container = document.getElementById('particleContainer');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = text;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.color = color;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 1200);
+}
+
+function spawnExplosion(x, y, emojis = ['💥','✨','⭐','🎉','🔥']) {
+    if (!explosionEnabled) return;
+    for (let i = 0; i < 8; i++) {
+        setTimeout(() => {
+            const el = document.createElement('div');
+            el.className = 'explosion';
+            el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            el.style.left = (x - 30 + Math.random() * 60) + 'px';
+            el.style.top = (y - 30 + Math.random() * 60) + 'px';
+            const angle = Math.random() * 360;
+            const dist = 50 + Math.random() * 80;
+            el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+            el.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }, i * 60);
+    }
+}
+
+function showCelebration() {
+    const emojis = ['🎉','✨','⭐','💎','🌟','🎊','🚀','🛸'];
+    for (let i = 0; i < 12; i++) {
+        setTimeout(() => {
+            spawnParticle(
+                Math.random() * window.innerWidth,
+                Math.random() * window.innerHeight,
+                emojis[Math.floor(Math.random() * emojis.length)],
+                ['#ffd700','#ff6b6b','#7cf5b0','#4fc3f7','#ff9f43','#a29bfe'][Math.floor(Math.random() * 6)]
+            );
+        }, i * 100);
+    }
+}
+
+// ============================================================
+// SOUND
+// ============================================================
+function playTone(freq, dur = 150) {
+    if (!soundEnabled) return;
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.value = 0.12;
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur / 1000);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur / 1000);
+    } catch(e) {}
+}
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+const PLANETS = [
+    { name: 'Mars', emoji: '🔴', reward: 10 },
+    { name: 'Jupiter', emoji: '🟠', reward: 20 },
+    { name: 'Saturn', emoji: '🪐', reward: 30 },
+    { name: 'Neptune', emoji: '🔵', reward: 40 },
+    { name: 'Pluto', emoji: '⚪', reward: 15 },
+    { name: 'Venus', emoji: '🟡', reward: 25 },
+    { name: 'Mercury', emoji: '🟤', reward: 18 },
+    { name: 'Uranus', emoji: '🔷', reward: 35 }
+];
+
+let deliveries = 0;
+let money = 0;
+let combo = 0;
+let currentPlanet = PLANETS[0];
+
+function updateUI() {
+    document.getElementById('deliveries').textContent = deliveries;
+    document.getElementById('money').textContent = money;
+    document.getElementById('combo').textContent = combo;
+}
+
+function newDelivery() {
+    currentPlanet = PLANETS[Math.floor(Math.random() * PLANETS.length)];
+    document.getElementById('deliveryEmoji').textContent = '📦';
+    document.getElementById('destinationDisplay').textContent = currentPlanet.emoji + ' To: ' + currentPlanet.name;
+    document.getElementById('rewardDisplay').textContent = '✦' + currentPlanet.reward;
+    document.getElementById('deliverBtn').disabled = false;
+    document.getElementById('message').textContent = '📦 Deliver to ' + currentPlanet.name + '!';
+}
+
+function deliver() {
+    const reward = currentPlanet.reward + Math.floor(combo / 2);
+    money += reward;
+    deliveries++;
+    combo++;
+
+    // Effects
+    const rect = document.getElementById('deliverBtn').getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    spawnExplosion(cx, cy, ['🚀','💥','✨','⭐','🎉']);
+    showCelebration();
+    playTone(523 + combo * 10);
+
+    document.getElementById('message').textContent = '✅ Delivered to ' + currentPlanet.name + '! +✦' + reward + ' (Combo x' + combo + ')';
+    document.getElementById('deliveryEmoji').textContent = '🚀';
+
+    updateUI();
+
+    setTimeout(newDelivery, 500);
+}
+
+function skip() {
+    const rect = document.getElementById('skipBtn').getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    spawnExplosion(cx, cy, ['⏭️','💫','🌀']);
+    combo = 0;
+    document.getElementById('message').textContent = '⏭️ Skipped! Combo reset!';
+    updateUI();
+    setTimeout(newDelivery, 300);
+}
+
+function resetGame() {
+    if (!confirm('Reset all progress?')) return;
+    deliveries = 0;
+    money = 0;
+    combo = 0;
+    updateUI();
+    newDelivery();
+    document.getElementById('message').textContent = '🔄 Reset! Start fresh!';
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+document.getElementById('deliverBtn').addEventListener('click', deliver);
+document.getElementById('skipBtn').addEventListener('click', skip);
+document.getElementById('resetBtn').addEventListener('click', resetGame);
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        if (!document.getElementById('deliverBtn').disabled) deliver();
+    }
+    if (e.key === 's' || e.key === 'S') skip();
+    if (e.key === 'r' || e.key === 'R') resetGame();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+newDelivery();
+updateUI();
+document.getElementById('message').textContent = '📦 Start delivering!';
+console.log('📦 Galactic Delivery loaded!');
+console.log('⌨️ Space=Deliver  S=Skip  R=Reset');
+    // ============================================================
+    // ACHIEVEMENT POPUP SYSTEM - WORKS EVERYWHERE
+    // ============================================================
+    
+    // Check achievements and show popup
+    function checkAchievements() {
+        try {
+            const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{"games":{},"totalXp":0,"gamesPlayed":0}');
+            const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
+            let newAchievements = [];
+
+            // First game
+            if (progress.gamesPlayed >= 1 && !unlocked.includes('first_game')) {
+                newAchievements.push('first_game');
+                showAchievementPopup('🎮', 'First Game!', 'Played your first game!');
+            }
+
+            // Game master (10 games)
+            if (progress.gamesPlayed >= 10 && !unlocked.includes('game_master')) {
+                newAchievements.push('game_master');
+                showAchievementPopup('👑', 'Game Master!', 'Played 10 games!');
+            }
+
+            // XP collector
+            if (progress.totalXp >= 100 && !unlocked.includes('xp_collector')) {
+                newAchievements.push('xp_collector');
+                showAchievementPopup('⭐', 'XP Collector!', 'Earned 100 XP!');
+            }
+
+            // Level up
+            const level = Math.floor((progress.totalXp || 0) / 100) + 1;
+            if (level >= 5 && !unlocked.includes('level_up')) {
+                newAchievements.push('level_up');
+                showAchievementPopup('🏅', 'Level Up!', 'Reached Level 5!');
+            }
+
+            // Save new achievements
+            if (newAchievements.length > 0) {
+                const all = [...unlocked, ...newAchievements];
+                localStorage.setItem('launchpad_achievements', JSON.stringify(all));
+                updateAchievementCount();
+            }
+
+            return newAchievements;
+        } catch(e) { return []; }
+    }
+
+    // Show achievement popup
+    function showAchievementPopup(emoji, title, desc) {
+        try { playAchievement(); } catch(e) {}
+        // Check if popup already exists
+        let popup = document.getElementById('achievementPopupGlobal');
+        if (!popup) {
+            popup = document.createElement('div');
+            popup.id = 'achievementPopupGlobal';
+            popup.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(18, 16, 30, 0.96);
+                backdrop-filter: blur(20px);
+                border: 2px solid #7cf5b0;
+                border-radius: 16px;
+                padding: 16px 24px;
+                max-width: 350px;
+                z-index: 99999;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+                display: none;
+                animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+                color: #d0e8f0;
+                font-family: 'Segoe UI', Roboto, sans-serif;
+            `;
+            document.body.appendChild(popup);
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                @keyframes pulseGold {
+                    0%, 100% { box-shadow: 0 0 20px rgba(124, 245, 176, 0.1); }
+                    50% { box-shadow: 0 0 40px rgba(124, 245, 176, 0.3); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Fill popup content
+        popup.innerHTML = `
+            <div style="display:flex;align-items:center;gap:14px;">
+                <div style="font-size:2.8rem;line-height:1;">${emoji}</div>
+                <div>
+                    <div style="color:#7cf5b0;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;">🏆 Achievement Unlocked!</div>
+                    <div style="color:#f0f8ff;font-weight:700;font-size:1.1rem;">${title}</div>
+                    <div style="color:#8899aa;font-size:0.85rem;">${desc}</div>
+                </div>
+            </div>
+            <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;">
+                <button onclick="document.getElementById('achievementPopupGlobal').style.display='none'" style="
+                    background:rgba(255,255,255,0.05);
+                    border:1px solid rgba(255,255,255,0.1);
+                    color:#8899aa;
+                    padding:4px 14px;
+                    border-radius:20px;
+                    cursor:pointer;
+                    font-size:0.7rem;
+                    font-family:'Segoe UI',sans-serif;
+                ">Dismiss</button>
+            </div>
+        `;
+
+        // Show popup
+        popup.style.display = 'block';
+        popup.style.animation = 'slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+        // Auto-hide after 6 seconds
+        clearTimeout(popup._timeout);
+        popup._timeout = setTimeout(() => {
+            popup.style.animation = 'slideOutRight 0.4s ease-in';
+            setTimeout(() => {
+                popup.style.display = 'none';
+                popup.style.animation = '';
+            }, 400);
+        }, 6000);
+
+        // Play sound
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            [523, 659, 784, 1047].forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.2);
+                }, i * 120);
+            });
+        } catch(e) {}
+    }
+
+    // Update achievement count in stats
+    function updateAchievementCount() {
+        try {
+            const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
+            const countEl = document.getElementById('achievementCount');
+            if (countEl) countEl.textContent = unlocked.length;
+        } catch(e) {}
+    }
+
+    // Check achievements every 10 seconds
+    setInterval(checkAchievements, 10000);
+
+    // Also check on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(checkAchievements, 1000);
+    });
+
+    // Check when progress updates
+    const origSetItem = localStorage.setItem;
+    localStorage.setItem = function(key, value) {
+        origSetItem.apply(this, arguments);
+        if (key === 'launchpad_progress') {
+            setTimeout(checkAchievements, 500);
+        }
+    };
+    // ============================================================
+    // UNIVERSAL SAVE SYSTEM - Auto & Manual Save
+    // ============================================================
+    
+    // Save system variables
+    let saveEnabled = true;
+    let saveInterval = null;
+    let lastSaveTime = 'Never';
+    
+    // ============================================================
+    // SAVE FUNCTIONS
+    // ============================================================
+    function saveGameData(gameId, data) {
+        try {
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '{}');
+            saves[gameId] = {
+                data: data,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('gameSaves', JSON.stringify(saves));
+            showSaveFeedback('✅ Saved!');
+            return true;
+        } catch(e) {
+            console.log('Save error:', e);
+            return false;
+        }
+    }
+    
+    function loadGameData(gameId) {
+        try {
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '{}');
+            if (saves[gameId]) {
+                return saves[gameId].data;
+            }
+        } catch(e) {
+            console.log('Load error:', e);
+        }
+        return null;
+    }
+    
+    function showSaveFeedback(message) {
+        let indicator = document.getElementById('saveIndicator');
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'saveIndicator';
+            indicator.style.cssText = `
+                text-align: center;
+                font-size: 11px;
+                color: #666;
+                padding: 6px 0;
+                margin-top: 8px;
+                border-top: 1px solid rgba(255,255,255,0.05);
+                transition: color 0.3s;
+                font-family: 'Segoe UI', sans-serif;
+            `;
+            const container = document.querySelector('.container') || document.querySelector('#app') || document.body;
+            container.appendChild(indicator);
+        }
+        
+        indicator.textContent = '💾 ' + message;
+        indicator.style.color = '#7cf5b0';
+        setTimeout(() => {
+            indicator.style.color = '#666';
+            const now = new Date();
+            indicator.textContent = '💾 Auto-saved at ' + now.toLocaleTimeString();
+        }, 2000);
+    }
+    
+    function manualSave() {
+        if (typeof saveGame === 'function') {
+            saveGame();
+            showSaveFeedback('✅ Manually saved!');
+            return true;
+        }
+        return false;
+    }
+    
+    // ============================================================
+    // AUTO-SAVE
+    // ============================================================
+    function startAutoSave(interval = 5000) {
+        if (saveInterval) clearInterval(saveInterval);
+        
+        saveInterval = setInterval(() => {
+            if (typeof saveGame === 'function') {
+                saveGame();
+            }
+        }, interval);
+        
+        console.log('💾 Auto-save started (every ' + (interval/1000) + 's)');
+    }
+    
+    // ============================================================
+    // KEYBOARD SHORTCUT - Ctrl+S
+    // ============================================================
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            if (typeof manualSave === 'function') {
+                manualSave();
+            }
+        }
+    });
+    
+    // ============================================================
+    // SAVE ON PAGE CLOSE
+    // ============================================================
+    window.addEventListener('beforeunload', function() {
+        if (typeof saveGame === 'function') {
+            saveGame();
+        }
+    });
+    
+    // ============================================================
+    // SAVE INDICATOR STYLES
+    // ============================================================
+    const saveStyles = document.createElement('style');
+    saveStyles.textContent = `
+        #saveIndicator {
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+            padding: 6px 0;
+            margin-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            transition: color 0.3s;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        #saveIndicator.saving {
+            color: #7cf5b0 !important;
+        }
+        .save-btn {
+            background: rgba(79,195,247,0.08);
+            border: 1px solid rgba(79,195,247,0.12);
+            color: #4fc3f7;
+            padding: 4px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Segoe UI', sans-serif;
+            transition: 0.2s;
+            margin: 2px;
+        }
+        .save-btn:hover {
+            background: rgba(79,195,247,0.15);
+        }
+    `;
+    document.head.appendChild(saveStyles);
+    
+    // ============================================================
+    // ADD MANUAL SAVE BUTTON
+    // ============================================================
+    function addSaveButton() {
+        const container = document.querySelector('.container') || document.querySelector('#app');
+        if (!container) return;
+        
+        // Check if button already exists
+        if (document.getElementById('manualSaveBtn')) return;
+        
+        const btn = document.createElement('button');
+        btn.id = 'manualSaveBtn';
+        btn.className = 'save-btn';
+        btn.textContent = '💾 Manual Save';
+        btn.onclick = function() {
+            if (typeof manualSave === 'function') {
+                manualSave();
+            }
+        };
+        
+        // Find footer or add at bottom
+        const footer = container.querySelector('.footer');
+        if (footer) {
+            const btnContainer = document.createElement('div');
+            btnContainer.style.cssText = 'margin-top: 6px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;';
+            btnContainer.appendChild(btn);
+            footer.appendChild(btnContainer);
+        } else {
+            container.appendChild(btn);
+        }
+    }
+    
+    // ============================================================
+    // INIT
+    // ============================================================
+    console.log('💾 Save system loaded!');
+    console.log('⌨️  Press Ctrl+S to save manually');
+    console.log('💾 Auto-save every 5 seconds');
+    
+    // Add save button when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(addSaveButton, 500);
+        if (typeof startAutoSave === 'function') {
+            startAutoSave(5000);
+        }
+    });
+    
+    // Also run immediately if DOM already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(addSaveButton, 500);
+        if (typeof startAutoSave === 'function') {
+            startAutoSave(5000);
+        }
+    }
+// ============================================================
+// AUTO-REFRESH ON PAGE LOAD (Ctrl+Shift+R effect)
+// ============================================================
+
+// Check if this is the first time loading
+function checkAndRefresh() {
+    const pageId = window.location.pathname.split('/').pop();
+    const key = 'refresh_' + pageId;
+    
+    // Check if we already refreshed this session
+    if (sessionStorage.getItem(key) === 'true') {
+        console.log('🔄 Already refreshed this session');
+        return;
+    }
+    
+    // Mark as refreshed
+    sessionStorage.setItem(key, 'true');
+    
+    // Show loading message
+    const container = document.querySelector('.container') || document.querySelector('#app') || document.body;
+    const msg = document.createElement('div');
+    msg.id = 'refreshMessage';
+    msg.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.85);
+        color: #7cf5b0;
+        padding: 20px 40px;
+        border-radius: 16px;
+        font-size: 18px;
+        font-weight: 700;
+        z-index: 99999;
+        font-family: 'Segoe UI', sans-serif;
+        text-align: center;
+        border: 2px solid #4fc3f7;
+        box-shadow: 0 0 60px rgba(79,195,247,0.2);
+    `;
+    msg.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 10px;">🔄</div>
+        <div>Refreshing game...</div>
+        <div style="font-size: 12px; color: #666; margin-top: 8px;">Loading latest version</div>
+    `;
+    document.body.appendChild(msg);
+    
+    // Perform a hard refresh (Ctrl+Shift+R equivalent)
+    setTimeout(() => {
+        // Clear all caches
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (let name of names) {
+                    caches.delete(name);
+                }
+            });
+        }
+        
+        // Force reload with cache-buster
+        const url = window.location.href.split('?')[0] + '?t=' + Date.now();
+        window.location.replace(url);
+    }, 1000);
+}
+
+// Run on page load
+if (document.readyState === 'complete') {
+    checkAndRefresh();
+} else {
+    document.addEventListener('DOMContentLoaded', checkAndRefresh);
+}
+
+// Also force refresh if user manually clicks
+console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
+</script>
+</body>
+</html>
+
+
+
+
 

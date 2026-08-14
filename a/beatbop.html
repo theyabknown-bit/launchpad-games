@@ -54,3 +54,4 @@ function playSound(type){try{let c=new(window.AudioContext||window.webkitAudioCo
 document.querySelectorAll('.difficulty-selector button').forEach(b=>{b.addEventListener('click',function(){document.querySelectorAll('.difficulty-selector button').forEach(x=>x.classList.remove('active'));this.classList.add('active');diff=this.dataset.diff;localStorage.setItem('beatbop_difficulty',diff);let s=JSON.parse(localStorage.getItem('beatbop_best')||'{}');bestScore=s[diff]||0;bestEl.textContent=bestScore||'-';resetGame()})});
 resetGame();console.log('🥁 Beat Bop Pro loaded');
 </script></body></html>
+

@@ -40,3 +40,4 @@ function playSound(type){try{let c=new(window.AudioContext||window.webkitAudioCo
 document.querySelectorAll('.difficulty-selector button').forEach(b=>{b.addEventListener('click',function(){document.querySelectorAll('.difficulty-selector button').forEach(x=>x.classList.remove('active'));this.classList.add('active');diff=this.dataset.diff;localStorage.setItem('reaction_difficulty',diff);let s=JSON.parse(localStorage.getItem('reaction_best')||'{}');bestTime=s[diff]||null;bestEl.textContent=bestTime!==null?bestTime:'-';resetGame()})});
 resetGame();console.log('⚡ Reaction Tap Pro loaded');
 </script></body></html>
+

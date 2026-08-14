@@ -51,3 +51,4 @@ function resetGame(){if(state.timerId)clearInterval(state.timerId);if(state.even
 function playSound(type){try{let c=new(window.AudioContext||window.webkitAudioContext),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);if(type==='build'){o.frequency.value=600;g.gain.value=.05;o.start();setTimeout(()=>{o.frequency.value=800},100);o.stop(c.currentTime+.2)}else if(type==='event'){o.frequency.value=500;g.gain.value=.06;o.start();setTimeout(()=>{o.frequency.value=400},100);o.stop(c.currentTime+.2)}}catch(e){}}
 loadState();updateUI();console.log('🌍 Planet Builder Pro loaded');
 </script></body></html>
+

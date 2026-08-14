@@ -42,3 +42,4 @@ document.getElementById('input').addEventListener('keydown',e=>{if(e.key==='Ente
 (function loadHistory(){try{let saved=localStorage.getItem('alienHistory');if(saved){let parsed=JSON.parse(saved);if(Array.isArray(parsed)&&parsed.length){history=parsed;renderHistory();updateStats()}}}catch(e){}})();
 renderLangs();updateStats();document.getElementById('funFact').innerHTML='💡 '+LANGUAGES[currentLang].fact;console.log('👽 Alien Translator Pro loaded');
 </script></body></html>
+

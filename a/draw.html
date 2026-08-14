@@ -49,3 +49,4 @@ function toggleTimer(){timerActive=!timerActive;timerLabel.textContent=timerActi
 function playSound(type){try{let c=new(window.AudioContext||window.webkitAudioContext),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=600;g.gain.value=.03;o.start();o.stop(c.currentTime+.05)}catch(e){}}
 initPalette();ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);saveState();console.log('🖌️ Draw It! Pro loaded');
 </script></body></html>
+

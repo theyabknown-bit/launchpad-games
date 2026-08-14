@@ -44,3 +44,4 @@ function playSound(type){try{let c=new(window.AudioContext||window.webkitAudioCo
 document.querySelectorAll('.difficulty-selector button').forEach(b=>{b.addEventListener('click',function(){document.querySelectorAll('.difficulty-selector button').forEach(x=>x.classList.remove('active'));this.classList.add('active');diff=this.dataset.diff;localStorage.setItem('typeracer_difficulty',diff);let s=JSON.parse(localStorage.getItem('typeracer_best')||'{}');bestWPM=s[diff]||0;document.getElementById('bestScore')?document.getElementById('bestScore').textContent=bestWPM||'-':null;resetGame()})});
 resetGame();console.log('⌨️ Type Racer Pro loaded');
 </script></body></html>
+

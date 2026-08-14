@@ -32,3 +32,4 @@ document.querySelectorAll('.difficulty-selector button').forEach(b=>{b.addEventL
 function playSound(type){try{let c=new(window.AudioContext||window.webkitAudioContext),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);if(type==='win'){o.frequency.value=600;g.gain.value=.08;o.start();setTimeout(()=>{o.frequency.value=800},150);setTimeout(()=>{o.frequency.value=1000},300);o.stop(c.currentTime+.5)}else if(type==='lose'){o.frequency.value=300;g.gain.value=.08;o.start();setTimeout(()=>{o.frequency.value=200},100);o.stop(c.currentTime+.4)}}catch(e){}}
 resetGame();console.log('🎵 Simon Says Pro loaded');
 </script></body></html>
+

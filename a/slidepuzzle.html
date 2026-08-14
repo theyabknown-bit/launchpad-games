@@ -43,3 +43,4 @@ function playSound(type){try{let c=new(window.AudioContext||window.webkitAudioCo
 function spawnConfetti(){let container=document.createElement('div');container.className='confetti';document.body.appendChild(container);let colors=['#4fc3f7','#7cf5b0','#ffd93d','#ff6b6b','#a29bfe'];for(let i=0;i<60;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'%';p.style.background=colors[Math.floor(Math.random()*colors.length)];p.style.width=(Math.random()*8+4)+'px';p.style.height=(Math.random()*8+4)+'px';p.style.animationDuration=(Math.random()*2+1.5)+'s';p.style.animationDelay=(Math.random()*.5)+'s';container.appendChild(p)}setTimeout(()=>{container.remove()},4000)}
 initGrid(size);shufflePuzzle();console.log('🧩 Slide Puzzle Pro loaded');
 </script></body></html>
+

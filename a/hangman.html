@@ -1,1393 +1,534 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel='stylesheet' href='../assets/css/game.css'>
-    <meta http-equiv="Content-Security-Policy" 
-      content="default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; 
-               script-src * 'self' 'unsafe-inline' 'unsafe-eval' data:; 'unsafe-eval'; 'unsafe-eval'; 
-               style-src * 'self' 'unsafe-inline'; 
-               img-src * 'self' data: https:; 
-               connect-src * 'self' https:; 
-               font-src * 'self' data:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🪢 Hangman</title>
+    <title>🔤 Hangman Pro</title>
+    <link rel="stylesheet" href="../assets/css/game.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0b1a26;
-            color: #d0e8f0;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
+        .game-container { text-align: center; }
+        .status-bar {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 20px;
-        }
-
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: #1a3344;
-            color: #4fc3f7;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 100;
-        }
-        .back-btn:hover {
-            background: #2a4a5e;
-            transform: translateX(-5px);
-            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
-        }
-
-        .container {
-            max-width: 600px;
-            width: 100%;
-            margin-top: 60px;
-            text-align: center;
-        }
-
-        h1 {
-            color: #4fc3f7;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(79, 195, 247, 0.3);
-        }
-        .subtitle {
-            color: #7cf5b0;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
         }
-        .stat-box {
-            background: #1a3344;
-            padding: 10px 20px;
-            border-radius: 10px;
-            min-width: 80px;
-        }
-        .stat-box span {
-            color: #4fc3f7;
-            font-weight: bold;
-            font-size: 1.2rem;
-            display: block;
-        }
-        .stat-box .label {
-            color: #8899aa;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-        }
-
-        .hangman-display {
-            font-size: 4rem;
+        .status-bar .stat { color: #8899aa; font-size: 0.9rem; }
+        .status-bar .stat span { color: #d0e8f0; font-weight: 700; }
+        .word-display {
+            font-size: 2.5rem;
+            letter-spacing: 8px;
             font-family: 'Courier New', monospace;
-            background: #0f1f2e;
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px solid #1a3344;
-            min-height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 10px 0;
-            line-height: 1.5;
-            letter-spacing: 5px;
-            color: #4fc3f7;
+            margin: 15px 0;
+            color: #d0e8f0;
+            text-shadow: 0 0 20px rgba(79,195,247,0.1);
         }
-
-        .hangman-display .revealed {
-            color: #7cf5b0;
+        .hint-area {
+            color: #8899aa;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
         }
-
-        .hangman-display .hidden {
-            color: #2a4a5e;
-        }
-
-        .hangman-display .space {
-            letter-spacing: 10px;
-        }
-
-        .message {
-            font-size: 1.2rem;
-            min-height: 40px;
-            color: #ffd93d;
-            font-weight: 600;
-            margin: 10px 0;
-        }
-        .message.error {
-            color: #ff6b6b;
-        }
-        .message.success {
-            color: #7cf5b0;
-        }
-
         .keyboard {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
+            gap: 6px;
             max-width: 500px;
             margin: 15px auto;
         }
-
-        .key {
-            background: #1a3344;
-            border: 2px solid #2a4a5e;
-            color: #d0e8f0;
-            padding: 12px 8px;
+        .keyboard button {
+            padding: 10px 0;
             border-radius: 8px;
+            border: 2px solid rgba(79,195,247,0.1);
+            background: rgba(0,0,0,0.3);
+            color: #d0e8f0;
+            font-size: 1.1rem;
             cursor: pointer;
-            font-size: 1.2rem;
+            transition: 0.2s;
             font-weight: 700;
-            transition: all 0.2s ease;
-            touch-action: manipulation;
-            text-transform: uppercase;
         }
-        .key:hover {
-            background: #2a4a5e;
-            border-color: #4fc3f7;
-            transform: translateY(-2px);
+        .keyboard button:hover { border-color: #4fc3f7; background: rgba(79,195,247,0.05); }
+        .keyboard button.used { opacity: 0.3; cursor: default; }
+        .keyboard button.correct { border-color: #7cf5b0; background: rgba(124,245,176,0.1); }
+        .keyboard button.wrong { border-color: #ff6b6b; background: rgba(255,107,107,0.1); }
+        .controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 15px 0; }
+        .controls button { background: rgba(255,255,255,0.05); color: #d0e8f0; border: 1px solid rgba(255,255,255,0.1); }
+        .difficulty-selector { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+        .difficulty-selector button { background: rgba(255,255,255,0.05); color: #d0e8f0; border: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; padding: 6px 16px; }
+        .difficulty-selector button.active { background: #4fc3f7; color: #0b1a26; border-color: #4fc3f7; }
+        .category-selector { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+        .category-selector button { background: rgba(255,255,255,0.03); color: #8899aa; border: 1px solid rgba(255,255,255,0.05); font-size: 0.7rem; padding: 4px 12px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .category-selector button.active { background: rgba(79,195,247,0.1); color: #4fc3f7; border-color: #4fc3f7; }
+        #message { min-height: 2rem; font-size: 1rem; }
+        .guesses-left { color: #ffd93d; font-weight: 700; }
+        .hint-btn { background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.2); color: #ffd93d; padding: 6px 16px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+        .hint-btn:hover { background: rgba(255,215,0,0.2); }
+        .letter-pop {
+            animation: popLetter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .key:active {
-            transform: scale(0.92);
+        @keyframes popLetter {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
-        .key.used {
-            background: #1a1a2e;
-            border-color: #1a3344;
-            color: #4a6a8a;
-            cursor: not-allowed;
-            opacity: 0.5;
-            transform: none !important;
-        }
-        .key.correct {
-            background: #1a4a3a;
-            border-color: #7cf5b0;
-            color: #7cf5b0;
-        }
-        .key.wrong {
-            background: #3a1a1a;
-            border-color: #ff6b6b;
-            color: #ff6b6b;
-        }
-
-        .word-hint {
-            color: #8899aa;
-            font-size: 0.9rem;
-            margin: 5px 0;
-        }
-
-        .controls {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            background: #1a3344;
-            color: #d0e8f0;
-            border: 2px solid #2a4a5e;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        .btn:hover {
-            background: #2a4a5e;
-            border-color: #4fc3f7;
-            transform: translateY(-2px);
-        }
-        .btn-primary {
-            background: #4fc3f7;
-            color: #0b1a26;
-            border-color: #4fc3f7;
-        }
-        .btn-primary:hover {
-            background: #7cf5b0;
-            border-color: #7cf5b0;
-        }
-        .btn-danger {
-            background: #ff6b6b;
-            color: #0b1a26;
-            border-color: #ff6b6b;
-        }
-        .btn-danger:hover {
-            background: #ff4444;
-            border-color: #ff4444;
-        }
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .category-select {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 10px 0;
-            flex-wrap: wrap;
-        }
-        .category-select .btn {
-            font-size: 0.8rem;
-            padding: 8px 18px;
-        }
-        .category-select .btn.active {
-            background: #4fc3f7;
-            color: #0b1a26;
-            border-color: #4fc3f7;
-        }
-
-        .input-area {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 10px 0;
-            flex-wrap: wrap;
-        }
-        .input-area input {
-            background: #1a3344;
-            border: 2px solid #2a4a5e;
-            color: #d0e8f0;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            text-align: center;
-            text-transform: uppercase;
-            width: 60px;
-            outline: none;
-        }
-        .input-area input:focus {
-            border-color: #4fc3f7;
-        }
-        .input-area input:disabled {
-            opacity: 0.5;
-        }
-
-        @media (max-width: 480px) {
-            .keyboard { grid-template-columns: repeat(6, 1fr); gap: 5px; }
-            .key { padding: 10px 5px; font-size: 1rem; }
-            h1 { font-size: 2rem; }
-            .hangman-display { font-size: 2.5rem; padding: 15px; min-height: 80px; }
-            .stats { gap: 15px; }
-            .stat-box { padding: 8px 15px; min-width: 60px; }
-            .back-btn { font-size: 12px; padding: 8px 14px; top: 10px; left: 10px; }
-        }
+        @media (max-width: 500px) { .keyboard { grid-template-columns: repeat(7, 1fr); } .word-display { font-size: 1.8rem; letter-spacing: 4px; } }
     </style>
-<script>
-// Suppress unload violation warnings
-(function() {
-    var ow = console.warn;
-    console.warn = function() {
-        if (arguments.length && typeof arguments[0] === "string" && arguments[0].includes("unload is not allowed")) {
-            return;
-        }
-        ow.apply(console, arguments);
-    };
-})();
-</script>
 </head>
 <body>
-<div class='game-container'>
+<div class="game-container">
     <a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a>
+    <h1 class="game-title">🔤 Hangman Pro</h1>
 
-    <a href="../base.html" class="back-btn">
-        <i class="fas fa-arrow-left"></i> Back
-    </a>
-
-    <div class="container">
-        <h1><i class="fas fa-gavel" style="color: #ff6b6b;"></i> Hangman</h1>
-        <p class="subtitle">Guess the word!</p>
-
-        <div class="stats">
-            <div class="stat-box">
-                <span id="score">0</span>
-                <span class="label">Score</span>
-            </div>
-            <div class="stat-box">
-                <span id="wins">0</span>
-                <span class="label">Wins</span>
-            </div>
-            <div class="stat-box">
-                <span id="losses">0</span>
-                <span class="label">Losses</span>
-            </div>
-            <div class="stat-box">
-                <span id="wrongGuesses">0/6</span>
-                <span class="label">Wrong</span>
-            </div>
-        </div>
-
-        <div class="message" id="message">🎯 Guess a letter!</div>
-
-        <div class="word-hint" id="hint">Category: <span style="color:#4fc3f7;">Random</span></div>
-
-        <div class="hangman-display" id="wordDisplay"></div>
-
-        <div class="input-area">
-            
-        param($m)
-        $tag = $m.Groups[0].Value
-        $attrs = $m.Groups[1].Value
-        if ($attrs -match 'id\s*=\s*"([^"]+)"') {
-            $id = $matches[1]
-            # Check if a label already exists for this id
-            if ($content -notmatch "<label[^>]*for\s*=\s*[""']$id[""']") {
-                $label = "<label for='$id'>$id</label>`n    "
-                return "$label$tag"
-            }
-        }
-        return $tag
-    
-            <button class="btn btn-primary" id="guessBtn">Guess</button>
-        </div>
-
-        <div class="keyboard" id="keyboard"></div>
-
-        <div class="category-select">
-            <button class="btn active" data-category="all" onclick="setCategory('all', this)">🎯 All</button>
-            <button class="btn" data-category="animals" onclick="setCategory('animals', this)">🐾 Animals</button>
-            <button class="btn" data-category="food" onclick="setCategory('food', this)">🍕 Food</button>
-            <button class="btn" data-category="space" onclick="setCategory('space', this)">🚀 Space</button>
-            <button class="btn" data-category="movies" onclick="setCategory('movies', this)">🎬 Movies</button>
-        </div>
-
-        <div class="controls">
-            <button class="btn btn-primary" id="newGameBtn" onclick="newGame()">
-                <i class="fas fa-play"></i> New Game
-            </button>
-            <button class="btn btn-danger" onclick="resetStats()">
-                <i class="fas fa-redo"></i> Reset Stats
-            </button>
-        </div>
+    <!-- Difficulty -->
+    <div class="difficulty-selector">
+        <button data-diff="easy">Easy</button>
+        <button data-diff="medium" class="active">Medium</button>
+        <button data-diff="hard">Hard</button>
     </div>
 
-    <script>
-    // Game-specific save function - override this in your game
-    function saveGame() {
-        // For games with their own save system, this will be overridden
-        // For games without, it does nothing
-        console.log('💾 Save called but no game-specific save implemented');
-        return true;
-    }
-    // ============================================================
-    // FIXED SOUND SYSTEM - WORKS ON FIRST CLICK
-    // ============================================================
-    let soundEnabled = true;
-    let audioCtx = null;
-    let audioUnlocked = false;
+    <!-- Category -->
+    <div class="category-selector" id="categorySelector">
+        <button data-cat="all" class="active">All</button>
+        <button data-cat="animals">🐾 Animals</button>
+        <button data-cat="countries">🌍 Countries</button>
+        <button data-cat="food">🍕 Food</button>
+        <button data-cat="movies">🎬 Movies</button>
+        <button data-cat="science">🔬 Science</button>
+    </div>
 
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            audioUnlocked = true;
-            console.log('🔊 Audio unlocked!');
-        } catch(e) { console.log('Audio error:', e); }
-    }
+    <!-- Status -->
+    <div class="status-bar">
+        <div class="stat">🏆 Score: <span id="score">0</span></div>
+        <div class="stat">🏅 Best: <span id="bestScore">-</span></div>
+        <div class="stat">❌ Guesses: <span class="guesses-left" id="guessesLeft">6</span></div>
+        <div class="stat">📊 Words: <span id="wordsDone">0</span></div>
+    </div>
 
-    // Unlock audio on any click
-    document.addEventListener('click', unlockAudio, { once: false });
-    document.addEventListener('touchstart', unlockAudio, { once: false });
-    document.addEventListener('keydown', unlockAudio, { once: false });
+    <!-- Word Display -->
+    <div class="word-display" id="wordDisplay">_ _ _ _ _</div>
 
-    function getAudioCtx() {
-        if (!audioCtx) {
-            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        return audioCtx;
-    }
+    <div class="hint-area">
+        <span id="hintText">💡 Category: <span id="categoryDisplay">All</span></span>
+        <button class="hint-btn" onclick="useHint()">💡 Reveal Letter</button>
+    </div>
 
-    function playTone(frequency, duration = 150, type = 'sine') {
-        if (!soundEnabled) return;
-        try {
-            const ctx = getAudioCtx();
-            if (!ctx) return;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = type;
-            osc.frequency.value = frequency;
-            gain.gain.setValueAtTime(0.12, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + duration / 1000);
-        } catch(e) { console.log('Play error:', e); }
-    }
+    <!-- Keyboard -->
+    <div class="keyboard" id="keyboard"></div>
 
-    function playClick() { playTone(600, 80); }
-    function playWin() { 
-        playTone(523, 150); 
-        setTimeout(() => playTone(659, 150), 150); 
-        setTimeout(() => playTone(784, 200), 300); 
-    }
-    function playLose() { 
-        playTone(300, 200); 
-        setTimeout(() => playTone(200, 300), 200); 
-    }
-    function playCorrect() { playTone(800, 100); }
-    function playWrong() { playTone(250, 200); }
-    function playLevelUp() { 
-        playTone(440, 100); 
-        setTimeout(() => playTone(523, 100), 100); 
-        setTimeout(() => playTone(659, 150), 200); 
-    }
-        // ============================================
-        // SAVE SYSTEM (Universal)
-        // ============================================
-        function loadGameState(gameId) {
-            try {
-                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
-                if (save.gameStates && save.gameStates[gameId]) {
-                    return save.gameStates[gameId].data;
-                }
-            } catch(e) { return null; }
-            return null;
-        }
+    <div id="message">🔤 Guess a letter to start!</div>
 
-        function saveGameState(gameId, stateData) {
-            try {
-                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
-                if (!save.gameStates) save.gameStates = {};
-                save.gameStates[gameId] = { data: stateData, timestamp: new Date().toISOString() };
-                localStorage.setItem('launchpad_progress', JSON.stringify(save));
-                return true;
-            } catch(e) { return false; }
-        }
-
-        function updateGameProgress(gameId) {
-            try {
-                var save = JSON.parse(localStorage.getItem('launchpad_progress') || '{}');
-                if (!save.games) save.games = {};
-                if (!save.games[gameId]) save.games[gameId] = { played: false, xp: 0 };
-                var game = save.games[gameId];
-                if (!game.played) { game.played = true; save.gamesPlayed = (save.gamesPlayed || 0) + 1; }
-                game.xp = (game.xp || 0) + 1;
-                var totalXp = 0, gamesPlayed = 0;
-                Object.values(save.games).forEach(function(g) { totalXp += (g.xp || 0); if (g.played) gamesPlayed++; });
-                save.totalXp = totalXp;
-                save.gamesPlayed = gamesPlayed;
-                localStorage.setItem('launchpad_progress', JSON.stringify(save));
-            } catch(e) {}
-        }
-
-        // ============================================
-        // HANGMAN GAME
-        // ============================================
-        const GAME_ID = 'hangman';
-
-        // Word lists by category
-        const WORDS = {
-            animals: ['elephant', 'giraffe', 'dolphin', 'penguin', 'crocodile', 'butterfly', 'kangaroo', 'panther', 'cheetah', 'zebra', 'tiger', 'lion', 'bear', 'fox', 'wolf', 'eagle', 'shark', 'whale', 'snake', 'rabbit'],
-            food: ['pizza', 'burger', 'sushi', 'taco', 'pasta', 'pancake', 'waffle', 'bacon', 'cheese', 'chocolate', 'vanilla', 'strawberry', 'pineapple', 'watermelon', 'popcorn', 'donut', 'cookie', 'cake', 'pie', 'fries'],
-            space: ['astronaut', 'galaxy', 'nebula', 'comet', 'asteroid', 'satellite', 'telescope', 'universe', 'planet', 'star', 'moon', 'sun', 'mars', 'jupiter', 'saturn', 'venus', 'mercury', 'orbit', 'gravity', 'rocket'],
-            movies: ['starwars', 'avatar', 'titanic', 'matrix', 'gladiator', 'inception', 'interstellar', 'jaws', 'rocky', 'batman', 'superman', 'spiderman', 'ironman', 'hulk', 'thor', 'wonder', 'frozen', 'moana', 'lionking', 'aladdin']
-        };
-
-        let currentCategory = 'all';
-        let allWords = [];
-        let currentWord = '';
-        let guessedLetters = [];
-        let wrongGuesses = 0;
-        const MAX_WRONG = 6;
-        let score = 0;
-        let wins = 0;
-        let losses = 0;
-        let gameActive = false;
-
-        // Load stats
-        function loadStats() {
-            try {
-                const data = JSON.parse(localStorage.getItem('hangmanStats') || '{"score":0,"wins":0,"losses":0}');
-                score = data.score || 0;
-                wins = data.wins || 0;
-                losses = data.losses || 0;
-            } catch(e) {
-                score = 0;
-                wins = 0;
-                losses = 0;
-            }
-        }
-
-        function saveStats() {
-            localStorage.setItem('hangmanStats', JSON.stringify({ score, wins, losses }));
-        }
-
-        function updateStatsUI() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('wins').textContent = wins;
-            document.getElementById('losses').textContent = losses;
-            document.getElementById('wrongGuesses').textContent = wrongGuesses + '/' + MAX_WRONG;
-        }
-
-        function getWordList() {
-            if (currentCategory === 'all') {
-                let all = [];
-                Object.values(WORDS).forEach(list => all = all.concat(list));
-                return all;
-            }
-            return WORDS[currentCategory] || WORDS['animals'];
-        }
-
-        function setCategory(category, btn) {
-            currentCategory = category;
-            document.querySelectorAll('.category-select .btn').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-            document.getElementById('hint').innerHTML = 'Category: <span style="color:#4fc3f7;">' + category.charAt(0).toUpperCase() + category.slice(1) + '</span>';
-            newGame();
-        }
-
-        function newGame() {
-            updateGameProgress(GAME_ID);
-            const words = getWordList();
-            currentWord = words[Math.floor(Math.random() * words.length)].toUpperCase();
-            guessedLetters = [];
-            wrongGuesses = 0;
-            gameActive = true;
-            document.getElementById('letterInput').disabled = false;
-            document.getElementById('guessBtn').disabled = false;
-            document.getElementById('letterInput').value = '';
-            document.getElementById('letterInput').focus();
-            setMessage('🎯 Guess a letter!', '');
-            renderKeyboard();
-            renderWordDisplay();
-            updateStatsUI();
-            saveGameState(GAME_ID, { word: currentWord, guessed: guessedLetters, wrong: wrongGuesses });
-        }
-
-        function renderWordDisplay() {
-            const display = document.getElementById('wordDisplay');
-            let html = '';
-            for (let i = 0; i < currentWord.length; i++) {
-                const letter = currentWord[i];
-                if (letter === ' ') {
-                    html += '&nbsp;&nbsp;';
-                } else if (guessedLetters.includes(letter)) {
-                    html += '<span class="revealed">' + letter + '</span>';
-                } else {
-                    html += '<span class="hidden">_</span>';
-                }
-            }
-            display.innerHTML = html;
-        }
-
-        function renderKeyboard() {
-            const keyboard = document.getElementById('keyboard');
-            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            keyboard.innerHTML = '';
-            for (let char of letters) {
-                const key = document.createElement('button');
-                key.className = 'key';
-                key.textContent = char;
-                key.dataset.letter = char;
-                if (guessedLetters.includes(char)) {
-                    key.classList.add('used');
-                    if (currentWord.includes(char)) {
-                        key.classList.add('correct');
-                    } else {
-                        key.classList.add('wrong');
-                    }
-                }
-                key.addEventListener('click', function() {
-                    guessLetter(char);
-                });
-                keyboard.appendChild(key);
-            }
-        }
-
-        function guessLetter(letter) {
-            if (!gameActive) return;
-            if (guessedLetters.includes(letter)) return;
-
-            guessedLetters.push(letter);
-
-            if (currentWord.includes(letter)) {
-                // Correct guess
-                playTone(500);
-                setMessage('✅ Good guess!', 'success');
-                renderWordDisplay();
-                renderKeyboard();
-
-                // Check if won
-                let allGuessed = true;
-                for (let char of currentWord) {
-                    if (char !== ' ' && !guessedLetters.includes(char)) {
-                        allGuessed = false;
-                        break;
-                    }
-                }
-
-                if (allGuessed) {
-                    winGame();
-                }
-            } else {
-                // Wrong guess
-                wrongGuesses++;
-                playTone(200);
-                setMessage('❌ Wrong!', 'error');
-                renderKeyboard();
-                updateStatsUI();
-
-                if (wrongGuesses >= 6) {
-                    loseGame();
-                }
-            }
-            saveGameState(GAME_ID, { word: currentWord, guessed: guessedLetters, wrong: wrongGuesses });
-        }
-
-        function winGame() {
-            gameActive = false;
-            const points = Math.max(10, currentWord.length * 5);
-            score += points;
-            wins++;
-            setMessage('🎉 You won! +' + points + ' points!', 'success');
-            document.getElementById('letterInput').disabled = true;
-            document.getElementById('guessBtn').disabled = true;
-            saveStats();
-            updateStatsUI();
-            playTone(800);
-            setTimeout(() => playTone(1000), 150);
-            setTimeout(() => playTone(1200), 300);
-        }
-
-        function loseGame() {
-            gameActive = false;
-            losses++;
-            setMessage('💀 Game Over! The word was: ' + currentWord, 'error');
-            document.getElementById('letterInput').disabled = true;
-            document.getElementById('guessBtn').disabled = true;
-            renderWordDisplay();
-            saveStats();
-            updateStatsUI();
-            // Reveal all letters
-            const display = document.getElementById('wordDisplay');
-            let html = '';
-            for (let char of currentWord) {
-                html += '<span class="revealed">' + char + '</span>';
-            }
-            display.innerHTML = html;
-            playTone(150);
-            setTimeout(() => playTone(120), 200);
-        }
-
-        function setMessage(text, type = '') {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.className = 'message ' + type;
-        }
-
-        function resetStats() {
-            if (!confirm('Reset all stats?')) return;
-            score = 0;
-            wins = 0;
-            losses = 0;
-            saveStats();
-            updateStatsUI();
-            setMessage('🔄 Stats reset!', '');
-            newGame();
-        }
-
-        // ============================================
-        // SOUND EFFECTS
-        // ============================================
-        let audioCtx = null;
-
-        function getAudioCtx() {
-            if (!audioCtx) {
-                try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-            }
-            return audioCtx;
-        }
-
-        function playTone(frequency, duration = 0.15) {
-            try {
-                const ctx = getAudioCtx();
-                if (!ctx) return;
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-                gain.gain.setValueAtTime(0.15, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(ctx.currentTime);
-                osc.stop(ctx.currentTime + duration);
-            } catch(e) {}
-        }
-
-        // ============================================
-        // EVENT LISTENERS
-        // ============================================
-        document.getElementById('guessBtn').addEventListener('click', function() {
-            const input = document.getElementById('letterInput');
-            const letter = input.value.toUpperCase().trim();
-            if (letter && letter.length === 1 && letter.match(/[A-Z]/)) {
-                guessLetter(letter);
-                input.value = '';
-                input.focus();
-            }
-        });
-
-        document.getElementById('letterInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('guessBtn').click();
-            }
-            if (e.key === 'Backspace') {
-                this.value = '';
-            }
-            // Auto-uppercase
-            this.value = this.value.toUpperCase();
-        });
-
-        document.getElementById('letterInput').addEventListener('input', function() {
-            this.value = this.value.toUpperCase().replace(/[^A-Z]/g, '');
-        });
-
-        document.addEventListener('keydown', function(e) {
-            // Keyboard shortcuts for letters (A-Z)
-            if (e.key.length === 1 && e.key.match(/[a-zA-Z]/) && gameActive && !e.ctrlKey && !e.metaKey) {
-                const letter = e.key.toUpperCase();
-                if (!guessedLetters.includes(letter)) {
-                    guessLetter(letter);
-                }
-            }
-            // N for new game
-            if (e.key === 'n' || e.key === 'N') {
-                e.preventDefault();
-                newGame();
-            }
-            // R for reset stats
-            if (e.key === 'r' || e.key === 'R') {
-                e.preventDefault();
-                resetStats();
-            }
-        });
-
-        // ============================================
-        // LOAD SAVED GAME
-        // ============================================
-        function loadSavedGame() {
-            const state = loadGameState(GAME_ID);
-            if (state && state.word) {
-                currentWord = state.word;
-                guessedLetters = state.guessed || [];
-                wrongGuesses = state.wrong || 0;
-                gameActive = wrongGuesses < MAX_WRONG;
-                renderWordDisplay();
-                renderKeyboard();
-                updateStatsUI();
-                document.getElementById('letterInput').disabled = !gameActive;
-                document.getElementById('guessBtn').disabled = !gameActive;
-                if (!gameActive) {
-                    if (currentWord.split('').every(c => guessedLetters.includes(c) || c === ' ')) {
-                        setMessage('🎉 You won! Press New Game.', 'success');
-                    } else {
-                        setMessage('💀 Game Over! The word was: ' + currentWord, 'error');
-                        // Reveal word
-                        const display = document.getElementById('wordDisplay');
-                        let html = '';
-                        for (let char of currentWord) {
-                            html += '<span class="revealed">' + char + '</span>';
-                        }
-                        display.innerHTML = html;
-                    }
-                }
-                return true;
-            }
-            return false;
-        }
-
-        // ============================================
-        // INIT
-        // ============================================
-        function init() {
-            loadStats();
-            updateStatsUI();
-            if (!loadSavedGame()) {
-                newGame();
-            }
-            document.getElementById('letterInput').focus();
-        }
-
-        // Make functions global
-        window.newGame = newGame;
-        window.setCategory = setCategory;
-        window.resetStats = resetStats;
-        window.guessLetter = guessLetter;
-
-        // Start
-        init();
-        // ============================================================
-    // ACHIEVEMENT POPUP SYSTEM - WORKS EVERYWHERE
-    // ============================================================
-    
-    // Check achievements and show popup
-    function checkAchievements() {
-        try {
-            const progress = JSON.parse(localStorage.getItem('launchpad_progress') || '{"games":{},"totalXp":0,"gamesPlayed":0}');
-            const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
-            let newAchievements = [];
-
-            // First game
-            if (progress.gamesPlayed >= 1 && !unlocked.includes('first_game')) {
-                newAchievements.push('first_game');
-                showAchievementPopup('🎮', 'First Game!', 'Played your first game!');
-            }
-
-            // Game master (10 games)
-            if (progress.gamesPlayed >= 10 && !unlocked.includes('game_master')) {
-                newAchievements.push('game_master');
-                showAchievementPopup('👑', 'Game Master!', 'Played 10 games!');
-            }
-
-            // XP collector
-            if (progress.totalXp >= 100 && !unlocked.includes('xp_collector')) {
-                newAchievements.push('xp_collector');
-                showAchievementPopup('⭐', 'XP Collector!', 'Earned 100 XP!');
-            }
-
-            // Level up
-            const level = Math.floor((progress.totalXp || 0) / 100) + 1;
-            if (level >= 5 && !unlocked.includes('level_up')) {
-                newAchievements.push('level_up');
-                showAchievementPopup('🏅', 'Level Up!', 'Reached Level 5!');
-            }
-
-            // Save new achievements
-            if (newAchievements.length > 0) {
-                const all = [...unlocked, ...newAchievements];
-                localStorage.setItem('launchpad_achievements', JSON.stringify(all));
-                updateAchievementCount();
-            }
-
-            return newAchievements;
-        } catch(e) { return []; }
-    }
-
-    // Show achievement popup
-    function showAchievementPopup(emoji, title, desc) {
-        try { playAchievement(); } catch(e) {}
-        // Check if popup already exists
-        let popup = document.getElementById('achievementPopupGlobal');
-        if (!popup) {
-            popup = document.createElement('div');
-            popup.id = 'achievementPopupGlobal';
-            popup.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: rgba(18, 16, 30, 0.96);
-                backdrop-filter: blur(20px);
-                border: 2px solid #7cf5b0;
-                border-radius: 16px;
-                padding: 16px 24px;
-                max-width: 350px;
-                z-index: 99999;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-                display: none;
-                animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                color: #d0e8f0;
-                font-family: 'Segoe UI', Roboto, sans-serif;
-            `;
-            document.body.appendChild(popup);
-            
-            // Add animation styles
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-                @keyframes pulseGold {
-                    0%, 100% { box-shadow: 0 0 20px rgba(124, 245, 176, 0.1); }
-                    50% { box-shadow: 0 0 40px rgba(124, 245, 176, 0.3); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        // Fill popup content
-        popup.innerHTML = `
-            <div style="display:flex;align-items:center;gap:14px;">
-                <div style="font-size:2.8rem;line-height:1;">${emoji}</div>
-                <div>
-                    <div style="color:#7cf5b0;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;">🏆 Achievement Unlocked!</div>
-                    <div style="color:#f0f8ff;font-weight:700;font-size:1.1rem;">${title}</div>
-                    <div style="color:#8899aa;font-size:0.85rem;">${desc}</div>
-                </div>
-            </div>
-            <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;">
-                <button onclick="document.getElementById('achievementPopupGlobal').style.display='none'" style="
-                    background:rgba(255,255,255,0.05);
-                    border:1px solid rgba(255,255,255,0.1);
-                    color:#8899aa;
-                    padding:4px 14px;
-                    border-radius:20px;
-                    cursor:pointer;
-                    font-size:0.7rem;
-                    font-family:'Segoe UI',sans-serif;
-                ">Dismiss</button>
-            </div>
-        `;
-
-        // Show popup
-        popup.style.display = 'block';
-        popup.style.animation = 'slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-
-        // Auto-hide after 6 seconds
-        clearTimeout(popup._timeout);
-        popup._timeout = setTimeout(() => {
-            popup.style.animation = 'slideOutRight 0.4s ease-in';
-            setTimeout(() => {
-                popup.style.display = 'none';
-                popup.style.animation = '';
-            }, 400);
-        }, 6000);
-
-        // Play sound
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            [523, 659, 784, 1047].forEach((freq, i) => {
-                setTimeout(() => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.2);
-                }, i * 120);
-            });
-        } catch(e) {}
-    }
-
-    // Update achievement count in stats
-    function updateAchievementCount() {
-        try {
-            const unlocked = JSON.parse(localStorage.getItem('launchpad_achievements') || '[]');
-            const countEl = document.getElementById('achievementCount');
-            if (countEl) countEl.textContent = unlocked.length;
-        } catch(e) {}
-    }
-
-    // Check achievements every 10 seconds
-    setInterval(checkAchievements, 10000);
-
-    // Also check on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(checkAchievements, 1000);
-    });
-
-    // Check when progress updates
-    const origSetItem = localStorage.setItem;
-    localStorage.setItem = function(key, value) {
-        origSetItem.apply(this, arguments);
-        if (key === 'launchpad_progress') {
-            setTimeout(checkAchievements, 500);
-        }
-    };
-    // ============================================================
-    // UNIVERSAL SAVE SYSTEM - Auto & Manual Save
-    // ============================================================
-    
-    // Save system variables
-    let saveEnabled = true;
-    let saveInterval = null;
-    let lastSaveTime = 'Never';
-    
-    // ============================================================
-    // SAVE FUNCTIONS
-    // ============================================================
-    function saveGameData(gameId, data) {
-        try {
-            const saves = JSON.parse(localStorage.getItem('gameSaves') || '{}');
-            saves[gameId] = {
-                data: data,
-                timestamp: Date.now()
-            };
-            localStorage.setItem('gameSaves', JSON.stringify(saves));
-            showSaveFeedback('✅ Saved!');
-            return true;
-        } catch(e) {
-            console.log('Save error:', e);
-            return false;
-        }
-    }
-    
-    function loadGameData(gameId) {
-        try {
-            const saves = JSON.parse(localStorage.getItem('gameSaves') || '{}');
-            if (saves[gameId]) {
-                return saves[gameId].data;
-            }
-        } catch(e) {
-            console.log('Load error:', e);
-        }
-        return null;
-    }
-    
-    function showSaveFeedback(message) {
-        let indicator = document.getElementById('saveIndicator');
-        if (!indicator) {
-            indicator = document.createElement('div');
-            indicator.id = 'saveIndicator';
-            indicator.style.cssText = `
-                text-align: center;
-                font-size: 11px;
-                color: #666;
-                padding: 6px 0;
-                margin-top: 8px;
-                border-top: 1px solid rgba(255,255,255,0.05);
-                transition: color 0.3s;
-                font-family: 'Segoe UI', sans-serif;
-            `;
-            const container = document.querySelector('.container') || document.querySelector('#app') || document.body;
-            container.appendChild(indicator);
-        }
-        
-        indicator.textContent = '💾 ' + message;
-        indicator.style.color = '#7cf5b0';
-        setTimeout(() => {
-            indicator.style.color = '#666';
-            const now = new Date();
-            indicator.textContent = '💾 Auto-saved at ' + now.toLocaleTimeString();
-        }, 2000);
-    }
-    
-    function manualSave() {
-        if (typeof saveGame === 'function') {
-            saveGame();
-            showSaveFeedback('✅ Manually saved!');
-            return true;
-        }
-        return false;
-    }
-    
-    // ============================================================
-    // AUTO-SAVE
-    // ============================================================
-    function startAutoSave(interval = 5000) {
-        if (saveInterval) clearInterval(saveInterval);
-        
-        saveInterval = setInterval(() => {
-            if (typeof saveGame === 'function') {
-                saveGame();
-            }
-        }, interval);
-        
-        console.log('💾 Auto-save started (every ' + (interval/1000) + 's)');
-    }
-    
-    // ============================================================
-    // KEYBOARD SHORTCUT - Ctrl+S
-    // ============================================================
-    document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            if (typeof manualSave === 'function') {
-                manualSave();
-            }
-        }
-    });
-    
-    // ============================================================
-    // SAVE ON PAGE CLOSE
-    // ============================================================
-    window.addEventListener('beforebeforebeforeunload', function() {
-        if (typeof saveGame === 'function') {
-            saveGame();
-        }
-    });
-    
-    // ============================================================
-    // SAVE INDICATOR STYLES
-    // ============================================================
-    const saveStyles = document.createElement('style');
-    saveStyles.textContent = `
-        #saveIndicator {
-            text-align: center;
-            font-size: 11px;
-            color: #666;
-            padding: 6px 0;
-            margin-top: 8px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            transition: color 0.3s;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        #saveIndicator.saving {
-            color: #7cf5b0 !important;
-        }
-        .save-btn {
-            background: rgba(79,195,247,0.08);
-            border: 1px solid rgba(79,195,247,0.12);
-            color: #4fc3f7;
-            padding: 4px 18px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: 'Segoe UI', sans-serif;
-            transition: 0.2s;
-            margin: 2px;
-        }
-        .save-btn:hover {
-            background: rgba(79,195,247,0.15);
-        }
-    `;
-    document.head.appendChild(saveStyles);
-    
-    // ============================================================
-    // ADD MANUAL SAVE BUTTON
-    // ============================================================
-    function addSaveButton() {
-        const container = document.querySelector('.container') || document.querySelector('#app');
-        if (!container) return;
-        
-        // Check if button already exists
-        if (document.getElementById('manualSaveBtn')) return;
-        
-        const btn = document.createElement('button');
-        btn.id = 'manualSaveBtn';
-        btn.className = 'save-btn';
-        btn.textContent = '💾 Manual Save';
-        btn.onclick = function() {
-            if (typeof manualSave === 'function') {
-                manualSave();
-            }
-        };
-        
-        // Find footer or add at bottom
-        const footer = container.querySelector('.footer');
-        if (footer) {
-            const btnContainer = document.createElement('div');
-            btnContainer.style.cssText = 'margin-top: 6px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;';
-            btnContainer.appendChild(btn);
-            footer.appendChild(btnContainer);
-        } else {
-            container.appendChild(btn);
-        }
-    }
-    
-    // ============================================================
-    // INIT
-    // ============================================================
-    console.log('💾 Save system loaded!');
-    console.log('⌨️  Press Ctrl+S to save manually');
-    console.log('💾 Auto-save every 5 seconds');
-    
-    // Add save button when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(addSaveButton, 500);
-        if (typeof startAutoSave === 'function') {
-            startAutoSave(5000);
-        }
-    });
-    
-    // Also run immediately if DOM already loaded
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(addSaveButton, 500);
-        if (typeof startAutoSave === 'function') {
-            startAutoSave(5000);
-        }
-    }
-// ============================================================
-// AUTO-REFRESH ON PAGE LOAD (Ctrl+Shift+R effect)
-// ============================================================
-
-// Check if this is the first time loading
-function checkAndRefresh() {
-    const pageId = window.location.pathname.split('/').pop();
-    const key = 'refresh_' + pageId;
-    
-    // Check if we already refreshed this session
-    if (sessionStorage.getItem(key) === 'true') {
-        console.log('🔄 Already refreshed this session');
-        return;
-    }
-    
-    // Mark as refreshed
-    sessionStorage.setItem(key, 'true');
-    
-    // Show loading message
-    const container = document.querySelector('.container') || document.querySelector('#app') || document.body;
-    const msg = document.createElement('div');
-    msg.id = 'refreshMessage';
-    msg.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.85);
-        color: #7cf5b0;
-        padding: 20px 40px;
-        border-radius: 16px;
-        font-size: 18px;
-        font-weight: 700;
-        z-index: 99999;
-        font-family: 'Segoe UI', sans-serif;
-        text-align: center;
-        border: 2px solid #4fc3f7;
-        box-shadow: 0 0 60px rgba(79,195,247,0.2);
-    `;
-    msg.innerHTML = `
-        <div style="font-size: 48px; margin-bottom: 10px;">🔄</div>
-        <div>Refreshing game...</div>
-        <div style="font-size: 12px; color: #666; margin-top: 8px;">Loading latest version</div>
-    `;
-    document.body.appendChild(msg);
-    
-    // Perform a hard refresh (Ctrl+Shift+R equivalent)
-    setTimeout(() => {
-        // Clear all caches
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                for (let name of names) {
-                    caches.delete(name);
-                }
-            });
-        }
-        
-        // Force reload with cache-buster
-        const url = window.location.href.split('?')[0] + '?t=' + Date.now();
-        window.location.replace(url);
-    }, 1000);
-}
-
-// Run on page load
-if (document.readyState === 'complete') {
-    checkAndRefresh();
-} else {
-    document.addEventListener('DOMContentLoaded', checkAndRefresh);
-}
-
-// Also force refresh if user manually clicks
-console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
-</script>
-<script>
-// Modern page lifecycle handling
-document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden') {
-        // Pause or save state
-        console.log('Page hidden – auto-save triggered');
-    }
-});
-window.addEventListener('beforeunload', function(e) {
-    // Final cleanup before unload
-    console.log('Page unloading – saving state');
-});
-</script>
+    <div class="controls">
+        <button onclick="nextWord()"><i class="fas fa-forward"></i> Next Word</button>
+        <button onclick="resetGame()"><i class="fas fa-redo"></i> Restart</button>
+        <button onclick="togglePause()"><i class="fas fa-pause"></i> <span id="pauseLabel">Pause</span></button>
+    </div>
 </div>
+
 <script>
-// High-score & difficulty (auto-save)
-(function() {
-    const gameId = window.location.pathname.split('/').pop().replace('.html','');
-    const highScoreKey = 'highscore_' + gameId;
-    const difficultyKey = 'difficulty_' + gameId;
-    // Load high score
-    let highScore = localStorage.getItem(highScoreKey) || 0;
-    let currentDiff = localStorage.getItem(difficultyKey) || 'medium';
-    // Find score display
-    const scoreEl = document.querySelector('.score, #score, [id*="score"], .points, #points');
-    if (scoreEl) {
-        // Observe score changes
-        const observer = new MutationObserver(() => {
-            const val = parseInt(scoreEl.textContent);
-            if (!isNaN(val) && val > highScore) {
-                highScore = val;
-                localStorage.setItem(highScoreKey, highScore);
-            }
+// ============================================================
+// HANGMAN PRO – Categories, difficulty, hint, high-score
+// ============================================================
+const wordDisplay = document.getElementById('wordDisplay');
+const keyboardEl = document.getElementById('keyboard');
+const scoreEl = document.getElementById('score');
+const bestEl = document.getElementById('bestScore');
+const guessesLeftEl = document.getElementById('guessesLeft');
+const wordsDoneEl = document.getElementById('wordsDone');
+const hintText = document.getElementById('hintText');
+const categoryDisplay = document.getElementById('categoryDisplay');
+const msgEl = document.getElementById('message');
+
+let currentWord = '';
+let displayedWord = [];
+let guessedLetters = [];
+let wrongLetters = [];
+let correctLetters = [];
+let guessesLeft = 6;
+let score = 0;
+let wordsDone = 0;
+let bestScore = 0;
+let difficulty = 'medium';
+let category = 'all';
+let gameOver = false;
+let paused = false;
+let hintUsed = false;
+let wordPool = [];
+
+// ---- Word Bank ----
+const WORDS = {
+    animals: ['elephant', 'giraffe', 'dolphin', 'penguin', 'kangaroo', 'crocodile', 'butterfly', 'cheetah', 'zebra', 'rhinoceros', 'hippopotamus', 'alligator', 'leopard', 'gazelle', 'chimpanzee'],
+    countries: ['australia', 'brazil', 'canada', 'denmark', 'egypt', 'france', 'germany', 'india', 'japan', 'mexico', 'norway', 'peru', 'russia', 'sweden', 'turkey'],
+    food: ['pizza', 'hamburger', 'spaghetti', 'chocolate', 'cheese', 'sandwich', 'sushi', 'tacos', 'pancakes', 'waffles', 'cookies', 'icecream', 'cupcake', 'doughnut', 'pretzel'],
+    movies: ['titanic', 'avatar', 'inception', 'gladiator', 'matrix', 'interstellar', 'jaws', 'rocky', 'casablanca', 'godfather', 'pulp', 'forrest', 'fightclub', 'gravity', 'alien'],
+    science: ['gravity', 'dna', 'electron', 'neutron', 'proton', 'molecule', 'atom', 'quantum', 'nebula', 'cosmos', 'fossil', 'magnet', 'laser', 'robot', 'solar']
+};
+
+const HINTS = {
+    elephant: 'Largest land animal',
+    giraffe: 'Tallest animal',
+    dolphin: 'Intelligent sea mammal',
+    penguin: 'Bird that cannot fly',
+    kangaroo: 'Animal that jumps',
+    crocodile: 'Reptile with powerful jaws',
+    butterfly: 'Insect with colorful wings',
+    cheetah: 'Fastest land animal',
+    zebra: 'Black and white striped animal',
+    rhinoceros: 'Animal with a horn',
+    hippopotamus: 'Large African mammal',
+    alligator: 'Reptile with powerful bite',
+    leopard: 'Big cat with spots',
+    gazelle: 'Swift African antelope',
+    chimpanzee: 'Great ape',
+    australia: 'Continent and country',
+    brazil: 'Largest country in South America',
+    canada: 'Country north of USA',
+    denmark: 'Scandinavian country',
+    egypt: 'Land of pyramids',
+    france: 'Country known for the Eiffel Tower',
+    germany: 'Country known for cars',
+    india: 'Country of the Taj Mahal',
+    japan: 'Country of the Rising Sun',
+    mexico: 'Country known for tacos',
+    norway: 'Country of the fjords',
+    peru: 'Home of Machu Picchu',
+    russia: 'Largest country',
+    sweden: 'Country of the Vikings',
+    turkey: 'Transcontinental country',
+    pizza: 'Italian flatbread',
+    hamburger: 'Ground beef sandwich',
+    spaghetti: 'Italian pasta dish',
+    chocolate: 'Sweet treat from cacao',
+    cheese: 'Dairy product',
+    sandwich: 'Bread with filling',
+    sushi: 'Japanese rice and fish',
+    tacos: 'Mexican folded dish',
+    pancakes: 'Breakfast cakes',
+    waffles: 'Gridded breakfast food',
+    cookies: 'Sweet baked treats',
+    icecream: 'Frozen dessert',
+    cupcake: 'Small cake',
+    doughnut: 'Fried dough ring',
+    pretzel: 'Baked twisty snack',
+    titanic: 'Famous sunken ship',
+    avatar: 'Blue aliens movie',
+    inception: 'Dream within a dream',
+    gladiator: 'Roman empire movie',
+    matrix: 'Virtual reality movie',
+    interstellar: 'Space exploration movie',
+    jaws: 'Shark movie',
+    rocky: 'Boxing movie',
+    casablanca: 'Classic romance film',
+    godfather: 'Mafia movie',
+    pulp: 'Quentin Tarantino film',
+    forrest: 'Life is like a box of chocolates',
+    fightclub: 'First rule: do not talk about it',
+    gravity: 'Space survival film',
+    alien: 'Extraterrestrial horror',
+    dna: 'Genetic code',
+    electron: 'Subatomic particle',
+    neutron: 'Subatomic particle with no charge',
+    proton: 'Positively charged particle',
+    molecule: 'Group of atoms bonded',
+    atom: 'Basic unit of matter',
+    quantum: 'Physics at small scales',
+    nebula: 'Interstellar cloud',
+    cosmos: 'The universe',
+    fossil: 'Remains of ancient life',
+    magnet: 'Metal that attracts iron',
+    laser: 'Concentrated light beam',
+    robot: 'Automated machine',
+    solar: 'Related to the sun'
+};
+
+// Load best score
+(function load() {
+    try {
+        const saved = JSON.parse(localStorage.getItem('hangman_best') || '{}');
+        bestScore = saved[difficulty] || 0;
+        if (bestScore) bestEl.textContent = bestScore;
+        else bestEl.textContent = '-';
+        const diff = localStorage.getItem('hangman_difficulty') || 'medium';
+        difficulty = diff;
+        document.querySelectorAll('.difficulty-selector button').forEach(b => {
+            b.classList.toggle('active', b.dataset.diff === difficulty);
         });
-        observer.observe(scoreEl, { childList: true, subtree: true, characterData: true });
-        // Initial save if score present
-        const initVal = parseInt(scoreEl.textContent);
-        if (!isNaN(initVal) && initVal > highScore) {
-            highScore = initVal;
-            localStorage.setItem(highScoreKey, highScore);
-        }
-        // Display high score
-        const hsEl = document.createElement('div');
-        hsEl.className = 'high-score';
-        hsEl.innerHTML = '🏆 High Score: <span id="highScoreDisplay">' + highScore + '</span>';
-        scoreEl.parentNode.insertBefore(hsEl, scoreEl.nextSibling);
-        // Update display when high score changes
-        window.updateHighScore = function() {
-            document.getElementById('highScoreDisplay').textContent = highScore;
-        };
-    }
-    // Difficulty selector
-    const diffContainer = document.createElement('div');
-    diffContainer.className = 'difficulty-selector';
-    diffContainer.innerHTML = `
-        <button data-diff="easy" class="${currentDiff === 'easy' ? 'active' : ''}">Easy</button>
-        <button data-diff="medium" class="${currentDiff === 'medium' ? 'active' : ''}">Medium</button>
-        <button data-diff="hard" class="${currentDiff === 'hard' ? 'active' : ''}">Hard</button>
-    `;
-    const container = document.querySelector('.game-container') || document.body;
-    const firstChild = container.firstChild;
-    if (firstChild) {
-        container.insertBefore(diffContainer, firstChild.nextSibling);
-    } else {
-        container.appendChild(diffContainer);
-    }
-    diffContainer.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const diff = this.dataset.diff;
-            localStorage.setItem(difficultyKey, diff);
-            diffContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            // Dispatch custom event for game to use
-            window.dispatchEvent(new CustomEvent('difficultyChanged', { detail: { difficulty: diff } }));
-        });
-    });
-    console.log('✅ Game enhanced with high-score & difficulty for', gameId);
+    } catch(e) {}
 })();
+
+function saveBest() {
+    if (score > bestScore) {
+        bestScore = score;
+        const saved = JSON.parse(localStorage.getItem('hangman_best') || '{}');
+        saved[difficulty] = score;
+        localStorage.setItem('hangman_best', JSON.stringify(saved));
+        bestEl.textContent = score;
+    }
+}
+
+function getMaxGuesses() {
+    return { easy: 8, medium: 6, hard: 4 }[difficulty] || 6;
+}
+
+function getWordPool() {
+    let pool = [];
+    if (category === 'all') {
+        for (let key in WORDS) {
+            pool = pool.concat(WORDS[key]);
+        }
+    } else {
+        pool = WORDS[category] || [];
+    }
+    return pool;
+}
+
+// ---- Game Functions ----
+function pickWord() {
+    const pool = getWordPool();
+    if (pool.length === 0) {
+        // fallback
+        return 'hangman';
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function startNewWord() {
+    currentWord = pickWord();
+    displayedWord = currentWord.split('').map(() => '_');
+    guessedLetters = [];
+    wrongLetters = [];
+    correctLetters = [];
+    hintUsed = false;
+    guessesLeft = getMaxGuesses();
+    gameOver = false;
+    document.getElementById('pauseLabel').textContent = 'Pause';
+    msgEl.textContent = '🔤 Guess a letter!';
+    categoryDisplay.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+    hintText.textContent = '💡 ' + (HINTS[currentWord] || 'No hint available');
+    updateUI();
+    renderKeyboard();
+}
+
+function updateUI() {
+    wordDisplay.textContent = displayedWord.join(' ');
+    guessesLeftEl.textContent = guessesLeft;
+    scoreEl.textContent = score;
+    wordsDoneEl.textContent = wordsDone;
+    // Style the word display with animation
+    wordDisplay.innerHTML = displayedWord.map((letter, i) => {
+        if (letter !== '_') {
+            return `<span class="letter-pop">${letter}</span>`;
+        }
+        return '_';
+    }).join(' ');
+}
+
+function renderKeyboard() {
+    keyboardEl.innerHTML = '';
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    letters.split('').forEach(l => {
+        const btn = document.createElement('button');
+        btn.textContent = l;
+        btn.dataset.letter = l;
+        if (guessedLetters.includes(l)) {
+            btn.disabled = true;
+            btn.classList.add('used');
+            if (correctLetters.includes(l)) btn.classList.add('correct');
+            else btn.classList.add('wrong');
+        }
+        btn.addEventListener('click', () => makeGuess(l));
+        keyboardEl.appendChild(btn);
+    });
+}
+
+function makeGuess(letter) {
+    if (gameOver || paused || guessedLetters.includes(letter)) return;
+
+    guessedLetters.push(letter);
+
+    if (currentWord.includes(letter)) {
+        correctLetters.push(letter);
+        // Reveal all occurrences
+        for (let i = 0; i < currentWord.length; i++) {
+            if (currentWord[i] === letter) {
+                displayedWord[i] = letter;
+            }
+        }
+        playSound('correct');
+        msgEl.textContent = `✅ Correct! '${letter}' is in the word!`;
+        updateUI();
+        renderKeyboard();
+
+        // Check win
+        if (!displayedWord.includes('_')) {
+            gameOver = true;
+            const bonus = Math.max(0, guessesLeft * 2);
+            score += 10 + bonus;
+            wordsDone++;
+            scoreEl.textContent = score;
+            saveBest();
+            msgEl.textContent = `🎉 You got it! +${10 + bonus} points!`;
+            playSound('win');
+            renderKeyboard();
+        }
+    } else {
+        wrongLetters.push(letter);
+        guessesLeft--;
+        playSound('wrong');
+        msgEl.textContent = `❌ '${letter}' is not in the word. ${guessesLeft} guesses left.`;
+        updateUI();
+        renderKeyboard();
+
+        if (guessesLeft <= 0) {
+            gameOver = true;
+            msgEl.textContent = `💀 Game Over! The word was "${currentWord}".`;
+            playSound('lose');
+            renderKeyboard();
+        }
+    }
+    saveBest();
+}
+
+function useHint() {
+    if (gameOver || paused || hintUsed) return;
+    // Find an unrevealed letter
+    const unrevealed = [];
+    for (let i = 0; i < currentWord.length; i++) {
+        if (displayedWord[i] === '_') {
+            unrevealed.push(i);
+        }
+    }
+    if (unrevealed.length === 0) return;
+    const idx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+    const letter = currentWord[idx];
+    // Add it as guessed
+    if (!guessedLetters.includes(letter)) {
+        guessedLetters.push(letter);
+        correctLetters.push(letter);
+        displayedWord[idx] = letter;
+        hintUsed = true;
+        playSound('correct');
+        msgEl.textContent = `💡 Hint: '${letter}' revealed!`;
+        updateUI();
+        renderKeyboard();
+        // Check win
+        if (!displayedWord.includes('_')) {
+            gameOver = true;
+            const bonus = Math.max(0, guessesLeft * 2);
+            score += 5 + bonus;
+            wordsDone++;
+            scoreEl.textContent = score;
+            saveBest();
+            msgEl.textContent = `🎉 You got it with a hint! +${5 + bonus} points!`;
+            playSound('win');
+            renderKeyboard();
+        }
+    }
+}
+
+function nextWord() {
+    if (!gameOver) {
+        // If game not over, you can still skip
+        if (!confirm('Skip current word?')) return;
+    }
+    startNewWord();
+}
+
+function resetGame() {
+    if (confirm('Reset all progress?')) {
+        score = 0;
+        wordsDone = 0;
+        bestScore = 0;
+        localStorage.removeItem('hangman_best');
+        bestEl.textContent = '-';
+        startNewWord();
+        msgEl.textContent = '🔄 Reset complete!';
+    }
+}
+
+function togglePause() {
+    if (gameOver) return;
+    paused = !paused;
+    document.getElementById('pauseLabel').textContent = paused ? 'Resume' : 'Pause';
+    msgEl.textContent = paused ? '⏸️ Paused' : '🔤 Guess a letter!';
+}
+
+// ---- Difficulty ----
+document.querySelectorAll('.difficulty-selector button').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.difficulty-selector button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        difficulty = this.dataset.diff;
+        localStorage.setItem('hangman_difficulty', difficulty);
+        // Reload best
+        const saved = JSON.parse(localStorage.getItem('hangman_best') || '{}');
+        bestScore = saved[difficulty] || 0;
+        if (bestScore) bestEl.textContent = bestScore;
+        else bestEl.textContent = '-';
+        startNewWord();
+    });
+});
+
+// ---- Category ----
+document.querySelectorAll('.category-selector button').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.category-selector button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        category = this.dataset.cat;
+        startNewWord();
+    });
+});
+
+// ---- Keyboard Input ----
+document.addEventListener('keydown', (e) => {
+    const key = e.key.toUpperCase();
+    if (key.length === 1 && key >= 'A' && key <= 'Z') {
+        makeGuess(key);
+    }
+    if (e.key === 'p' || e.key === 'P') togglePause();
+    if (e.key === 'r' || e.key === 'R') resetGame();
+    if (e.key === 'n' || e.key === 'N') nextWord();
+});
+
+// ---- Sound ----
+function playSound(type) {
+    try {
+        const ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctxAudio.createOscillator();
+        const gain = ctxAudio.createGain();
+        osc.connect(gain);
+        gain.connect(ctxAudio.destination);
+        if (type === 'correct') {
+            osc.frequency.value = 800;
+            gain.gain.value = 0.06;
+            osc.start();
+            setTimeout(() => { osc.frequency.value = 1000; }, 80);
+            osc.stop(ctxAudio.currentTime + 0.15);
+        } else if (type === 'wrong') {
+            osc.frequency.value = 300;
+            gain.gain.value = 0.06;
+            osc.start();
+            osc.stop(ctxAudio.currentTime + 0.15);
+        } else if (type === 'win') {
+            osc.frequency.value = 600;
+            gain.gain.value = 0.08;
+            osc.start();
+            setTimeout(() => { osc.frequency.value = 800; }, 150);
+            setTimeout(() => { osc.frequency.value = 1000; }, 300);
+            osc.stop(ctxAudio.currentTime + 0.5);
+        } else if (type === 'lose') {
+            osc.frequency.value = 300;
+            gain.gain.value = 0.08;
+            osc.start();
+            setTimeout(() => { osc.frequency.value = 200; }, 100);
+            osc.stop(ctxAudio.currentTime + 0.4);
+        }
+    } catch(e) {}
+}
+
+// ---- Init ----
+startNewWord();
+console.log('🔤 Hangman Pro loaded with categories, difficulty, hints, high-score.');
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,13 +1,157 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-<head><link rel="stylesheet" href="../assets/css/game.css">
+<head>
     <link rel="manifest" href="/launchpad-games/manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Stimulation Overload</title>
-    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #0a0a12; color: #f0f0f0; font-family: 'Segoe UI', system-ui, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 12px; }
+        #app { max-width: 420px; width: 100%; background: rgba(18,16,30,0.95); border-radius: 32px; padding: 20px 18px 18px; border: 1px solid rgba(255,255,255,0.04); box-shadow: 0 20px 60px rgba(0,0,0,0.5); max-height: 98vh; overflow-y: auto; }
+        #app::-webkit-scrollbar { width: 3px; }
+        #app::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 10px; }
+        .back-btn { position: fixed; top: 16px; left: 16px; background: rgba(255,215,0,0.08); color: #ffd700; padding: 10px 18px; border: 1px solid rgba(255,215,0,0.15); border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 13px; z-index: 1000; transition: 0.2s; font-family: 'Segoe UI', sans-serif; }
+        .back-btn:hover { background: rgba(255,215,0,0.15); }
+        .stats { text-align: center; padding: 4px 0 10px; }
+        .stats .points { font-size: 46px; font-weight: 900; color: #f0f0f0; line-height: 1.1; }
+        .stats .points .currency { color: #ffd700; font-size: 28px; }
+        .stats .sub { display: flex; justify-content: center; gap: 12px; margin-top: 4px; font-size: 12px; color: #666; flex-wrap: wrap; }
+        .stats .sub span { background: rgba(255,255,255,0.03); padding: 3px 14px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.03); }
+        .stats .sub .rate-val { color: #66dd88; font-weight: 700; }
+        .level-display { text-align: center; padding: 2px 0 6px; font-size: 13px; color: #8888aa; }
+        .level-display .level-num { color: #ffd700; font-weight: 700; font-size: 17px; }
+        .level-display .level-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 4px; overflow: hidden; }
+        .level-display .level-bar .level-fill { height: 100%; background: linear-gradient(90deg, #ffd700, #f5a623); border-radius: 10px; transition: width 0.4s; width: 0%; }
+        .streak-display { text-align: center; font-size: 12px; color: #ff6b6b; padding: 2px 0 4px; min-height: 22px; font-weight: 600; }
+        .clicker-area { display: flex; justify-content: center; margin: 8px 0 14px; position: relative; }
+        #clickBtn { width: 160px; height: 160px; border-radius: 50%; border: none; background: linear-gradient(145deg, #ffd700, #f5a623); color: #1a1a2e; font-size: 15px; font-weight: 800; box-shadow: 0 10px 0 #b8860b, 0 20px 60px rgba(255,215,0,0.15); cursor: pointer; transition: all 0.08s cubic-bezier(0.34,1.56,0.64,1); display: flex; flex-direction: column; align-items: center; justify-content: center; touch-action: manipulation; font-family: 'Segoe UI', sans-serif; position: relative; }
+        #clickBtn:active { transform: scale(0.87) translateY(6px); box-shadow: 0 4px 0 #b8860b; }
+        #clickBtn .emoji { font-size: 34px; line-height: 1; margin-bottom: 2px; }
+        #clickBtn .label { font-size: 13px; opacity: 0.85; font-weight: 600; }
+        #clickBtn .power { font-size: 11px; opacity: 0.7; background: rgba(0,0,0,0.08); padding: 2px 14px; border-radius: 30px; margin-top: 2px; }
+        #clickBtn.frenzy { background: linear-gradient(145deg, #ff6b6b, #c0392b); box-shadow: 0 10px 0 #78281f, 0 20px 60px rgba(192,57,43,0.25); animation: frenzyPulse 0.25s ease-in-out infinite alternate; }
+        @keyframes frenzyPulse { 0% { transform: scale(1); } 100% { transform: scale(1.04); } }
+        .powerup-container { display: flex; gap: 6px; margin: 4px 0 10px; flex-wrap: wrap; justify-content: center; }
+        .powerup { background: rgba(255,215,0,0.04); border: 1px solid rgba(255,215,0,0.06); border-radius: 30px; padding: 4px 12px; font-size: 11px; color: #8888aa; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: 0.2s; }
+        .powerup:hover:not(.active) { border-color: rgba(255,215,0,0.15); background: rgba(255,215,0,0.06); }
+        .powerup.active { border-color: #ffd700; color: #ffd700; background: rgba(255,215,0,0.08); animation: pulse 1s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .powerup .timer { color: #ff6b6b; font-weight: 700; }
+        .daily-reward { background: rgba(255,215,0,0.04); border: 1px solid rgba(255,215,0,0.06); border-radius: 16px; padding: 10px 14px; margin: 4px 0 10px; display: flex; justify-content: space-between; align-items: center; }
+        .daily-reward .daily-text { font-size: 13px; color: #8888aa; }
+        .daily-reward .daily-text span { color: #ffd700; font-weight: 700; }
+        .daily-reward .daily-text .timer-display { color: #ff6b6b; font-weight: 600; font-size: 12px; }
+        .daily-reward .daily-btn { background: linear-gradient(135deg, #ffd700, #f5a623); border: none; padding: 6px 16px; border-radius: 30px; font-weight: 700; font-size: 12px; color: #1a1a2e; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif; }
+        .daily-reward .daily-btn:active { transform: scale(0.95); }
+        .daily-reward .daily-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .wheel-section { background: rgba(255,215,0,0.04); border-radius: 18px; padding: 12px; margin: 6px 0 10px; border: 1px solid rgba(255,215,0,0.04); text-align: center; }
+        .wheel-section .wheel-btn { padding: 10px 20px; border: none; border-radius: 30px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; background: linear-gradient(135deg, #ffd700, #f5a623); color: #1a1a2e; width: 100%; font-family: 'Segoe UI', sans-serif; }
+        .wheel-section .wheel-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,215,0,0.15); }
+        .wheel-section .wheel-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .wheel-section .wheel-result { margin-top: 6px; font-size: 14px; color: #ffd700; min-height: 24px; font-weight: 600; }
+        .shop { margin-top: 6px; }
+        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .shop-header h2 { font-size: 15px; font-weight: 700; color: #ddd; }
+        .shop-header .grind-meter { font-size: 11px; color: #ff6b6b; background: rgba(255,107,107,0.06); padding: 3px 12px; border-radius: 30px; border: 1px solid rgba(255,107,107,0.04); font-weight: 600; }
+        .upgrade { background: rgba(255,255,255,0.03); border-radius: 16px; padding: 10px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.04); transition: 0.2s; }
+        .upgrade:hover { background: rgba(255,255,255,0.05); }
+        .upgrade .info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+        .upgrade .info .name { font-weight: 700; font-size: 13px; color: #f0f0f0; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+        .upgrade .info .name .badge { font-size: 8px; background: rgba(255,215,0,0.08); padding: 1px 8px; border-radius: 30px; color: #ffd700; border: 1px solid rgba(255,215,0,0.04); font-weight: 600; text-transform: uppercase; }
+        .upgrade .info .desc { font-size: 11px; color: #666; }
+        .upgrade .info .owned { font-size: 11px; color: #ffd700; font-weight: 600; }
+        .upgrade button { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); color: #f0f0f0; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; min-width: 65px; font-family: 'Segoe UI', sans-serif; }
+        .upgrade button:active { transform: scale(0.94); }
+        .upgrade button:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+        .upgrade button:not(:disabled):hover { background: rgba(255,215,0,0.08); border-color: rgba(255,215,0,0.15); color: #ffd700; }
+        .upgrade.special { border-color: rgba(255,215,0,0.06); background: rgba(255,215,0,0.02); }
+        .upgrade.premium { border-color: rgba(108,92,231,0.06); background: rgba(108,92,231,0.02); }
+        .upgrade.premium .info .name { color: #a29bfe; }
+        .upgrade.ultimate { border-color: rgba(255,107,107,0.06); background: rgba(255,107,107,0.02); }
+        .upgrade.ultimate .info .name { color: #ff6b6b; }
+        .slime-section { display: none; background: rgba(52,199,89,0.04); border-radius: 18px; padding: 12px 14px; margin: 6px 0 8px; border: 1px solid rgba(52,199,89,0.06); text-align: center; }
+        .slime-section.visible { display: block; }
+        .slime-section .slime-container { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .slime-pet { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; transition: all 0.2s; position: relative; background: rgba(52,199,89,0.08); border: 2px solid rgba(52,199,89,0.15); }
+        .slime-pet:hover { transform: scale(1.05); }
+        .slime-pet:active { transform: scale(0.9); }
+        .slime-pet .slime-level { position: absolute; bottom: -8px; right: -8px; background: #1a1a2e; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: 700; color: #ffd700; border: 1px solid rgba(255,215,0,0.1); }
+        .slime-pet .slime-name { position: absolute; top: -20px; font-size: 10px; color: #8888aa; font-weight: 600; white-space: nowrap; }
+        .slime-pet.wax { border-color: #ffd700; background: rgba(255,215,0,0.08); box-shadow: 0 0 30px rgba(255,215,0,0.1); }
+        .slime-pet.wax::after { content: '✨'; position: absolute; top: -10px; right: -10px; font-size: 16px; animation: sparkle 1.5s ease-in-out infinite; }
+        @keyframes sparkle { 0%,100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.3) rotate(20deg); } }
+        .slime-pet.bought { border-color: #66dd88; background: rgba(52,199,89,0.12); }
+        .slime-menu { display: none; gap: 6px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+        .slime-menu.visible { display: flex; }
+        .slime-menu button { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: #f0f0f0; padding: 4px 12px; border-radius: 30px; font-weight: 600; font-size: 11px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif; }
+        .slime-menu button:hover { background: rgba(255,255,255,0.08); border-color: #66dd88; }
+        .slime-stats { display: flex; justify-content: center; gap: 12px; margin-top: 8px; font-size: 12px; color: #8888aa; }
+        .slime-stats span { background: rgba(255,255,255,0.03); padding: 3px 12px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.03); }
+        .slime-stats .slime-happy { color: #66dd88; }
+        .slime-stats .slime-hungry { color: #ffd700; }
+        .stock-section { background: rgba(255,215,0,0.04); border-radius: 18px; padding: 12px 14px; margin: 6px 0 10px; border: 1px solid rgba(255,215,0,0.06); display: none; }
+        .stock-section.visible { display: block; }
+        .stock-section .stock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .stock-section .stock-header .stock-title { font-weight: 700; font-size: 13px; color: #ddd; }
+        .stock-section .stock-header .stock-price { font-weight: 700; font-size: 15px; color: #ffd700; }
+        .stock-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 60px; margin: 6px 0; padding: 6px 2px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); }
+        .stock-chart .bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; margin: 0 1px; }
+        .stock-chart .bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 2px; transition: height 0.5s ease; }
+        .stock-chart .bar.up { background: linear-gradient(180deg, #34c759, #28a745); }
+        .stock-chart .bar.down { background: linear-gradient(180deg, #ff3b30, #dc3545); }
+        .stock-asset { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); flex-wrap: wrap; gap: 4px; }
+        .stock-asset:last-child { border-bottom: none; }
+        .stock-asset .asset-name { font-weight: 700; font-size: 13px; color: #ddd; min-width: 40px; }
+        .stock-asset .asset-price { font-weight: 700; font-size: 13px; color: #ffd700; }
+        .stock-asset .asset-change { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 30px; }
+        .stock-asset .asset-change.up { color: #34c759; background: rgba(52,199,89,0.08); }
+        .stock-asset .asset-change.down { color: #ff3b30; background: rgba(255,59,48,0.08); }
+        .stock-asset .asset-shares { font-size: 11px; color: #888; font-weight: 600; }
+        .stock-asset .asset-buttons { display: flex; gap: 4px; }
+        .stock-asset .asset-buttons button { padding: 3px 10px; border: none; border-radius: 30px; font-weight: 700; font-size: 10px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif; }
+        .stock-asset .asset-buttons .buy-btn { background: linear-gradient(135deg, #34c759, #2d8b4e); color: #fff; }
+        .stock-asset .asset-buttons .sell-btn { background: rgba(255,59,48,0.08); color: #ff3b30; border: 1px solid rgba(255,59,48,0.08); }
+        .stock-asset .asset-buttons button:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+        .footer { margin-top: 10px; text-align: center; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 10px; }
+        .footer .flavor { font-size: 11px; color: #444; }
+        .footer .email-link { display: inline-block; margin-top: 4px; color: #ffd700; font-size: 12px; font-weight: 600; text-decoration: none; background: rgba(255,215,0,0.04); padding: 4px 16px; border-radius: 30px; border: 1px solid rgba(255,215,0,0.06); transition: 0.2s; font-family: 'Segoe UI', sans-serif; }
+        .footer .email-link:hover { background: rgba(255,215,0,0.08); }
+        .particle-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+        .particle { position: absolute; font-size: 20px; font-weight: 700; animation: floatUp 1s ease-out forwards; pointer-events: none; text-shadow: 0 0 20px rgba(255,215,0,0.2); }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(0.5) rotate(0deg); } 100% { opacity: 0; transform: translateY(-120px) scale(1.2) rotate(15deg); } }
+        #saveIndicator { text-align: center; font-size: 10px; color: #666; padding: 6px 0; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.03); cursor: default; }
+        #saveIndicator .save-icon { color: #4fc3f7; }
+        #saveIndicator .save-time { color: #888; }
+        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); margin: 4px 0; color: #aaa; font-size: 13px; font-weight: 500; }
+        .settings-toggle { width: 44px; height: 24px; background: #333; border-radius: 30px; cursor: pointer; transition: 0.2s; position: relative; }
+        .settings-toggle.active { background: #ffd700; }
+        .settings-toggle .knob { width: 18px; height: 18px; background: #fff; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.2s; }
+        .settings-toggle.active .knob { left: 23px; }
+        .minigame-btn { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 13px; cursor: pointer; margin: 5px 0 10px; font-family: 'Segoe UI', sans-serif; transition: 0.2s; width: 100%; }
+        .minigame-btn:hover:not(:disabled) { transform: scale(1.02); }
+        .minigame-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .prestige-btn { background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.15); color: #ffd700; padding: 4px 18px; border-radius: 30px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Segoe UI', sans-serif; transition: 0.2s; margin: 2px; }
+        .prestige-btn:hover { background: rgba(255,215,0,0.15); }
+        .reset-btn { background: rgba(255,59,48,0.08); border: 1px solid rgba(255,59,48,0.12); color: #ff3b30; padding: 4px 18px; border-radius: 30px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Segoe UI', sans-serif; transition: 0.2s; margin: 2px; }
+        .reset-btn:hover { background: rgba(255,59,48,0.15); }
+        .footer-buttons { margin-top: 6px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+        .slime-pet-area { background: rgba(255,215,0,0.04); border-radius: 18px; padding: 12px; margin: 6px 0 10px; border: 1px solid rgba(255,215,0,0.06); text-align: center; display: none; }
+        .slime-pet-area.visible { display: block; }
+        .slime-pet-area .pet-emoji { font-size: 48px; cursor: pointer; transition: 0.1s; display: inline-block; }
+        .slime-pet-area .pet-emoji:active { transform: scale(1.3); }
+        .slime-pet-area .pet-name { font-weight: 700; color: #ffd700; }
+        .slime-pet-area .pet-happiness { font-size: 12px; color: #8888aa; }
+        .slime-pet-area .pet-stats { display: flex; justify-content: center; gap: 16px; font-size: 11px; color: #888; margin-top: 4px; }
+        .slime-pet-area .slime-row { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 6px; }
+        .slime-pet-area .slime-item { background: rgba(255,255,255,0.03); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(255,215,0,0.06); cursor: pointer; transition: 0.2s; }
+        .slime-pet-area .slime-item:active { transform: scale(0.95); }
+        .slime-pet-area .slime-item .emoji { font-size: 28px; }
+        .slime-pet-area .slime-item .label { font-size: 10px; color: #888; }
+        @media (max-width:480px) { #app { padding: 14px 12px 12px; border-radius:24px; } #clickBtn { width:130px; height:130px; } #clickBtn .emoji { font-size:28px; } .stats .points { font-size:36px; } .back-btn { font-size:11px; padding:8px 12px; top:10px; left:10px; } .upgrade { padding:8px 10px; } .upgrade button { padding:5px 10px; font-size:11px; min-width:55px; } .stock-chart { height:50px; } .daily-reward { flex-direction:column; gap:8px; text-align:center; } }
+    </style>
 </head>
-<body><div class='game-container'><a href="../base.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Hub</a>
+<body>
     <a href="../base.html" class="back-btn">← Back</a>
     <div id="app">
         <div class="stats">
@@ -19,12 +163,12 @@
         
         <!-- Slime Pet Area -->
         <div class="slime-pet-area" id="slimePetArea">
-            <div class="pet-stats" >
+            <div class="pet-stats" style="margin-bottom:6px;">
                 <span>❤️ Happiness: <span id="petHappiness">0</span>%</span>
                 <span>🎯 Pet count: <span id="petCount">0</span></span>
             </div>
             <div class="slime-row" id="slimeRow"></div>
-            <div >Tap a slime to pet it! ❤️</div>
+            <div style="font-size:10px;color:#666;margin-top:4px;">Tap a slime to pet it! ❤️</div>
         </div>
 
         <div class="powerup-container">
@@ -71,8 +215,20 @@
         <div class="footer">
             <div class="flavor">✨ Your brain is a dopamine factory ✨</div>
             <a href="#" class="email-link">✉️ theyabandtherandomboyoff97@gmail.com</a>
-            <div class="footer-buttons">
-                        <button onclick="saveGame(); alert('💾 Game saved!');" >💾 Manual Save</button>
+            <div class="footer-buttons" style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:10px;">
+                        <button onclick="saveGame(); alert('💾 Game saved!');" style="
+                background: rgba(79,195,247,0.08);
+                border: 1px solid rgba(79,195,247,0.12);
+                color: #4fc3f7;
+                padding: 4px 18px;
+                border-radius: 30px;
+                font-size: 12px;
+                font-weight: 700;
+                cursor: pointer;
+                font-family: 'Segoe UI', sans-serif;
+                transition: 0.2s;
+                margin: 2px;
+            ">💾 Manual Save</button>
                 <button class="prestige-btn" onclick="doPrestige()">🔄 Prestige (✦10,000)</button>
                 <button class="reset-btn" onclick="resetSave()">🗑️ Delete Save</button>
             </div>
@@ -697,15 +853,15 @@ function startQuickTap() {
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;display:flex;justify-content:center;align-items:center;flex-direction:column;padding:20px;animation:fadeIn 0.3s ease;';
     overlay.innerHTML = `
         <div style="background:#1a1a2e;border-radius:24px;padding:30px;max-width:400px;width:100%;text-align:center;border:2px solid rgba(255,215,0,0.1);">
-            <h2 >🎯 Quick Tap Challenge</h2>
-            <p >Tap as fast as you can!</p>
-            <div  id="tapCounter">0</div>
-            <div  id="tapTimer">3s</div>
-            <div >
+            <h2 style="color:#ffd700;margin-bottom:10px;">🎯 Quick Tap Challenge</h2>
+            <p style="color:#888;margin-bottom:15px;">Tap as fast as you can!</p>
+            <div style="font-size:72px;margin:15px 0;" id="tapCounter">0</div>
+            <div style="font-size:24px;color:#ff6b6b;margin-bottom:10px;" id="tapTimer">3s</div>
+            <div style="display:flex;gap:10px;justify-content:center;">
                 <button id="tapBtn" style="background:linear-gradient(135deg,#ffd700,#f5a623);border:none;padding:15px 40px;border-radius:30px;font-weight:700;font-size:18px;color:#1a1a2e;cursor:pointer;font-family:'Segoe UI',sans-serif;">👆 TAP!</button>
                 <button onclick="this.closest('#minigameOverlay').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:15px 20px;border-radius:30px;color:#888;cursor:pointer;font-size:14px;font-family:'Segoe UI',sans-serif;">✕ Close</button>
             </div>
-            <div id="tapResult" ></div>
+            <div id="tapResult" style="margin-top:10px;color:#7cf5b0;font-weight:700;"></div>
         </div>
     `;
     document.body.appendChild(overlay);
@@ -1420,9 +1576,9 @@ function checkAndRefresh() {
         box-shadow: 0 0 60px rgba(79,195,247,0.2);
     `;
     msg.innerHTML = `
-        <div >🔄</div>
+        <div style="font-size: 48px; margin-bottom: 10px;">🔄</div>
         <div>Refreshing game...</div>
-        <div >Loading latest version</div>
+        <div style="font-size: 12px; color: #666; margin-top: 8px;">Loading latest version</div>
     `;
     document.body.appendChild(msg);
     
@@ -1453,10 +1609,8 @@ if (document.readyState === 'complete') {
 // Also force refresh if user manually clicks
 console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </script>
-</div></body>
+</body>
 </html>
-
-
 
 
 

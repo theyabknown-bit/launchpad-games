@@ -12,113 +12,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⛏️ ASTRITO · book upgrades</title>
-    <style>
-        * { margin: 0; box-sizing: border-box; user-select: none; }
-        body {
-            min-height: 100vh;
-            background: radial-gradient(circle at 20% 20%, #0b111f, #03050a);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            padding: 1rem;
-        }
-        .game-wrapper {
-            background: #0f1422;
-            padding: 1.5rem 2rem 2rem;
-            border-radius: 3rem 3rem 2rem 2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.04);
-            max-width: 1000px;
-        }
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 12px;
-            color: #4fc3f7;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: 0.2s;
-        }
-        .back-btn:hover { color: #7cf5b0; transform: translateX(-4px); }
-        canvas {
-            display: block;
-            width: 100%;
-            height: auto;
-            aspect-ratio: 800 / 600;
-            background: #0a0e1a;
-            border-radius: 24px;
-            box-shadow: inset 0 0 40px rgba(0,20,40,0.8), 0 8px 32px #00000080;
-            cursor: crosshair;
-            touch-action: none;
-        }
-        .panel {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 1.2rem;
-            color: #b4d0ff;
-            text-shadow: 0 2px 3px #00000080;
-            font-weight: 500;
-            gap: 0.6rem 1rem;
-        }
-        .stats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem 1.8rem;
-            background: #1a2238;
-            padding: 0.4rem 1.4rem;
-            border-radius: 40px;
-            box-shadow: inset 0 2px 6px #00000066, 0 2px 0 #3a4a6a;
-        }
-        .stat-item { display: flex; align-items: center; gap: 0.3rem; font-size: 1rem; }
-        .stat-item span { font-weight: 600; color: #e0f0ff; min-width: 2.2rem; }
-        .upgrade-area {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            align-items: center;
-        }
-        button {
-            background: #1f2b44;
-            border: none;
-            color: #d6eaff;
-            font-weight: 600;
-            font-size: 0.8rem;
-            padding: 0.3rem 1rem;
-            border-radius: 40px;
-            box-shadow: inset 0 -3px 0 #0b111f, 0 4px 10px #00000055;
-            transition: all 0.08s ease;
-            cursor: pointer;
-            border: 1px solid #3e527a30;
-            white-space: nowrap;
-        }
-        button:hover:not(:disabled) { background: #2a3b5e; transform: scale(0.97); }
-        button:active:not(:disabled) { transform: scale(0.92); box-shadow: inset 0 2px 6px #000000aa; }
-        button:disabled { opacity: 0.4; filter: grayscale(0.5); cursor: not-allowed; transform: none; }
-        .reset-btn { background: #3d2c3a; border-color: #6a4a5a; }
-        .reset-btn:hover:not(:disabled) { background: #5a3f4e; }
-        .status {
-            color: #7c9bd6;
-            font-size: 0.8rem;
-            background: #111a2b;
-            padding: 0.2rem 1rem;
-            border-radius: 30px;
-            border-left: 2px solid #3b5a8a;
-        }
-        .save-indicator {
-            font-size: 0.7rem;
-            color: #4a6a8a;
-            text-align: center;
-            margin-top: 6px;
-        }
-        @media (max-width: 700px) {
-            .game-wrapper { padding: 0.8rem; }
-            .stats { padding: 0.3rem 0.8rem; gap: 0.3rem 0.8rem; }
-            .stat-item { font-size: 0.8rem; }
-            button { font-size: 0.7rem; padding: 0.2rem 0.7rem; }
-        }
-    </style>
+    
 <script>
 // Suppress unload violation warnings
 (function() {
@@ -1158,6 +1052,7 @@ console.log('🔄 Auto-refresh ready - Ctrl+Shift+R will force reload');
 </div>
 </body>
 </html>
+
 
 
 
